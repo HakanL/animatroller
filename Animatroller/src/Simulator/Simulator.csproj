@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5CA4EE12-DD7F-49D0-9079-41EE3B067FCE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Animatroller.Simulator</RootNamespace>
+    <AssemblyName>Simulator</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Control\CenterControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\CenterControl.Designer.cs">
+      <DependentUpon>CenterControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\ModuleControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\ModuleControl.Designer.cs">
+      <DependentUpon>ModuleControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\LedBulb.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Control\Motor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\Motor.Designer.cs">
+      <DependentUpon>Motor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\RopeLight.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\RopeLight.Designer.cs">
+      <DependentUpon>RopeLight.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Control\SimpleBulb.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Control\StrobeBulb.cs" />
+    <Compile Include="Control\StrobeBulb.Designer.cs">
+      <DependentUpon>StrobeBulb.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TestPixel1D.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Interfaces.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SimulatorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SimulatorForm.Designer.cs">
+      <DependentUpon>SimulatorForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TestLight.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Control\CenterControl.resx">
+      <DependentUpon>CenterControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\ModuleControl.resx">
+      <DependentUpon>ModuleControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\Motor.resx">
+      <DependentUpon>Motor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\RopeLight.resx">
+      <DependentUpon>RopeLight.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\StrobeBulb.resx">
+      <DependentUpon>StrobeBulb.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SimulatorForm.resx">
+      <DependentUpon>SimulatorForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\Framework.csproj">
+      <Project>{97c48505-a92a-4fbd-b39c-bbb014aef34b}</Project>
+      <Name>Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
