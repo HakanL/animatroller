@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{97C48505-A92A-4FBD-B39C-BBB014AEF34B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Animatroller.Framework</RootNamespace>
+    <AssemblyName>Animatroller</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Expander\PacketManager.cs" />
+    <Compile Include="Expander\DMXPro.cs" />
+    <Compile Include="Interface\ICanExecute.cs" />
+    <Compile Include="Interface\IRunnable.cs" />
+    <Compile Include="LogicalDevice\ColorBrightness.cs" />
+    <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
+    <Compile Include="LogicalDevice\Event\PixelChanged.cs" />
+    <Compile Include="LogicalDevice\Pixel1D.cs" />
+    <Compile Include="LogicalDevice\Event\OpenHoursChanged.cs" />
+    <Compile Include="LogicalDevice\OperatingHours.cs" />
+    <Compile Include="PhysicalDevice\PixelRope.cs" />
+    <Compile Include="PhysicalDevice\PixelRGB.cs" />
+    <Compile Include="PhysicalDevice\SmallRGBStrobe.cs" />
+    <Compile Include="Sequence.cs" />
+    <Compile Include="Utility\ColorSpace.cs" />
+    <Compile Include="Effect\BaseEffect.cs" />
+    <Compile Include="Effect\Effects.cs" />
+    <Compile Include="Effect\Interface.cs" />
+    <Compile Include="StateMachine.cs" />
+    <Compile Include="Utility\Enum.cs" />
+    <Compile Include="Interface\IScene.cs" />
+    <Compile Include="LogicalDevice\AudioPlayer.cs" />
+    <Compile Include="LogicalDevice\ColorDimmer.cs" />
+    <Compile Include="LogicalDevice\DigitalInput.cs" />
+    <Compile Include="LogicalDevice\Dimmer.cs" />
+    <Compile Include="LogicalDevice\Event\SpeedTargetChanged.cs" />
+    <Compile Include="LogicalDevice\Interface\DeviceTypes.cs" />
+    <Compile Include="LogicalDevice\Motor.cs" />
+    <Compile Include="LogicalDevice\MotorWithFeedback.cs" />
+    <Compile Include="Effect\Sweeper.cs" />
+    <Compile Include="PhysicalDevice\DigitalOutput.cs" />
+    <Compile Include="PhysicalDevice\DigitalInput.cs" />
+    <Compile Include="PhysicalDevice\Event\MotorController.cs" />
+    <Compile Include="PhysicalDevice\Interface\IOutputDevice.cs" />
+    <Compile Include="PhysicalDevice\MotorWithFeedback.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseDevice.cs" />
+    <Compile Include="Interface\IDevice.cs" />
+    <Compile Include="LogicalDevice\Event\MotorStatusChanged.cs" />
+    <Compile Include="LogicalDevice\Event\SpeedChanged.cs" />
+    <Compile Include="LogicalDevice\Event\BrightnessChanged.cs" />
+    <Compile Include="LogicalDevice\Event\ColorChanged.cs" />
+    <Compile Include="LogicalDevice\Event\StateChanged.cs" />
+    <Compile Include="LogicalDevice\Event\StrobeSpeedChanged.cs" />
+    <Compile Include="LogicalDevice\Switch.cs" />
+    <Compile Include="LogicalDevice\Interface\IStrobe.cs" />
+    <Compile Include="LogicalDevice\StrobeColorDimmer.cs" />
+    <Compile Include="LogicalDevice\StrobeDimmer.cs" />
+    <Compile Include="LogicalDevice\Interface\IOutput.cs" />
+    <Compile Include="Utility\Extensions.cs" />
+    <Compile Include="PhysicalDevice\AmericanDJStrobe.cs" />
+    <Compile Include="PhysicalDevice\Motor.cs" />
+    <Compile Include="PhysicalDevice\GenericDimmer.cs" />
+    <Compile Include="PhysicalDevice\RGBStrobe.cs" />
+    <Compile Include="Expander\SerialController.cs" />
+    <Compile Include="PhysicalDevice\NetworkAudioPlayer.cs" />
+    <Compile Include="Executor.cs" />
+    <Compile Include="Expander\IOExpander.cs" />
+    <Compile Include="Interface\IPort.cs" />
+    <Compile Include="Interface\ISequence.cs" />
+    <Compile Include="Expander\LineManager.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Effect\Transformer.cs" />
+    <Compile Include="Timeline.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
