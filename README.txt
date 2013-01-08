@@ -1,5 +1,11 @@
 Animatronics, Halloween and Holiday Lights Controller Software in C#
 
+Main page: http://www.animatroller.com
+Forums: http://animatroller.vanillaforfree.com
+
+
+
+
 
 License
 (The MIT License)
