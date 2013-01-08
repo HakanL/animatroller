@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Animatroller.AudioTrigger.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="BackgroundMusicPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">..\..\Audio\Background</Value>
+    </Setting>
+    <Setting Name="FXPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">..\..\Audio\FX</Value>
+    </Setting>
+    <Setting Name="TracksPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">..\..\Audio\Tracks</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
