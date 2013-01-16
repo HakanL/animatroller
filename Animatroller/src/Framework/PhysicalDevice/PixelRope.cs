@@ -25,7 +25,7 @@ namespace Animatroller.Framework.PhysicalDevice
                     {
                         try
                         {
-                            PixelOutputPort.SendPixelValue(e.Channel, color.R, color.G, color.B);
+                            PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
                         }
                         finally
                         {
@@ -33,23 +33,19 @@ namespace Animatroller.Framework.PhysicalDevice
                         }
                     }
                     else
-                        Console.WriteLine("Missed PixelChanged in PixelRobe");
+                        Console.WriteLine("Missed PixelChanged in PixelRope");
                 };
 
             logicalDevice.MultiPixelChanged += (sender, e) =>
                 {
-                    byte[] values = new byte[e.NewValues.Length * 4 - 1];
+                    var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
                     for (int i = 0; i < e.NewValues.Length; i++)
                     {
                         var hsv = new HSV(e.NewValues[i].Color);
                         hsv.Value = hsv.Value * e.NewValues[i].Brightness;
                         var color = hsv.Color;
 
-                        values[i * 4 + 0] = color.R;
-                        values[i * 4 + 1] = color.G;
-                        values[i * 4 + 2] = color.B;
-                        if (i < e.NewValues.Length - 1)
-                            values[i * 4 + 3] = 32;     // Delimiter
+                        values[i] = new PixelRGBByte(color.R, color.G, color.B);
                     }
 
                     if (System.Threading.Monitor.TryEnter(lockObject))

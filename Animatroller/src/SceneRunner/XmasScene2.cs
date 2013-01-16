@@ -24,6 +24,7 @@ namespace Animatroller.SceneRunner
 
         protected OperatingHours hours = new OperatingHours("Hours");
         protected Pixel1D testPixels = new Pixel1D("G35", 50);
+        protected Pixel1D testPixels2 = new Pixel1D("Strip60", 60);
         protected Dimmer lightNetRight = new Dimmer("Net Right");
         protected Dimmer lightGarlandRight = new Dimmer("Garland Right");
         protected Dimmer lightHatsRight = new Dimmer("Hats Right");
@@ -402,10 +403,13 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Expander.AcnStream port)
         {
-            port.Connect(new Physical.GenericDimmer(lightNetRight, 181), 3);
-            port.Connect(new Physical.GenericDimmer(lightHatsRight, 182), 3);
+            port.Connect(new Physical.GenericDimmer(lightNetRight, 181), 7);
+            port.Connect(new Physical.GenericDimmer(lightHatsRight, 182), 7);
 
-            port.JoinDmxUniverse(1);
+            port.Connect(new Physical.PixelRope(testPixels2), 3, 400);
+            port.Connect(new Physical.PixelRope(testPixels), 2, 91);
+
+//            port.JoinDmxUniverse(1);
         }
 
         private void EverythingOff()
@@ -438,6 +442,13 @@ namespace Animatroller.SceneRunner
             lightCeiling2.TurnOff();
             lightCeiling3.TurnOff();
             lightVader.TurnOff();
+        }
+
+        private void TestAllPixels(Color color, double brightness, TimeSpan delay)
+        {
+            testPixels.SetAll(color, brightness);
+            testPixels2.SetAll(color, brightness);
+            System.Threading.Thread.Sleep(delay);
         }
 
         public override void Start()
@@ -653,6 +664,7 @@ namespace Animatroller.SceneRunner
                 .SetUp(() =>
                     {
                         testPixels.TurnOff();
+                        testPixels2.TurnOff();
                     })
                 .Execute(instance =>
                 {
@@ -666,9 +678,10 @@ namespace Animatroller.SceneRunner
                     cb[4] = new ColorBrightness(Color.Blue, 1.0);
                     cb[5] = new ColorBrightness(Color.White, 1.0);
 
-                    for (int i = -6; i < 50; i++)
+                    for (int i = -6; i < testPixels2.Pixels; i++)
                     {
                         testPixels.SetColors(i, cb);
+                        testPixels2.SetColors(i, cb);
                         System.Threading.Thread.Sleep(25);
                     }
 
@@ -677,6 +690,7 @@ namespace Animatroller.SceneRunner
                 .TearDown(() =>
                     {
                         testPixels.TurnOff();
+                        testPixels2.TurnOff();
                     });
 
             stateMachine.ForFromSequence(States.Background, backgroundLoop);
@@ -696,9 +710,23 @@ namespace Animatroller.SceneRunner
                         bigReindeer.SetPower(true);
                     else
                     {
-                        testPixels.SetAll(Color.Blue, 1.0);
-                        System.Threading.Thread.Sleep(3000);
+                        TestAllPixels(Color.Red, 1.0, Seconds(1));
+                        TestAllPixels(Color.Red, 0.5, Seconds(1));
+
+                        TestAllPixels(Color.Green, 1.0, Seconds(1));
+                        TestAllPixels(Color.Green, 0.5, Seconds(1));
+
+                        TestAllPixels(Color.Blue, 1.0, Seconds(1));
+                        TestAllPixels(Color.Blue, 0.5, Seconds(1));
+
+                        TestAllPixels(Color.Purple, 1.0, Seconds(1));
+                        TestAllPixels(Color.Purple, 0.5, Seconds(1));
+
+                        TestAllPixels(Color.White, 1.0, Seconds(1));
+                        TestAllPixels(Color.White, 0.5, Seconds(1));
+
                         testPixels.TurnOff();
+                        testPixels2.TurnOff();
                     }
                 };
 

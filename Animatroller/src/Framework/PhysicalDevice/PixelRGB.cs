@@ -18,7 +18,7 @@ namespace Animatroller.Framework.PhysicalDevice
                     hsv.Value = hsv.Value * e.NewBrightness;
                     var color = hsv.Color;
 
-                    PixelOutputPort.SendPixelValue(channel, color.R, color.G, color.B);
+                    PixelOutputPort.SendPixelValue(channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
                 };
         }
     }

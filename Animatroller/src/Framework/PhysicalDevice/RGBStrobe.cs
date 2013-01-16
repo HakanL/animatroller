@@ -18,7 +18,7 @@ namespace Animatroller.Framework.PhysicalDevice
                     hsv.Value = hsv.Value * e.NewBrightness;
                     var color = hsv.Color;
 
-                    DmxOutputPort.SendDimmerValues(dmxChannel, color.R, color.G, color.B);
+                    DmxOutputPort.SendDimmerValues(dmxChannel, new byte[] { color.R, color.G, color.B });
                 };
         }
 

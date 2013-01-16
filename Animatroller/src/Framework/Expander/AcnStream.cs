@@ -18,6 +18,89 @@ namespace Animatroller.Framework.Expander
 {
     public class AcnStream : IPort, IRunnable
     {
+        protected class AcnPixelUniverse : IPixelOutput
+        {
+            private object lockObject = new object();
+            private AcnStream acnStream;
+            private Dictionary<int, AcnUniverse> acnUniverses;
+            private int startUniverse;
+            private int startDmxChannel;
+
+            public AcnPixelUniverse(AcnStream acnStream, int startUniverse, int startDmxChannel)
+            {
+                this.acnStream = acnStream;
+                this.startUniverse = startUniverse;
+                this.startDmxChannel = startDmxChannel;
+
+                this.acnUniverses = new Dictionary<int, AcnUniverse>();
+            }
+
+            protected AcnUniverse GetAcnUniverse(int universe)
+            {
+                AcnUniverse acnUniverse;
+                lock (lockObject)
+                {
+                    if (!this.acnUniverses.TryGetValue(universe, out acnUniverse))
+                    {
+                        acnUniverse = this.acnStream.GetSendingUniverse(universe);
+                        this.acnUniverses.Add(universe, acnUniverse);
+                    }
+                }
+
+                return acnUniverse;
+            }
+
+            public SendStatus SendPixelValue(int channel, PixelRGBByte rgb)
+            {
+                var values = new byte[3];
+                values[0] = rgb.R;
+                values[1] = rgb.G;
+                values[2] = rgb.B;
+
+                // Max 510 RGB values per universe
+                int universe = (this.startDmxChannel + (channel * 3)) / 510;
+                int localStart = (this.startDmxChannel + (channel *3)) % 510;
+
+                var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
+
+                return acnUniverse.SendDimmerValues(localStart, values, 0, 3);
+            }
+
+            public SendStatus SendPixelsValue(int channel, PixelRGBByte[] rgb)
+            {
+                // Max 510 RGB values per universe
+                int universe = (this.startDmxChannel + (channel * 3)) / 510;
+                int localStart = (this.startDmxChannel + (channel * 3)) % 510;
+
+                var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
+
+                int chn = 0;
+                var values = new byte[3 * rgb.Length];
+                foreach (var rgbValue in rgb)
+                {
+                    values[chn++] = rgbValue.R;
+                    values[chn++] = rgbValue.G;
+                    values[chn++] = rgbValue.B;
+
+                    if (chn + localStart > 510)
+                    {
+                        acnUniverse.SendDimmerValues(localStart, values, 0, chn);
+
+                        // Get next universe
+                        chn = 0;
+                        universe++;
+                        localStart = 1;
+                        acnUniverse = GetAcnUniverse(this.startUniverse + universe);
+                    }
+                }
+
+                if (chn > 0)
+                    acnUniverse.SendDimmerValues(localStart, values, 0, chn);
+
+                return SendStatus.NotSet;
+            }
+        }
+
         protected class AcnUniverse : IDmxOutput, IDisposable
         {
             private int universe;
@@ -45,15 +128,22 @@ namespace Animatroller.Framework.Expander
                 return SendStatus.NotSet;
             }
 
-            public SendStatus SendDimmerValues(int firstChannel, params byte[] values)
+            public SendStatus SendDimmerValues(int firstChannel, byte[] values)
             {
-                for (int i = 0; i < values.Length; i++)
+                return SendDimmerValues(firstChannel, values, 0, values.Length);
+            }
+
+            public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
+            {
+                for (int i = 0; i < length; i++)
                 {
                     int chn = firstChannel + i;
                     if (chn >= 1 && chn <= 512)
-                        this.dmxUniverse.DmxData[chn - 1] = values[i];
+                        this.dmxUniverse.DmxData[chn] = values[offset + i];
                 }
 
+                // Force a send
+                this.dmxUniverse.SetDmx(0, this.dmxUniverse.DmxData[0]);
                 return SendStatus.NotSet;
             }
         }
@@ -112,6 +202,11 @@ namespace Animatroller.Framework.Expander
             return acnUniverse;
         }
 
+        protected AcnPixelUniverse GetPixelSendingUniverse(int startUniverse, int startDmxChannel)
+        {
+            return new AcnPixelUniverse(this, startUniverse, startDmxChannel);
+        }
+
         private IPAddress GetFirstBindAddress()
         {
             foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
@@ -138,6 +233,13 @@ namespace Animatroller.Framework.Expander
             return this;
         }
 
+        public AcnStream Connect(PhysicalDevice.INeedsPixelOutput device, int startUniverse, int startDmxChannel)
+        {
+            device.PixelOutputPort = GetPixelSendingUniverse(startUniverse, startDmxChannel);
+
+            return this;
+        }
+
         public void Start()
         {
             this.dmxStreamer.Start();
@@ -145,7 +247,7 @@ namespace Animatroller.Framework.Expander
 
         public void Stop()
         {
-            lock(this.lockObject)
+            lock (this.lockObject)
             {
                 foreach (var sendingUniverse in this.sendingUniverses.Values)
                     sendingUniverse.Dispose();

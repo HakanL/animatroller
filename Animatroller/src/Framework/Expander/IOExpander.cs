@@ -183,11 +183,16 @@ namespace Animatroller.Framework.Expander
             return SendStatus.NotSet;
         }
 
-        public SendStatus SendDimmerValues(int firstChannel, params byte[] values)
+        public SendStatus SendDimmerValues(int firstChannel, byte[] values)
         {
-            for (int i = 0; i < values.Length; i++)
+            return SendDimmerValues(firstChannel, values, 0, values.Length);
+        }
+
+        public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
+        {
+            for (int i = 0; i < length; i++)
             {
-                SendSerialCommand(string.Format("L,{0},{1}", firstChannel + i, values[i]));
+                SendSerialCommand(string.Format("L,{0},{1}", firstChannel + i, values[offset + i]));
             }
 
             return SendStatus.NotSet;
@@ -207,7 +212,7 @@ namespace Animatroller.Framework.Expander
             return this;
         }
 
-        public SendStatus SendPixelValue(int channel, byte r, byte g, byte b)
+        public SendStatus SendPixelValue(int channel, PhysicalDevice.PixelRGBByte rgb)
         {
             int dataOffset = 1 + channel * 4;
             lock (lockObject)
@@ -215,9 +220,9 @@ namespace Animatroller.Framework.Expander
                 if (!this.changedPixels.Any())
                     this.firstChange.Restart();
 
-                this.pixelData[dataOffset + 0] = r;
-                this.pixelData[dataOffset + 1] = g;
-                this.pixelData[dataOffset + 2] = b;
+                this.pixelData[dataOffset + 0] = rgb.R;
+                this.pixelData[dataOffset + 1] = rgb.G;
+                this.pixelData[dataOffset + 2] = rgb.B;
 
                 this.changedPixels.Add((byte)channel);
                 receivedUpdates++;
@@ -226,7 +231,7 @@ namespace Animatroller.Framework.Expander
             return SendStatus.NotSet;
         }
 
-        public SendStatus SendPixelsValue(int startChannel, byte[] rgbx)
+        public SendStatus SendPixelsValue(int startChannel, PhysicalDevice.PixelRGBByte[] rgb)
         {
             lock (lockObject)
             {
@@ -234,13 +239,13 @@ namespace Animatroller.Framework.Expander
                     this.firstChange.Restart();
 
                 int readOffset = 0;
-                for (int i = 0; i < (int)(rgbx.Length / 4 + 1); i++)
+                for (int i = 0; i < rgb.Length; i++)
                 {
                     int dataOffset = 1 + (startChannel + i) * 4;
 
-                    this.pixelData[dataOffset + 0] = rgbx[readOffset++];
-                    this.pixelData[dataOffset + 1] = rgbx[readOffset++];
-                    this.pixelData[dataOffset + 2] = rgbx[readOffset++];
+                    this.pixelData[dataOffset + 0] = rgb[readOffset].R;
+                    this.pixelData[dataOffset + 1] = rgb[readOffset].G;
+                    this.pixelData[dataOffset + 2] = rgb[readOffset].B;
                     readOffset++;
 
                     this.changedPixels.Add((byte)(startChannel + i));

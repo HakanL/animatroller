@@ -13,13 +13,14 @@ namespace Animatroller.Framework
     public interface IDmxOutput : IPort
     {
         SendStatus SendDimmerValue(int channel, byte value);
-        SendStatus SendDimmerValues(int firstChannel, params byte[] values);
+        SendStatus SendDimmerValues(int firstChannel, byte[] values);
+        SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length);
     }
 
     public interface IPixelOutput : IPort
     {
-        SendStatus SendPixelValue(int channel, byte r, byte g, byte b);
-        SendStatus SendPixelsValue(int channel, byte[] rgb);
+        SendStatus SendPixelValue(int channel, PhysicalDevice.PixelRGBByte rgb);
+        SendStatus SendPixelsValue(int channel, PhysicalDevice.PixelRGBByte[] rgb);
     }
 
     public interface IDigitalInput : IPort

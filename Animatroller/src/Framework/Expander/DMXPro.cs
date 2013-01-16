@@ -146,10 +146,15 @@ namespace Animatroller.Framework.Expander
 
         public SendStatus SendDimmerValue(int channel, byte value)
         {
-            return SendDimmerValues(channel, value);
+            return SendDimmerValues(channel, new byte[] { value }, 0, 1);
         }
 
-        public SendStatus SendDimmerValues(int firstChannel, params byte[] values)
+        public SendStatus SendDimmerValues(int firstChannel, byte[] values)
+        {
+            return SendDimmerValues(firstChannel, values, 0, values.Length);
+        }
+
+        public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
         {
             if (!foundDmxPro)
                 throw new ArgumentException("No DMX Pro found");
@@ -157,8 +162,8 @@ namespace Animatroller.Framework.Expander
             if (firstChannel < 1 || firstChannel + values.Length - 1 > 512)
                 throw new ArgumentOutOfRangeException("Invalid first channel (1-512)");
 
-            for(int i = 0; i < values.Length; i++)
-                this.dmxData[firstChannel + i] = values[i];
+            for(int i = 0; i < length; i++)
+                this.dmxData[firstChannel + i] = values[offset + i];
 
             DataChanged();
 
