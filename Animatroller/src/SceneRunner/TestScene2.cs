@@ -7,7 +7,7 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestScene2 : IScene
+    internal class TestScene2 : BaseScene
     {
         protected StrobeColorDimmer candyLight = new StrobeColorDimmer("Candy Light");
         protected StrobeColorDimmer candyLight2 = new StrobeColorDimmer("Candy Light 2");
@@ -24,9 +24,9 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.Connect(new Animatroller.Simulator.TestLight(candyLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(candyLight2));
             sim.AddDigitalInput_Momentarily(pressureMat);
+
+            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(IOExpander port)
@@ -40,7 +40,7 @@ namespace Animatroller.SceneRunner
             port.Connect(new Animatroller.Framework.PhysicalDevice.SmallRGBStrobe(candyLight, 16));
         }
 
-        public void Start()
+        public override void Start()
         {
             // Set color
             candyLight.SetColor(Color.Violet, 0);
@@ -79,11 +79,11 @@ namespace Animatroller.SceneRunner
                 .AddDevice(candyLight2);
         }
 
-        public void Run()
+        public override void Run()
         {
         }
 
-        public void Stop()
+        public override void Stop()
         {
         }
     }

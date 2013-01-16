@@ -11,7 +11,7 @@ using Animatroller.Framework.Expander;
 
 namespace Animatroller.SceneRunner
 {
-    internal class HalloweenScene : IScene
+    internal class HalloweenScene : BaseScene
     {
         protected OperatingHours hours = new OperatingHours("Hours");
         protected StrobeDimmer georgeStrobeLight = new StrobeDimmer("George Strobe");
@@ -54,22 +54,10 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.Connect(new Animatroller.Simulator.TestLight(georgeStrobeLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(spiderLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(skullsLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(cobWebLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(blinkyEyesLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLightRight));
-            sim.Connect(new Animatroller.Simulator.TestLight(georgeLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(leftSkeletonLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(candyLight));
-
             sim.AddDigitalInput_Momentarily(pressureMat);
             sim.AddDigitalInput_Momentarily(testButton);
-            sim.AddDigitalOutput(spiderLift);
-            sim.AddDigitalOutput(smokeMachine);
-            sim.AddDigitalOutput(spiderEyes);
-            sim.AddMotor(georgeMotor);
+
+            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(IOExpander port)
@@ -106,7 +94,7 @@ namespace Animatroller.SceneRunner
             port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(leftSkeletonLight, 40));
         }
 
-        public void Start()
+        public override void Start()
         {
             var testSequence = new Sequence("Test Sequence");
             testSequence
@@ -311,11 +299,11 @@ namespace Animatroller.SceneRunner
             flickerEffect.AddDevice(skullsLight);
         }
 
-        public void Run()
+        public override void Run()
         {
         }
 
-        public void Stop()
+        public override void Stop()
         {
         }
     }

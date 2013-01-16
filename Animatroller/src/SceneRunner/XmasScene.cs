@@ -11,7 +11,7 @@ using Animatroller.Framework.Extensions;
 
 namespace Animatroller.SceneRunner
 {
-    internal class XmasScene : IScene
+    internal class XmasScene : BaseScene
     {
         protected Pixel1D testPixels = new Pixel1D("G35", 50);
         protected Dimmer explosion1 = new Dimmer("Explosion 1");
@@ -41,6 +41,8 @@ namespace Animatroller.SceneRunner
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
             sim.AddDigitalInput_Momentarily(testButton);
+
+            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(IOExpander port)
@@ -58,7 +60,7 @@ namespace Animatroller.SceneRunner
             //            port.Connect(new Animatroller.Framework.PhysicalDevice.SmallRGBStrobe(candyLight, 16));
         }
 
-        public void Start()
+        public override void Start()
         {
             var explosion = new Sequence("Explosion");
             explosion.WhenExecuted
@@ -134,11 +136,11 @@ namespace Animatroller.SceneRunner
             };
         }
 
-        public void Run()
+        public override void Run()
         {
         }
 
-        public void Stop()
+        public override void Stop()
         {
         }
     }

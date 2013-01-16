@@ -13,7 +13,7 @@ using Animatroller.Framework.Extensions;
 
 namespace Animatroller.SceneRunner
 {
-    internal class XmasScene2 : IScene
+    internal class XmasScene2 : BaseScene
     {
         public enum States
         {
@@ -84,20 +84,20 @@ namespace Animatroller.SceneRunner
                 hours.AddRange("5:00 am", "7:00 am");
             }
 
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", TimeSpan.FromSeconds(2), 0.3, 1.0, false);
-            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", TimeSpan.FromSeconds(2), 0.3, 1.0, false);
+            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", Seconds(2), 0.3, 1.0, false);
+            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", Seconds(2), 0.3, 1.0, false);
 
-            popOutPiano = new Effect.PopOut("Piano", TimeSpan.FromSeconds(0.4));
-            popOutDrums = new Effect.PopOut("Drums", TimeSpan.FromSeconds(0.4));
-            popOutDrumsFast = new Effect.PopOut("Drums Fast", TimeSpan.FromSeconds(0.3));
-            popOutChord = new Effect.PopOut("Chord", TimeSpan.FromSeconds(0.4));
-            popOutSolo = new Effect.PopOut("Solo", TimeSpan.FromSeconds(0.3));
-            popOutSolo2 = new Effect.PopOut("Solo 2", TimeSpan.FromSeconds(0.2));
-            popOutChoir = new Effect.PopOut("Choir", TimeSpan.FromSeconds(1.0));
-            popOutVoice = new Effect.PopOut("Voice", TimeSpan.FromSeconds(1.0));
-            popOutVocal2 = new Effect.PopOut("Vocal 2", TimeSpan.FromSeconds(2.0));
-            popOutVocalLong = new Effect.PopOut("Vocal Long", TimeSpan.FromSeconds(5.0));
-            popOutEnd = new Effect.PopOut("End", TimeSpan.FromSeconds(5.0));
+            popOutPiano = new Effect.PopOut("Piano", Seconds(0.4));
+            popOutDrums = new Effect.PopOut("Drums", Seconds(0.4));
+            popOutDrumsFast = new Effect.PopOut("Drums Fast", Seconds(0.3));
+            popOutChord = new Effect.PopOut("Chord", Seconds(0.4));
+            popOutSolo = new Effect.PopOut("Solo", Seconds(0.3));
+            popOutSolo2 = new Effect.PopOut("Solo 2", Seconds(0.2));
+            popOutChoir = new Effect.PopOut("Choir", Seconds(1.0));
+            popOutVoice = new Effect.PopOut("Voice", Seconds(1.0));
+            popOutVocal2 = new Effect.PopOut("Vocal 2", Seconds(2.0));
+            popOutVocalLong = new Effect.PopOut("Vocal Long", Seconds(5.0));
+            popOutEnd = new Effect.PopOut("End", Seconds(5.0));
 
             popOutPiano
                 .AddDevice(lightIcicles);
@@ -352,6 +352,7 @@ namespace Animatroller.SceneRunner
                 Properties.Settings.Default.NetworkAudioPlayerIP,
                 Properties.Settings.Default.NetworkAudioPlayerPort);
 
+            // Register the scene (so it can be properly stopped)
             Executor.Current.Register(this);
         }
 
@@ -361,27 +362,7 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_Momentarily(buttonRed);
             sim.AddDigitalInput_Momentarily(buttonStartReindeer);
 
-            sim.Connect(new Animatroller.Simulator.TestLight(lightNetRight));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightGarlandRight));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightHatsRight));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightTreesRight));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightReindeers));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightIcicles));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightNetLeft));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightTree));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightGarlandLeft));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightJesus));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling1));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling2));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling3));
-            sim.Connect(new Animatroller.Simulator.TestLight(lightVader));
-            sim.Connect(new Animatroller.Simulator.TestPixel1D(testPixels));
-
-            sim.AddDigitalOutput(buttonLightBlue);
-            sim.AddDigitalOutput(buttonLightRed);
-            sim.AddDigitalOutput(elLightsaber);
-            sim.AddDigitalOutput(elJesus);
-            sim.AddDigitalOutput(bigReindeer);
+            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.IOExpander port)
@@ -451,7 +432,7 @@ namespace Animatroller.SceneRunner
             lightVader.TurnOff();
         }
 
-        public void Start()
+        public override void Start()
         {
             pulsatingEffect1.AddDevice(lightHatsRight);
             pulsatingEffect2
@@ -472,7 +453,7 @@ namespace Animatroller.SceneRunner
                         {
                             testPixels.Inject((i % spacing) == 0 ? Color.Red : Color.White, 1.0);
 
-                            instance.WaitFor(TimeSpan.FromSeconds(0.2), true);
+                            instance.WaitFor(Seconds(0.2), true);
                         }
                     }
                 })
@@ -502,7 +483,7 @@ namespace Animatroller.SceneRunner
                                     break;
                             }
 
-                            instance.WaitFor(TimeSpan.FromSeconds(0.1));
+                            instance.WaitFor(Seconds(0.1));
 
                             if (instance.IsCancellationRequested)
                                 break;
@@ -559,7 +540,7 @@ namespace Animatroller.SceneRunner
                         {
                             task.Wait(instance.CancelToken);
 
-                            instance.WaitFor(TimeSpan.FromSeconds(10));
+                            instance.WaitFor(Seconds(10));
                         }
                         finally
                         {
@@ -568,17 +549,17 @@ namespace Animatroller.SceneRunner
                         }
 
                         if (!instance.IsCancellationRequested)
-                            instance.WaitFor(TimeSpan.FromSeconds(2));
+                            instance.WaitFor(Seconds(2));
                         EverythingOff();
 
-                        instance.WaitFor(TimeSpan.FromSeconds(2), true);
+                        instance.WaitFor(Seconds(2), true);
 
 
                         Executor.Current.Execute(backgroundLoop);
-                        instance.WaitFor(TimeSpan.FromSeconds(30));
+                        instance.WaitFor(Seconds(30));
                         Executor.Current.Cancel(backgroundLoop);
                         EverythingOff();
-                        instance.WaitFor(TimeSpan.FromSeconds(1));
+                        instance.WaitFor(Seconds(1));
                     })
                     .TearDown(() =>
                         {
@@ -592,10 +573,10 @@ namespace Animatroller.SceneRunner
                 {
                     buttonLightBlue.SetPower(true);
                     buttonLightRed.SetPower(false);
-                    instance.WaitFor(TimeSpan.FromSeconds(0.2));
+                    instance.WaitFor(Seconds(0.2));
                     buttonLightBlue.SetPower(false);
                     buttonLightRed.SetPower(true);
-                    instance.WaitFor(TimeSpan.FromSeconds(0.2));
+                    instance.WaitFor(Seconds(0.2));
                 })
                 .TearDown(() =>
                     {
@@ -613,38 +594,38 @@ namespace Animatroller.SceneRunner
 
                     audioPlayer.CueTrack("01 Star Wars_ Main Title");
                     // Make sure it's ready
-                    instance.WaitFor(TimeSpan.FromSeconds(0.5));
+                    instance.WaitFor(Seconds(0.5));
                     audioPlayer.PlayTrack();
 
                     lightCeiling1.SetOnlyColor(Color.Yellow);
                     lightCeiling2.SetOnlyColor(Color.Yellow);
                     lightCeiling3.SetOnlyColor(Color.Yellow);
                     pulsatingEffect2.Start();
-                    instance.WaitFor(TimeSpan.FromSeconds(16));
+                    instance.WaitFor(Seconds(16));
                     pulsatingEffect2.Stop();
                     audioPlayer.PauseTrack();
                     Executor.Current.Cancel(starwarsCane);
                     testPixels.TurnOff();
-                    instance.WaitFor(TimeSpan.FromSeconds(0.5));
+                    instance.WaitFor(Seconds(0.5));
 
                     elJesus.SetPower(true);
                     lightJesus.SetColor(Color.White, 0.3);
 
-                    instance.WaitFor(TimeSpan.FromSeconds(1.5));
+                    instance.WaitFor(Seconds(1.5));
 
                     elLightsaber.SetPower(true);
                     audioPlayer.PlayEffect("saberon");
-                    instance.WaitFor(TimeSpan.FromSeconds(1));
+                    instance.WaitFor(Seconds(1));
 
                     lightVader.SetColor(Color.Red, 1.0);
                     audioPlayer.PlayEffect("father");
-                    instance.WaitFor(TimeSpan.FromSeconds(3));
+                    instance.WaitFor(Seconds(3));
 
                     lightVader.TurnOff();
                     audioPlayer.PlayEffect("saberoff");
-                    instance.WaitFor(TimeSpan.FromSeconds(0.5));
+                    instance.WaitFor(Seconds(0.5));
                     elLightsaber.SetPower(false);
-                    instance.WaitFor(TimeSpan.FromSeconds(1));
+                    instance.WaitFor(Seconds(1));
 
                     lightJesus.TurnOff();
                     elLightsaber.TurnOff();
@@ -656,7 +637,7 @@ namespace Animatroller.SceneRunner
                 .Execute(instance =>
                 {
                     audioPlayer.PlayEffect("Darth Breathing");
-                    instance.WaitFor(TimeSpan.FromSeconds(4));
+                    instance.WaitFor(Seconds(4));
                 });
 
             laserSeq
@@ -683,7 +664,7 @@ namespace Animatroller.SceneRunner
                         System.Threading.Thread.Sleep(25);
                     }
 
-                    instance.WaitFor(TimeSpan.FromSeconds(1));
+                    instance.WaitFor(Seconds(1));
                 })
                 .TearDown(() =>
                     {
@@ -765,11 +746,11 @@ namespace Animatroller.SceneRunner
             };
         }
 
-        public void Run()
+        public override void Run()
         {
         }
 
-        public void Stop()
+        public override void Stop()
         {
             audioPlayer.PauseTrack();
         }

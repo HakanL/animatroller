@@ -20,6 +20,29 @@ namespace Animatroller.Simulator
             InitializeComponent();
         }
 
+        public SimulatorForm AutoWireUsingReflection(IScene scene)
+        {
+            var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                // Auto-wire
+                if (field.FieldType == typeof(Dimmer))
+                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer)field.GetValue(scene)));
+                else
+                    if (field.FieldType == typeof(ColorDimmer))
+                        this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)field.GetValue(scene)));
+                    else
+                        if (field.FieldType == typeof(Pixel1D))
+                            this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)field.GetValue(scene)));
+                        else
+                            if (field.FieldType == typeof(Switch))
+                                this.AddDigitalOutput((Switch)field.GetValue(scene));
+            }
+
+            return this;
+        }
+
         public Control.StrobeBulb AddNewLight(string name)
         {
             var moduleControl = new Control.ModuleControl();

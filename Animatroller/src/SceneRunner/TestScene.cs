@@ -11,7 +11,7 @@ using Animatroller.Framework.Expander;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestScene : IScene
+    internal class TestScene : BaseScene
     {
         protected StrobeDimmer georgeStrobeLight = new StrobeDimmer("George Strobe");
         protected StrobeColorDimmer spiderLight = new StrobeColorDimmer("Spider Light");
@@ -38,18 +38,9 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.Connect(new Animatroller.Simulator.TestLight(georgeStrobeLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(spiderLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(skullsLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(cobWebLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(blinkyEyesLight));
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLightRight));
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLight3));
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLight4));
-
             sim.AddDigitalInput_Momentarily(pressureMat);
-            sim.AddDigitalOutput(spiderLift);
-            sim.AddMotor(georgeMotor);
+
+            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(IOExpander port)
@@ -83,7 +74,7 @@ namespace Animatroller.SceneRunner
             port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(rgbLight4, 40));
         }
 
-        public void Start()
+        public override void Start()
         {
             pressureMat.ActiveChanged += (sender, e) =>
             {
@@ -113,11 +104,11 @@ namespace Animatroller.SceneRunner
             flickerEffect.AddDevice(georgeStrobeLight);
         }
 
-        public void Run()
+        public override void Run()
         {
         }
 
-        public void Stop()
+        public override void Stop()
         {
         }
     }
