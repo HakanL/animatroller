@@ -14,7 +14,7 @@ namespace Animatroller.SceneRunner
             Animatroller.Simulator.SimulatorForm simForm = null;
             Animatroller.Framework.Expander.DMXPro dmxPro = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
-            Animatroller.Framework.Expander.AcnOutput acnOutput = null;
+            Animatroller.Framework.Expander.AcnStream acnOutput = null;
 
             var sceneArgs = new List<string>();
             foreach (var arg in args)
@@ -34,7 +34,7 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "ACN":
-                        acnOutput = new Framework.Expander.AcnOutput();
+                        acnOutput = new Framework.Expander.AcnStream();
                         break;
 
                     default:

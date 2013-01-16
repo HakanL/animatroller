@@ -400,9 +400,12 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.RGBStrobe(lightVader, 40));
         }
 
-        public void WireUp(Expander.AcnOutput port)
+        public void WireUp(Expander.AcnStream port)
         {
-//            port.Con
+            port.Connect(new Physical.GenericDimmer(lightNetRight, 181), 3);
+            port.Connect(new Physical.GenericDimmer(lightHatsRight, 182), 3);
+
+            port.JoinDmxUniverse(1);
         }
 
         private void EverythingOff()
