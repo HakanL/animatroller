@@ -24,9 +24,9 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.Connect(new Animatroller.Simulator.TestLight(candyLight), "Candy Light");
-            sim.Connect(new Animatroller.Simulator.TestLight(candyLight2), "Candy Light 2");
-            sim.AddDigitalInput_Momentarily("Pressure Mat").Connect(pressureMat);
+            sim.Connect(new Animatroller.Simulator.TestLight(candyLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(candyLight2));
+            sim.AddDigitalInput_Momentarily(pressureMat);
         }
 
         public void WireUp(IOExpander port)

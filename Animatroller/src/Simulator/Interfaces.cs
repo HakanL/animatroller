@@ -11,11 +11,13 @@ namespace Animatroller.Simulator
     public interface INeedsLabelLight : IOutputDevice
     {
         Control.StrobeBulb LabelLightControl { set; }
+        ILogicalDevice ConnectedDevice { get; }
     }
 
     public interface INeedsRopeLight : IOutputDevice
     {
         Control.RopeLight RopeLightControl { set; }
         int Pixels { get; }
+        ILogicalDevice ConnectedDevice { get; }
     }
 }

@@ -54,22 +54,22 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.Connect(new Animatroller.Simulator.TestLight(georgeStrobeLight), "George Strobe");
-            sim.Connect(new Animatroller.Simulator.TestLight(spiderLight), "Spider Light");
-            sim.Connect(new Animatroller.Simulator.TestLight(skullsLight), "Skulls Lights");
-            sim.Connect(new Animatroller.Simulator.TestLight(cobWebLight), "Cobweb");
-            sim.Connect(new Animatroller.Simulator.TestLight(blinkyEyesLight), "Blinky Eyes");
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLightRight), "Right Skeleton");
-            sim.Connect(new Animatroller.Simulator.TestLight(georgeLight), "George Light");
-            sim.Connect(new Animatroller.Simulator.TestLight(leftSkeletonLight), "Left Skeleton");
-            sim.Connect(new Animatroller.Simulator.TestLight(candyLight), "Candy");
+            sim.Connect(new Animatroller.Simulator.TestLight(georgeStrobeLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(spiderLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(skullsLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(cobWebLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(blinkyEyesLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(rgbLightRight));
+            sim.Connect(new Animatroller.Simulator.TestLight(georgeLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(leftSkeletonLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(candyLight));
 
-            sim.AddDigitalInput_Momentarily("Pressure Mat").Connect(pressureMat);
-            sim.AddDigitalInput_Momentarily("Test Button").Connect(testButton);
-            sim.AddDigitalOutput("Spider Lift").Connect(spiderLift);
-            sim.AddDigitalOutput("Smoke Machine").Connect(smokeMachine);
-            sim.AddDigitalOutput("Spider Eyes").Connect(spiderEyes);
-            sim.AddMotor("George").Connect(georgeMotor);
+            sim.AddDigitalInput_Momentarily(pressureMat);
+            sim.AddDigitalInput_Momentarily(testButton);
+            sim.AddDigitalOutput(spiderLift);
+            sim.AddDigitalOutput(smokeMachine);
+            sim.AddDigitalOutput(spiderEyes);
+            sim.AddMotor(georgeMotor);
         }
 
         public void WireUp(IOExpander port)

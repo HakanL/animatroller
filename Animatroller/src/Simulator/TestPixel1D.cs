@@ -133,6 +133,11 @@ namespace Animatroller.Simulator
             this.senderTask.Start();
         }
 
+        public ILogicalDevice ConnectedDevice
+        {
+            get { return this.logicalDevice; }
+        }
+
         public void StartDevice()
         {
         }

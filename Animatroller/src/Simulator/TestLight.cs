@@ -60,6 +60,11 @@ namespace Animatroller.Simulator
             WireUpStrobe(logicalDevice as StrobeColorDimmer);
         }
 
+        public ILogicalDevice ConnectedDevice
+        {
+            get { return this.logicalDevice; }
+        }
+
         private void WireUpStrobe(IStrobe strobeLight)
         {
             if (strobeLight == null)

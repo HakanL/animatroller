@@ -40,7 +40,7 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.AddDigitalInput_Momentarily("Test Button").Connect(testButton);
+            sim.AddDigitalInput_Momentarily(testButton);
         }
 
         public void WireUp(IOExpander port)

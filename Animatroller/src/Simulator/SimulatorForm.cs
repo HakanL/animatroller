@@ -50,10 +50,10 @@ namespace Animatroller.Simulator
             return control;
         }
 
-        public Animatroller.Framework.PhysicalDevice.MotorWithFeedback AddMotor(string name)
+        public Animatroller.Framework.PhysicalDevice.MotorWithFeedback AddMotor(MotorWithFeedback logicalDevice)
         {
             var moduleControl = new Control.ModuleControl();
-            moduleControl.Text = name;
+            moduleControl.Text = logicalDevice.Name;
             moduleControl.Size = new System.Drawing.Size(160, 80);
 
             var control = new Control.Motor();
@@ -70,13 +70,15 @@ namespace Animatroller.Simulator
 
             control.Trigger = device.Trigger;
 
+            device.Connect(logicalDevice);
+
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalOutput AddDigitalOutput(string name)
+        public Animatroller.Framework.PhysicalDevice.DigitalOutput AddDigitalOutput(Switch logicalDevice)
         {
             var moduleControl = new Control.ModuleControl();
-            moduleControl.Text = name;
+            moduleControl.Text = logicalDevice.Name;
             moduleControl.Size = new System.Drawing.Size(80, 80);
 
             var centerControl = new Control.CenterControl();
@@ -96,6 +98,8 @@ namespace Animatroller.Simulator
                     control.On = x;
                 });
             });
+
+            device.Connect(logicalDevice);
 
             return device;
         }
@@ -118,10 +122,10 @@ namespace Animatroller.Simulator
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Momentarily(string name)
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Momentarily(DigitalInput logicalDevice)
         {
             var control = new Button();
-            control.Text = name;
+            control.Text = logicalDevice.Name;
             control.UseMnemonic = false;
             control.Size = new System.Drawing.Size(80, 80);
 
@@ -139,17 +143,19 @@ namespace Animatroller.Simulator
                 device.Trigger(false);
             };
 
+            device.Connect(logicalDevice);
+
             return device;
         }
 
-        public void Connect(INeedsLabelLight output, string labelName)
+        public void Connect(INeedsLabelLight output)
         {
-            output.LabelLightControl = AddNewLight(labelName);
+            output.LabelLightControl = AddNewLight(output.ConnectedDevice.Name);
         }
 
-        public void Connect(INeedsRopeLight output, string labelName)
+        public void Connect(INeedsRopeLight output)
         {
-            output.RopeLightControl = AddNewRope(labelName, output.Pixels);
+            output.RopeLightControl = AddNewRope(output.ConnectedDevice.Name, output.Pixels);
         }
     }
 }

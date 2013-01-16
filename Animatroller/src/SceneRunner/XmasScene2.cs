@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using Animatroller.Framework;
-using Animatroller.Framework.Expander;
+using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
+using Effect = Animatroller.Framework.Effect;
+using Physical = Animatroller.Framework.PhysicalDevice;
 using Animatroller.Framework.Extensions;
 
 namespace Animatroller.SceneRunner
@@ -44,25 +46,26 @@ namespace Animatroller.SceneRunner
         protected Switch elJesus = new Switch("Jesus Halo");
         protected Switch bigReindeer = new Switch("Big Reindeer");
 
-        protected Animatroller.Framework.LogicalDevice.DigitalInput buttonBlue = new Animatroller.Framework.LogicalDevice.DigitalInput("Button Blue");
-        protected Animatroller.Framework.LogicalDevice.DigitalInput buttonRed = new Animatroller.Framework.LogicalDevice.DigitalInput("Button Red");
-        protected Animatroller.Framework.LogicalDevice.DigitalInput buttonStartReindeer = new Animatroller.Framework.LogicalDevice.DigitalInput("Start Reindeer");
-        protected Animatroller.Framework.Timeline timeline = new Animatroller.Framework.Timeline();
-        protected Animatroller.Framework.StateMachine<States> stateMachine = new Animatroller.Framework.StateMachine<States>("Main");
-        protected Animatroller.Framework.Effect.PopOut popOutPiano;
-        protected Animatroller.Framework.Effect.PopOut popOutDrums;
-        protected Animatroller.Framework.Effect.PopOut popOutDrumsFast;
-        protected Animatroller.Framework.Effect.PopOut popOutChord;
-        protected Animatroller.Framework.Effect.PopOut popOutSolo;
-        protected Animatroller.Framework.Effect.PopOut popOutSolo2;
-        protected Animatroller.Framework.Effect.PopOut popOutChoir;
-        protected Animatroller.Framework.Effect.PopOut popOutVoice;
-        protected Animatroller.Framework.Effect.PopOut popOutVocal2;
-        protected Animatroller.Framework.Effect.PopOut popOutVocalLong;
-        protected Animatroller.Framework.Effect.PopOut popOutEnd;
-        protected Animatroller.Framework.Effect.Pulsating pulsatingEffect1;
-        protected Animatroller.Framework.Effect.Pulsating pulsatingEffect2;
-        protected Animatroller.Framework.PhysicalDevice.NetworkAudioPlayer audioPlayer;
+        protected DigitalInput buttonBlue = new DigitalInput("Button Blue");
+        protected DigitalInput buttonRed = new DigitalInput("Button Red");
+        protected DigitalInput buttonStartReindeer = new DigitalInput("Start Reindeer");
+
+        protected Timeline timeline = new Timeline();
+        protected StateMachine<States> stateMachine = new StateMachine<States>("Main");
+        protected Effect.PopOut popOutPiano;
+        protected Effect.PopOut popOutDrums;
+        protected Effect.PopOut popOutDrumsFast;
+        protected Effect.PopOut popOutChord;
+        protected Effect.PopOut popOutSolo;
+        protected Effect.PopOut popOutSolo2;
+        protected Effect.PopOut popOutChoir;
+        protected Effect.PopOut popOutVoice;
+        protected Effect.PopOut popOutVocal2;
+        protected Effect.PopOut popOutVocalLong;
+        protected Effect.PopOut popOutEnd;
+        protected Effect.Pulsating pulsatingEffect1;
+        protected Effect.Pulsating pulsatingEffect2;
+        protected Physical.NetworkAudioPlayer audioPlayer;
 
         protected Sequence candyCane = new Sequence("Candy Cane");
         protected Sequence starwarsCane = new Sequence("Starwars Cane");
@@ -81,20 +84,20 @@ namespace Animatroller.SceneRunner
                 hours.AddRange("5:00 am", "7:00 am");
             }
 
-            pulsatingEffect1 = new Animatroller.Framework.Effect.Pulsating("Pulse FX 1", TimeSpan.FromSeconds(2), 0.3, 1.0, false);
-            pulsatingEffect2 = new Animatroller.Framework.Effect.Pulsating("Pulse FX 2", TimeSpan.FromSeconds(2), 0.3, 1.0, false);
+            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", TimeSpan.FromSeconds(2), 0.3, 1.0, false);
+            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", TimeSpan.FromSeconds(2), 0.3, 1.0, false);
 
-            popOutPiano = new Animatroller.Framework.Effect.PopOut("Piano", TimeSpan.FromSeconds(0.4));
-            popOutDrums = new Animatroller.Framework.Effect.PopOut("Drums", TimeSpan.FromSeconds(0.4));
-            popOutDrumsFast = new Animatroller.Framework.Effect.PopOut("Drums Fast", TimeSpan.FromSeconds(0.3));
-            popOutChord = new Animatroller.Framework.Effect.PopOut("Chord", TimeSpan.FromSeconds(0.4));
-            popOutSolo = new Animatroller.Framework.Effect.PopOut("Solo", TimeSpan.FromSeconds(0.3));
-            popOutSolo2 = new Animatroller.Framework.Effect.PopOut("Solo 2", TimeSpan.FromSeconds(0.2));
-            popOutChoir = new Animatroller.Framework.Effect.PopOut("Choir", TimeSpan.FromSeconds(1.0));
-            popOutVoice = new Animatroller.Framework.Effect.PopOut("Voice", TimeSpan.FromSeconds(1.0));
-            popOutVocal2 = new Animatroller.Framework.Effect.PopOut("Vocal 2", TimeSpan.FromSeconds(2.0));
-            popOutVocalLong = new Animatroller.Framework.Effect.PopOut("Vocal Long", TimeSpan.FromSeconds(5.0));
-            popOutEnd = new Animatroller.Framework.Effect.PopOut("End", TimeSpan.FromSeconds(5.0));
+            popOutPiano = new Effect.PopOut("Piano", TimeSpan.FromSeconds(0.4));
+            popOutDrums = new Effect.PopOut("Drums", TimeSpan.FromSeconds(0.4));
+            popOutDrumsFast = new Effect.PopOut("Drums Fast", TimeSpan.FromSeconds(0.3));
+            popOutChord = new Effect.PopOut("Chord", TimeSpan.FromSeconds(0.4));
+            popOutSolo = new Effect.PopOut("Solo", TimeSpan.FromSeconds(0.3));
+            popOutSolo2 = new Effect.PopOut("Solo 2", TimeSpan.FromSeconds(0.2));
+            popOutChoir = new Effect.PopOut("Choir", TimeSpan.FromSeconds(1.0));
+            popOutVoice = new Effect.PopOut("Voice", TimeSpan.FromSeconds(1.0));
+            popOutVocal2 = new Effect.PopOut("Vocal 2", TimeSpan.FromSeconds(2.0));
+            popOutVocalLong = new Effect.PopOut("Vocal Long", TimeSpan.FromSeconds(5.0));
+            popOutEnd = new Effect.PopOut("End", TimeSpan.FromSeconds(5.0));
 
             popOutPiano
                 .AddDevice(lightIcicles);
@@ -345,7 +348,7 @@ namespace Animatroller.SceneRunner
                     }
                 };
 
-            audioPlayer = new Animatroller.Framework.PhysicalDevice.NetworkAudioPlayer(
+            audioPlayer = new Physical.NetworkAudioPlayer(
                 Properties.Settings.Default.NetworkAudioPlayerIP,
                 Properties.Settings.Default.NetworkAudioPlayerPort);
 
@@ -354,49 +357,36 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.AddDigitalInput_Momentarily("Blue").Connect(buttonBlue);
-            sim.AddDigitalInput_Momentarily("Red").Connect(buttonRed);
-            sim.Connect(new Animatroller.Simulator.TestLight(lightNetRight), "Net Right");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightGarlandRight), "Garland R");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightHatsRight), "Hats Right");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightTreesRight), "Tree Right");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightReindeers), "Reindeers");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightIcicles), "Icicles");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightNetLeft), "Net Left");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightTree), "Tree");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightGarlandLeft), "Garland L");
-            //            sim.Connect(new Animatroller.Simulator.TestLight(lightUnused1), "Unused 1");
-            //            sim.Connect(new Animatroller.Simulator.TestLight(lightUnused2), "Unused 2");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightJesus), "Jesus");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling1), "Ceiling 1");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling2), "Ceiling 2");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling3), "Ceiling 3");
-            sim.Connect(new Animatroller.Simulator.TestLight(lightVader), "Vader");
-            sim.Connect(new Animatroller.Simulator.TestPixel1D(testPixels), "Rope");
+            sim.AddDigitalInput_Momentarily(buttonBlue);
+            sim.AddDigitalInput_Momentarily(buttonRed);
+            sim.AddDigitalInput_Momentarily(buttonStartReindeer);
 
-            sim.AddDigitalOutput("Blue Button").Connect(buttonLightBlue);
-            sim.AddDigitalOutput("Red Button").Connect(buttonLightRed);
-            sim.AddDigitalOutput("Lightsaber").Connect(elLightsaber);
-            sim.AddDigitalOutput("Jesus Halo").Connect(elJesus);
-            sim.AddDigitalOutput("Big Reindeer").Connect(bigReindeer);
-            sim.AddDigitalInput_Momentarily("Reindeer").Connect(buttonStartReindeer);
+            sim.Connect(new Animatroller.Simulator.TestLight(lightNetRight));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightGarlandRight));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightHatsRight));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightTreesRight));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightReindeers));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightIcicles));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightNetLeft));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightTree));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightGarlandLeft));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightJesus));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling1));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling2));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightCeiling3));
+            sim.Connect(new Animatroller.Simulator.TestLight(lightVader));
+            sim.Connect(new Animatroller.Simulator.TestPixel1D(testPixels));
+
+            sim.AddDigitalOutput(buttonLightBlue);
+            sim.AddDigitalOutput(buttonLightRed);
+            sim.AddDigitalOutput(elLightsaber);
+            sim.AddDigitalOutput(elJesus);
+            sim.AddDigitalOutput(bigReindeer);
         }
 
-        public void WireUp(IOExpander port)
+        public void WireUp(Expander.IOExpander port)
         {
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightNetRight, 1));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightGarlandRight, 2));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightSmallTreeRight, 3));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightLargeTreeRight, 4));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightReindeers, 5));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightIcicles, 6));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightNetLeft, 7));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightTree, 8));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightGarlandLeft, 9));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightUnused1, 10));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightUnused2, 11));
-            //port.Connect(new Animatroller.Framework.PhysicalDevice.SmallRGBStrobe(lightJesus, 20));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.PixelRope(testPixels));
+            port.Connect(new Physical.PixelRope(testPixels));
 
             port.DigitalInputs[0].Connect(buttonRed);
             port.DigitalInputs[1].Connect(buttonBlue);
@@ -408,25 +398,25 @@ namespace Animatroller.SceneRunner
             port.DigitalOutputs[3].Connect(elJesus);
         }
 
-        public void WireUp(DMXPro port)
+        public void WireUp(Expander.DMXPro port)
         {
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightNetRight, 1));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightGarlandRight, 2));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightHatsRight, 3));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightTreesRight, 4));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightReindeers, 5));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightIcicles, 6));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightNetLeft, 7));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightTree, 8));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightGarlandLeft, 9));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightUnused1, 10));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(lightUnused2, 11));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(bigReindeer, 12));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.SmallRGBStrobe(lightJesus, 20));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(lightCeiling1, 30));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(lightCeiling2, 50));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(lightCeiling3, 60));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(lightVader, 40));
+            port.Connect(new Physical.GenericDimmer(lightNetRight, 1));
+            port.Connect(new Physical.GenericDimmer(lightGarlandRight, 2));
+            port.Connect(new Physical.GenericDimmer(lightHatsRight, 3));
+            port.Connect(new Physical.GenericDimmer(lightTreesRight, 4));
+            port.Connect(new Physical.GenericDimmer(lightReindeers, 5));
+            port.Connect(new Physical.GenericDimmer(lightIcicles, 6));
+            port.Connect(new Physical.GenericDimmer(lightNetLeft, 7));
+            port.Connect(new Physical.GenericDimmer(lightTree, 8));
+            port.Connect(new Physical.GenericDimmer(lightGarlandLeft, 9));
+            port.Connect(new Physical.GenericDimmer(lightUnused1, 10));
+            port.Connect(new Physical.GenericDimmer(lightUnused2, 11));
+            port.Connect(new Physical.GenericDimmer(bigReindeer, 12));
+            port.Connect(new Physical.SmallRGBStrobe(lightJesus, 20));
+            port.Connect(new Physical.RGBStrobe(lightCeiling1, 30));
+            port.Connect(new Physical.RGBStrobe(lightCeiling2, 50));
+            port.Connect(new Physical.RGBStrobe(lightCeiling3, 60));
+            port.Connect(new Physical.RGBStrobe(lightVader, 40));
         }
 
         private void EverythingOff()

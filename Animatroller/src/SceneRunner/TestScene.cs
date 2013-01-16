@@ -38,18 +38,18 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.Connect(new Animatroller.Simulator.TestLight(georgeStrobeLight), "George Strobe");
-            sim.Connect(new Animatroller.Simulator.TestLight(spiderLight), "Spider Light");
-            sim.Connect(new Animatroller.Simulator.TestLight(skullsLight), "Skulls Lights");
-            sim.Connect(new Animatroller.Simulator.TestLight(cobWebLight), "Cobweb");
-            sim.Connect(new Animatroller.Simulator.TestLight(blinkyEyesLight), "Blinky Eyes");
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLightRight), "Right Skeleton");
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLight3), "Left Skeleton");
-            sim.Connect(new Animatroller.Simulator.TestLight(rgbLight4), "Unused");
+            sim.Connect(new Animatroller.Simulator.TestLight(georgeStrobeLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(spiderLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(skullsLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(cobWebLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(blinkyEyesLight));
+            sim.Connect(new Animatroller.Simulator.TestLight(rgbLightRight));
+            sim.Connect(new Animatroller.Simulator.TestLight(rgbLight3));
+            sim.Connect(new Animatroller.Simulator.TestLight(rgbLight4));
 
-            sim.AddDigitalInput_Momentarily("Pressure Mat").Connect(pressureMat);
-            sim.AddDigitalOutput("Spider Lift").Connect(spiderLift);
-            sim.AddMotor("George").Connect(georgeMotor);
+            sim.AddDigitalInput_Momentarily(pressureMat);
+            sim.AddDigitalOutput(spiderLift);
+            sim.AddMotor(georgeMotor);
         }
 
         public void WireUp(IOExpander port)
