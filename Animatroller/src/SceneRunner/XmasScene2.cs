@@ -400,6 +400,11 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.RGBStrobe(lightVader, 40));
         }
 
+        public void WireUp(Expander.AcnOutput port)
+        {
+//            port.Con
+        }
+
         private void EverythingOff()
         {
             popOutPiano.Stop();

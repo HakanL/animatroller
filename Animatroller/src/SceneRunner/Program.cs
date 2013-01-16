@@ -14,6 +14,7 @@ namespace Animatroller.SceneRunner
             Animatroller.Simulator.SimulatorForm simForm = null;
             Animatroller.Framework.Expander.DMXPro dmxPro = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
+            Animatroller.Framework.Expander.AcnOutput acnOutput = null;
 
             var sceneArgs = new List<string>();
             foreach (var arg in args)
@@ -30,6 +31,10 @@ namespace Animatroller.SceneRunner
 
                     case "IOEXP":
                         ioExpander = new Animatroller.Framework.Expander.IOExpander(Properties.Settings.Default.IOExpanderPort);
+                        break;
+
+                    case "ACN":
+                        acnOutput = new Framework.Expander.AcnOutput();
                         break;
 
                     default:
@@ -50,6 +55,8 @@ namespace Animatroller.SceneRunner
                 scene.WireUp(dmxPro);
             if (ioExpander != null)
                 scene.WireUp(ioExpander);
+            if (acnOutput != null)
+                scene.WireUp(acnOutput);
 
             Executor.Current.Start();
             Executor.Current.Run();

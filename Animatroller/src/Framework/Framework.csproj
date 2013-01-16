@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Expander\AcnOutput.cs" />
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />
     <Compile Include="Interface\ICanExecute.cs" />
