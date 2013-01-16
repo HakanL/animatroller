@@ -25,10 +25,11 @@ namespace Animatroller.Framework.LogicalDevice
             var handler = ActiveChanged;
             if (handler != null)
             {
-                var task = Task.Run(() =>
+                var task = new Task(() =>
                     {
                         handler.Invoke(this, new StateChangedEventArgs(this.Active));
                     });
+                task.Start();
             }
         }
 
