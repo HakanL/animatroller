@@ -5,55 +5,66 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using Animatroller.Framework;
-using Animatroller.Framework.LogicalDevice;
 using Animatroller.Framework.Extensions;
-using Animatroller.Framework.Expander;
+using Expander = Animatroller.Framework.Expander;
+using Animatroller.Framework.LogicalDevice;
+using Effect = Animatroller.Framework.Effect;
+using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
     internal class TestScene : BaseScene
     {
-        protected StrobeDimmer georgeStrobeLight = new StrobeDimmer("George Strobe");
-        protected StrobeColorDimmer spiderLight = new StrobeColorDimmer("Spider Light");
-        protected Dimmer skullsLight = new Dimmer("Skulls");
-        protected Dimmer cobWebLight = new Dimmer("Cob Web");
-        protected Switch blinkyEyesLight = new Switch("Blinky Eyes");
-        protected StrobeColorDimmer rgbLightRight = new StrobeColorDimmer("Light Right");
-        protected StrobeColorDimmer rgbLight3 = new StrobeColorDimmer("Light 3");
-        protected StrobeColorDimmer rgbLight4 = new StrobeColorDimmer("Light 4");
-        protected MotorWithFeedback georgeMotor = new MotorWithFeedback("George Motor");
-        protected Switch spiderLift = new Switch("Spider Lift");
-        protected Animatroller.Framework.LogicalDevice.DigitalInput pressureMat = new Animatroller.Framework.LogicalDevice.DigitalInput("Pressure Mat");
+        protected StrobeDimmer georgeStrobeLight;
+        protected StrobeColorDimmer spiderLight;
+        protected Dimmer skullsLight;
+        protected Dimmer cobWebLight;
+        protected Switch blinkyEyesLight;
+        protected StrobeColorDimmer rgbLightRight;
+        protected StrobeColorDimmer rgbLight3;
+        protected StrobeColorDimmer rgbLight4;
+        protected MotorWithFeedback georgeMotor;
+        protected Switch spiderLift;
+        protected DigitalInput pressureMat;
+        protected Effect.Pulsating pulsatingEffect;
+        protected Effect.Flicker flickerEffect;
 
-        protected Animatroller.Framework.Effect.Pulsating pulsatingEffect;
-        protected Animatroller.Framework.Effect.Flicker flickerEffect;
 
         public TestScene()
         {
-            pulsatingEffect = new Animatroller.Framework.Effect.Pulsating("Pulse FX", TimeSpan.FromSeconds(1), 0.2, 0.7);
-            flickerEffect = new Animatroller.Framework.Effect.Flicker("Flicker", 0.4, 0.6);
-
-            Executor.Current.Register(this);
+            georgeStrobeLight = new StrobeDimmer("George Strobe");
+            spiderLight = new StrobeColorDimmer("Spider Light");
+            skullsLight = new Dimmer("Skulls");
+            cobWebLight = new Dimmer("Cob Web");
+            blinkyEyesLight = new Switch("Blinky Eyes");
+            rgbLightRight = new StrobeColorDimmer("Light Right");
+            rgbLight3 = new StrobeColorDimmer("Light 3");
+            rgbLight4 = new StrobeColorDimmer("Light 4");
+            georgeMotor = new MotorWithFeedback("George Motor");
+            spiderLift = new Switch("Spider Lift");
+            pressureMat = new DigitalInput("Pressure Mat");
+            pulsatingEffect = new Effect.Pulsating("Pulse FX", S(1), 0.2, 0.7);
+            flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6);
         }
 
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
+        public void WireUp(Simulator.SimulatorForm sim)
         {
             sim.AddDigitalInput_Momentarily(pressureMat);
 
             sim.AutoWireUsingReflection(this);
         }
 
-        public void WireUp(IOExpander port)
+        public void WireUp(Expander.IOExpander port)
         {
-            port.Connect(new Animatroller.Framework.PhysicalDevice.AmericanDJStrobe(georgeStrobeLight, 5));
+            port.Connect(new Physical.AmericanDJStrobe(georgeStrobeLight, 5));
 
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(spiderLight, 10));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(skullsLight, 1));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(cobWebLight, 3));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(blinkyEyesLight, 4));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(rgbLightRight, 20));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(rgbLight3, 30));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(rgbLight4, 40));
+            port.Connect(new Physical.RGBStrobe(spiderLight, 10));
+            port.Connect(new Physical.GenericDimmer(skullsLight, 1));
+            port.Connect(new Physical.GenericDimmer(cobWebLight, 3));
+            port.Connect(new Physical.GenericDimmer(blinkyEyesLight, 4));
+            port.Connect(new Physical.RGBStrobe(rgbLightRight, 20));
+            port.Connect(new Physical.RGBStrobe(rgbLight3, 30));
+            port.Connect(new Physical.RGBStrobe(rgbLight4, 40));
 
             port.Motor.Connect(georgeMotor);
 
@@ -61,17 +72,17 @@ namespace Animatroller.SceneRunner
             port.DigitalOutputs[0].Connect(spiderLift);
         }
 
-        public void WireUp(DMXPro port)
+        public void WireUp(Expander.DMXPro port)
         {
-            port.Connect(new Animatroller.Framework.PhysicalDevice.AmericanDJStrobe(georgeStrobeLight, 16));
+            port.Connect(new Physical.AmericanDJStrobe(georgeStrobeLight, 16));
 
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(spiderLight, 10));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(skullsLight, 1));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(cobWebLight, 3));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(blinkyEyesLight, 4));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(rgbLightRight, 20));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(rgbLight3, 30));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.RGBStrobe(rgbLight4, 40));
+            port.Connect(new Physical.RGBStrobe(spiderLight, 10));
+            port.Connect(new Physical.GenericDimmer(skullsLight, 1));
+            port.Connect(new Physical.GenericDimmer(cobWebLight, 3));
+            port.Connect(new Physical.GenericDimmer(blinkyEyesLight, 4));
+            port.Connect(new Physical.RGBStrobe(rgbLightRight, 20));
+            port.Connect(new Physical.RGBStrobe(rgbLight3, 30));
+            port.Connect(new Physical.RGBStrobe(rgbLight4, 40));
         }
 
         public override void Start()
@@ -85,10 +96,10 @@ namespace Animatroller.SceneRunner
                     pulsatingEffect.Stop();
 
                     spiderLift.SetPower(true);
-                    georgeMotor.SetVector(1, 160, TimeSpan.FromSeconds(5));
+                    georgeMotor.SetVector(1, 160, S(5));
                     georgeMotor.WaitForVectorReached();
                     Console.WriteLine("Motor done");
-                    georgeMotor.SetVector(0.8, 0, TimeSpan.FromSeconds(5));
+                    georgeMotor.SetVector(0.8, 0, S(5));
                     georgeMotor.WaitForVectorReached();
                     Console.WriteLine("Motor back");
 

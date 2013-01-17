@@ -51,6 +51,9 @@ namespace Animatroller.SceneRunner
                 }
             }
 
+
+
+
             // Uncomment which scene you want to execute. Can be improved later, but currently I
             // use Visual Studio on my scene-running PC to improve things on the fly
 
@@ -59,6 +62,12 @@ namespace Animatroller.SceneRunner
             //var scene = new HalloweenScene();
             //var scene = new XmasScene();
             var scene = new XmasScene2(sceneArgs);
+
+
+
+
+            // Register the scene (so it can be properly stopped)
+            Executor.Current.Register(scene);
 
             // Wire up the instantiated expanders
             if (simForm != null)

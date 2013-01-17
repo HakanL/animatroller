@@ -2,24 +2,28 @@
 using System.Drawing;
 using System.Threading;
 using Animatroller.Framework;
-using Animatroller.Framework.Expander;
+using Animatroller.Framework.Extensions;
+using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
+using Effect = Animatroller.Framework.Effect;
+using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
     internal class TestScene2 : BaseScene
     {
-        protected StrobeColorDimmer candyLight = new StrobeColorDimmer("Candy Light");
-        protected StrobeColorDimmer candyLight2 = new StrobeColorDimmer("Candy Light 2");
-        protected DigitalInput pressureMat = new DigitalInput("Pressure Mat");
+        protected StrobeColorDimmer candyLight;
+        protected StrobeColorDimmer candyLight2;
+        protected DigitalInput pressureMat;
+        protected Effect.Pulsating pulsatingEffect;
 
-        protected Animatroller.Framework.Effect.Pulsating pulsatingEffect;
 
         public TestScene2()
         {
-            pulsatingEffect = new Animatroller.Framework.Effect.Pulsating("Pulse FX", TimeSpan.FromSeconds(2), 0, 1.0, false);
-
-            Executor.Current.Register(this);
+            candyLight = new StrobeColorDimmer("Candy Light");
+            candyLight2 = new StrobeColorDimmer("Candy Light 2");
+            pressureMat = new DigitalInput("Pressure Mat");
+            pulsatingEffect = new Effect.Pulsating("Pulse FX", S(2), 0, 1.0, false);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -29,15 +33,15 @@ namespace Animatroller.SceneRunner
             sim.AutoWireUsingReflection(this);
         }
 
-        public void WireUp(IOExpander port)
+        public void WireUp(Expander.IOExpander port)
         {
-            port.Connect(new Animatroller.Framework.PhysicalDevice.SmallRGBStrobe(candyLight, 16));
+            port.Connect(new Physical.SmallRGBStrobe(candyLight, 16));
             port.DigitalInputs[0].Connect(pressureMat);
         }
 
-        public void WireUp(DMXPro port)
+        public void WireUp(Expander.DMXPro port)
         {
-            port.Connect(new Animatroller.Framework.PhysicalDevice.SmallRGBStrobe(candyLight, 16));
+            port.Connect(new Physical.SmallRGBStrobe(candyLight, 16));
         }
 
         public override void Start()
@@ -53,13 +57,13 @@ namespace Animatroller.SceneRunner
                 {
                     pulsatingEffect.Start();
 
-                    instance.WaitFor(TimeSpan.FromSeconds(3));
+                    instance.WaitFor(S(3));
 
                     pulsatingEffect.Stop();
 
                     candyLight.SetStrobe(1.0, Color.Yellow);
-                    
-                    instance.WaitFor(TimeSpan.FromSeconds(2));
+
+                    instance.WaitFor(S(2));
                     candyLight.TurnOff();
                     candyLight.SetColor(Color.Violet, 0);
                 });

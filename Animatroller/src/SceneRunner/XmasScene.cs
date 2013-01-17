@@ -5,59 +5,56 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using Animatroller.Framework;
-using Animatroller.Framework.Expander;
-using Animatroller.Framework.LogicalDevice;
 using Animatroller.Framework.Extensions;
+using Expander = Animatroller.Framework.Expander;
+using Animatroller.Framework.LogicalDevice;
+using Effect = Animatroller.Framework.Effect;
+using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
     internal class XmasScene : BaseScene
     {
-        protected Pixel1D testPixels = new Pixel1D("G35", 50);
-        protected Dimmer explosion1 = new Dimmer("Explosion 1");
-        protected Dimmer explosion2 = new Dimmer("Explosion 2");
-        protected Dimmer explosion3 = new Dimmer("Explosion 3");
-        protected Dimmer explosion4 = new Dimmer("Explosion 4");
-        protected Animatroller.Framework.LogicalDevice.DigitalInput testButton = new Animatroller.Framework.LogicalDevice.DigitalInput("Test");
-
         private Random random = new Random();
 
-        //        protected Animatroller.Framework.Effect.Pulsating pulsatingEffect;
-        //        protected Animatroller.Framework.Effect.Flicker flickerEffect;
-        protected Animatroller.Framework.PhysicalDevice.NetworkAudioPlayer audioPlayer;
+        protected Pixel1D testPixels;
+        protected Dimmer explosion1;
+        protected Dimmer explosion2;
+        protected Dimmer explosion3;
+        protected Dimmer explosion4;
+        protected DigitalInput testButton;
+        protected Physical.NetworkAudioPlayer audioPlayer;
+
 
         public XmasScene()
         {
-            audioPlayer = new Animatroller.Framework.PhysicalDevice.NetworkAudioPlayer(
+            testPixels = new Pixel1D("G35", 50);
+            explosion1 = new Dimmer("Explosion 1");
+            explosion2 = new Dimmer("Explosion 2");
+            explosion3 = new Dimmer("Explosion 3");
+            explosion4 = new Dimmer("Explosion 4");
+            testButton = new DigitalInput("Test");
+
+            audioPlayer = new Physical.NetworkAudioPlayer(
                 Properties.Settings.Default.NetworkAudioPlayerIP,
                 Properties.Settings.Default.NetworkAudioPlayerPort);
-
-            //            pulsatingEffect = new Animatroller.Framework.Effect.Pulsating(TimeSpan.FromSeconds(1), 0.2, 0.7);
-            //            flickerEffect = new Animatroller.Framework.Effect.Flicker(0.4, 0.6);
-
-            Executor.Current.Register(this);
         }
 
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
+        public void WireUp(Simulator.SimulatorForm sim)
         {
             sim.AddDigitalInput_Momentarily(testButton);
 
             sim.AutoWireUsingReflection(this);
         }
 
-        public void WireUp(IOExpander port)
+        public void WireUp(Expander.IOExpander port)
         {
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(explosion1, 1));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(explosion2, 2));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(explosion3, 3));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.GenericDimmer(explosion4, 4));
-            port.Connect(new Animatroller.Framework.PhysicalDevice.PixelRope(testPixels));
+            port.Connect(new Physical.GenericDimmer(explosion1, 1));
+            port.Connect(new Physical.GenericDimmer(explosion2, 2));
+            port.Connect(new Physical.GenericDimmer(explosion3, 3));
+            port.Connect(new Physical.GenericDimmer(explosion4, 4));
+            port.Connect(new Physical.PixelRope(testPixels));
             port.DigitalInputs[0].Connect(testButton);
-        }
-
-        public void WireUp(DMXPro port)
-        {
-            //            port.Connect(new Animatroller.Framework.PhysicalDevice.SmallRGBStrobe(candyLight, 16));
         }
 
         public override void Start()
@@ -67,36 +64,36 @@ namespace Animatroller.SceneRunner
             .Execute(instance =>
             {
                 audioPlayer.PlayEffect("18384__inferno__largex");
-                instance.WaitFor(TimeSpan.FromMilliseconds(300));
+                instance.WaitFor(MS(300));
                 int d = 100;
                 explosion1.SetBrightness(1);
-                instance.WaitFor(TimeSpan.FromMilliseconds(d));
+                instance.WaitFor(MS(d));
                 explosion1.SetBrightness(0.5);
                 explosion2.SetBrightness(1);
-                instance.WaitFor(TimeSpan.FromMilliseconds(d));
+                instance.WaitFor(MS(d));
                 explosion1.TurnOff();
                 explosion2.SetBrightness(0.5);
                 explosion3.SetBrightness(1);
-                instance.WaitFor(TimeSpan.FromMilliseconds(d));
+                instance.WaitFor(MS(d));
                 explosion2.TurnOff();
                 explosion3.SetBrightness(0.5);
                 explosion4.SetBrightness(1);
-                instance.WaitFor(TimeSpan.FromMilliseconds(d));
+                instance.WaitFor(MS(d));
                 explosion3.TurnOff();
                 explosion4.SetBrightness(0.5);
-                instance.WaitFor(TimeSpan.FromMilliseconds(d));
+                instance.WaitFor(MS(d));
                 explosion4.TurnOff();
             });
 
             var seq = new Sequence("Seq");
             seq.WhenExecuted
-            .Execute(instance => 
+            .Execute(instance =>
                 {
-//                    audioPlayer.PlayEffect("tie_fighter");
-//                    x.WaitFor(TimeSpan.FromSeconds(2));
+                    //                    audioPlayer.PlayEffect("tie_fighter");
+                    //                    x.WaitFor(Seconds(2));
 
                     audioPlayer.PlayEffect("Lazer");
-                    instance.WaitFor(TimeSpan.FromMilliseconds(300));
+                    instance.WaitFor(MS(300));
                     audioPlayer.PlayEffect("Lazer");
 
                     var cb = new ColorBrightness[6];
@@ -110,7 +107,7 @@ namespace Animatroller.SceneRunner
                     for (int i = -6; i < 50; i++)
                     {
                         testPixels.SetColors(i, cb);
-                        instance.WaitFor(TimeSpan.FromMilliseconds(10));
+                        instance.WaitFor(MS(10));
                     }
 
                     if (random.Next(10) > 5)
@@ -131,7 +128,7 @@ namespace Animatroller.SceneRunner
                 {
                     Console.WriteLine("Button depress!");
 
-//                    testPixels.SetColor(0, Color.Blue);
+                    //                    testPixels.SetColor(0, Color.Blue);
                 }
             };
         }

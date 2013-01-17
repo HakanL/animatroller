@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
 using Animatroller.Framework;
+using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Physical = Animatroller.Framework.PhysicalDevice;
-using Animatroller.Framework.Extensions;
 
 namespace Animatroller.SceneRunner
 {
@@ -22,37 +22,37 @@ namespace Animatroller.SceneRunner
             Vader
         }
 
-        protected OperatingHours hours = new OperatingHours("Hours");
-        protected Pixel1D testPixels = new Pixel1D("G35", 50);
-        protected Pixel1D testPixels2 = new Pixel1D("Strip60", 60);
-        protected Dimmer lightNetRight = new Dimmer("Net Right");
-        protected Dimmer lightGarlandRight = new Dimmer("Garland Right");
-        protected Dimmer lightHatsRight = new Dimmer("Hats Right");
-        protected Dimmer lightTreesRight = new Dimmer("Trees Right");
-        protected Dimmer lightReindeers = new Dimmer("Reindeers");
-        protected Dimmer lightIcicles = new Dimmer("Icicles");
-        protected Dimmer lightNetLeft = new Dimmer("Net Left");
-        protected Dimmer lightTree = new Dimmer("Tree");
-        protected Dimmer lightGarlandLeft = new Dimmer("Garland Left");
-        protected Dimmer lightUnused1 = new Dimmer("Unused 1");
-        protected Dimmer lightUnused2 = new Dimmer("Unused 2");
-        protected StrobeColorDimmer lightJesus = new StrobeColorDimmer("Jesus");
-        protected StrobeColorDimmer lightCeiling1 = new StrobeColorDimmer("Ceiling 1");
-        protected StrobeColorDimmer lightCeiling2 = new StrobeColorDimmer("Ceiling 2");
-        protected StrobeColorDimmer lightCeiling3 = new StrobeColorDimmer("Ceiling 3");
-        protected StrobeColorDimmer lightVader = new StrobeColorDimmer("Vader");
-        protected Switch buttonLightRed = new Switch("Button Red");
-        protected Switch buttonLightBlue = new Switch("Button Blue");
-        protected Switch elLightsaber = new Switch("Lightsaber");
-        protected Switch elJesus = new Switch("Jesus Halo");
-        protected Switch bigReindeer = new Switch("Big Reindeer");
+        protected OperatingHours hours;
+        protected Pixel1D testPixels;
+        protected Pixel1D testPixels2;
+        protected Dimmer lightNetRight;
+        protected Dimmer lightGarlandRight;
+        protected Dimmer lightHatsRight;
+        protected Dimmer lightTreesRight;
+        protected Dimmer lightReindeers;
+        protected Dimmer lightIcicles;
+        protected Dimmer lightNetLeft;
+        protected Dimmer lightTree;
+        protected Dimmer lightGarlandLeft;
+        protected Dimmer lightUnused1;
+        protected Dimmer lightUnused2;
+        protected StrobeColorDimmer lightJesus;
+        protected StrobeColorDimmer lightCeiling1;
+        protected StrobeColorDimmer lightCeiling2;
+        protected StrobeColorDimmer lightCeiling3;
+        protected StrobeColorDimmer lightVader;
+        protected Switch buttonLightRed;
+        protected Switch buttonLightBlue;
+        protected Switch elLightsaber;
+        protected Switch elJesus;
+        protected Switch bigReindeer;
 
-        protected DigitalInput buttonBlue = new DigitalInput("Button Blue");
-        protected DigitalInput buttonRed = new DigitalInput("Button Red");
-        protected DigitalInput buttonStartReindeer = new DigitalInput("Start Reindeer");
+        protected DigitalInput buttonBlue;
+        protected DigitalInput buttonRed;
+        protected DigitalInput buttonStartReindeer;
 
-        protected Timeline timeline = new Timeline();
-        protected StateMachine<States> stateMachine = new StateMachine<States>("Main");
+        protected Timeline timeline;
+        protected StateMachine<States> stateMachine;
         protected Effect.PopOut popOutPiano;
         protected Effect.PopOut popOutDrums;
         protected Effect.PopOut popOutDrumsFast;
@@ -68,37 +68,78 @@ namespace Animatroller.SceneRunner
         protected Effect.Pulsating pulsatingEffect2;
         protected Physical.NetworkAudioPlayer audioPlayer;
 
-        protected Sequence candyCane = new Sequence("Candy Cane");
-        protected Sequence starwarsCane = new Sequence("Starwars Cane");
-        protected Sequence backgroundLoop = new Sequence("Background");
-        protected Sequence musicSeq = new Sequence("Christmas Canon");
-        protected Sequence buttonSeq = new Sequence("Buttons");
-        protected Sequence fatherSeq = new Sequence("Father");
-        protected Sequence breathSeq = new Sequence("Breath");
-        protected Sequence laserSeq = new Sequence("Laser");
+        protected Sequence candyCane;
+        protected Sequence starwarsCane;
+        protected Sequence backgroundLoop;
+        protected Sequence musicSeq;
+        protected Sequence buttonSeq;
+        protected Sequence fatherSeq;
+        protected Sequence breathSeq;
+        protected Sequence laserSeq;
+
 
         public XmasScene2(IEnumerable<string> args)
         {
+            hours = new OperatingHours("Hours");
             if (!args.Contains("TEST"))
             {
                 hours.AddRange("5:00 pm", "10:00 pm");
                 hours.AddRange("5:00 am", "7:00 am");
             }
 
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", Seconds(2), 0.3, 1.0, false);
-            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", Seconds(2), 0.3, 1.0, false);
+            testPixels = new Pixel1D("G35", 50);
+            testPixels2 = new Pixel1D("Strip60", 60);
+            lightNetRight = new Dimmer("Net Right");
+            lightGarlandRight = new Dimmer("Garland Right");
+            lightHatsRight = new Dimmer("Hats Right");
+            lightTreesRight = new Dimmer("Trees Right");
+            lightReindeers = new Dimmer("Reindeers");
+            lightIcicles = new Dimmer("Icicles");
+            lightNetLeft = new Dimmer("Net Left");
+            lightTree = new Dimmer("Tree");
+            lightGarlandLeft = new Dimmer("Garland Left");
+            lightUnused1 = new Dimmer("Unused 1");
+            lightUnused2 = new Dimmer("Unused 2");
+            lightJesus = new StrobeColorDimmer("Jesus");
+            lightCeiling1 = new StrobeColorDimmer("Ceiling 1");
+            lightCeiling2 = new StrobeColorDimmer("Ceiling 2");
+            lightCeiling3 = new StrobeColorDimmer("Ceiling 3");
+            lightVader = new StrobeColorDimmer("Vader");
+            buttonLightRed = new Switch("Button Red");
+            buttonLightBlue = new Switch("Button Blue");
+            elLightsaber = new Switch("Lightsaber");
+            elJesus = new Switch("Jesus Halo");
+            bigReindeer = new Switch("Big Reindeer");
 
-            popOutPiano = new Effect.PopOut("Piano", Seconds(0.4));
-            popOutDrums = new Effect.PopOut("Drums", Seconds(0.4));
-            popOutDrumsFast = new Effect.PopOut("Drums Fast", Seconds(0.3));
-            popOutChord = new Effect.PopOut("Chord", Seconds(0.4));
-            popOutSolo = new Effect.PopOut("Solo", Seconds(0.3));
-            popOutSolo2 = new Effect.PopOut("Solo 2", Seconds(0.2));
-            popOutChoir = new Effect.PopOut("Choir", Seconds(1.0));
-            popOutVoice = new Effect.PopOut("Voice", Seconds(1.0));
-            popOutVocal2 = new Effect.PopOut("Vocal 2", Seconds(2.0));
-            popOutVocalLong = new Effect.PopOut("Vocal Long", Seconds(5.0));
-            popOutEnd = new Effect.PopOut("End", Seconds(5.0));
+            buttonBlue = new DigitalInput("Button Blue");
+            buttonRed = new DigitalInput("Button Red");
+            buttonStartReindeer = new DigitalInput("Start Reindeer");
+
+            timeline = new Timeline();
+            stateMachine = new StateMachine<States>("Main");
+            candyCane = new Sequence("Candy Cane");
+            starwarsCane = new Sequence("Starwars Cane");
+            backgroundLoop = new Sequence("Background");
+            musicSeq = new Sequence("Christmas Canon");
+            buttonSeq = new Sequence("Buttons");
+            fatherSeq = new Sequence("Father");
+            breathSeq = new Sequence("Breath");
+            laserSeq = new Sequence("Laser");
+
+            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.3, 1.0, false);
+            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", S(2), 0.3, 1.0, false);
+
+            popOutPiano = new Effect.PopOut("Piano", S(0.4));
+            popOutDrums = new Effect.PopOut("Drums", S(0.4));
+            popOutDrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
+            popOutChord = new Effect.PopOut("Chord", S(0.4));
+            popOutSolo = new Effect.PopOut("Solo", S(0.3));
+            popOutSolo2 = new Effect.PopOut("Solo 2", S(0.2));
+            popOutChoir = new Effect.PopOut("Choir", S(1.0));
+            popOutVoice = new Effect.PopOut("Voice", S(1.0));
+            popOutVocal2 = new Effect.PopOut("Vocal 2", S(2.0));
+            popOutVocalLong = new Effect.PopOut("Vocal Long", S(5.0));
+            popOutEnd = new Effect.PopOut("End", S(5.0));
 
             popOutPiano
                 .AddDevice(lightIcicles);
@@ -352,9 +393,6 @@ namespace Animatroller.SceneRunner
             audioPlayer = new Physical.NetworkAudioPlayer(
                 Properties.Settings.Default.NetworkAudioPlayerIP,
                 Properties.Settings.Default.NetworkAudioPlayerPort);
-
-            // Register the scene (so it can be properly stopped)
-            Executor.Current.Register(this);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -406,10 +444,10 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.GenericDimmer(lightNetRight, 181), 7);
             port.Connect(new Physical.GenericDimmer(lightHatsRight, 182), 7);
 
-            port.Connect(new Physical.PixelRope(testPixels2), 3, 400);
+            port.Connect(new Physical.PixelRope(testPixels2), 3, 181);
             port.Connect(new Physical.PixelRope(testPixels), 2, 91);
 
-//            port.JoinDmxUniverse(1);
+            //            port.JoinDmxUniverse(1);
         }
 
         private void EverythingOff()
@@ -472,7 +510,7 @@ namespace Animatroller.SceneRunner
                         {
                             testPixels.Inject((i % spacing) == 0 ? Color.Red : Color.White, 1.0);
 
-                            instance.WaitFor(Seconds(0.2), true);
+                            instance.WaitFor(S(0.2), true);
                         }
                     }
                 })
@@ -502,7 +540,7 @@ namespace Animatroller.SceneRunner
                                     break;
                             }
 
-                            instance.WaitFor(Seconds(0.1));
+                            instance.WaitFor(S(0.1));
 
                             if (instance.IsCancellationRequested)
                                 break;
@@ -559,7 +597,7 @@ namespace Animatroller.SceneRunner
                         {
                             task.Wait(instance.CancelToken);
 
-                            instance.WaitFor(Seconds(10));
+                            instance.WaitFor(S(10));
                         }
                         finally
                         {
@@ -568,17 +606,17 @@ namespace Animatroller.SceneRunner
                         }
 
                         if (!instance.IsCancellationRequested)
-                            instance.WaitFor(Seconds(2));
+                            instance.WaitFor(S(2));
                         EverythingOff();
 
-                        instance.WaitFor(Seconds(2), true);
+                        instance.WaitFor(S(2), true);
 
 
                         Executor.Current.Execute(backgroundLoop);
-                        instance.WaitFor(Seconds(30));
+                        instance.WaitFor(S(30));
                         Executor.Current.Cancel(backgroundLoop);
                         EverythingOff();
-                        instance.WaitFor(Seconds(1));
+                        instance.WaitFor(S(1));
                     })
                     .TearDown(() =>
                         {
@@ -592,10 +630,10 @@ namespace Animatroller.SceneRunner
                 {
                     buttonLightBlue.SetPower(true);
                     buttonLightRed.SetPower(false);
-                    instance.WaitFor(Seconds(0.2));
+                    instance.WaitFor(S(0.2));
                     buttonLightBlue.SetPower(false);
                     buttonLightRed.SetPower(true);
-                    instance.WaitFor(Seconds(0.2));
+                    instance.WaitFor(S(0.2));
                 })
                 .TearDown(() =>
                     {
@@ -613,38 +651,38 @@ namespace Animatroller.SceneRunner
 
                     audioPlayer.CueTrack("01 Star Wars_ Main Title");
                     // Make sure it's ready
-                    instance.WaitFor(Seconds(0.5));
+                    instance.WaitFor(S(0.5));
                     audioPlayer.PlayTrack();
 
                     lightCeiling1.SetOnlyColor(Color.Yellow);
                     lightCeiling2.SetOnlyColor(Color.Yellow);
                     lightCeiling3.SetOnlyColor(Color.Yellow);
                     pulsatingEffect2.Start();
-                    instance.WaitFor(Seconds(16));
+                    instance.WaitFor(S(16));
                     pulsatingEffect2.Stop();
                     audioPlayer.PauseTrack();
                     Executor.Current.Cancel(starwarsCane);
                     testPixels.TurnOff();
-                    instance.WaitFor(Seconds(0.5));
+                    instance.WaitFor(S(0.5));
 
                     elJesus.SetPower(true);
                     lightJesus.SetColor(Color.White, 0.3);
 
-                    instance.WaitFor(Seconds(1.5));
+                    instance.WaitFor(S(1.5));
 
                     elLightsaber.SetPower(true);
                     audioPlayer.PlayEffect("saberon");
-                    instance.WaitFor(Seconds(1));
+                    instance.WaitFor(S(1));
 
                     lightVader.SetColor(Color.Red, 1.0);
                     audioPlayer.PlayEffect("father");
-                    instance.WaitFor(Seconds(3));
+                    instance.WaitFor(S(3));
 
                     lightVader.TurnOff();
                     audioPlayer.PlayEffect("saberoff");
-                    instance.WaitFor(Seconds(0.5));
+                    instance.WaitFor(S(0.5));
                     elLightsaber.SetPower(false);
-                    instance.WaitFor(Seconds(1));
+                    instance.WaitFor(S(1));
 
                     lightJesus.TurnOff();
                     elLightsaber.TurnOff();
@@ -656,7 +694,7 @@ namespace Animatroller.SceneRunner
                 .Execute(instance =>
                 {
                     audioPlayer.PlayEffect("Darth Breathing");
-                    instance.WaitFor(Seconds(4));
+                    instance.WaitFor(S(4));
                 });
 
             laserSeq
@@ -685,7 +723,7 @@ namespace Animatroller.SceneRunner
                         System.Threading.Thread.Sleep(25);
                     }
 
-                    instance.WaitFor(Seconds(1));
+                    instance.WaitFor(S(1));
                 })
                 .TearDown(() =>
                     {
@@ -710,20 +748,20 @@ namespace Animatroller.SceneRunner
                         bigReindeer.SetPower(true);
                     else
                     {
-                        TestAllPixels(Color.Red, 1.0, Seconds(1));
-                        TestAllPixels(Color.Red, 0.5, Seconds(1));
+                        TestAllPixels(Color.Red, 1.0, S(1));
+                        TestAllPixels(Color.Red, 0.5, S(1));
 
-                        TestAllPixels(Color.Green, 1.0, Seconds(1));
-                        TestAllPixels(Color.Green, 0.5, Seconds(1));
+                        TestAllPixels(Color.Green, 1.0, S(1));
+                        TestAllPixels(Color.Green, 0.5, S(1));
 
-                        TestAllPixels(Color.Blue, 1.0, Seconds(1));
-                        TestAllPixels(Color.Blue, 0.5, Seconds(1));
+                        TestAllPixels(Color.Blue, 1.0, S(1));
+                        TestAllPixels(Color.Blue, 0.5, S(1));
 
-                        TestAllPixels(Color.Purple, 1.0, Seconds(1));
-                        TestAllPixels(Color.Purple, 0.5, Seconds(1));
+                        TestAllPixels(Color.Purple, 1.0, S(1));
+                        TestAllPixels(Color.Purple, 0.5, S(1));
 
-                        TestAllPixels(Color.White, 1.0, Seconds(1));
-                        TestAllPixels(Color.White, 0.5, Seconds(1));
+                        TestAllPixels(Color.White, 1.0, S(1));
+                        TestAllPixels(Color.White, 0.5, S(1));
 
                         testPixels.TurnOff();
                         testPixels2.TurnOff();

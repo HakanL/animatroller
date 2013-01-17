@@ -8,9 +8,14 @@ namespace Animatroller.Framework
 {
     public abstract class BaseScene : IScene
     {
-        protected TimeSpan Seconds(double seconds)
+        protected TimeSpan S(double seconds)
         {
             return TimeSpan.FromSeconds(seconds);
+        }
+
+        protected TimeSpan MS(double seconds)
+        {
+            return TimeSpan.FromMilliseconds(seconds);
         }
 
         public abstract void Start();
