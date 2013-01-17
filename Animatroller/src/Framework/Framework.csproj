@@ -118,6 +118,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Effect\Transformer.cs" />
     <Compile Include="Timeline.cs" />
+    <Compile Include="Utility\LightORamaLMS.cs" />
+    <Compile Include="Utility\LorImport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

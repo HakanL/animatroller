@@ -61,10 +61,10 @@ namespace Animatroller.SceneRunner
             // use Visual Studio on my scene-running PC to improve things on the fly
 
             //var scene = new TestScene();
-            //            var scene = new TestScene2();
+            var scene = new TestScene2();
             //var scene = new HalloweenScene();
             //var scene = new XmasScene();
-            var scene = new XmasScene2(sceneArgs);
+            //var scene = new XmasScene2(sceneArgs);
 
 
 
