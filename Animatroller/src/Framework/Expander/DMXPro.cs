@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
+using NLog;
 
 namespace Animatroller.Framework.Expander
 {
     public class DMXPro : IPort, IRunnable, IDmxOutput
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         private int sendCounter;
         private SerialPort serialPort;
         private object lockObject = new object();
@@ -46,7 +48,7 @@ namespace Animatroller.Framework.Expander
                             if (this.dataChanges > 0)
                             {
                                 this.firstChange.Stop();
-                                //Console.WriteLine("Sending {0} changes to DMX Pro. Oldest {1:N2}ms",
+                                //log.Info("Sending {0} changes to DMX Pro. Oldest {1:N2}ms",
                                 //    this.dataChanges, this.firstChange.Elapsed.TotalMilliseconds);
                                 this.dataChanges = 0;
                                 sentChanges = true;
@@ -66,7 +68,7 @@ namespace Animatroller.Framework.Expander
         protected void packetManager_PacketReceived(object sender, DmxPacketManager.DmxPacketReceivedEventArgs e)
         {
             string bufData = string.Join(",", e.PacketData.ToList().ConvertAll(x => x.ToString("d")));
-            Console.WriteLine("Received from DMXPro: Label: {0:d}   Payload: {1}", e.Label, bufData);
+            log.Info("Received from DMXPro: Label: {0:d}   Payload: {1}", e.Label, bufData);
 
             if (!foundDmxPro)
             {
@@ -95,7 +97,7 @@ namespace Animatroller.Framework.Expander
 
 #if DEBUG
                 string bufData = string.Join(",", buf.ToList().ConvertAll(x => x.ToString("d")));
-                Console.WriteLine("Received from Serial Port: {0}", bufData);
+                log.Info("Received from Serial Port: {0}", bufData);
 #endif
 
                 this.packetManager.WriteNewData(buf);
@@ -114,7 +116,7 @@ namespace Animatroller.Framework.Expander
             lock (lockObject)
             {
                 sendCounter++;
-//                Console.WriteLine("Sending packet {0} to DMX", sendCounter);
+//                log.Info("Sending packet {0} to DMX", sendCounter);
 
                 try
                 {
@@ -127,7 +129,7 @@ namespace Animatroller.Framework.Expander
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("SendSerialCommand exception: " + ex.Message);
+                    log.Info("SendSerialCommand exception: " + ex.Message);
                     // Ignore
                 }
             }

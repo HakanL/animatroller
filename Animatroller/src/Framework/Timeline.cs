@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Animatroller.Framework
 {
     public class Timeline
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
+
         public class TimelineEventArgs : EventArgs
         {
             public double ElapsedS { get; private set; }
@@ -104,7 +107,7 @@ namespace Animatroller.Framework
                     var handler = TimelineTrigger;
                     foreach (var code in codes)
                     {
-                        Console.WriteLine(string.Format("Invoking codes {1} at {0:N2} s   (pos {2})", elapsed, code, currentPos + 1));
+                        log.Info(string.Format("Invoking codes {1} at {0:N2} s   (pos {2})", elapsed, code, currentPos + 1));
                         if (handler != null)
                             handler(this, new TimelineEventArgs(elapsed, code, currentPos + 1));
                     }

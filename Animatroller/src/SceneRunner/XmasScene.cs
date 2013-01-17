@@ -119,14 +119,14 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                 {
-                    Console.WriteLine("Button press!");
+                    log.Info("Button press!");
                     Executor.Current.Execute(seq);
                     //                    audioPlayer.PlayEffect("Lazer");
 
                 }
                 else
                 {
-                    Console.WriteLine("Button depress!");
+                    log.Info("Button depress!");
 
                     //                    testPixels.SetColor(0, Color.Blue);
                 }

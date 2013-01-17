@@ -91,17 +91,17 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                 {
-                    Console.WriteLine("Button press!");
+                    log.Info("Button press!");
 
                     pulsatingEffect.Stop();
 
                     spiderLift.SetPower(true);
                     georgeMotor.SetVector(1, 160, S(5));
                     georgeMotor.WaitForVectorReached();
-                    Console.WriteLine("Motor done");
+                    log.Info("Motor done");
                     georgeMotor.SetVector(0.8, 0, S(5));
                     georgeMotor.WaitForVectorReached();
-                    Console.WriteLine("Motor back");
+                    log.Info("Motor back");
 
                     pulsatingEffect.Start();
                     spiderLift.SetPower(false);

@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Animatroller.Framework
 {
     public abstract class BaseScene : IScene
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
+
         protected TimeSpan S(double seconds)
         {
             return TimeSpan.FromSeconds(seconds);

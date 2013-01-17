@@ -54,7 +54,7 @@ namespace Animatroller.Framework.Expander
                         {
                             this.firstChange.Stop();
                             this.sentUpdates++;
-                            Console.WriteLine("Sending {0} changes to IOExpander. Oldest {1:N2}ms. Recv: {2}   Sent: {3}",
+                            log.Info("Sending {0} changes to IOExpander. Oldest {1:N2}ms. Recv: {2}   Sent: {3}",
                                 this.changedPixels.Count, this.firstChange.Elapsed.TotalMilliseconds,
                                 receivedUpdates, sentUpdates);
 
@@ -129,7 +129,7 @@ namespace Animatroller.Framework.Expander
             switch (cmd)
             {
                 case '#':
-                    Console.WriteLine("ACK " + data);
+                    log.Info("ACK " + data);
                     break;
                 case 'I':
                     // Input
@@ -138,7 +138,7 @@ namespace Animatroller.Framework.Expander
                         byte chn = byte.Parse(parts[0]);
                         byte val = byte.Parse(parts[1]);
 
-                        Console.WriteLine("Input chn={0} val={1}", chn, val);
+                        log.Info("Input chn={0} val={1}", chn, val);
                         switch (chn)
                         {
                             case 1:
@@ -165,13 +165,13 @@ namespace Animatroller.Framework.Expander
                             // Motor failed
                             pos = null;
 
-                        Console.WriteLine("MotorController chn={0} val={1}", chn, pos);
+                        log.Info("MotorController chn={0} val={1}", chn, pos);
                         if(chn == 1)
                             this.Motor.Trigger(pos, pos == null);
                     }
                     break;
                 default:
-                    Console.WriteLine("Unknown data: " + data);
+                    log.Info("Unknown data: " + data);
                     break;
             }
         }

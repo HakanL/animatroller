@@ -4,11 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Animatroller.Framework.Effect
 {
     public class Sweeper
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         public delegate void PerformAction(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool forced);
 
         private object lockObject = new object();
@@ -55,7 +57,7 @@ namespace Animatroller.Framework.Effect
             this.timer = new Timer(new TimerCallback(TimerCallback));
 
             this.interval = new TimeSpan(duration.Ticks / dataPoints);
-            Console.WriteLine(string.Format("Interval {0:N1} ms", this.interval.TotalMilliseconds));
+            log.Debug("Interval {0:N1} ms", this.interval.TotalMilliseconds);
 
             if(startRunning)
                 Resume();
@@ -130,7 +132,7 @@ namespace Animatroller.Framework.Effect
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Exception in Sweeper job" + ex.ToString());
+                    log.Info("Exception in Sweeper job" + ex.ToString());
                 }
                 finally
                 {
@@ -138,7 +140,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                Console.WriteLine("Missed execute task in Sweeper job");
+                log.Info("Missed execute task in Sweeper job");
 
             lock (lockObject)
             {

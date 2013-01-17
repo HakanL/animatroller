@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Animatroller.Framework
 {
     public class StateMachine<T> : IRunnable where T : struct, IConvertible
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
         private Tuple<System.Threading.CancellationTokenSource, Task> currentJob;
         protected object lockObject = new object();
@@ -97,7 +99,7 @@ namespace Animatroller.Framework
                     if (this.currentState.Equals(newState))
                     {
                         // Already in this state
-                        Console.WriteLine("Already in state {0}", newState);
+                        log.Info("Already in state {0}", newState);
                         return;
                     }
                 }
@@ -165,9 +167,9 @@ namespace Animatroller.Framework
                 jobToCancel.Item1.Cancel();
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 if (!jobToCancel.Item2.Wait(5000))
-                    Console.WriteLine("State {0} failed to cancel in time", this.currentState);
+                    log.Info("State {0} failed to cancel in time", this.currentState);
                 watch.Stop();
-                Console.WriteLine("State {0} took {1:N1}ms to stop", this.currentState, watch.Elapsed.TotalMilliseconds);
+                log.Info("State {0} took {1:N1}ms to stop", this.currentState, watch.Elapsed.TotalMilliseconds);
             }
 
             return this;

@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using NLog;
 
 namespace Animatroller.Framework
 {
     public class Executor
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
+
         public class ExecuteInstance
         {
             public Task Task;
@@ -143,7 +146,7 @@ namespace Animatroller.Framework
             }
 
             if (!Task.WaitAll(waitTasks.ToArray(), milliseconds))
-                Console.WriteLine("At least one job failed to complete in time when asked to cancel");
+                log.Error("At least one job failed to complete in time when asked to cancel");
 
             return this;
         }
@@ -210,7 +213,7 @@ namespace Animatroller.Framework
             {
             }
             watch.Stop();
-            Console.WriteLine("Waited {1:N1}ms for job {0} to stop from cancel", jobToCancel.Name, watch.Elapsed.TotalMilliseconds);
+            log.Info("Waited {1:N1}ms for job {0} to stop from cancel", jobToCancel.Name, watch.Elapsed.TotalMilliseconds);
         }
 
         private void CleanupCompletedTasks()
@@ -243,7 +246,7 @@ namespace Animatroller.Framework
                     if (singleInstanceTasks.ContainsKey(value))
                     {
                         // Already running
-                        Console.WriteLine("Single instance already running, skipping");
+                        log.Info("Single instance already running, skipping");
                         return null;
                     }
 

@@ -106,7 +106,7 @@ namespace Animatroller.Simulator
                         {
                             this.firstChange.Stop();
                             this.sentUpdates++;
-                            //Console.WriteLine("Sending {0} changes to SIM. Oldest {1:N2}ms. Recv: {2}   Sent: {3}",
+                            //log.Info("Sending {0} changes to SIM. Oldest {1:N2}ms. Recv: {2}   Sent: {3}",
                             //    this.changedPixels.Count, this.firstChange.Elapsed.TotalMilliseconds,
                             //    receivedUpdates, sentUpdates);
 

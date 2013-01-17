@@ -13,11 +13,14 @@ using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
 using Acn;
 using Acn.Helpers;
+using NLog;
 
 namespace Animatroller.Framework.Expander
 {
     public class AcnStream : IPort, IRunnable
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
+
         protected class AcnPixelUniverse : IPixelOutput
         {
             private object lockObject = new object();
@@ -183,7 +186,7 @@ namespace Animatroller.Framework.Expander
 
         private void socket_NewPacket(object sender, NewPacketEventArgs<DmxPacket> e)
         {
-            Console.WriteLine("Received DMX packet on ACN stream");
+            log.Debug("Received DMX packet on ACN stream");
         }
 
         protected AcnUniverse GetSendingUniverse(int universe)

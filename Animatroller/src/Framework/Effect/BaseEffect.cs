@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using NLog;
 
 namespace Animatroller.Framework.Effect
 {
     public abstract class BaseSweeperEffect<T> : IEffect
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         protected int priority;
         protected string name;
         protected object lockObject = new object();
@@ -56,7 +58,7 @@ namespace Animatroller.Framework.Effect
 
                                 if (totalWatch.ElapsedMilliseconds > 25)
                                 {
-                                    Console.WriteLine(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
+                                    log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
                                         this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
                                 }
                             }
@@ -69,7 +71,7 @@ namespace Animatroller.Framework.Effect
                             }
                         }
                         else
-                            Console.WriteLine("Missed Job in BaseSweepEffect   Name: " + Name);
+                            log.Info("Missed Job in BaseSweepEffect   Name: " + Name);
                     }
 
                 });
@@ -142,6 +144,7 @@ namespace Animatroller.Framework.Effect
 
     public abstract class BaseEffect<T> : IEffect
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         protected int priority;
         protected string name;
         protected object lockObject = new object();
@@ -179,7 +182,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                Console.WriteLine("Missed ExecutePerDevice in BaseEffect");
+                log.Error("Missed ExecutePerDevice in BaseEffect");
         }
 
         protected abstract void ExecutePerDevice(T device);

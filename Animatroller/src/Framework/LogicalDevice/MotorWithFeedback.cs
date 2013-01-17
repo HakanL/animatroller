@@ -2,11 +2,14 @@
 using System.Threading;
 using Animatroller.Framework.LogicalDevice.Event;
 using Animatroller.Framework.Extensions;
+using NLog;
 
 namespace Animatroller.Framework.LogicalDevice
 {
     public class MotorWithFeedback : ILogicalDevice
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
+
         public class MotorVector
         {
             public double Speed { get; private set; }
@@ -89,7 +92,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (lastCommandSent.HasValue)
             {
                 TimeSpan duration = DateTime.Now - lastCommandSent.Value;
-                Console.WriteLine("Last movement took {0:F1} s", duration.TotalSeconds);
+                log.Info("Last movement took {0:F1} s", duration.TotalSeconds);
             }
         }
 

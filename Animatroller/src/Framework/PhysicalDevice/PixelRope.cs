@@ -33,7 +33,7 @@ namespace Animatroller.Framework.PhysicalDevice
                         }
                     }
                     else
-                        Console.WriteLine("Missed PixelChanged in PixelRope");
+                        log.Error("Missed PixelChanged in PixelRope");
                 };
 
             logicalDevice.MultiPixelChanged += (sender, e) =>
@@ -60,7 +60,7 @@ namespace Animatroller.Framework.PhysicalDevice
                         }
                     }
                     else
-                        Console.WriteLine("Missed send to PixelRope");
+                        log.Info("Missed send to PixelRope");
                 };
         }
     }

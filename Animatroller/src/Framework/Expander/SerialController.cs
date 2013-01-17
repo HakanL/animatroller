@@ -5,11 +5,13 @@ using System.Text;
 using System.IO;
 using System.IO.Ports;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Animatroller.Framework.Expander
 {
     public abstract class SerialController : IRunnable
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         private object lockObject = new object();
         private int counter = 0;
         private LineManager lineManager;
@@ -41,7 +43,7 @@ namespace Animatroller.Framework.Expander
                 }
             }
             else
-                Console.WriteLine("Received unknown data: {0}", e.LineData);
+                log.Warn("Received unknown data: {0}", e.LineData);
         }
 
         private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
@@ -65,7 +67,7 @@ namespace Animatroller.Framework.Expander
         {
             counter++;
 //            string debugData = string.Join(",", rawData.Select(x => x.ToString()));
-//            Console.WriteLine("Sending ({0}): {1}", counter, debugData);
+//            log.Info("Sending ({0}): {1}", counter, debugData);
 
             lock (lockObject)
             {
@@ -75,7 +77,7 @@ namespace Animatroller.Framework.Expander
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("SendRaw exception: " + ex.Message);
+                    log.Info("SendRaw exception: " + ex.Message);
                     // Ignore
                 }
             }

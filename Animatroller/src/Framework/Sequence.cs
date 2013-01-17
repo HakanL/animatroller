@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Animatroller.Framework
 {
     public class Sequence : ISequence, ICanExecute
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
+
         public class SequenceJob : IRunnableState, ISequenceInstance
         {
             private object lockObject = new object();
@@ -93,7 +96,7 @@ namespace Animatroller.Framework
                 // Can only execute one at a time
                 lock (lockObject)
                 {
-                    Console.WriteLine("Starting SequenceJob {0}", this.name);
+                    log.Info("Starting SequenceJob {0}", this.name);
 
                     this.cancelToken = cancelToken;
 
@@ -122,9 +125,9 @@ namespace Animatroller.Framework
                         this.tearDownAction.Invoke();
 
                     if (cancelToken.IsCancellationRequested)
-                        Console.WriteLine("SequenceJob {0} canceled and stopped", this.name);
+                        log.Info("SequenceJob {0} canceled and stopped", this.name);
                     else
-                        Console.WriteLine("SequenceJob {0} completed", this.name);
+                        log.Info("SequenceJob {0} completed", this.name);
                 }
             }
         }

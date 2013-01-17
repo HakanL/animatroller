@@ -385,7 +385,7 @@ namespace Animatroller.SceneRunner
                             break;
 
                         default:
-                            Console.WriteLine("Unhandled code: " + e.Code);
+                            log.Info("Unhandled code: " + e.Code);
                             break;
                     }
                 };

@@ -72,7 +72,7 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                 {
-                    Console.WriteLine("Button press!");
+                    log.Info("Button press!");
 
                     Executor.Current.Execute(testSequence);
                 }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Animatroller.Framework.Extensions;
+using NLog;
 
 namespace Animatroller.Framework.Effect
 {
@@ -96,6 +97,7 @@ namespace Animatroller.Framework.Effect
 
     public class Flicker : IEffect
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         protected int priority;
         protected string name;
         private Random random = new Random();
@@ -138,7 +140,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                Console.WriteLine("Missed execute in Flicker");
+                log.Error("Missed execute in Flicker");
 
             this.timer.Change(random.Next(90) + 10, Timeout.Infinite);
         }

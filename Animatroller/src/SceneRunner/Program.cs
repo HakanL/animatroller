@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework;
+using NLog;
 
 namespace Animatroller.SceneRunner
 {
     public class Program
     {
+        private static Logger log = LogManager.GetCurrentClassLogger();
+        
         static void Main(string[] args)
         {
             // Variables for al types of IO expanders, etc
