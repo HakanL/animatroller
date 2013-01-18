@@ -20,24 +20,33 @@ namespace Animatroller.Simulator
             InitializeComponent();
         }
 
-        public SimulatorForm AutoWireUsingReflection(IScene scene)
+        public SimulatorForm AutoWireUsingReflection(IScene scene, params IDevice[] excludeDevices)
         {
             var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             foreach (var field in fields)
             {
+                object value = field.GetValue(scene);
+
                 // Auto-wire
+                if (typeof(IDevice).IsInstanceOfType(value))
+                {
+                    if (excludeDevices.Contains((IDevice)value))
+                        // Excluded
+                        continue;
+                }
+
                 if (field.FieldType == typeof(Dimmer))
-                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer)field.GetValue(scene)));
+                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer)value));
                 else
                     if (field.FieldType == typeof(ColorDimmer))
-                        this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)field.GetValue(scene)));
+                        this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)value));
                     else
                         if (field.FieldType == typeof(Pixel1D))
-                            this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)field.GetValue(scene)));
+                            this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)value));
                         else
                             if (field.FieldType == typeof(Switch))
-                                this.AddDigitalOutput((Switch)field.GetValue(scene));
+                                this.AddDigitalOutput((Switch)value);
             }
 
             return this;
