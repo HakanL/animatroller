@@ -138,19 +138,15 @@ namespace Animatroller.Framework.Expander
 
             public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
             {
-                byte[] dmxData = new byte[this.dmxUniverse.DmxData.Length];
-                Array.Copy(this.dmxUniverse.DmxData, dmxData, dmxData.Length);
-
                 for (int i = 0; i < length; i++)
                 {
                     int chn = firstChannel + i;
                     if (chn >= 1 && chn <= 512)
-                        dmxData[chn] = values[offset + i];
+                        this.dmxUniverse.DmxData[chn] = values[offset + i];
                 }
 
                 // Force a send
-                this.dmxUniverse.SetDmx(dmxData);
-
+                this.dmxUniverse.SetDmx(0, this.dmxUniverse.DmxData[0]);
                 return SendStatus.NotSet;
             }
         }
