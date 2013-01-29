@@ -23,8 +23,6 @@ namespace Animatroller.SceneRunner
         }
 
         protected OperatingHours hours;
-        protected Pixel1D testPixels;
-        protected Pixel1D testPixels2;
         protected Dimmer lightNetRight;
         protected Dimmer lightGarlandRight;
         protected Dimmer lightHatsRight;
@@ -77,6 +75,8 @@ namespace Animatroller.SceneRunner
         protected Sequence breathSeq;
         protected Sequence laserSeq;
 
+        protected VirtualPixel1D allPixels;
+
 
         public XmasScene2(IEnumerable<string> args)
         {
@@ -87,8 +87,6 @@ namespace Animatroller.SceneRunner
                 hours.AddRange("5:00 am", "7:00 am");
             }
 
-            testPixels = new Pixel1D("G35", 50);
-            testPixels2 = new Pixel1D("Strip60", 60);
             lightNetRight = new Dimmer("Net Right");
             lightGarlandRight = new Dimmer("Garland Right");
             lightHatsRight = new Dimmer("Hats Right");
@@ -126,6 +124,8 @@ namespace Animatroller.SceneRunner
             breathSeq = new Sequence("Breath");
             laserSeq = new Sequence("Laser");
 
+            allPixels = new VirtualPixel1D("All Pixels", 100);
+
             pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.3, 1.0, false);
             pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", S(2), 0.3, 1.0, false);
 
@@ -150,7 +150,7 @@ namespace Animatroller.SceneRunner
 
             popOutDrumsFast
                 .AddDevice(lightCeiling1)
-                .AddDevice(testPixels);
+                .AddDevice(allPixels);
 
             popOutChord
                 .AddDevice(lightTree)
@@ -180,7 +180,7 @@ namespace Animatroller.SceneRunner
 
             popOutVocal2
                 .AddDevice(lightReindeers)
-                .AddDevice(testPixels)
+                .AddDevice(allPixels)
                 .SetPriority(10);
 
             popOutVocalLong
@@ -201,7 +201,7 @@ namespace Animatroller.SceneRunner
                 .AddDevice(lightTreesRight)
                 .AddDevice(lightNetRight)
                 .AddDevice(lightNetLeft)
-                .AddDevice(testPixels)
+                .AddDevice(allPixels)
                 .SetPriority(100);
 
 
@@ -217,7 +217,7 @@ namespace Animatroller.SceneRunner
                         case 62:
                             // First drum
                             state = 1;
-                            testPixels.TurnOff();
+                            allPixels.TurnOff();
                             break;
 
                         case 69:
@@ -229,27 +229,27 @@ namespace Animatroller.SceneRunner
                         case 136:
                             // First solo
                             state = 3;
-                            testPixels.TurnOff();
+                            allPixels.TurnOff();
                             lightCeiling2.SetOnlyColor(Color.White);
                             lightCeiling3.SetOnlyColor(Color.Red);
                             break;
 
                         case 265:
                             // First choir
-                            testPixels.TurnOff();
+                            allPixels.TurnOff();
                             state = 4;
                             break;
 
                         case 396:
                             // Vocal 2
                             state = 5;
-                            testPixels.SetAllOnlyColor(Color.Blue);
+                            allPixels.SetAllOnlyColor(Color.Blue);
                             break;
 
                         case 497:
                             // Second solo
                             state = 6;
-                            testPixels.TurnOff();
+                            allPixels.TurnOff();
                             lightCeiling2.SetOnlyColor(Color.White);
                             lightCeiling3.SetOnlyColor(Color.Red);
                             break;
@@ -257,19 +257,19 @@ namespace Animatroller.SceneRunner
                         case 561:
                             // End second solo
                             state = 7;
-                            testPixels.TurnOff();
+                            allPixels.TurnOff();
                             break;
 
                         case 585:
                             // End third solo
                             state = 8;
-                            testPixels.TurnOff();
+                            allPixels.TurnOff();
                             break;
 
                         case 721:
                             // End third solo
                             state = 9;
-                            testPixels.TurnOff();
+                            allPixels.TurnOff();
                             break;
                     }
 
@@ -286,32 +286,32 @@ namespace Animatroller.SceneRunner
                         case "N1":
                             popOutPiano.Pop(0.4);
                             if (state == 0)
-                                testPixels.Inject(Color.Red, 0.5);
+                                allPixels.Inject(Color.Red, 0.5);
                             break;
 
                         case "N2":
                             popOutPiano.Pop(0.6);
                             if (state == 0)
-                                testPixels.Inject(Color.White, 0.5);
+                                allPixels.Inject(Color.White, 0.5);
                             break;
 
                         case "N3":
                             popOutPiano.Pop(0.8);
                             if (state == 0)
-                                testPixels.Inject(Color.Blue, 0.5);
+                                allPixels.Inject(Color.Blue, 0.5);
                             break;
 
                         case "N4":
                             popOutPiano.Pop(1.0);
                             if (state == 0)
-                                testPixels.Inject(Color.Black, 0.0);
+                                allPixels.Inject(Color.Black, 0.0);
                             break;
 
                         case "Base":
                             popOutDrums.Pop(1.0);
                             if (state < 3)
                             {
-                                testPixels.SetAllOnlyColor(Color.Purple);
+                                allPixels.SetAllOnlyColor(Color.Purple);
                                 popOutDrumsFast.Pop(1.0);
                             }
                             break;
@@ -320,7 +320,7 @@ namespace Animatroller.SceneRunner
                             popOutDrums.Pop(1.0);
                             if (state < 3)
                             {
-                                testPixels.SetAllOnlyColor(Color.Green);
+                                allPixels.SetAllOnlyColor(Color.Green);
                                 popOutDrumsFast.Pop(1.0);
                             }
                             break;
@@ -351,7 +351,7 @@ namespace Animatroller.SceneRunner
                                         pixCol = Color.Pink;
                                         break;
                                 }
-                                testPixels.Inject(pixCol, 1.0);
+                                allPixels.Inject(pixCol, 1.0);
                             }
                             break;
 
@@ -406,7 +406,7 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Expander.IOExpander port)
         {
-            port.Connect(new Physical.PixelRope(testPixels));
+            port.Connect(new Physical.PixelRope(allPixels, 0, 50));
 
             port.DigitalInputs[0].Connect(buttonRed);
             port.DigitalInputs[1].Connect(buttonBlue);
@@ -444,8 +444,10 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.GenericDimmer(lightNetRight, 181), 7);
             port.Connect(new Physical.GenericDimmer(lightHatsRight, 182), 7);
 
-            port.Connect(new Physical.PixelRope(testPixels2), 3, 181);
-            port.Connect(new Physical.PixelRope(testPixels), 2, 91);
+            // GECE
+            port.Connect(new Physical.PixelRope(allPixels, 50, 50), 2, 91);
+            // WS2811
+            port.Connect(new Physical.PixelRope(allPixels, 0, 60), 3, 181);
 
             //            port.JoinDmxUniverse(1);
         }
@@ -484,8 +486,7 @@ namespace Animatroller.SceneRunner
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)
         {
-            testPixels.SetAll(color, brightness);
-            testPixels2.SetAll(color, brightness);
+            allPixels.SetAll(color, brightness);
             System.Threading.Thread.Sleep(delay);
         }
 
@@ -499,7 +500,7 @@ namespace Animatroller.SceneRunner
 
             candyCane
                 .WhenExecuted
-                .SetUp(() => testPixels.TurnOff())
+                .SetUp(() => allPixels.TurnOff())
                 .Execute(instance =>
                 {
                     const int spacing = 4;
@@ -508,13 +509,13 @@ namespace Animatroller.SceneRunner
                     {
                         for (int i = 0; i < spacing; i++)
                         {
-                            testPixels.Inject((i % spacing) == 0 ? Color.Red : Color.White, 1.0);
+                            allPixels.Inject((i % spacing) == 0 ? Color.Red : Color.White, 1.0);
 
                             instance.WaitFor(S(0.2), true);
                         }
                     }
                 })
-                .TearDown(() => testPixels.TurnOff());
+                .TearDown(() => allPixels.TurnOff());
 
             starwarsCane
                 .WhenExecuted
@@ -522,7 +523,7 @@ namespace Animatroller.SceneRunner
                 {
                     const int spacing = 4;
 
-                    testPixels.TurnOff();
+                    allPixels.TurnOff();
 
                     while (!instance.CancelToken.IsCancellationRequested)
                     {
@@ -532,11 +533,11 @@ namespace Animatroller.SceneRunner
                             {
                                 case 0:
                                 case 1:
-                                    testPixels.InjectRev(Color.Yellow, 1.0);
+                                    allPixels.InjectRev(Color.Yellow, 1.0);
                                     break;
                                 case 2:
                                 case 3:
-                                    testPixels.InjectRev(Color.Orange, 0.2);
+                                    allPixels.InjectRev(Color.Orange, 0.2);
                                     break;
                             }
 
@@ -546,7 +547,7 @@ namespace Animatroller.SceneRunner
                                 break;
                         }
                     }
-                    testPixels.TurnOff();
+                    allPixels.TurnOff();
                 });
 
             backgroundLoop
@@ -662,7 +663,7 @@ namespace Animatroller.SceneRunner
                     pulsatingEffect2.Stop();
                     audioPlayer.PauseTrack();
                     Executor.Current.Cancel(starwarsCane);
-                    testPixels.TurnOff();
+                    allPixels.TurnOff();
                     instance.WaitFor(S(0.5));
 
                     elJesus.SetPower(true);
@@ -701,8 +702,7 @@ namespace Animatroller.SceneRunner
                 .WhenExecuted
                 .SetUp(() =>
                     {
-                        testPixels.TurnOff();
-                        testPixels2.TurnOff();
+                        allPixels.TurnOff();
                     })
                 .Execute(instance =>
                 {
@@ -716,10 +716,9 @@ namespace Animatroller.SceneRunner
                     cb[4] = new ColorBrightness(Color.Blue, 1.0);
                     cb[5] = new ColorBrightness(Color.White, 1.0);
 
-                    for (int i = -6; i < testPixels2.Pixels; i++)
+                    for (int i = -6; i < allPixels.Pixels; i++)
                     {
-                        testPixels.SetColors(i, cb);
-                        testPixels2.SetColors(i, cb);
+                        allPixels.SetColors(i, cb);
                         System.Threading.Thread.Sleep(25);
                     }
 
@@ -727,8 +726,7 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                     {
-                        testPixels.TurnOff();
-                        testPixels2.TurnOff();
+                        allPixels.TurnOff();
                     });
 
             stateMachine.ForFromSequence(States.Background, backgroundLoop);
@@ -763,8 +761,7 @@ namespace Animatroller.SceneRunner
                         TestAllPixels(Color.White, 1.0, S(1));
                         TestAllPixels(Color.White, 0.5, S(1));
 
-                        testPixels.TurnOff();
-                        testPixels2.TurnOff();
+                        allPixels.TurnOff();
                     }
                 };
 
@@ -822,6 +819,7 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
+            allPixels.SetColor(50, Color.Purple);
         }
 
         public override void Stop()
