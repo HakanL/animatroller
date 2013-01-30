@@ -27,6 +27,8 @@ namespace Animatroller.SceneRunner
 
             var lorImport = new Animatroller.Framework.Utility.LorImport();
 
+            lorImport.MapDevice(1, 5, candyLight);
+
             lorImport.ImportLMSFile(@"C:\Projects\Animatroller\wonderful christmas time.lms");
         }
 
@@ -65,7 +67,7 @@ namespace Animatroller.SceneRunner
                 {
                     pulsatingEffect.Start();
 
-                    instance.WaitFor(S(3));
+                    instance.WaitFor(S(10));
 
                     pulsatingEffect.Stop();
 

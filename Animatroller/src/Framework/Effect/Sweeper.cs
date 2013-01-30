@@ -8,6 +8,34 @@ using NLog;
 
 namespace Animatroller.Framework.Effect
 {
+    public static class SweeperTables
+    {
+        public const int DataPoints = 1000;
+        public static readonly double[] DataValues1 = new double[DataPoints];
+        public static readonly double[] DataValues2 = new double[DataPoints];
+        public static readonly double[] DataValues3 = new double[DataPoints];
+
+        static SweeperTables()
+        {
+            for (int i = 0; i < DataPoints; i++)
+            {
+                DataValues1[i] = i / (double)(DataPoints - 1);
+
+                if (i < (DataPoints / 2))
+                    DataValues2[i] = 1 - 4 * i / (double)DataPoints;
+                else
+                    DataValues2[i] = -1 + 4 * (i - DataPoints / 2) / (double)DataPoints;
+
+                DataValues3[i] = Math.Abs(1 - 2 * i / (double)DataPoints);
+            }
+        }
+
+        public static int GetScaledIndex(int index, int max)
+        {
+            return Math.Min((int)(DataPoints * index / (double)max), DataPoints - 1);
+        }
+    }
+
     public class Sweeper
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
@@ -21,9 +49,6 @@ namespace Animatroller.Framework.Effect
         private int index3;
         private int positions;
         private List<PerformAction> jobs;
-        private double[] dataValues1;
-        private double[] dataValues2;
-        private double[] dataValues3;
         private TimeSpan interval;
         private bool oneShot;
         private int hitCounter;
@@ -33,26 +58,8 @@ namespace Animatroller.Framework.Effect
             if (dataPoints < 2)
                 throw new ArgumentOutOfRangeException("dataPoints");
 
-            dataValues1 = new double[dataPoints];
-            dataValues2 = new double[dataPoints];
-            dataValues3 = new double[dataPoints];
-
-            for (int i = 0; i < dataPoints; i++)
-            {
-                dataValues1[i] = i / (double)(dataPoints - 1);
-
-                if (i < (dataPoints / 2))
-                    dataValues2[i] = 1 - 4 * i / (double)dataPoints;
-                else
-                    dataValues2[i] = -1 + 4 * (i - dataPoints / 2) / (double)dataPoints;
-
-                dataValues3[i] = Math.Abs(1 - 2 * i / (double)dataPoints);
-            }
-
-            this.index1 = 0;
-            this.index2 = dataPoints / 4;
-            this.index3 = dataPoints / 2;
-            this.positions = dataPoints - 1;
+            this.positions = dataPoints;
+            InternalReset();
             this.jobs = new List<PerformAction>();
             this.timer = new Timer(new TimerCallback(TimerCallback));
 
@@ -84,12 +91,17 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
-        public Sweeper Reset()
+        private void InternalReset()
         {
             this.hitCounter = 0;
             this.index1 = 0;
             this.index2 = positions / 4;
             this.index3 = positions / 2;
+        }
+
+        public Sweeper Reset()
+        {
+            InternalReset();
 
             Resume();
 
@@ -119,20 +131,37 @@ namespace Animatroller.Framework.Effect
 
         private void TimerCallback(object state)
         {
+            double value1;
+            double value2;
+            double value3;
+
+            lock (lockObject)
+            {
+                value1 = SweeperTables.DataValues1[SweeperTables.GetScaledIndex(index1, positions + 1)];
+                value2 = SweeperTables.DataValues2[SweeperTables.GetScaledIndex(index2, positions + 1)];
+                value3 = SweeperTables.DataValues3[SweeperTables.GetScaledIndex(index3, positions + 1)];
+
+                if (++index1 >= positions)
+                    index1 = 0;
+                if (++index2 >= positions)
+                    index2 = 0;
+                if (++index3 >= positions)
+                    index3 = 0;
+
+                if (++hitCounter >= positions && this.oneShot)
+                    Pause();
+            }
+
             if (Monitor.TryEnter(lockJobs))
             {
                 try
                 {
-                    Task task = new Task(() =>
-                        {
-                            foreach (var job in jobs)
-                                job(dataValues1[index1], dataValues2[index2], dataValues3[index3], false);
-                        });
-                    task.Start();
+                    foreach (var job in jobs)
+                        job(value1, value2, value3, false);
                 }
                 catch (Exception ex)
                 {
-                    log.Info("Exception in Sweeper job" + ex.ToString());
+                    log.Error("Exception in Sweeper job" + ex.ToString());
                 }
                 finally
                 {
@@ -140,20 +169,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                log.Info("Missed execute task in Sweeper job");
-
-            lock (lockObject)
-            {
-                if (++index1 > positions)
-                    index1 = 0;
-                if (++index2 > positions)
-                    index2 = 0;
-                if (++index3 > positions)
-                    index3 = 0;
-
-                if (hitCounter++ >= positions && this.oneShot)
-                    Pause();
-            }
+                log.Warn("Missed execute task in Sweeper job");
         }
     }
 }

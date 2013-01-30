@@ -28,6 +28,7 @@ namespace Animatroller.Framework
         private List<Animatroller.Framework.Effect.IEffect> effects;
         private List<ExecuteInstance> executingTasks;
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
+        private Utility.HighPrecisionTimer masterTimer;
 
         public Executor()
         {
@@ -38,6 +39,8 @@ namespace Animatroller.Framework
             this.scenes = new List<IScene>();
             this.executingTasks = new List<ExecuteInstance>();
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
+            // Create timer for 25 ms interval (40 hz) for fades, effects, etc
+            this.masterTimer = new Utility.HighPrecisionTimer(25);
         }
 
         public Executor Register(IDevice device)

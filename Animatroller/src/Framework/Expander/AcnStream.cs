@@ -245,7 +245,8 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
-            this.dmxStreamer.Start();
+            if(this.sendingUniverses.Any())
+                this.dmxStreamer.Start();
         }
 
         public void Stop()

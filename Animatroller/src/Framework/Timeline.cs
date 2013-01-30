@@ -7,17 +7,17 @@ using NLog;
 
 namespace Animatroller.Framework
 {
-    public class Timeline
+    public class Timeline<T>
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
         public class TimelineEventArgs : EventArgs
         {
             public double ElapsedS { get; private set; }
-            public string Code { get; private set; }
+            public T Code { get; private set; }
             public int Step { get; private set; }
 
-            public TimelineEventArgs(double elapsedS, string code, int step)
+            public TimelineEventArgs(double elapsedS, T code, int step)
             {
                 this.ElapsedS = elapsedS;
                 this.Code = code;
@@ -25,7 +25,7 @@ namespace Animatroller.Framework
             }
         }
 
-        private SortedList<double, HashSet<string>> timeline;
+        private SortedList<double, HashSet<T>> timeline;
         private Task task;
         private System.Threading.CancellationTokenSource cancelSource;
 
@@ -33,10 +33,10 @@ namespace Animatroller.Framework
 
         public Timeline()
         {
-            this.timeline = new SortedList<double, HashSet<string>>();
+            this.timeline = new SortedList<double, HashSet<T>>();
         }
 
-        public Timeline PopulateFromCSV(string filename)
+        public Timeline<T> PopulateFromCSV(string filename)
         {
             using (var file = System.IO.File.OpenText(filename))
             {
@@ -55,19 +55,19 @@ namespace Animatroller.Framework
 
                     for (int i = 3; i < parts.Length; i++)
                         if (!string.IsNullOrEmpty(parts[i]))
-                            Add(elapsed, parts[i]);
+                            Add(elapsed, (T)Convert.ChangeType(parts[i], typeof(T)));
                 }
             }
 
             return this;
         }
 
-        public Timeline Add(double elapsed, string code)
+        public Timeline<T> Add(double elapsed, T code)
         {
-            HashSet<string> codes;
+            HashSet<T> codes;
             if (!timeline.TryGetValue(elapsed, out codes))
             {
-                codes = new HashSet<string>();
+                codes = new HashSet<T>();
                 timeline.Add(elapsed, codes);
             }
             codes.Add(code);
@@ -87,7 +87,7 @@ namespace Animatroller.Framework
         {
             this.cancelSource = new System.Threading.CancellationTokenSource();
 
-            this.task = new Task(a =>
+            this.task = new Task(() =>
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
@@ -107,7 +107,7 @@ namespace Animatroller.Framework
                     var handler = TimelineTrigger;
                     foreach (var code in codes)
                     {
-                        log.Info(string.Format("Invoking codes {1} at {0:N2} s   (pos {2})", elapsed, code, currentPos + 1));
+                        log.Info(string.Format("Invoking code at {0:N2} s   (pos {1})", elapsed, currentPos + 1));
                         if (handler != null)
                             handler(this, new TimelineEventArgs(elapsed, code, currentPos + 1));
                     }

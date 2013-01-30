@@ -51,7 +51,7 @@ namespace Animatroller.SceneRunner
         protected DigitalInput buttonRed;
         protected DigitalInput buttonStartReindeer;
 
-        protected Timeline timeline;
+        protected Timeline<string> timeline;
         protected StateMachine<States> stateMachine;
         protected Effect.PopOut popOutPiano;
         protected Effect.PopOut popOutDrums;
@@ -115,7 +115,7 @@ namespace Animatroller.SceneRunner
             buttonRed = new DigitalInput("Button Red");
             buttonStartReindeer = new DigitalInput("Start Reindeer");
 
-            timeline = new Timeline();
+            timeline = new Timeline<string>();
             stateMachine = new StateMachine<States>("Main");
             candyCane = new Sequence("Candy Cane");
             starwarsCane = new Sequence("Starwars Cane");
