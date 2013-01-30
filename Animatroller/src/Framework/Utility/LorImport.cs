@@ -113,6 +113,12 @@ namespace Animatroller.Framework.Utility
                         }
                         break;
 
+                    case "shimmer":
+                            device.RunEffect(
+                                new Effect2.Shimmer(0.0, 1.0),
+                                TimeSpan.FromMilliseconds((lorEvent.endCentisecond - lorEvent.startCentisecond) * 100));
+                        break;
+
                     default:
                         log.Warn("Unknown type {0}", lorEvent.type);
                         break;

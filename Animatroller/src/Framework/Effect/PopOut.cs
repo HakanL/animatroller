@@ -63,4 +63,62 @@ namespace Animatroller.Framework.Effect2
             get { return false; }
         }
     }
+
+    public class Twinkle : IMasterBrightnessEffect
+    {
+        private double minBrightness;
+        private double maxBrightness;
+
+        public Twinkle(double minBrightness, double maxBrightness)
+        {
+            this.minBrightness = minBrightness;
+            this.maxBrightness = maxBrightness;
+        }
+
+        public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
+        {
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced) =>
+            {
+                double brightness = zeroToOne.ScaleToMinMax(this.minBrightness, this.maxBrightness);
+
+                setBrightnessAction.Invoke(brightness);
+            });
+        }
+
+        public bool OneShot
+        {
+            get { return true; }
+        }
+    }
+
+    public class Shimmer : IMasterBrightnessEffect
+    {
+        private Random random;
+        private double minBrightness;
+        private double maxBrightness;
+
+        public Shimmer(double minBrightness, double maxBrightness)
+        {
+            this.minBrightness = minBrightness;
+            this.maxBrightness = maxBrightness;
+
+            this.random = new Random();
+        }
+
+        public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
+        {
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced) =>
+            {
+                double brightness = this.random.NextDouble();
+
+                setBrightnessAction.Invoke(brightness);
+            });
+        }
+
+        public bool OneShot
+        {
+            get { return true; }
+        }
+    }
+
 }
