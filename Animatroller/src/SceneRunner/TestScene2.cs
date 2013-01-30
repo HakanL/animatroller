@@ -25,10 +25,6 @@ namespace Animatroller.SceneRunner
             candyLight2 = new StrobeColorDimmer("Candy Light 2");
             pressureMat = new DigitalInput("Pressure Mat");
             pulsatingEffect = new Effect.Pulsating("Pulse FX", S(2), 0, 1.0, false);
-
-            var lorImport = new Animatroller.Framework.Utility.LorImport();
-
-            lorImport.ImportLMSFile(@"C:\Projects\Animatroller\wonderful christmas time.lms");
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
