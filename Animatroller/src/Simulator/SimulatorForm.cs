@@ -26,20 +26,24 @@ namespace Animatroller.Simulator
 
             foreach (var field in fields)
             {
+                object fieldValue = field.GetValue(scene);
+                if (fieldValue == null)
+                    continue;
+
                 // Auto-wire
                 if (field.FieldType == typeof(Dimmer))
-                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer)field.GetValue(scene)));
+                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer))
-                    this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)field.GetValue(scene)));
+                    this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)fieldValue));
                 else if (field.FieldType == typeof(StrobeDimmer))
-                    this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer)field.GetValue(scene)));
+                    this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer)fieldValue));
                 else if (field.FieldType == typeof(StrobeColorDimmer))
-                    this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer)field.GetValue(scene)));
+                    this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer)fieldValue));
                 else if (field.FieldType == typeof(Pixel1D))
-                    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)field.GetValue(scene)));
+                    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else
                     if (field.FieldType == typeof(Switch))
-                        this.AddDigitalOutput((Switch)field.GetValue(scene));
+                        this.AddDigitalOutput((Switch)fieldValue);
             }
 
             return this;

@@ -8,38 +8,9 @@ using NLog;
 
 namespace Animatroller.Framework.Effect
 {
-    public static class SweeperTables
-    {
-        public const int DataPoints = 1000;
-        public static readonly double[] DataValues1 = new double[DataPoints];
-        public static readonly double[] DataValues2 = new double[DataPoints];
-        public static readonly double[] DataValues3 = new double[DataPoints];
-
-        static SweeperTables()
-        {
-            for (int i = 0; i < DataPoints; i++)
-            {
-                DataValues1[i] = i / (double)(DataPoints - 1);
-
-                if (i < (DataPoints / 2))
-                    DataValues2[i] = 1 - 4 * i / (double)DataPoints;
-                else
-                    DataValues2[i] = -1 + 4 * (i - DataPoints / 2) / (double)DataPoints;
-
-                DataValues3[i] = Math.Abs(1 - 2 * i / (double)DataPoints);
-            }
-        }
-
-        public static int GetScaledIndex(int index, int max)
-        {
-            return Math.Min((int)(DataPoints * index / (double)max), DataPoints - 1);
-        }
-    }
-
     public class Sweeper
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
-        public delegate void PerformAction(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool forced);
 
         private object lockObject = new object();
         private object lockJobs = new object();
@@ -48,7 +19,7 @@ namespace Animatroller.Framework.Effect
         private int index2;
         private int index3;
         private int positions;
-        private List<PerformAction> jobs;
+        private List<EffectAction.Action> jobs;
         private TimeSpan interval;
         private bool oneShot;
         private int hitCounter;
@@ -60,7 +31,7 @@ namespace Animatroller.Framework.Effect
 
             this.positions = dataPoints;
             InternalReset();
-            this.jobs = new List<PerformAction>();
+            this.jobs = new List<EffectAction.Action>();
             this.timer = new Timer(new TimerCallback(TimerCallback));
 
             this.interval = new TimeSpan(duration.Ticks / dataPoints);
@@ -119,7 +90,7 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
-        public Sweeper RegisterJob(PerformAction job)
+        public Sweeper RegisterJob(EffectAction.Action job)
         {
             lock (lockJobs)
             {

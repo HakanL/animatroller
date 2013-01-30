@@ -6,6 +6,7 @@ using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
+using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
@@ -24,12 +25,6 @@ namespace Animatroller.SceneRunner
             candyLight2 = new StrobeColorDimmer("Candy Light 2");
             pressureMat = new DigitalInput("Pressure Mat");
             pulsatingEffect = new Effect.Pulsating("Pulse FX", S(2), 0, 1.0, false);
-
-            var lorImport = new Animatroller.Framework.Utility.LorImport();
-
-            lorImport.MapDevice(1, 5, candyLight);
-
-            lorImport.ImportLMSFile(@"C:\Projects\Animatroller\wonderful christmas time.lms");
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -84,13 +79,16 @@ namespace Animatroller.SceneRunner
                 {
                     log.Info("Button press!");
 
-                    Executor.Current.Execute(testSequence);
+//                    candyLight2.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5));
+//                    Executor.Current.Execute(testSequence);
                 }
             };
 
 
             pulsatingEffect.AddDevice(candyLight)
                 .AddDevice(candyLight2);
+
+//            candyLight.RunEffect(new Effect2.Pulse(0.0, 1.0), S(2));
         }
 
         public override void Run()

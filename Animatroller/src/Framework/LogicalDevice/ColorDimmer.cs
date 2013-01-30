@@ -19,6 +19,7 @@ namespace Animatroller.Framework.LogicalDevice
         public ColorDimmer(string name)
             : base(name)
         {
+            this.color = Color.White;
         }
 
         protected void RaiseColorChanged()

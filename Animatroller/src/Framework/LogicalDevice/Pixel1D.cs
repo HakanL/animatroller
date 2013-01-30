@@ -10,11 +10,13 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Pixel1D : IOutput, ILogicalDevice, IHasBrightnessControl
+    public class Pixel1D : IOutput, ILogicalDevice, IHasBrightnessControl, IOwner
     {
+        protected object lockObject = new object();
         protected string name;
         protected IOwner owner;
         protected int pixelCount;
+        protected Effect.MasterSweeper.Job effectJob;
 
         protected double[] brightness;
         protected Color[] color;
@@ -393,6 +395,33 @@ namespace Animatroller.Framework.LogicalDevice
 
             this.owner = owner;
             this.Brightness = value;
+        }
+
+        public virtual void RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
+        {
+            var effectAction = effect.GetEffectAction(brightness =>
+            {
+                this.SetBrightness(brightness, this);
+            });
+
+            lock (this.lockObject)
+            {
+                if (this.effectJob == null)
+                {
+                    // Create new
+                    this.effectJob = Executor.Current.RegisterSweeperJob(effectAction, oneSweepDuration, effect.OneShot);
+                }
+                else
+                {
+                    this.effectJob.Reset(effectAction, oneSweepDuration, effect.OneShot);
+                }
+                this.effectJob.Restart();
+            }
+        }
+
+        public int Priority
+        {
+            get { return 0; }
         }
     }
 }

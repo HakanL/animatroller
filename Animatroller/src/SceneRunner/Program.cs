@@ -12,7 +12,7 @@ namespace Animatroller.SceneRunner
     {
         private static Logger log = LogManager.GetCurrentClassLogger();
         
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             // Variables for al types of IO expanders, etc
             Animatroller.Simulator.SimulatorForm simForm = null;
@@ -61,7 +61,8 @@ namespace Animatroller.SceneRunner
             // use Visual Studio on my scene-running PC to improve things on the fly
 
             //var scene = new TestScene();
-            var scene = new TestScene2();
+            //var scene = new TestScene2();
+            var scene = new LORScene();
             //var scene = new HalloweenScene();
             //var scene = new XmasScene();
             //var scene = new XmasScene2(sceneArgs);

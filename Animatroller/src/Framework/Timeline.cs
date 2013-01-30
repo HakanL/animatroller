@@ -104,10 +104,10 @@ namespace Animatroller.Framework
                     var codes = this.timeline.Values[currentPos];
 
                     // Invoke
+                    log.Info(string.Format("Invoking {1} code(s) at {0:N2} s   (pos {2})", elapsed, codes.Count, currentPos + 1));
                     var handler = TimelineTrigger;
                     foreach (var code in codes)
                     {
-                        log.Info(string.Format("Invoking code at {0:N2} s   (pos {1})", elapsed, currentPos + 1));
                         if (handler != null)
                             handler(this, new TimelineEventArgs(elapsed, code, currentPos + 1));
                     }

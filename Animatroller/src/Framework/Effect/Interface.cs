@@ -16,4 +16,14 @@ namespace Animatroller.Framework.Effect
     {
         double Transform(double input);
     }
+
+    public interface IMasterEffect
+    {
+        bool OneShot { get; }
+    }
+
+    public interface IMasterBrightnessEffect : IMasterEffect
+    {
+        Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction);
+    }
 }
