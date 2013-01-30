@@ -21,7 +21,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;PROFILE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -41,6 +41,9 @@
     <Reference Include="Acn">
       <HintPath>..\..\lib\Acn.dll</HintPath>
     </Reference>
+    <Reference Include="CircularBuffer">
+      <HintPath>..\..\lib\CircularBuffer.dll</HintPath>
+    </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>
@@ -54,13 +57,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Effect\EffectAction.cs" />
+    <Compile Include="Effect\PopOut.cs" />
+    <Compile Include="Effect\SweeperTables.cs" />
+    <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />
     <Compile Include="Interface\ICanExecute.cs" />
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
-    <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
     <Compile Include="LogicalDevice\Event\PixelChanged.cs" />
     <Compile Include="LogicalDevice\Pixel1D.cs" />
@@ -121,6 +127,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Effect\Transformer.cs" />
     <Compile Include="Timeline.cs" />
+    <Compile Include="Utility\HighPrecisionTimer.cs" />
     <Compile Include="Utility\LightORamaLMS.cs" />
     <Compile Include="Utility\LorImport.cs" />
   </ItemGroup>

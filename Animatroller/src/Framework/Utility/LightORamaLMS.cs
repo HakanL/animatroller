@@ -1,4 +1,4 @@
-﻿using System.Xml.Serialization;
+using System.Xml.Serialization;
 
 namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
 {
@@ -40,7 +40,7 @@ namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string centiseconds;
+        public long centiseconds;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -48,15 +48,15 @@ namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string unit;
+        public int unit;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string circuit;
+        public int circuit;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string savedIndex;
+        public int savedIndex;
     }
 
     /// <remarks/>
@@ -74,15 +74,15 @@ namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string startCentisecond;
+        public long startCentisecond;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string endCentisecond;
+        public long endCentisecond;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string intensity;
+        public short intensity;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -183,7 +183,7 @@ namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string centisecond;
+        public long centisecond;
     }
 
     /// <remarks/>
@@ -205,7 +205,7 @@ namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string totalCentiseconds;
+        public long totalCentiseconds;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]

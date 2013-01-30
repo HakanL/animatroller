@@ -24,5 +24,10 @@ namespace Animatroller.Framework
         public abstract void Start();
         public abstract void Run();
         public abstract void Stop();
+
+        protected Executor Exec
+        {
+            get { return Executor.Current; }
+        }
     }
 }

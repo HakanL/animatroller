@@ -20,33 +20,30 @@ namespace Animatroller.Simulator
             InitializeComponent();
         }
 
-        public SimulatorForm AutoWireUsingReflection(IScene scene, params IDevice[] excludeDevices)
+        public SimulatorForm AutoWireUsingReflection(IScene scene)
         {
             var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             foreach (var field in fields)
             {
-                object value = field.GetValue(scene);
+                object fieldValue = field.GetValue(scene);
+                if (fieldValue == null)
+                    continue;
 
                 // Auto-wire
-                if (typeof(IDevice).IsInstanceOfType(value))
-                {
-                    if (excludeDevices.Contains((IDevice)value))
-                        // Excluded
-                        continue;
-                }
-
                 if (field.FieldType == typeof(Dimmer))
-                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer)value));
+                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer)fieldValue));
+                else if (field.FieldType == typeof(ColorDimmer))
+                    this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)fieldValue));
+                else if (field.FieldType == typeof(StrobeDimmer))
+                    this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer)fieldValue));
+                else if (field.FieldType == typeof(StrobeColorDimmer))
+                    this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer)fieldValue));
+                else if (field.FieldType == typeof(Pixel1D))
+                    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else
-                    if (field.FieldType == typeof(ColorDimmer))
-                        this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)value));
-                    else
-                        if (field.FieldType == typeof(Pixel1D))
-                            this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)value));
-                        else
-                            if (field.FieldType == typeof(Switch))
-                                this.AddDigitalOutput((Switch)value);
+                    if (field.FieldType == typeof(Switch))
+                        this.AddDigitalOutput((Switch)fieldValue);
             }
 
             return this;

@@ -10,6 +10,8 @@ namespace Animatroller.Framework
 {
     public class Executor
     {
+        internal const int MasterTimerIntervalMs = 25;
+
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
         public class ExecuteInstance
@@ -28,6 +30,8 @@ namespace Animatroller.Framework
         private List<Animatroller.Framework.Effect.IEffect> effects;
         private List<ExecuteInstance> executingTasks;
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
+        private Utility.HighPrecisionTimer masterTimer;
+        private Effect.MasterSweeper masterSweeper;
 
         public Executor()
         {
@@ -38,6 +42,9 @@ namespace Animatroller.Framework
             this.scenes = new List<IScene>();
             this.executingTasks = new List<ExecuteInstance>();
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
+            // Create timer for 25 ms interval (40 hz) for fades, effects, etc
+            this.masterTimer = new Utility.HighPrecisionTimer(MasterTimerIntervalMs);
+            this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
         }
 
         public Executor Register(IDevice device)
@@ -48,6 +55,11 @@ namespace Animatroller.Framework
             this.devices.Add(device);
 
             return this;
+        }
+
+        public Effect.MasterSweeper.Job RegisterSweeperJob(Effect.EffectAction.Action action, TimeSpan oneSweepDuration, bool oneShot)
+        {
+            return this.masterSweeper.RegisterJob(action, oneSweepDuration, oneShot);
         }
 
         public Executor Register(Animatroller.Framework.Effect.IEffect device)

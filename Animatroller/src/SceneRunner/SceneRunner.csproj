@@ -49,9 +49,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestScene2.cs" />
     <Compile Include="XmasScene2.cs" />
     <Compile Include="XmasScene.cs" />
-    <Compile Include="TestScene2.cs" />
+    <Compile Include="LORScene.cs" />
     <Compile Include="HalloweenScene.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -5,16 +5,19 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Drawing;
+using NLog;
 using Animatroller.Framework.Extensions;
 using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Dimmer : IOutput, ILogicalDevice, IHasBrightnessControl
+    public class Dimmer : IOutput, ILogicalDevice, IHasBrightnessControl, IOwner
     {
+        protected object lockObject = new object();
         protected double brightness;
         protected IOwner owner;
         protected string name;
+        protected Effect.MasterSweeper.Job effectJob;
 
         public event EventHandler<BrightnessChangedEventArgs> BrightnessChanged;
 
@@ -80,6 +83,28 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        public virtual void RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
+        {
+            var effectAction = effect.GetEffectAction(brightness =>
+                {
+                    this.SetBrightness(brightness, this);
+                });
+
+            lock (this.lockObject)
+            {
+                if (this.effectJob == null)
+                {
+                    // Create new
+                    this.effectJob = Executor.Current.RegisterSweeperJob(effectAction, oneSweepDuration, effect.OneShot);
+                }
+                else
+                {
+                    this.effectJob.Reset(effectAction, oneSweepDuration, effect.OneShot);
+                }
+                this.effectJob.Restart();
+            }
+        }
+
         public virtual void StartDevice()
         {
             RaiseBrightnessChanged();
@@ -88,6 +113,11 @@ namespace Animatroller.Framework.LogicalDevice
         public string Name
         {
             get { return this.name; }
+        }
+
+        public int Priority
+        {
+            get { return 0; }
         }
     }
 }

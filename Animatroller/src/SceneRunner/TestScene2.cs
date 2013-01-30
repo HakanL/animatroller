@@ -6,6 +6,7 @@ using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
+using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
@@ -65,7 +66,7 @@ namespace Animatroller.SceneRunner
                 {
                     pulsatingEffect.Start();
 
-                    instance.WaitFor(S(3));
+                    instance.WaitFor(S(10));
 
                     pulsatingEffect.Stop();
 
@@ -82,13 +83,16 @@ namespace Animatroller.SceneRunner
                 {
                     log.Info("Button press!");
 
-                    Executor.Current.Execute(testSequence);
+//                    candyLight2.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5));
+//                    Executor.Current.Execute(testSequence);
                 }
             };
 
 
             pulsatingEffect.AddDevice(candyLight)
                 .AddDevice(candyLight2);
+
+//            candyLight.RunEffect(new Effect2.Pulse(0.0, 1.0), S(2));
         }
 
         public override void Run()
