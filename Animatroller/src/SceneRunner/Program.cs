@@ -62,7 +62,8 @@ namespace Animatroller.SceneRunner
 
             //var scene = new TestScene();
             //var scene = new TestScene2();
-            var scene = new LORScene();
+//            var scene = new LORScene();
+            var scene = new PixelScene1();
             //var scene = new HalloweenScene();
             //var scene = new XmasScene();
             //var scene = new XmasScene2(sceneArgs);
