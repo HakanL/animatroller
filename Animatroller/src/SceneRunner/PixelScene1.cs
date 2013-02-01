@@ -9,6 +9,7 @@ using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
+using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
@@ -127,7 +128,18 @@ namespace Animatroller.SceneRunner
                     return;
 
                 Exec.Cancel(candyCane);
-                Exec.Execute(laserSeq);
+
+                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+                allPixels.SetAllOnlyColor(Color.Purple);
+                allPixels.RunEffect(new Effect2.Fader(0.0, 1.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+
+                allPixels.SetAllOnlyColor(Color.Orange);
+                allPixels.RunEffect(new Effect2.Fader(0.0, 1.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+
+                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+
+                Exec.Execute(candyCane);
             };
         }
 
@@ -139,7 +151,7 @@ namespace Animatroller.SceneRunner
         public override void Stop()
         {
             Exec.Cancel(candyCane);
-            System.Threading.Thread.Sleep(500);
+            System.Threading.Thread.Sleep(100);
         }
     }
 }

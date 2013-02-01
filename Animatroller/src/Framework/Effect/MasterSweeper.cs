@@ -25,6 +25,7 @@ namespace Animatroller.Framework.Effect
             private double value1;
             private double value2;
             private double value3;
+            private ManualResetEvent oneShotComplete;
 
             internal Job(EffectAction.Action action, TimeSpan oneSweepDuration, int intervalMs, bool oneShot)
             {
@@ -34,6 +35,8 @@ namespace Animatroller.Framework.Effect
                 this.offset1 = 0;
                 this.offset2 = SweeperTables.DataPoints / 4;
                 this.offset3 = SweeperTables.DataPoints / 2;
+
+                this.oneShotComplete = new ManualResetEvent(false);
 
                 SetDuration(oneSweepDuration);
             }
@@ -48,6 +51,11 @@ namespace Animatroller.Framework.Effect
                 }
 
                 return this;
+            }
+
+            public WaitHandle OneShotCompleteWaitHandle
+            {
+                get { return this.oneShotComplete; }
             }
 
             public Job SetDuration(TimeSpan oneSweepDuration)
@@ -111,6 +119,7 @@ namespace Animatroller.Framework.Effect
             {
                 lock (lockObject)
                 {
+                    this.oneShotComplete.Reset();
                     this.running = true;
                 }
 
@@ -168,6 +177,8 @@ namespace Animatroller.Framework.Effect
                             SetValues();
 
                             Stop();
+
+                            this.oneShotComplete.Set();
                         }
                     }
                 }

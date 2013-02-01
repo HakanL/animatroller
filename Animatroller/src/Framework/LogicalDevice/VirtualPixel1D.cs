@@ -464,7 +464,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
+        public Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
         {
             var effectAction = effect.GetEffectAction(brightness =>
             {
@@ -484,6 +484,8 @@ namespace Animatroller.Framework.LogicalDevice
                 }
                 this.effectJob.Restart();
             }
+
+            return this.effectJob;
         }
 
         public int Priority
