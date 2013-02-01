@@ -37,7 +37,7 @@ namespace Animatroller.Simulator
             get { return this.numberOfPixels; }
         }
 
-        public TestPixel1D(Pixel1D logicalDevice)
+        public TestPixel1D(IPixel1D logicalDevice)
         {
             Executor.Current.Register(this);
 

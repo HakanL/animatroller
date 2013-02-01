@@ -1,4 +1,4 @@
-using System.Xml.Serialization;
+﻿using System.Xml.Serialization;
 
 namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
 {

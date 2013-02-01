@@ -10,8 +10,9 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class VirtualPixel1D : IOutput, ILogicalDevice, IHasBrightnessControl
+    public class VirtualPixel1D : IPixel1D, IOutput, ILogicalDevice, IHasBrightnessControl, IOwner
     {
+        protected object lockObject = new object();
         protected string name;
         protected IOwner owner;
         protected int pixelCount;
@@ -19,6 +20,12 @@ namespace Animatroller.Framework.LogicalDevice
         protected List<PixelDevice> devices;
         protected double[] brightness;
         protected Color[] color;
+        protected Effect.MasterSweeper.Job effectJob;
+
+        // Master events, primarily used by simulator
+        public event EventHandler<PixelChangedEventArgs> PixelChanged;
+        public event EventHandler<MultiPixelChangedEventArgs> MultiPixelChanged;
+
 
         public VirtualPixel1D(string name, int pixels)
         {
@@ -58,11 +65,15 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void RaisePixelChanged(int position)
         {
+            var handler = PixelChanged;
+            if(handler != null)
+                handler(this, new PixelChangedEventArgs(position, this.color[position], this.brightness[position]));
+
             foreach (var pixelDevice in this.devices)
             {
                 if (pixelDevice.IsPositionForThisDevice(position))
                 {
-                    var handler = pixelDevice.PixelChanged;
+                    handler = pixelDevice.PixelChanged;
                     if (handler != null)
                         handler(this, new PixelChangedEventArgs(position - pixelDevice.StartPosition, this.color[position], this.brightness[position]));
                 }
@@ -71,6 +82,18 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void RaiseMultiPixelChanged(int startPosition, int size)
         {
+            var handler = MultiPixelChanged;
+            if (handler != null)
+            {
+                var newValues = new List<ColorBrightness>();
+                for (int i = 0; i < size; i++)
+                {
+                    int position = i + startPosition;
+                    newValues.Add(new ColorBrightness(this.color[position], this.brightness[position]));
+                }
+                handler(this, new MultiPixelChangedEventArgs(startPosition, newValues.ToArray()));
+            }
+
             foreach (var pixelDevice in this.devices)
             {
                 int? firstPosition = null;
@@ -89,11 +112,9 @@ namespace Animatroller.Framework.LogicalDevice
 
                 if (newValues.Any())
                 {
-                    var handler = pixelDevice.MultiPixelChanged;
+                    handler = pixelDevice.MultiPixelChanged;
                     if (handler != null)
-                    {
                         handler(this, new MultiPixelChangedEventArgs(firstPosition.Value, newValues.ToArray()));
-                    }
                 }
             }
         }
@@ -441,6 +462,33 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 return position >= this.StartPosition && position <= this.EndPosition;
             }
+        }
+
+        public void RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
+        {
+            var effectAction = effect.GetEffectAction(brightness =>
+            {
+                this.SetBrightness(brightness, this);
+            });
+
+            lock (this.lockObject)
+            {
+                if (this.effectJob == null)
+                {
+                    // Create new
+                    this.effectJob = Executor.Current.RegisterSweeperJob(effectAction, oneSweepDuration, effect.OneShot);
+                }
+                else
+                {
+                    this.effectJob.Reset(effectAction, oneSweepDuration, effect.OneShot);
+                }
+                this.effectJob.Restart();
+            }
+        }
+
+        public int Priority
+        {
+            get { return 0; }
         }
     }
 }

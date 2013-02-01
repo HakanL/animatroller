@@ -67,6 +67,8 @@
     <Compile Include="Interface\ICanExecute.cs" />
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
+    <Compile Include="LogicalDevice\Interface\IPixel.cs" />
+    <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
     <Compile Include="LogicalDevice\Event\PixelChanged.cs" />
     <Compile Include="LogicalDevice\Pixel1D.cs" />

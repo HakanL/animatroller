@@ -116,7 +116,12 @@ namespace Animatroller.Framework.Expander
                 this.universe = universe;
 
                 this.dmxUniverse = new DmxUniverse(universe);
+                bool isStreamerRunning = this.streamer.Streaming;
+                if (isStreamerRunning)
+                    this.streamer.Stop();
                 this.streamer.AddUniverse(this.dmxUniverse);
+                if (isStreamerRunning)
+                    this.streamer.Start();
             }
 
             public void Dispose()
@@ -138,15 +143,19 @@ namespace Animatroller.Framework.Expander
 
             public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
             {
+                byte[] dmxData = new byte[this.dmxUniverse.DmxData.Length];
+                Array.Copy(this.dmxUniverse.DmxData, dmxData, dmxData.Length);
+
                 for (int i = 0; i < length; i++)
                 {
                     int chn = firstChannel + i;
                     if (chn >= 1 && chn <= 512)
-                        this.dmxUniverse.DmxData[chn] = values[offset + i];
+                        dmxData[chn] = values[offset + i];
                 }
 
                 // Force a send
-                this.dmxUniverse.SetDmx(0, this.dmxUniverse.DmxData[0]);
+                this.dmxUniverse.SetDmx(dmxData);
+
                 return SendStatus.NotSet;
             }
         }
@@ -164,6 +173,7 @@ namespace Animatroller.Framework.Expander
             this.socket = new StreamingAcnSocket(Guid.NewGuid(), "Animatroller");
             this.socket.NewPacket += socket_NewPacket;
             this.socket.Open(bindIpAddress);
+            log.Info("ACN binding to {0}", bindIpAddress);
 
             this.dmxStreamer = new DmxStreamer(socket);
             this.sendingUniverses = new Dictionary<int, AcnUniverse>();
@@ -199,6 +209,9 @@ namespace Animatroller.Framework.Expander
                     acnUniverse = new AcnUniverse(this.dmxStreamer, universe);
 
                     this.sendingUniverses.Add(universe, acnUniverse);
+
+                    if (!this.dmxStreamer.Streaming)
+                        this.dmxStreamer.Start();
                 }
             }
 
