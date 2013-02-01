@@ -409,11 +409,11 @@ namespace Animatroller.Framework.LogicalDevice
                 if (this.effectJob == null)
                 {
                     // Create new
-                    this.effectJob = Executor.Current.RegisterSweeperJob(effectAction, oneSweepDuration, effect.OneShot);
+                    this.effectJob = Executor.Current.RegisterSweeperJob(effectAction, oneSweepDuration, effect.Iterations);
                 }
                 else
                 {
-                    this.effectJob.Reset(effectAction, oneSweepDuration, effect.OneShot);
+                    this.effectJob.Reset(effectAction, oneSweepDuration, effect.Iterations);
                 }
                 this.effectJob.Restart();
             }

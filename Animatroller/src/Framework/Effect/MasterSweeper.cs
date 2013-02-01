@@ -20,42 +20,42 @@ namespace Animatroller.Framework.Effect
             private readonly int intervalMs;
             private double index;
             private bool running;
-            private bool oneShot;
+            private int? iterationCounter;
             private double step;
             private double value1;
             private double value2;
             private double value3;
-            private ManualResetEvent oneShotComplete;
+            private ManualResetEvent iterationsComplete;
 
-            internal Job(EffectAction.Action action, TimeSpan oneSweepDuration, int intervalMs, bool oneShot)
+            internal Job(EffectAction.Action action, TimeSpan oneSweepDuration, int intervalMs, int? iterations)
             {
                 this.action = action;
                 this.intervalMs = intervalMs;
-                this.oneShot = oneShot;
+                this.iterationCounter = iterations;
                 this.offset1 = 0;
                 this.offset2 = SweeperTables.DataPoints / 4;
                 this.offset3 = SweeperTables.DataPoints / 2;
 
-                this.oneShotComplete = new ManualResetEvent(false);
+                this.iterationsComplete = new ManualResetEvent(false);
 
                 SetDuration(oneSweepDuration);
             }
 
-            public Job Reset(EffectAction.Action action, TimeSpan oneSweepDuration, bool oneShot)
+            public Job Reset(EffectAction.Action action, TimeSpan oneSweepDuration, int? iterations)
             {
                 lock (lockObject)
                 {
                     this.action = action;
                     this.step = (double)SweeperTables.DataPoints / (1000 / (double)intervalMs) / oneSweepDuration.TotalSeconds;
-                    this.oneShot = oneShot;
+                    this.iterationCounter = iterations;
                 }
 
                 return this;
             }
 
-            public WaitHandle OneShotCompleteWaitHandle
+            public WaitHandle IterationsCompleteWaitHandle
             {
-                get { return this.oneShotComplete; }
+                get { return this.iterationsComplete; }
             }
 
             public Job SetDuration(TimeSpan oneSweepDuration)
@@ -119,7 +119,7 @@ namespace Animatroller.Framework.Effect
             {
                 lock (lockObject)
                 {
-                    this.oneShotComplete.Reset();
+                    this.iterationsComplete.Reset();
                     this.running = true;
                 }
 
@@ -138,9 +138,23 @@ namespace Animatroller.Framework.Effect
                 return this;
             }
 
-            public Job OneShot()
+            public Job Wait()
             {
-                this.oneShot = true;
+                // Wait for iterations to be completed
+                this.IterationsCompleteWaitHandle.WaitOne();
+
+                return this;
+            }
+
+            public Job SetIterations(int? iterations)
+            {
+                if (iterations.GetValueOrDefault() < 1)
+                    throw new ArgumentOutOfRangeException();
+
+                lock (lockObject)
+                {
+                    this.iterationCounter = iterations;
+                }
 
                 return this;
             }
@@ -170,15 +184,19 @@ namespace Animatroller.Framework.Effect
                     {
                         this.index = 0;
 
-                        if (this.oneShot)
+                        if (this.iterationCounter.HasValue)
                         {
-                            // Set to last position
-                            this.index = SweeperTables.DataPoints - 1;
-                            SetValues();
+                            this.iterationCounter = this.iterationCounter.Value - 1;
+                            if(this.iterationCounter.Value <= 0)
+                            {
+                                // Set to last position
+                                this.index = SweeperTables.DataPoints - 1;
+                                SetValues();
 
-                            Stop();
+                                Stop();
 
-                            this.oneShotComplete.Set();
+                                this.iterationsComplete.Set();
+                            }
                         }
                     }
                 }
@@ -240,9 +258,9 @@ namespace Animatroller.Framework.Effect
                 log.Warn("Missed execute task in MasterSweeper job");
         }
 
-        public MasterSweeper.Job RegisterJob(EffectAction.Action action, TimeSpan oneSweepDuration, bool oneShot)
+        public MasterSweeper.Job RegisterJob(EffectAction.Action action, TimeSpan oneSweepDuration, int? iterations)
         {
-            var job = new MasterSweeper.Job(action, oneSweepDuration, this.intervalMs, oneShot);
+            var job = new MasterSweeper.Job(action, oneSweepDuration, this.intervalMs, iterations);
 
             lock (lockTicks)
             {

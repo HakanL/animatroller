@@ -19,11 +19,13 @@ namespace Animatroller.SceneRunner
         protected VirtualPixel1D allPixels;
         protected DigitalInput buttonTest;
 
+        protected Sequence testSeq;
         protected Sequence candyCane;
         protected Sequence laserSeq;
 
         public PixelScene1(IEnumerable<string> args)
         {
+            testSeq = new Sequence("Pulse");
             candyCane = new Sequence("Candy Cane");
             laserSeq = new Sequence("Laser");
 
@@ -66,6 +68,25 @@ namespace Animatroller.SceneRunner
 
         public override void Start()
         {
+            testSeq
+                .WhenExecuted
+                .SetUp(() => allPixels.TurnOff())
+                .Execute(instance =>
+                {
+                    allPixels.SetAllOnlyColor(Color.Orange);
+                    allPixels.RunEffect(new Effect2.Pulse(0.0, 1.0), S(2.0))
+                        .SetIterations(2)
+                        .Wait();
+                    allPixels.StopEffect();
+                })
+                .TearDown(() => 
+                    {
+                        allPixels.TurnOff();
+
+                        Exec.Execute(candyCane);
+                    });
+
+
             candyCane
                 .WhenExecuted
                 .SetUp(() => allPixels.TurnOff())
@@ -129,15 +150,15 @@ namespace Animatroller.SceneRunner
 
                 Exec.Cancel(candyCane);
 
-                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).Wait();
                 allPixels.SetAllOnlyColor(Color.Purple);
-                allPixels.RunEffect(new Effect2.Fader(0.0, 1.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
-                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+                allPixels.RunEffect(new Effect2.Fader(0.0, 1.0), S(2.0)).Wait();
+                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).Wait();
 
                 allPixels.SetAllOnlyColor(Color.Orange);
-                allPixels.RunEffect(new Effect2.Fader(0.0, 1.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+                allPixels.RunEffect(new Effect2.Fader(0.0, 1.0), S(2.0)).Wait();
 
-                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).OneShotCompleteWaitHandle.WaitOne();
+                allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).Wait();
 
                 Exec.Execute(candyCane);
             };
@@ -145,18 +166,13 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
-            allPixels.SetAllOnlyColor(Color.Pink);
-            allPixels.RunEffect(new Effect2.Pulse(0.0, 1.0), S(2.0));
-            System.Threading.Thread.Sleep(S(10));
-            allPixels.StopEffect();
-
-            Exec.Execute(candyCane);
+            Exec.Execute(testSeq);
         }
 
         public override void Stop()
         {
             Exec.Cancel(candyCane);
-            System.Threading.Thread.Sleep(100);
+            System.Threading.Thread.Sleep(200);
         }
     }
 }

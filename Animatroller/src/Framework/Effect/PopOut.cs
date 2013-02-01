@@ -29,9 +29,9 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        public bool OneShot
+        public int? Iterations
         {
-            get { return true; }
+            get { return 1; }
         }
     }
 
@@ -58,9 +58,10 @@ namespace Animatroller.Framework.Effect2
             });
         }
 
-        public bool OneShot
+        public int? Iterations
         {
-            get { return false; }
+            // Forever
+            get { return null; }
         }
     }
 
@@ -85,9 +86,9 @@ namespace Animatroller.Framework.Effect2
             });
         }
 
-        public bool OneShot
+        public int? Iterations
         {
-            get { return true; }
+            get { return 1; }
         }
     }
 
@@ -115,9 +116,9 @@ namespace Animatroller.Framework.Effect2
             });
         }
 
-        public bool OneShot
+        public int? Iterations
         {
-            get { return true; }
+            get { return 1; }
         }
     }
 

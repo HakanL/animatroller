@@ -57,9 +57,9 @@ namespace Animatroller.Framework
             return this;
         }
 
-        public Effect.MasterSweeper.Job RegisterSweeperJob(Effect.EffectAction.Action action, TimeSpan oneSweepDuration, bool oneShot)
+        public Effect.MasterSweeper.Job RegisterSweeperJob(Effect.EffectAction.Action action, TimeSpan oneSweepDuration, int? iterations)
         {
-            return this.masterSweeper.RegisterJob(action, oneSweepDuration, oneShot);
+            return this.masterSweeper.RegisterJob(action, oneSweepDuration, iterations);
         }
 
         public Executor Register(Animatroller.Framework.Effect.IEffect device)

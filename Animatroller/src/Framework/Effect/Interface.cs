@@ -19,7 +19,7 @@ namespace Animatroller.Framework.Effect
 
     public interface IMasterEffect
     {
-        bool OneShot { get; }
+        int? Iterations { get; }
     }
 
     public interface IMasterBrightnessEffect : IMasterEffect
