@@ -145,6 +145,11 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
+            allPixels.SetAllOnlyColor(Color.Pink);
+            allPixels.RunEffect(new Effect2.Pulse(0.0, 1.0), S(2.0));
+            System.Threading.Thread.Sleep(S(10));
+            allPixels.StopEffect();
+
             Exec.Execute(candyCane);
         }
 
