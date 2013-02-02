@@ -19,6 +19,7 @@ namespace Animatroller.Framework.Expander
 {
     public class AcnStream : IPort, IRunnable
     {
+        public readonly Guid animatrollerAcnId = new Guid("{53A974B9-8286-4DC1-BFAB-00FEC91FD7A9}");
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
         protected class AcnPixelUniverse : IPixelOutput
@@ -170,7 +171,7 @@ namespace Animatroller.Framework.Expander
             if (bindIpAddress == null)
                 bindIpAddress = GetFirstBindAddress();
 
-            this.socket = new StreamingAcnSocket(Guid.NewGuid(), "Animatroller");
+            this.socket = new StreamingAcnSocket(animatrollerAcnId, "Animatroller");
             this.socket.NewPacket += socket_NewPacket;
             this.socket.Open(bindIpAddress);
             log.Info("ACN binding to {0}", bindIpAddress);
