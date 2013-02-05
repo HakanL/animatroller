@@ -14,6 +14,7 @@ namespace Animatroller.Framework.Effect
         {
             private object lockObject = new object();
             private EffectAction.Action action { get; set; }
+            private long ticks;
             private readonly int offset1;
             private readonly int offset2;
             private readonly int offset3;
@@ -25,6 +26,7 @@ namespace Animatroller.Framework.Effect
             private double value1;
             private double value2;
             private double value3;
+            private long valueTicks;
             private ManualResetEvent iterationsComplete;
 
             internal Job(EffectAction.Action action, TimeSpan oneSweepDuration, int intervalMs, int? iterations)
@@ -84,6 +86,7 @@ namespace Animatroller.Framework.Effect
                 {
                     this.running = false;
                     this.index = 0;
+                    this.ticks = 0;
                 }
 
                 SetDuration(oneSweepDuration);
@@ -98,6 +101,7 @@ namespace Animatroller.Framework.Effect
                 lock (lockObject)
                 {
                     this.index = 0;
+                    this.ticks = 0;
                 }
 
                 Resume();
@@ -132,7 +136,7 @@ namespace Animatroller.Framework.Effect
                 {
                     Pause();
 
-                    this.action.Invoke(this.value1, this.value2, this.value3, true);
+                    this.action.Invoke(this.value1, this.value2, this.value3, true, this.valueTicks);
                 }
 
                 return this;
@@ -168,6 +172,8 @@ namespace Animatroller.Framework.Effect
                 this.value1 = SweeperTables.DataValues1[index1];
                 this.value2 = SweeperTables.DataValues2[index2];
                 this.value3 = SweeperTables.DataValues3[index3];
+
+                this.valueTicks = this.ticks;
             }
 
             internal void Tick()
@@ -180,9 +186,12 @@ namespace Animatroller.Framework.Effect
                     SetValues();
 
                     this.index += this.step;
+                    this.ticks++;
+
                     if ((int)this.index >= SweeperTables.DataPoints)
                     {
                         this.index = 0;
+                        this.ticks = 0;
 
                         if (this.iterationCounter.HasValue)
                         {
@@ -209,7 +218,7 @@ namespace Animatroller.Framework.Effect
 
                 lock (lockObject)
                 {
-                    this.action.Invoke(this.value1, this.value2, this.value3, false);
+                    this.action.Invoke(this.value1, this.value2, this.value3, false, this.valueTicks);
                 }
             }
         }

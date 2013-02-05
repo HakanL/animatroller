@@ -24,7 +24,7 @@ namespace Animatroller.Framework.Effect
             this.devices = new List<T>();
             this.sweeper = new Sweeper(sweepDuration, dataPoints, startRunning);
 
-            this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, oneToZeroToOne, forced) =>
+            this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks) =>
                 {
                     if (forced)
                     {
@@ -106,7 +106,7 @@ namespace Animatroller.Framework.Effect
         {
             this.sweeper.Pause();
 
-            this.sweeper.ForceValue(0, 0, 0);
+            this.sweeper.ForceValue(0, 0, 0, 0);
 
             return this;
         }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using System.Drawing;
 using NLog;
 using LMS = Animatroller.Framework.Import.Schemas.LightORama.LMS;
 
@@ -12,6 +13,7 @@ namespace Animatroller.Framework.Utility
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>> mappedDevices;
         protected LMS.sequence sequence;
+        private Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
 
         public LorImport(string filename)
         {
@@ -25,7 +27,7 @@ namespace Animatroller.Framework.Utility
             }
         }
 
-        public string GetChannelName(int circuit, int unit)
+        public string GetChannelName(int unit, int circuit)
         {
             foreach (var channel in sequence.channels)
             {
@@ -36,9 +38,20 @@ namespace Animatroller.Framework.Utility
             throw new ArgumentOutOfRangeException("Circuit/Unit does not exist");
         }
 
-        public LorImport MapDevice(int circuit, int unit, LogicalDevice.IHasBrightnessControl device)
+        public System.Drawing.Color GetChannelColor(int unit, int circuit)
         {
-            var key = new Tuple<int, int>(circuit, unit);
+            foreach (var channel in sequence.channels)
+            {
+                if (channel.circuit == circuit && channel.unit == unit)
+                    return Color.FromArgb(int.Parse(channel.color));
+            }
+
+            throw new ArgumentOutOfRangeException("Circuit/Unit does not exist");
+        }
+
+        public LorImport MapDevice(int unit, int circuit, LogicalDevice.IHasBrightnessControl device)
+        {
+            var key = new Tuple<int, int>(unit, circuit);
             HashSet<LogicalDevice.IHasBrightnessControl> devices;
             if (!mappedDevices.TryGetValue(key, out devices))
             {
@@ -50,13 +63,13 @@ namespace Animatroller.Framework.Utility
             return this;
         }
 
-        public T MapDevice<T>(int circuit, int unit, Func<string, T> logicalDevice) where T : LogicalDevice.IHasBrightnessControl
+        public T MapDevice<T>(int unit, int circuit, Func<string, T> logicalDevice) where T : LogicalDevice.IHasBrightnessControl
         {
-            string name = GetChannelName(circuit, unit);
+            string name = GetChannelName(unit, circuit);
 
             var device = logicalDevice.Invoke(name);
 
-            MapDevice(circuit, unit, device);
+            MapDevice(unit, circuit, device);
 
             return device;
         }
@@ -67,20 +80,23 @@ namespace Animatroller.Framework.Utility
             var timeline = new LorTimeline();
             timeline.TimelineTrigger += timeline_TimelineTrigger;
 
-            foreach (var channel in sequence.channels)
+            foreach (var channel in this.sequence.channels)
             {
-                log.Info("Channel [{0}]   Circuit: {1}   Unit: {2}", channel.name, channel.circuit, channel.unit);
+                log.Info("Channel [{0}]   Unit: {1}   Circuit: {2}", channel.name, channel.unit, channel.circuit);
 
                 HashSet<LogicalDevice.IHasBrightnessControl> devices;
-                var key = new Tuple<int, int>(channel.circuit, channel.unit);
+                var key = new Tuple<int, int>(channel.unit, channel.circuit);
                 if (!mappedDevices.TryGetValue(key, out devices))
                 {
-                    log.Warn("No devices mapped to circuit {0}/unit {1}, skipping", channel.circuit, channel.unit);
+                    log.Warn("No devices mapped to unit {0}/circuit {1}, skipping", channel.unit, channel.circuit);
                     continue;
                 }
 
                 foreach (var effect in channel.effect)
                 {
+                    if (channel.deviceType != "LOR")
+                        log.Warn("Not supporting device type {0} yet", channel.deviceType);
+
                     var lorEvent = new LOREvent(devices, effect);
 
                     timeline.Add((double)effect.startCentisecond / 10, lorEvent);
@@ -115,7 +131,7 @@ namespace Animatroller.Framework.Utility
 
                     case "shimmer":
                             device.RunEffect(
-                                new Effect2.Shimmer(0.0, 1.0),
+                                shimmerEffect,
                                 TimeSpan.FromMilliseconds((lorEvent.endCentisecond - lorEvent.startCentisecond) * 100));
                         break;
 

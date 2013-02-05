@@ -21,7 +21,7 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks) =>
                 {
                     double brightness = zeroToOne.ScaleToMinMax(this.startBrightness, this.endBrightness);
 
@@ -49,7 +49,7 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks) =>
             {
                 double brightness = easeTransform.Transform(oneToZeroToOne)
                     .ScaleToMinMax(this.minBrightness, this.maxBrightness);
@@ -78,7 +78,7 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks) =>
             {
                 double brightness = zeroToOne.ScaleToMinMax(this.minBrightness, this.maxBrightness);
 
@@ -94,7 +94,6 @@ namespace Animatroller.Framework.Effect2
 
     public class Shimmer : IMasterBrightnessEffect
     {
-        private Random random;
         private double minBrightness;
         private double maxBrightness;
 
@@ -102,23 +101,19 @@ namespace Animatroller.Framework.Effect2
         {
             this.minBrightness = minBrightness;
             this.maxBrightness = maxBrightness;
-
-            this.random = new Random();
         }
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks) =>
             {
-                double brightness = this.random.NextDouble();
-
-                setBrightnessAction.Invoke(brightness);
+                setBrightnessAction.Invoke((totalTicks % 2) == 0 ? this.minBrightness : this.maxBrightness);
             });
         }
 
         public int? Iterations
         {
-            get { return 1; }
+            get { return null; }
         }
     }
 

@@ -23,6 +23,7 @@ namespace Animatroller.Framework.Effect
         private TimeSpan interval;
         private bool oneShot;
         private int hitCounter;
+        private long ticks;
 
         public Sweeper(TimeSpan duration, int dataPoints, bool startRunning)
         {
@@ -68,6 +69,7 @@ namespace Animatroller.Framework.Effect
             this.index1 = 0;
             this.index2 = positions / 4;
             this.index3 = positions / 2;
+            this.ticks = 0;
         }
 
         public Sweeper Reset()
@@ -79,12 +81,12 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
-        public Sweeper ForceValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne)
+        public Sweeper ForceValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, long totalTicks)
         {
             lock (lockJobs)
             {
                 foreach (var job in jobs)
-                    job(zeroToOne, negativeOneToOne, oneToZeroToOne, true);
+                    job(zeroToOne, negativeOneToOne, oneToZeroToOne, true, totalTicks);
             }
 
             return this;
@@ -105,12 +107,14 @@ namespace Animatroller.Framework.Effect
             double value1;
             double value2;
             double value3;
+            long valueTicks;
 
             lock (lockObject)
             {
                 value1 = SweeperTables.DataValues1[SweeperTables.GetScaledIndex(index1, positions + 1)];
                 value2 = SweeperTables.DataValues2[SweeperTables.GetScaledIndex(index2, positions + 1)];
                 value3 = SweeperTables.DataValues3[SweeperTables.GetScaledIndex(index3, positions + 1)];
+                valueTicks = ticks;
 
                 if (++index1 >= positions)
                     index1 = 0;
@@ -118,6 +122,8 @@ namespace Animatroller.Framework.Effect
                     index2 = 0;
                 if (++index3 >= positions)
                     index3 = 0;
+
+                ticks++;
 
                 if (++hitCounter >= positions && this.oneShot)
                     Pause();
@@ -128,7 +134,7 @@ namespace Animatroller.Framework.Effect
                 try
                 {
                     foreach (var job in jobs)
-                        job(value1, value2, value3, false);
+                        job(value1, value2, value3, false, valueTicks);
                 }
                 catch (Exception ex)
                 {
