@@ -86,6 +86,7 @@
     <Compile Include="Effect\Effects.cs" />
     <Compile Include="Effect\Interface.cs" />
     <Compile Include="StateMachine.cs" />
+    <Compile Include="Utility\VixenImport.cs" />
     <Compile Include="Utility\Enum.cs" />
     <Compile Include="Interface\IScene.cs" />
     <Compile Include="LogicalDevice\AudioPlayer.cs" />
@@ -133,6 +134,7 @@
     <Compile Include="Utility\HighPrecisionTimer.cs" />
     <Compile Include="Utility\LightORamaLMS.cs" />
     <Compile Include="Utility\LorImport.cs" />
+    <Compile Include="Utility\VixenVIX.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

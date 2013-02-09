@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Nutcracker2Scene.cs" />
     <Compile Include="Nutcracker1Scene.cs" />
     <Compile Include="PixelScene1.cs" />
     <Compile Include="TestScene2.cs" />
