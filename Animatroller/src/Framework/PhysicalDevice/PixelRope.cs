@@ -33,7 +33,7 @@ namespace Animatroller.Framework.PhysicalDevice
                         }
                     }
                     else
-                        log.Error("Missed PixelChanged in PixelRope");
+                        log.Warn("Missed PixelChanged in PixelRope");
                 };
 
             logicalDevice.MultiPixelChanged += (sender, e) =>
@@ -60,7 +60,7 @@ namespace Animatroller.Framework.PhysicalDevice
                         }
                     }
                     else
-                        log.Info("Missed send to PixelRope");
+                        log.Warn("Missed send to PixelRope");
                 };
         }
 
@@ -87,7 +87,7 @@ namespace Animatroller.Framework.PhysicalDevice
                         }
                     }
                     else
-                        log.Error("Missed PixelChanged in PixelRope2");
+                        log.Warn("Missed PixelChanged in PixelRope2");
                 }, (sender, e) =>
                 {
                     var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
@@ -112,7 +112,7 @@ namespace Animatroller.Framework.PhysicalDevice
                         }
                     }
                     else
-                        log.Info("Missed send to PixelRope2");
+                        log.Warn("Missed send to PixelRope2");
                 });
         }
     }

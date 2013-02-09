@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Xml.Serialization;
+using System.Linq;
 using System.Drawing;
 using NLog;
 using LMS = Animatroller.Framework.Import.Schemas.LightORama.LMS;
@@ -10,20 +11,73 @@ namespace Animatroller.Framework.Utility
 {
     public class LorImport
     {
+        public class UnitCircuit
+        {
+            public int Unit { get; set; }
+            public int Circuit { get; set; }
+
+            public UnitCircuit(int unit, int circuit)
+            {
+                this.Unit = unit;
+                this.Circuit = circuit;
+            }
+        }
+
         protected static Logger log = LogManager.GetCurrentClassLogger();
-        protected Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>> mappedDevices;
+        protected Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>> mappedDimmerDevices;
+        protected Dictionary<Tuple<int, int, int, int>, HashSet<LogicalDevice.IHasColorControl>> mappedRGBDevices;
         protected LMS.sequence sequence;
         private Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
 
         public LorImport(string filename)
         {
-            this.mappedDevices = new Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>>();
+            this.mappedDimmerDevices = new Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>>();
+            this.mappedRGBDevices = new Dictionary<Tuple<int, int, int, int>, HashSet<LogicalDevice.IHasColorControl>>();
 
             var deserializer = new XmlSerializer(typeof(LMS.sequence));
 
             using (TextReader textReader = new StreamReader(filename))
             {
                 sequence = (LMS.sequence)deserializer.Deserialize(textReader);
+            }
+        }
+
+        public IEnumerable<int> AvailableUnits
+        {
+            get
+            {
+                var list = new HashSet<int>();
+
+                foreach (var channel in sequence.channels)
+                    list.Add(channel.unit);
+
+                return list;
+            }
+        }
+
+        public IEnumerable<int> GetCircuits(int unit)
+        {
+            var list = new HashSet<int>();
+
+            foreach (var channel in sequence.channels)
+            {
+                if (channel.unit == unit)
+                    list.Add(channel.circuit);
+            }
+
+            return list.OrderBy(x => x);
+        }
+
+        public IEnumerable<UnitCircuit> AvailableChannels
+        {
+            get
+            {
+                var list = new HashSet<Tuple<int, int>>();
+
+                foreach (var channel in sequence.channels)
+                    list.Add(new Tuple<int, int>(channel.unit, channel.circuit));
+
+                return list.Select(x => new UnitCircuit(x.Item1, x.Item2));
             }
         }
 
@@ -53,10 +107,10 @@ namespace Animatroller.Framework.Utility
         {
             var key = new Tuple<int, int>(unit, circuit);
             HashSet<LogicalDevice.IHasBrightnessControl> devices;
-            if (!mappedDevices.TryGetValue(key, out devices))
+            if (!mappedDimmerDevices.TryGetValue(key, out devices))
             {
                 devices = new HashSet<LogicalDevice.IHasBrightnessControl>();
-                mappedDevices[key] = devices;
+                mappedDimmerDevices[key] = devices;
             }
             devices.Add(device);
 
@@ -74,6 +128,32 @@ namespace Animatroller.Framework.Utility
             return device;
         }
 
+        public LorImport MapDevice(int unit, int circuitR, int circuitG, int circuitB, LogicalDevice.IHasColorControl device)
+        {
+            var key = new Tuple<int, int, int, int>(unit, circuitR, circuitG, circuitB);
+            HashSet<LogicalDevice.IHasColorControl> devices;
+            if (!mappedRGBDevices.TryGetValue(key, out devices))
+            {
+                devices = new HashSet<LogicalDevice.IHasColorControl>();
+                mappedRGBDevices[key] = devices;
+            }
+            devices.Add(device);
+
+            return this;
+        }
+
+        public T MapDevice<T>(int unit, int circuitR, int circuitG, int circuitB, Func<string, T> logicalDevice) where T : LogicalDevice.IHasColorControl
+        {
+            string name = string.Format("{0}/{1}/{2}", 
+                GetChannelName(unit, circuitR), GetChannelName(unit, circuitG), GetChannelName(unit, circuitB));
+
+            var device = logicalDevice.Invoke(name);
+
+            MapDevice(unit, circuitR, circuitG, circuitB, device);
+
+            return device;
+        }
+
         // Light-O-Rama Musical Sequence
         public LorTimeline CreateTimeline()
         {
@@ -86,7 +166,7 @@ namespace Animatroller.Framework.Utility
 
                 HashSet<LogicalDevice.IHasBrightnessControl> devices;
                 var key = new Tuple<int, int>(channel.unit, channel.circuit);
-                if (!mappedDevices.TryGetValue(key, out devices))
+                if (!mappedDimmerDevices.TryGetValue(key, out devices))
                 {
                     log.Warn("No devices mapped to unit {0}/circuit {1}, skipping", channel.unit, channel.circuit);
                     continue;
@@ -130,9 +210,9 @@ namespace Animatroller.Framework.Utility
                         break;
 
                     case "shimmer":
-                            device.RunEffect(
-                                shimmerEffect,
-                                TimeSpan.FromMilliseconds((lorEvent.endCentisecond - lorEvent.startCentisecond) * 100));
+                        device.RunEffect(
+                            shimmerEffect,
+                            TimeSpan.FromMilliseconds((lorEvent.endCentisecond - lorEvent.startCentisecond) * 100));
                         break;
 
                     default:

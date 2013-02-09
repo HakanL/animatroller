@@ -71,7 +71,7 @@ namespace Animatroller.Framework.Effect
                             }
                         }
                         else
-                            log.Info("Missed Job in BaseSweepEffect   Name: " + Name);
+                            log.Warn("Missed Job in BaseSweepEffect   Name: " + Name);
                     }
 
                 });
@@ -182,7 +182,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                log.Error("Missed ExecutePerDevice in BaseEffect");
+                log.Warn("Missed ExecutePerDevice in BaseEffect");
         }
 
         protected abstract void ExecutePerDevice(T device);

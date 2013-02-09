@@ -262,6 +262,7 @@ namespace Animatroller.SceneRunner
 
         public override void Stop()
         {
+            System.Threading.Thread.Sleep(200);
         }
     }
 }

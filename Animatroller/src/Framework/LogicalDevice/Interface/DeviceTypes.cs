@@ -16,4 +16,11 @@ namespace Animatroller.Framework.LogicalDevice
         Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration);
         void StopEffect();
     }
+
+    public interface IHasColorControl
+    {
+        void SetColor(Color value, IOwner owner);
+        //Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration);
+        //void StopEffect();
+    }
 }

@@ -140,7 +140,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                log.Error("Missed execute in Flicker");
+                log.Warn("Missed execute in Flicker");
 
             this.timer.Change(random.Next(90) + 10, Timeout.Infinite);
         }

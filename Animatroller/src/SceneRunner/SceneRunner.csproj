@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Nutcracker1Scene.cs" />
     <Compile Include="PixelScene1.cs" />
     <Compile Include="TestScene2.cs" />
     <Compile Include="XmasScene2.cs" />
@@ -66,9 +67,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Christmas Canon Rock All Labels.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

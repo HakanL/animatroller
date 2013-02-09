@@ -10,7 +10,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class SinglePixel : IOutput, ILogicalDevice, IHasBrightnessControl, IOwner
+    public class SinglePixel : IOutput, ILogicalDevice, IOwner, IHasBrightnessControl, IHasColorControl
     {
         protected object lockObject = new object();
         protected string name;
@@ -101,6 +101,23 @@ namespace Animatroller.Framework.LogicalDevice
         public int Priority
         {
             get { return 0; }
+        }
+
+        public void SetColor(Color value, IOwner owner)
+        {
+            if (this.owner != null && owner != this.owner)
+            {
+                if (owner != null)
+                {
+                    if (owner.Priority <= this.owner.Priority)
+                        return;
+                }
+                else
+                    return;
+            }
+
+            this.owner = owner;
+            this.pixelDevice.SetColor(this.position, value);
         }
     }
 }

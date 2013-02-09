@@ -126,7 +126,7 @@ namespace Animatroller.Simulator
                         }
                     }
 
-                    System.Threading.Thread.Sleep(10);
+                    System.Threading.Thread.Sleep(50);
                 }
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
