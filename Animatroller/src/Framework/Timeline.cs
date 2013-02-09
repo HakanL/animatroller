@@ -25,15 +25,32 @@ namespace Animatroller.Framework
             }
         }
 
-        private SortedList<double, HashSet<T>> timeline;
+        public class MultiTimelineEventArgs : EventArgs
+        {
+            public double ElapsedS { get; private set; }
+            public IEnumerable<T> Code { get; private set; }
+            public int Step { get; private set; }
+
+            public MultiTimelineEventArgs(double elapsedS, IEnumerable<T> code, int step)
+            {
+                this.ElapsedS = elapsedS;
+                this.Code = code;
+                this.Step = step;
+            }
+        }
+
+        private SortedList<int, HashSet<T>> timeline;
         private Task task;
         private System.Threading.CancellationTokenSource cancelSource;
+        private bool loop;
 
         public event EventHandler<TimelineEventArgs> TimelineTrigger;
+        public event EventHandler<MultiTimelineEventArgs> MultiTimelineTrigger;
 
-        public Timeline()
+        public Timeline(bool loop)
         {
-            this.timeline = new SortedList<double, HashSet<T>>();
+            this.timeline = new SortedList<int, HashSet<T>>();
+            this.loop = loop;
         }
 
         public Timeline<T> PopulateFromCSV(string filename)
@@ -51,24 +68,29 @@ namespace Animatroller.Framework
 
                     string[] parts = line.Split(',');
 
-                    double elapsed = double.Parse(parts[0]);
+                    double elapsedS = double.Parse(parts[0]);
 
                     for (int i = 3; i < parts.Length; i++)
                         if (!string.IsNullOrEmpty(parts[i]))
-                            Add(elapsed, (T)Convert.ChangeType(parts[i], typeof(T)));
+                            AddS(elapsedS, (T)Convert.ChangeType(parts[i], typeof(T)));
                 }
             }
 
             return this;
         }
 
-        public Timeline<T> Add(double elapsed, T code)
+        public Timeline<T> AddS(double elapsedS, T code)
+        {
+            return AddMs((int)(elapsedS * 1000), code);
+        }
+
+        public Timeline<T> AddMs(int elapsedMs, T code)
         {
             HashSet<T> codes;
-            if (!timeline.TryGetValue(elapsed, out codes))
+            if (!timeline.TryGetValue(elapsedMs, out codes))
             {
                 codes = new HashSet<T>();
-                timeline.Add(elapsed, codes);
+                timeline.Add(elapsedMs, codes);
             }
             codes.Add(code);
 
@@ -89,29 +111,37 @@ namespace Animatroller.Framework
 
             this.task = new Task(() =>
             {
-                var watch = System.Diagnostics.Stopwatch.StartNew();
-                for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
+                while (this.loop)
                 {
-                    double elapsed = this.timeline.Keys[currentPos];
-
-                    while (watch.Elapsed.TotalSeconds < elapsed)
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
                     {
-                        System.Threading.Thread.Sleep(1);
-                        if (this.cancelSource.Token.IsCancellationRequested)
-                            return;
-                    }
+                        double elapsed = (double)this.timeline.Keys[currentPos] / 1000;
 
-                    var codes = this.timeline.Values[currentPos];
+                        while (watch.Elapsed.TotalSeconds < elapsed)
+                        {
+                            System.Threading.Thread.Sleep(1);
+                            if (this.cancelSource.Token.IsCancellationRequested)
+                                return;
+                        }
 
-                    // Invoke
-                    log.Info(string.Format("Invoking {1} code(s) at {0:N2} s   (pos {2})", elapsed, codes.Count, currentPos + 1));
-                    var handler = TimelineTrigger;
-                    foreach (var code in codes)
-                    {
+                        var codes = this.timeline.Values[currentPos];
+
+                        // Invoke
+                        log.Info(string.Format("Invoking {1} code(s) at {0:N2} s   (pos {2})", elapsed, codes.Count, currentPos + 1));
+                        var handler = TimelineTrigger;
                         if (handler != null)
-                            handler(this, new TimelineEventArgs(elapsed, code, currentPos + 1));
-                    }
+                        {
+                            foreach (var code in codes)
+                            {
+                                handler(this, new TimelineEventArgs(elapsed, code, currentPos + 1));
+                            }
+                        }
 
+                        var multiHandler = MultiTimelineTrigger;
+                        if (multiHandler != null)
+                            multiHandler(this, new MultiTimelineEventArgs(elapsed, codes, currentPos + 1));
+                    }
                 }
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 

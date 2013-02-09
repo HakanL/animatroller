@@ -215,7 +215,7 @@ namespace Animatroller.SceneRunner
                 }
             }
 
-            lorTimeline = lorImport.CreateTimeline();
+            lorTimeline = lorImport.CreateTimeline(false);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)

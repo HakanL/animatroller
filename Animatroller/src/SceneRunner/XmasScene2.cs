@@ -113,7 +113,7 @@ namespace Animatroller.SceneRunner
             buttonRed = new DigitalInput("Button Red");
             buttonStartReindeer = new DigitalInput("Start Reindeer");
 
-            timeline = new Timeline<string>();
+            timeline = new Timeline<string>(false);
             stateMachine = new StateMachine<States>("Main");
             candyCane = new Sequence("Candy Cane");
             starwarsCane = new Sequence("Starwars Cane");
@@ -205,7 +205,7 @@ namespace Animatroller.SceneRunner
                 .SetPriority(100);
 
 
-            timeline.Add(0, "INIT");
+            timeline.AddMs(0, "INIT");
             timeline.PopulateFromCSV("Christmas Canon Rock All Labels.csv");
             int state = 0;
             int halfSolo = 0;

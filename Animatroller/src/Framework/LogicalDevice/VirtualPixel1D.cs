@@ -147,6 +147,13 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        public virtual ColorBrightness GetColorBrightness(int position)
+        {
+            CheckBounds(position);
+
+            return new ColorBrightness(this.color[position], this.brightness[position]);
+        }
+
         public virtual VirtualPixel1D SetBrightness(int position, double brightness)
         {
             CheckBounds(position);

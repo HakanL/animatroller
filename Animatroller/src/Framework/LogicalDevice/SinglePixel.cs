@@ -119,5 +119,18 @@ namespace Animatroller.Framework.LogicalDevice
             this.owner = owner;
             this.pixelDevice.SetColor(this.position, value);
         }
+
+
+        public Color Color
+        {
+            get
+            {
+                return this.pixelDevice.GetColorBrightness(this.position).Color;
+            }
+            set
+            {
+                this.pixelDevice.SetColor(this.position, value);
+            }
+        }
     }
 }

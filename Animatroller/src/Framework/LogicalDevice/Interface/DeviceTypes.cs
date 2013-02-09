@@ -9,7 +9,7 @@ using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public interface IHasBrightnessControl
+    public interface IHasBrightnessControl : ILogicalDevice
     {
         double Brightness { set; }
         void SetBrightness(double value, IOwner owner);
@@ -17,9 +17,10 @@ namespace Animatroller.Framework.LogicalDevice
         void StopEffect();
     }
 
-    public interface IHasColorControl
+    public interface IHasColorControl : ILogicalDevice
     {
         void SetColor(Color value, IOwner owner);
+        Color Color { get; set; }
         //Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration);
         //void StopEffect();
     }
