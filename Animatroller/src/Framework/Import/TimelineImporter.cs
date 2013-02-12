@@ -1,29 +1,26 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.Linq;
 using System.Drawing;
 using NLog;
-using Animatroller.Framework.Extensions;
+using Animatroller.Framework.Controller;
 
-namespace Animatroller.Framework.Controller
+namespace Animatroller.Framework.Import
 {
-    public interface IMultiChannelTimelineEvent
+    public abstract class TimelineImporter
     {
-        void Invoke();
-    }
+        public interface ISimpleInvokeEvent
+        {
+            void Invoke();
+        }
 
-    //public class MultiChannelTimeline : Timeline<IMultiChannelTimelineEvent>
-    //{
-    //    public MultiChannelTimeline(bool loop)
-    //        : base(loop)
-    //    {
-    //    }
-    //}
+        public class Timeline : Timeline<ISimpleInvokeEvent>
+        {
+            public Timeline(bool loop)
+                : base(loop)
+            {
+            }
+        }
 
-    public class MultiChannelTimeline
-    {
         public class ChannelData
         {
             public string Name { get; private set; }
@@ -66,7 +63,7 @@ namespace Animatroller.Framework.Controller
         protected int effectsPerChannel;
         protected int eventPeriodInMilliseconds;
 
-        public MultiChannelTimeline()
+        public TimelineImporter()
         {
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>>();
@@ -157,18 +154,58 @@ namespace Animatroller.Framework.Controller
             return device;
         }
 
-        public Timeline<IMultiChannelTimelineEvent> CreateTimeline(bool loop)
+        protected Timeline InternalCreateTimeline(bool loop)
         {
-            var timeline = new Timeline<IMultiChannelTimelineEvent>(loop);
-            timeline.MultiTimelineTrigger += timeline_MultiTimelineTrigger;
+            var timeline = new Timeline(loop);
+            timeline.MultiTimelineTrigger += (sender, e) =>
+                {
+                    foreach (var invokeEvent in e.Code)
+                        invokeEvent.Invoke();
+                };
 
             return timeline;
         }
 
-        private void timeline_MultiTimelineTrigger(object sender, Timeline<IMultiChannelTimelineEvent>.MultiTimelineEventArgs e)
+        public abstract Timeline CreateTimeline(bool loop);
+    }
+
+    public class SimpleDimmerEvent : TimelineImporter.ISimpleInvokeEvent
+    {
+        private IEnumerable<TimelineImporter.MappedDeviceDimmer> devices;
+        private double brightness;
+
+        public SimpleDimmerEvent(IEnumerable<TimelineImporter.MappedDeviceDimmer> devices, double brightness)
         {
-            foreach (var invokeEvent in e.Code)
-                invokeEvent.Invoke();
+            this.devices = devices;
+            this.brightness = brightness;
+        }
+
+        public void Invoke()
+        {
+            foreach (var device in this.devices)
+            {
+                device.Device.Brightness = this.brightness;
+            }
+        }
+    }
+
+    public class SimpleColorEvent : TimelineImporter.ISimpleInvokeEvent
+    {
+        private IEnumerable<TimelineImporter.MappedDeviceRGB> devices;
+        private Color color;
+
+        public SimpleColorEvent(IEnumerable<TimelineImporter.MappedDeviceRGB> devices, Color color)
+        {
+            this.devices = devices;
+            this.color = color;
+        }
+
+        public void Invoke()
+        {
+            foreach (var device in this.devices)
+            {
+                device.Device.Color = this.color;
+            }
         }
     }
 }

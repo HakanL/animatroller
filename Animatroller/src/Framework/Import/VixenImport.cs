@@ -1,17 +1,14 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Xml.Serialization;
-using System.Linq;
 using System.Drawing;
-using NLog;
-using VIX = Animatroller.Framework.Import.FileFormat.Vixen;
-using Animatroller.Framework.Extensions;
+using System.IO;
+using System.Xml.Serialization;
 using Animatroller.Framework.Controller;
+using VIX = Animatroller.Framework.Import.FileFormat.Vixen;
 
 namespace Animatroller.Framework.Import
 {
-    public class VixenImport : MultiChannelTimeline
+    public class VixenImport : TimelineImporter
     {
         public class VixenChannel : IChannelIdentity
         {
@@ -39,7 +36,6 @@ namespace Animatroller.Framework.Import
             }
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
         protected Dictionary<IChannelIdentity, byte[]> effectDataPerChannel;
 
         public VixenImport(string filename)
@@ -70,12 +66,11 @@ namespace Animatroller.Framework.Import
 
                 i += this.effectsPerChannel;
             }
-
         }
 
-        public Timeline<IMultiChannelTimelineEvent> CreateTimeline(bool loop)
+        public override Timeline CreateTimeline(bool loop)
         {
-            var timeline = base.CreateTimeline(loop);
+            var timeline = InternalCreateTimeline(loop);
 
             foreach (var kvp in this.mappedDevices)
             {
@@ -85,7 +80,7 @@ namespace Animatroller.Framework.Import
 
                 for (int i = 0; i < effectData.Length; i++)
                 {
-                    var vixEvent = new VixenEvent(kvp.Value, (double)effectData[i] / 255);
+                    var vixEvent = new SimpleDimmerEvent(kvp.Value, (double)effectData[i] / 255);
                     timeline.AddMs(i * eventPeriodInMilliseconds, vixEvent);
                 }
             }
@@ -102,52 +97,12 @@ namespace Animatroller.Framework.Import
                 {
                     var color = Color.FromArgb(effectDataR[i], effectDataG[i], effectDataB[i]);
 
-                    var vixEvent = new VixenEvent(kvp.Value, color);
+                    var vixEvent = new SimpleColorEvent(kvp.Value, color);
                     timeline.AddMs(i * eventPeriodInMilliseconds, vixEvent);
                 }
             }
 
             return timeline;
-        }
-    }
-
-    public class VixenEvent : IMultiChannelTimelineEvent
-    {
-        public HashSet<VixenImport.MappedDeviceDimmer> Devices { get; private set; }
-        public HashSet<VixenImport.MappedDeviceRGB> RGBDevices { get; private set; }
-        public double Brightness { get; private set; }
-        public Color Color { get; private set; }
-
-        public VixenEvent(HashSet<VixenImport.MappedDeviceDimmer> devices,
-            double brightness)
-        {
-            Devices = devices;
-            Brightness = brightness;
-        }
-
-        public VixenEvent(HashSet<VixenImport.MappedDeviceRGB> rgbDevices,
-            Color color)
-        {
-            RGBDevices = rgbDevices;
-            Color = color;
-        }
-
-        public void Invoke()
-        {
-            if (Devices != null)
-            {
-                foreach (var device in Devices)
-                {
-                    device.Device.Brightness = Brightness;
-                }
-            }
-            if (RGBDevices != null)
-            {
-                foreach (var device in RGBDevices)
-                {
-                    device.Device.Color = Color;
-                }
-            }
         }
     }
 }

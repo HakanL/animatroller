@@ -18,7 +18,7 @@ namespace Animatroller.SceneRunner
         protected VirtualPixel1D allPixels;
 
         protected DigitalInput testButton;
-        protected Controller.Timeline<Controller.IMultiChannelTimelineEvent> vixTimeline;
+        protected Import.TimelineImporter.Timeline vixTimeline;
 
 
         public Nutcracker2Scene()

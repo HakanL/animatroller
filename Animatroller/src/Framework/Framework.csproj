@@ -76,7 +76,7 @@
     <Compile Include="LogicalDevice\Pixel1D.cs" />
     <Compile Include="LogicalDevice\Event\OpenHoursChanged.cs" />
     <Compile Include="LogicalDevice\OperatingHours.cs" />
-    <Compile Include="Controller\MultiChannelTimeline.cs" />
+    <Compile Include="Import\TimelineImporter.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />
     <Compile Include="PhysicalDevice\PixelRGB.cs" />
