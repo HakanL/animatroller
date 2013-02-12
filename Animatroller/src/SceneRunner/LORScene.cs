@@ -5,8 +5,8 @@ using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
+using Import = Animatroller.Framework.Import;
 using Effect = Animatroller.Framework.Effect;
-using Utility = Animatroller.Framework.Utility;
 using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
@@ -102,7 +102,7 @@ namespace Animatroller.SceneRunner
         protected VirtualPixel1D allPixels;
 
         protected DigitalInput testButton;
-        protected Utility.LorTimeline lorTimeline;
+        protected Import.LorTimeline lorTimeline;
 
 
         public LORScene()
@@ -112,7 +112,7 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 80);
             allPixels.SetAll(Color.White, 0);
 
-            var lorImport = new Animatroller.Framework.Utility.LorImport(@"..\..\..\Test Files\wonderful christmas time.lms");
+            var lorImport = new Animatroller.Framework.Import.LorImport(@"..\..\..\Test Files\wonderful christmas time.lms");
 /*
             light1_1 = lorImport.MapDevice(1, 1, name => new StrobeColorDimmer(name));
             light1_2 = lorImport.MapDevice(1, 2, name => new StrobeColorDimmer(name));

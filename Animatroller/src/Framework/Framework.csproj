@@ -66,6 +66,7 @@
     <Compile Include="Expander\DMXPro.cs" />
     <Compile Include="Interface\ICanExecute.cs" />
     <Compile Include="Interface\IRunnable.cs" />
+    <Compile Include="Controller\ChannelIdentity.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
     <Compile Include="LogicalDevice\SinglePixel.cs" />
     <Compile Include="LogicalDevice\Interface\IPixel.cs" />
@@ -75,18 +76,19 @@
     <Compile Include="LogicalDevice\Pixel1D.cs" />
     <Compile Include="LogicalDevice\Event\OpenHoursChanged.cs" />
     <Compile Include="LogicalDevice\OperatingHours.cs" />
+    <Compile Include="Controller\MultiChannelTimeline.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />
     <Compile Include="PhysicalDevice\PixelRGB.cs" />
     <Compile Include="PhysicalDevice\SmallRGBStrobe.cs" />
-    <Compile Include="BaseScene.cs" />
-    <Compile Include="Sequence.cs" />
+    <Compile Include="Interface\BaseScene.cs" />
+    <Compile Include="Controller\Sequence.cs" />
     <Compile Include="Utility\ColorSpace.cs" />
     <Compile Include="Effect\BaseEffect.cs" />
     <Compile Include="Effect\Effects.cs" />
     <Compile Include="Effect\Interface.cs" />
-    <Compile Include="StateMachine.cs" />
-    <Compile Include="Utility\VixenImport.cs" />
+    <Compile Include="Controller\StateMachine.cs" />
+    <Compile Include="Import\VixenImport.cs" />
     <Compile Include="Utility\Enum.cs" />
     <Compile Include="Interface\IScene.cs" />
     <Compile Include="LogicalDevice\AudioPlayer.cs" />
@@ -130,11 +132,11 @@
     <Compile Include="Expander\LineManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Effect\Transformer.cs" />
-    <Compile Include="Timeline.cs" />
-    <Compile Include="Utility\HighPrecisionTimer.cs" />
-    <Compile Include="Utility\LightORamaLMS.cs" />
-    <Compile Include="Utility\LorImport.cs" />
-    <Compile Include="Utility\VixenVIX.cs" />
+    <Compile Include="Controller\Timeline.cs" />
+    <Compile Include="Controller\HighPrecisionTimer.cs" />
+    <Compile Include="Import\FileFormat\LightORamaLMS.cs" />
+    <Compile Include="Import\LorImport.cs" />
+    <Compile Include="Import\FileFormat\VixenVIX.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

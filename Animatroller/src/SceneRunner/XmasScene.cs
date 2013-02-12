@@ -7,6 +7,7 @@ using System.Drawing;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
+using Controller = Animatroller.Framework.Controller;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Physical = Animatroller.Framework.PhysicalDevice;
@@ -59,7 +60,7 @@ namespace Animatroller.SceneRunner
 
         public override void Start()
         {
-            var explosion = new Sequence("Explosion");
+            var explosion = new Controller.Sequence("Explosion");
             explosion.WhenExecuted
             .Execute(instance =>
             {
@@ -85,7 +86,7 @@ namespace Animatroller.SceneRunner
                 explosion4.TurnOff();
             });
 
-            var seq = new Sequence("Seq");
+            var seq = new Controller.Sequence("Seq");
             seq.WhenExecuted
             .Execute(instance =>
                 {

@@ -8,6 +8,7 @@ using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
+using Controller = Animatroller.Framework.Controller;
 using Effect = Animatroller.Framework.Effect;
 using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
@@ -19,15 +20,15 @@ namespace Animatroller.SceneRunner
         protected VirtualPixel1D allPixels;
         protected DigitalInput buttonTest;
 
-        protected Sequence testSeq;
-        protected Sequence candyCane;
-        protected Sequence laserSeq;
+        protected Controller.Sequence testSeq;
+        protected Controller.Sequence candyCane;
+        protected Controller.Sequence laserSeq;
 
         public PixelScene1(IEnumerable<string> args)
         {
-            testSeq = new Sequence("Pulse");
-            candyCane = new Sequence("Candy Cane");
-            laserSeq = new Sequence("Laser");
+            testSeq = new Controller.Sequence("Pulse");
+            candyCane = new Controller.Sequence("Candy Cane");
+            laserSeq = new Controller.Sequence("Laser");
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
 

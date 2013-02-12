@@ -30,7 +30,7 @@ namespace Animatroller.Framework
         private List<Animatroller.Framework.Effect.IEffect> effects;
         private List<ExecuteInstance> executingTasks;
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
-        private Utility.HighPrecisionTimer masterTimer;
+        private Controller.HighPrecisionTimer masterTimer;
         private Effect.MasterSweeper masterSweeper;
 
         public Executor()
@@ -43,7 +43,7 @@ namespace Animatroller.Framework
             this.executingTasks = new List<ExecuteInstance>();
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
-            this.masterTimer = new Utility.HighPrecisionTimer(MasterTimerIntervalMs);
+            this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
             this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
         }
 

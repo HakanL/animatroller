@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Animatroller.Framework.Utility
+namespace Animatroller.Framework.Controller
 {
     public class HighPrecisionTimer : IDisposable
     {

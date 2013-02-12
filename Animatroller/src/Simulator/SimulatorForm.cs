@@ -63,11 +63,11 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
-                else if (field.FieldType == typeof(Sequence))
+                else if (field.FieldType == typeof(Animatroller.Framework.Controller.Sequence))
                 {
                     // Skip
                 }
-                else if (field.FieldType == typeof(Animatroller.Framework.Utility.LorTimeline))
+                else if (field.FieldType == typeof(Animatroller.Framework.Import.LorTimeline))
                 {
                     // Skip
                 }

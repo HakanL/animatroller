@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NLog;
 
-namespace Animatroller.Framework
+namespace Animatroller.Framework.Controller
 {
     public class Timeline<T>
     {
@@ -128,7 +128,7 @@ namespace Animatroller.Framework
                         var codes = this.timeline.Values[currentPos];
 
                         // Invoke
-                        log.Info(string.Format("Invoking {1} code(s) at {0:N2} s   (pos {2})", elapsed, codes.Count, currentPos + 1));
+                        log.Debug(string.Format("Invoking {1} code(s) at {0:N2} s   (pos {2})", elapsed, codes.Count, currentPos + 1));
                         var handler = TimelineTrigger;
                         if (handler != null)
                         {

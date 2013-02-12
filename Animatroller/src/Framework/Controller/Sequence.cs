@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NLog;
 
-namespace Animatroller.Framework
+namespace Animatroller.Framework.Controller
 {
     public class Sequence : ISequence, ICanExecute
     {

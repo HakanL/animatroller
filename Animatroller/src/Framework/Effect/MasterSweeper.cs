@@ -230,7 +230,7 @@ namespace Animatroller.Framework.Effect
         private List<Job> jobs;
         private readonly int intervalMs;
 
-        public MasterSweeper(Utility.HighPrecisionTimer timer)
+        public MasterSweeper(Controller.HighPrecisionTimer timer)
         {
             this.intervalMs = timer.IntervalMs;
             this.jobs = new List<Job>();
@@ -239,7 +239,7 @@ namespace Animatroller.Framework.Effect
             timer.Tick += timer_Tick;
         }
 
-        private void timer_Tick(object sender, Utility.HighPrecisionTimer.TickEventArgs e)
+        private void timer_Tick(object sender, Controller.HighPrecisionTimer.TickEventArgs e)
         {
             lock (lockTicks)
             {

@@ -5,10 +5,11 @@ using System.Xml.Serialization;
 using System.Linq;
 using System.Drawing;
 using NLog;
-using LMS = Animatroller.Framework.Import.Schemas.LightORama.LMS;
+using LMS = Animatroller.Framework.Import.FileFormat.LightORama.LMS;
 using Animatroller.Framework.Extensions;
+using Animatroller.Framework.Controller;
 
-namespace Animatroller.Framework.Utility
+namespace Animatroller.Framework.Import
 {
     public class LorImport
     {

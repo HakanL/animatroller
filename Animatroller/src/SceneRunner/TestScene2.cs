@@ -4,6 +4,7 @@ using System.Threading;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
+using Controller = Animatroller.Framework.Controller;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Effect2 = Animatroller.Framework.Effect2;
@@ -55,7 +56,7 @@ namespace Animatroller.SceneRunner
             candyLight.SetColor(Color.Violet, 0);
             candyLight2.SetColor(Color.Green, 0);
 
-            var testSequence = new Sequence("Test Sequence");
+            var testSequence = new Controller.Sequence("Test Sequence");
             testSequence
                 .WhenExecuted
                 .Execute(instance =>

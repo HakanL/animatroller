@@ -5,8 +5,9 @@ using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
+using Controller = Animatroller.Framework.Controller;
 using Effect = Animatroller.Framework.Effect;
-using Utility = Animatroller.Framework.Utility;
+using Import = Animatroller.Framework.Import;
 using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
@@ -17,7 +18,7 @@ namespace Animatroller.SceneRunner
         protected VirtualPixel1D allPixels;
 
         protected DigitalInput testButton;
-        protected Utility.VixenTimeline vixTimeline;
+        protected Controller.Timeline<Controller.IMultiChannelTimelineEvent> vixTimeline;
 
 
         public Nutcracker2Scene()
@@ -27,36 +28,38 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 80);
             allPixels.SetAll(Color.White, 0);
 
-            var vixImport = new Animatroller.Framework.Utility.VixenImport(@"..\..\..\Test Files\HAUK~HALLOWEEN1.vix");
+            var vixImport = new Import.VixenImport(@"..\..\..\Test Files\HAUK~HALLOWEEN1.vix");
 
             int pixelPosition = 0;
 
-            foreach(int unit in vixImport.AvailableUnits)
+            var circuits = vixImport.GetChannels.GetEnumerator();
+
+            while (true)
             {
-                var circuits = vixImport.GetCircuits(unit).GetEnumerator();
+                Controller.IChannelIdentity channelR, channelG, channelB;
 
-                while (true)
-                {
-                    int circuitR, circuitG, circuitB;
+                if (!circuits.MoveNext())
+                    break;
+                channelR = circuits.Current;
 
-                    if (!circuits.MoveNext())
-                        break;
-                    circuitR = circuits.Current;
+                if (!circuits.MoveNext())
+                    break;
+                channelG = circuits.Current;
 
-                    if (!circuits.MoveNext())
-                        break;
-                    circuitG = circuits.Current;
+                if (!circuits.MoveNext())
+                    break;
+                channelB = circuits.Current;
 
-                    if (!circuits.MoveNext())
-                        break;
-                    circuitB = circuits.Current;
+                var pixel = vixImport.MapDevice(
+                    channelR,
+                    channelG,
+                    channelB,
+                    name => new SinglePixel(name, allPixels, pixelPosition));
 
-                    var pixel = vixImport.MapDevice(unit, circuitR, circuitG, circuitB, name => new SinglePixel(name, allPixels, pixelPosition));
+                log.Debug("Mapping channel R[{0}]/G[{1}]/B[{2}] to pixel {3} [{4}]", channelR, channelG, channelB,
+                    pixelPosition, pixel.Name);
 
-                    log.Debug("Mapping unit {0}  circuits R{1}/G{2}/B{3} to pixel {4} [{5}]", unit, circuitR, circuitG, circuitB, pixelPosition, pixel.Name);
-
-                    pixelPosition++;
-                }
+                pixelPosition++;
             }
 
             vixTimeline = vixImport.CreateTimeline(true);

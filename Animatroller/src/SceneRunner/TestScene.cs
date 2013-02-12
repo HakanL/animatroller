@@ -7,6 +7,7 @@ using System.Drawing;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
+using Controller = Animatroller.Framework.Controller;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Physical = Animatroller.Framework.PhysicalDevice;

@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace Animatroller.Framework.Import.Schemas.LightORama.LMS
+namespace Animatroller.Framework.Import.FileFormat.LightORama.LMS
 {
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.0.30319.17929")]

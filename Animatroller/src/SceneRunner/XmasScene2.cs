@@ -7,6 +7,7 @@ using System.Drawing;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
+using Controller = Animatroller.Framework.Controller;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Physical = Animatroller.Framework.PhysicalDevice;
@@ -49,8 +50,8 @@ namespace Animatroller.SceneRunner
         protected DigitalInput buttonRed;
         protected DigitalInput buttonStartReindeer;
 
-        protected Timeline<string> timeline;
-        protected StateMachine<States> stateMachine;
+        protected Controller.Timeline<string> timeline;
+        protected Controller.StateMachine<States> stateMachine;
         protected Effect.PopOut popOutPiano;
         protected Effect.PopOut popOutDrums;
         protected Effect.PopOut popOutDrumsFast;
@@ -66,14 +67,14 @@ namespace Animatroller.SceneRunner
         protected Effect.Pulsating pulsatingEffect2;
         protected Physical.NetworkAudioPlayer audioPlayer;
 
-        protected Sequence candyCane;
-        protected Sequence starwarsCane;
-        protected Sequence backgroundLoop;
-        protected Sequence musicSeq;
-        protected Sequence buttonSeq;
-        protected Sequence fatherSeq;
-        protected Sequence breathSeq;
-        protected Sequence laserSeq;
+        protected Controller.Sequence candyCane;
+        protected Controller.Sequence starwarsCane;
+        protected Controller.Sequence backgroundLoop;
+        protected Controller.Sequence musicSeq;
+        protected Controller.Sequence buttonSeq;
+        protected Controller.Sequence fatherSeq;
+        protected Controller.Sequence breathSeq;
+        protected Controller.Sequence laserSeq;
 
         protected VirtualPixel1D allPixels;
 
@@ -113,16 +114,16 @@ namespace Animatroller.SceneRunner
             buttonRed = new DigitalInput("Button Red");
             buttonStartReindeer = new DigitalInput("Start Reindeer");
 
-            timeline = new Timeline<string>(false);
-            stateMachine = new StateMachine<States>("Main");
-            candyCane = new Sequence("Candy Cane");
-            starwarsCane = new Sequence("Starwars Cane");
-            backgroundLoop = new Sequence("Background");
-            musicSeq = new Sequence("Christmas Canon");
-            buttonSeq = new Sequence("Buttons");
-            fatherSeq = new Sequence("Father");
-            breathSeq = new Sequence("Breath");
-            laserSeq = new Sequence("Laser");
+            timeline = new Controller.Timeline<string>(false);
+            stateMachine = new Controller.StateMachine<States>("Main");
+            candyCane = new Controller.Sequence("Candy Cane");
+            starwarsCane = new Controller.Sequence("Starwars Cane");
+            backgroundLoop = new Controller.Sequence("Background");
+            musicSeq = new Controller.Sequence("Christmas Canon");
+            buttonSeq = new Controller.Sequence("Buttons");
+            fatherSeq = new Controller.Sequence("Father");
+            breathSeq = new Controller.Sequence("Breath");
+            laserSeq = new Controller.Sequence("Laser");
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
 

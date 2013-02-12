@@ -7,6 +7,7 @@ using System.Drawing;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
+using Controller = Animatroller.Framework.Controller;
 using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Physical = Animatroller.Framework.PhysicalDevice;
@@ -114,7 +115,7 @@ namespace Animatroller.SceneRunner
         {
             hours.AddRange("6:00 pm", "10:00 pm");
 
-            var testSequence = new Sequence("Test Sequence");
+            var testSequence = new Controller.Sequence("Test Sequence");
             testSequence
                 .WhenExecuted
                 .Execute(instance =>
@@ -135,7 +136,7 @@ namespace Animatroller.SceneRunner
                     candyPulse.Stop();
                 });
 
-            var testSequence2 = new Sequence("Test Sequence 2");
+            var testSequence2 = new Controller.Sequence("Test Sequence 2");
             testSequence2.WhenExecuted
             .Execute(instance =>
             {
@@ -154,7 +155,7 @@ namespace Animatroller.SceneRunner
                 spiderLight.TurnOff();
             });
 
-            var testSequence3 = new Sequence("Test Sequence 3");
+            var testSequence3 = new Controller.Sequence("Test Sequence 3");
             testSequence3.WhenExecuted
                 .Execute(instance =>
                 {
@@ -163,7 +164,7 @@ namespace Animatroller.SceneRunner
                     spiderEyes.SetPower(false);
                 });
 
-            var mainSequence = new Sequence("Main Sequence");
+            var mainSequence = new Controller.Sequence("Main Sequence");
             mainSequence.WhenExecuted
                 .Execute(instance =>
                 {
