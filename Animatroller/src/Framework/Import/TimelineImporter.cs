@@ -24,6 +24,7 @@ namespace Animatroller.Framework.Import
         public class ChannelData
         {
             public string Name { get; private set; }
+            public bool Mapped { get; set; }
 
             public ChannelData(string name)
             {
@@ -60,8 +61,6 @@ namespace Animatroller.Framework.Import
         protected Dictionary<IChannelIdentity, ChannelData> channelData;
         protected Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>> mappedDevices;
         protected Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>> mappedRGBDevices;
-        protected int effectsPerChannel;
-        protected int eventPeriodInMilliseconds;
 
         public TimelineImporter()
         {
@@ -94,6 +93,8 @@ namespace Animatroller.Framework.Import
                 mappedDevices[channelIdentity] = devices;
             }
             devices.Add(device);
+         
+            this.channelData[channelIdentity].Mapped = true;
         }
 
         protected void InternalMapDevice(RGBChannelIdentity channelIdentity, MappedDeviceRGB device)
@@ -105,6 +106,10 @@ namespace Animatroller.Framework.Import
                 mappedRGBDevices[channelIdentity] = devices;
             }
             devices.Add(device);
+
+            this.channelData[channelIdentity.R].Mapped = true;
+            this.channelData[channelIdentity.G].Mapped = true;
+            this.channelData[channelIdentity.B].Mapped = true;
         }
 
         public void MapDevice(IChannelIdentity channelIdentity, LogicalDevice.IHasBrightnessControl device)
@@ -156,6 +161,14 @@ namespace Animatroller.Framework.Import
 
         protected Timeline InternalCreateTimeline(bool loop)
         {
+            foreach (var kvp in this.channelData)
+            {
+                if (!kvp.Value.Mapped)
+                {
+                    log.Warn("No devices mapped to {0}", kvp.Key);
+                }
+            }
+
             var timeline = new Timeline(loop);
             timeline.MultiTimelineTrigger += (sender, e) =>
                 {

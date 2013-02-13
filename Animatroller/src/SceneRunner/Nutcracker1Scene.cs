@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading;
 using Animatroller.Framework;
-using Animatroller.Framework.Extensions;
-using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
-using Effect = Animatroller.Framework.Effect;
-using Import = Animatroller.Framework.Import;
 using Controller = Animatroller.Framework.Controller;
-using Effect2 = Animatroller.Framework.Effect2;
+using Expander = Animatroller.Framework.Expander;
+using Import = Animatroller.Framework.Import;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
     internal class Nutcracker1Scene : BaseScene
     {
-        protected VirtualPixel1D allPixels;
-
-        protected DigitalInput testButton;
-        protected Import.LorTimeline lorTimeline;
-
+        private VirtualPixel1D allPixels;
+        private DigitalInput testButton;
+        private Import.TimelineImporter.Timeline lorTimeline;
 
         public Nutcracker1Scene()
         {
@@ -28,39 +22,75 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 80);
             allPixels.SetAll(Color.White, 0);
 
-            var lorImport = new Animatroller.Framework.Import.LorImport(@"..\..\..\Test Files\HAUK~HALLOWEEN1.lms");
+            var lorImport = new Import.LorImport(@"..\..\..\Test Files\HAUK~HALLOWEEN1.lms");
 
             int pixelPosition = 0;
 
-            foreach(int unit in lorImport.AvailableUnits)
+            var circuits = lorImport.GetChannels.GetEnumerator();
+
+            while (true)
             {
-                var circuits = lorImport.GetCircuits(unit).GetEnumerator();
+                Controller.IChannelIdentity channelR, channelG, channelB;
 
-                while (true)
-                {
-                    int circuitR, circuitG, circuitB;
+                if (!circuits.MoveNext())
+                    break;
+                channelR = circuits.Current;
 
-                    if (!circuits.MoveNext())
-                        break;
-                    circuitR = circuits.Current;
+                if (!circuits.MoveNext())
+                    break;
+                channelG = circuits.Current;
 
-                    if (!circuits.MoveNext())
-                        break;
-                    circuitG = circuits.Current;
+                if (!circuits.MoveNext())
+                    break;
+                channelB = circuits.Current;
 
-                    if (!circuits.MoveNext())
-                        break;
-                    circuitB = circuits.Current;
+                var pixel = lorImport.MapDevice(
+                    channelR,
+                    channelG,
+                    channelB,
+                    name => new SinglePixel(name, allPixels, pixelPosition));
 
-                    var pixel = lorImport.MapDevice(unit, circuitR, circuitG, circuitB, name => new SinglePixel(name, allPixels, pixelPosition));
+                log.Debug("Mapping channel R[{0}]/G[{1}]/B[{2}] to pixel {3} [{4}]",
+                    channelR,
+                    channelG,
+                    channelB,
+                    pixelPosition,
+                    pixel.Name);
 
-                    log.Debug("Mapping unit {0}  circuits R{1}/G{2}/B{3} to pixel {4} [{5}]", unit, circuitR, circuitG, circuitB, pixelPosition, pixel.Name);
-
-                    pixelPosition++;
-                }
+                pixelPosition++;
             }
 
             lorTimeline = lorImport.CreateTimeline(true);
+
+            //foreach(int unit in lorImport.AvailableUnits)
+            //{
+            //    var circuits = lorImport.GetCircuits(unit).GetEnumerator();
+
+            //    while (true)
+            //    {
+            //        int circuitR, circuitG, circuitB;
+
+            //        if (!circuits.MoveNext())
+            //            break;
+            //        circuitR = circuits.Current;
+
+            //        if (!circuits.MoveNext())
+            //            break;
+            //        circuitG = circuits.Current;
+
+            //        if (!circuits.MoveNext())
+            //            break;
+            //        circuitB = circuits.Current;
+
+            //        var pixel = lorImport.MapDevice(unit, circuitR, circuitG, circuitB, name => new SinglePixel(name, allPixels, pixelPosition));
+
+            //        log.Debug("Mapping unit {0}  circuits R{1}/G{2}/B{3} to pixel {4} [{5}]", unit, circuitR, circuitG, circuitB, pixelPosition, pixel.Name);
+
+            //        pixelPosition++;
+            //    }
+            //}
+
+            //lorTimeline = lorImport.CreateTimeline(true);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -105,6 +135,7 @@ namespace Animatroller.SceneRunner
 
         public override void Stop()
         {
+            // FIXME: Get rid of this sleep
             System.Threading.Thread.Sleep(200);
         }
     }

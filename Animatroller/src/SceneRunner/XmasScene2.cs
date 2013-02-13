@@ -23,60 +23,60 @@ namespace Animatroller.SceneRunner
             Vader
         }
 
-        protected OperatingHours hours;
-        protected Dimmer lightNetRight;
-        protected Dimmer lightGarlandRight;
-        protected Dimmer lightHatsRight;
-        protected Dimmer lightTreesRight;
-        protected Dimmer lightReindeers;
-        protected Dimmer lightIcicles;
-        protected Dimmer lightNetLeft;
-        protected Dimmer lightTree;
-        protected Dimmer lightGarlandLeft;
-        protected Dimmer lightUnused1;
-        protected Dimmer lightUnused2;
-        protected StrobeColorDimmer lightJesus;
-        protected StrobeColorDimmer lightCeiling1;
-        protected StrobeColorDimmer lightCeiling2;
-        protected StrobeColorDimmer lightCeiling3;
-        protected StrobeColorDimmer lightVader;
-        protected Switch buttonLightRed;
-        protected Switch buttonLightBlue;
-        protected Switch elLightsaber;
-        protected Switch elJesus;
-        protected Switch bigReindeer;
+        private OperatingHours hours;
+        private Dimmer lightNetRight;
+        private Dimmer lightGarlandRight;
+        private Dimmer lightHatsRight;
+        private Dimmer lightTreesRight;
+        private Dimmer lightReindeers;
+        private Dimmer lightIcicles;
+        private Dimmer lightNetLeft;
+        private Dimmer lightTree;
+        private Dimmer lightGarlandLeft;
+        private Dimmer lightUnused1;
+        private Dimmer lightUnused2;
+        private StrobeColorDimmer lightJesus;
+        private StrobeColorDimmer lightCeiling1;
+        private StrobeColorDimmer lightCeiling2;
+        private StrobeColorDimmer lightCeiling3;
+        private StrobeColorDimmer lightVader;
+        private Switch buttonLightRed;
+        private Switch buttonLightBlue;
+        private Switch elLightsaber;
+        private Switch elJesus;
+        private Switch bigReindeer;
 
-        protected DigitalInput buttonBlue;
-        protected DigitalInput buttonRed;
-        protected DigitalInput buttonStartReindeer;
+        private DigitalInput buttonBlue;
+        private DigitalInput buttonRed;
+        private DigitalInput buttonStartReindeer;
 
-        protected Controller.Timeline<string> timeline;
-        protected Controller.StateMachine<States> stateMachine;
-        protected Effect.PopOut popOutPiano;
-        protected Effect.PopOut popOutDrums;
-        protected Effect.PopOut popOutDrumsFast;
-        protected Effect.PopOut popOutChord;
-        protected Effect.PopOut popOutSolo;
-        protected Effect.PopOut popOutSolo2;
-        protected Effect.PopOut popOutChoir;
-        protected Effect.PopOut popOutVoice;
-        protected Effect.PopOut popOutVocal2;
-        protected Effect.PopOut popOutVocalLong;
-        protected Effect.PopOut popOutEnd;
-        protected Effect.Pulsating pulsatingEffect1;
-        protected Effect.Pulsating pulsatingEffect2;
-        protected Physical.NetworkAudioPlayer audioPlayer;
+        private Controller.Timeline<string> timeline;
+        private Controller.StateMachine<States> stateMachine;
+        private Effect.PopOut popOutPiano;
+        private Effect.PopOut popOutDrums;
+        private Effect.PopOut popOutDrumsFast;
+        private Effect.PopOut popOutChord;
+        private Effect.PopOut popOutSolo;
+        private Effect.PopOut popOutSolo2;
+        private Effect.PopOut popOutChoir;
+        private Effect.PopOut popOutVoice;
+        private Effect.PopOut popOutVocal2;
+        private Effect.PopOut popOutVocalLong;
+        private Effect.PopOut popOutEnd;
+        private Effect.Pulsating pulsatingEffect1;
+        private Effect.Pulsating pulsatingEffect2;
+        private Physical.NetworkAudioPlayer audioPlayer;
 
-        protected Controller.Sequence candyCane;
-        protected Controller.Sequence starwarsCane;
-        protected Controller.Sequence backgroundLoop;
-        protected Controller.Sequence musicSeq;
-        protected Controller.Sequence buttonSeq;
-        protected Controller.Sequence fatherSeq;
-        protected Controller.Sequence breathSeq;
-        protected Controller.Sequence laserSeq;
+        private Controller.Sequence candyCane;
+        private Controller.Sequence starwarsCane;
+        private Controller.Sequence backgroundLoop;
+        private Controller.Sequence musicSeq;
+        private Controller.Sequence buttonSeq;
+        private Controller.Sequence fatherSeq;
+        private Controller.Sequence breathSeq;
+        private Controller.Sequence laserSeq;
 
-        protected VirtualPixel1D allPixels;
+        private VirtualPixel1D allPixels;
 
 
         public XmasScene2(IEnumerable<string> args)

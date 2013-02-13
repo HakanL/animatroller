@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Drawing;
-using System.Threading;
 using Animatroller.Framework;
-using Animatroller.Framework.Extensions;
-using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
 using Controller = Animatroller.Framework.Controller;
-using Effect = Animatroller.Framework.Effect;
+using Expander = Animatroller.Framework.Expander;
 using Import = Animatroller.Framework.Import;
-using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
     internal class Nutcracker2Scene : BaseScene
     {
-        protected VirtualPixel1D allPixels;
-
-        protected DigitalInput testButton;
-        protected Import.TimelineImporter.Timeline vixTimeline;
-
+        private VirtualPixel1D allPixels;
+        private DigitalInput testButton;
+        private Import.TimelineImporter.Timeline vixTimeline;
 
         public Nutcracker2Scene()
         {
@@ -56,8 +50,12 @@ namespace Animatroller.SceneRunner
                     channelB,
                     name => new SinglePixel(name, allPixels, pixelPosition));
 
-                log.Debug("Mapping channel R[{0}]/G[{1}]/B[{2}] to pixel {3} [{4}]", channelR, channelG, channelB,
-                    pixelPosition, pixel.Name);
+                log.Debug("Mapping channel R[{0}]/G[{1}]/B[{2}] to pixel {3} [{4}]",
+                    channelR,
+                    channelG,
+                    channelB,
+                    pixelPosition,
+                    pixel.Name);
 
                 pixelPosition++;
             }
@@ -107,6 +105,7 @@ namespace Animatroller.SceneRunner
 
         public override void Stop()
         {
+            // FIXME: Get rid of this sleep
             System.Threading.Thread.Sleep(200);
         }
     }

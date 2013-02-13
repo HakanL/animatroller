@@ -17,12 +17,12 @@ namespace Animatroller.SceneRunner
 {
     internal class PixelScene1 : BaseScene
     {
-        protected VirtualPixel1D allPixels;
-        protected DigitalInput buttonTest;
+        private VirtualPixel1D allPixels;
+        private DigitalInput buttonTest;
 
-        protected Controller.Sequence testSeq;
-        protected Controller.Sequence candyCane;
-        protected Controller.Sequence laserSeq;
+        private Controller.Sequence testSeq;
+        private Controller.Sequence candyCane;
+        private Controller.Sequence laserSeq;
 
         public PixelScene1(IEnumerable<string> args)
         {

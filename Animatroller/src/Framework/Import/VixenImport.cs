@@ -10,33 +10,9 @@ namespace Animatroller.Framework.Import
 {
     public class VixenImport : TimelineImporter
     {
-        public class VixenChannel : IChannelIdentity
-        {
-            public int Channel { get; set; }
-
-            public VixenChannel(int channel)
-            {
-                this.Channel = channel;
-            }
-
-            public override bool Equals(object obj)
-            {
-                var b = (obj as VixenChannel);
-                return this.Channel == b.Channel;
-            }
-
-            public override int GetHashCode()
-            {
-                return this.Channel.GetHashCode();
-            }
-
-            public override string ToString()
-            {
-                return string.Format("{0}", this.Channel);
-            }
-        }
-
-        protected Dictionary<IChannelIdentity, byte[]> effectDataPerChannel;
+        protected Dictionary<IChannelIdentity , byte[]> effectDataPerChannel;
+        protected int effectsPerChannel;
+        protected int eventPeriodInMilliseconds;
 
         public VixenImport(string filename)
         {
@@ -103,6 +79,33 @@ namespace Animatroller.Framework.Import
             }
 
             return timeline;
+        }
+
+        public class VixenChannel : IChannelIdentity
+        {
+            public int Channel { get; set; }
+
+            public VixenChannel(int channel)
+            {
+                this.Channel = channel;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var b = (obj as VixenChannel);
+
+                return this.Channel == b.Channel;
+            }
+
+            public override int GetHashCode()
+            {
+                return this.Channel.GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return string.Format("{0}", this.Channel);
+            }
         }
     }
 }

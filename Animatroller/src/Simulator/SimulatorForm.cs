@@ -67,7 +67,15 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
-                else if (field.FieldType == typeof(Animatroller.Framework.Import.LorTimeline))
+                else if (field.FieldType == typeof(Animatroller.Framework.Import.LorImport))
+                {
+                    // Skip
+                }
+                else if (field.FieldType == typeof(Animatroller.Framework.Import.VixenImport))
+                {
+                    // Skip
+                }
+                else if (field.FieldType == typeof(Animatroller.Framework.Import.TimelineImporter.Timeline))
                 {
                     // Skip
                 }

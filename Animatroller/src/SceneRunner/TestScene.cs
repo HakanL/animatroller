@@ -16,19 +16,19 @@ namespace Animatroller.SceneRunner
 {
     internal class TestScene : BaseScene
     {
-        protected StrobeDimmer georgeStrobeLight;
-        protected StrobeColorDimmer spiderLight;
-        protected Dimmer skullsLight;
-        protected Dimmer cobWebLight;
-        protected Switch blinkyEyesLight;
-        protected StrobeColorDimmer rgbLightRight;
-        protected StrobeColorDimmer rgbLight3;
-        protected StrobeColorDimmer rgbLight4;
-        protected MotorWithFeedback georgeMotor;
-        protected Switch spiderLift;
-        protected DigitalInput pressureMat;
-        protected Effect.Pulsating pulsatingEffect;
-        protected Effect.Flicker flickerEffect;
+        private StrobeDimmer georgeStrobeLight;
+        private StrobeColorDimmer spiderLight;
+        private Dimmer skullsLight;
+        private Dimmer cobWebLight;
+        private Switch blinkyEyesLight;
+        private StrobeColorDimmer rgbLightRight;
+        private StrobeColorDimmer rgbLight3;
+        private StrobeColorDimmer rgbLight4;
+        private MotorWithFeedback georgeMotor;
+        private Switch spiderLift;
+        private DigitalInput pressureMat;
+        private Effect.Pulsating pulsatingEffect;
+        private Effect.Flicker flickerEffect;
 
 
         public TestScene()

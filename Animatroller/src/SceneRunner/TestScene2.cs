@@ -14,10 +14,10 @@ namespace Animatroller.SceneRunner
 {
     internal class TestScene2 : BaseScene
     {
-        protected StrobeColorDimmer candyLight;
-        protected StrobeColorDimmer candyLight2;
-        protected DigitalInput pressureMat;
-        protected Effect.Pulsating pulsatingEffect;
+        private StrobeColorDimmer candyLight;
+        private StrobeColorDimmer candyLight2;
+        private DigitalInput pressureMat;
+        private Effect.Pulsating pulsatingEffect;
 
 
         public TestScene2()

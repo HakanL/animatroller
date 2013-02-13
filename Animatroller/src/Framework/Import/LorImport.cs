@@ -11,31 +11,8 @@ using Animatroller.Framework.Controller;
 
 namespace Animatroller.Framework.Import
 {
-    public class LorImport
+    public class LorImport : TimelineImporter
     {
-        public class UnitCircuit
-        {
-            public int Unit { get; set; }
-            public int Circuit { get; set; }
-
-            public UnitCircuit(int unit, int circuit)
-            {
-                this.Unit = unit;
-                this.Circuit = circuit;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return this.Unit == (obj as UnitCircuit).Unit &&
-                    this.Circuit == (obj as UnitCircuit).Circuit;
-            }
-
-            public override int GetHashCode()
-            {
-                return this.Unit.GetHashCode() ^ this.Circuit.GetHashCode();
-            }
-        }
-
         public class MappedDevice
         {
             public enum Components
@@ -100,24 +77,29 @@ namespace Animatroller.Framework.Import
             }
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
-        protected Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>> mappedDimmerDevices;
-        protected Dictionary<Tuple<int, int, int, int>, HashSet<LogicalDevice.IHasColorControl>> mappedRGBDevices;
-        protected Dictionary<UnitCircuit, HashSet<MappedDevice>> mappedDevices;
+        //protected Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>> mappedDimmerDevices;
+        //protected Dictionary<Tuple<int, int, int, int>, HashSet<LogicalDevice.IHasColorControl>> mappedRGBDevices;
+        //protected Dictionary<UnitCircuit, HashSet<MappedDevice>> mappedDevices;
         protected LMS.sequence sequence;
         private Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
 
         public LorImport(string filename)
         {
-            this.mappedDimmerDevices = new Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>>();
-            this.mappedRGBDevices = new Dictionary<Tuple<int, int, int, int>, HashSet<LogicalDevice.IHasColorControl>>();
-            this.mappedDevices = new Dictionary<UnitCircuit, HashSet<MappedDevice>>();
+            //this.mappedDimmerDevices = new Dictionary<Tuple<int, int>, HashSet<LogicalDevice.IHasBrightnessControl>>();
+            //this.mappedRGBDevices = new Dictionary<Tuple<int, int, int, int>, HashSet<LogicalDevice.IHasColorControl>>();
+            //this.mappedDevices = new Dictionary<UnitCircuit, HashSet<MappedDevice>>();
 
             var deserializer = new XmlSerializer(typeof(LMS.sequence));
 
             using (TextReader textReader = new StreamReader(filename))
             {
                 sequence = (LMS.sequence)deserializer.Deserialize(textReader);
+            }
+
+            foreach (var channel in sequence.channels)
+            {
+                var channelIdentity = new UnitCircuit(channel.unit, channel.circuit);
+                this.channelData[channelIdentity] = new ChannelData(channel.name);
             }
         }
 
@@ -182,89 +164,11 @@ namespace Animatroller.Framework.Import
             throw new ArgumentOutOfRangeException("Circuit/Unit does not exist");
         }
 
-        protected void InternalMapDevice(int unit, int circuit, MappedDevice device)
-        {
-            var key = new UnitCircuit(unit, circuit);
-            HashSet<MappedDevice> devices;
-            if (!mappedDevices.TryGetValue(key, out devices))
-            {
-                devices = new HashSet<MappedDevice>();
-                mappedDevices[key] = devices;
-            }
-            devices.Add(device);
-        }
-
-        public LorImport MapDevice(int unit, int circuit, LogicalDevice.IHasBrightnessControl device)
-        {
-            var key = new Tuple<int, int>(unit, circuit);
-            HashSet<LogicalDevice.IHasBrightnessControl> devices;
-            if (!mappedDimmerDevices.TryGetValue(key, out devices))
-            {
-                devices = new HashSet<LogicalDevice.IHasBrightnessControl>();
-                mappedDimmerDevices[key] = devices;
-            }
-            devices.Add(device);
-
-            device.Brightness = 0.0;
-
-            var mappedDevice = new MappedDevice(device, MappedDevice.Components.Brightness);
-            InternalMapDevice(unit, circuit, mappedDevice);
-
-            return this;
-        }
-
-        public T MapDevice<T>(int unit, int circuit, Func<string, T> logicalDevice) where T : LogicalDevice.IHasBrightnessControl
-        {
-            string name = GetChannelName(unit, circuit);
-
-            var device = logicalDevice.Invoke(name);
-
-            MapDevice(unit, circuit, device);
-
-            return device;
-        }
-
-        public LorImport MapDevice(int unit, int circuitR, int circuitG, int circuitB, LogicalDevice.IHasColorControl device)
-        {
-            var key = new Tuple<int, int, int, int>(unit, circuitR, circuitG, circuitB);
-            HashSet<LogicalDevice.IHasColorControl> devices;
-            if (!mappedRGBDevices.TryGetValue(key, out devices))
-            {
-                devices = new HashSet<LogicalDevice.IHasColorControl>();
-                mappedRGBDevices[key] = devices;
-            }
-            devices.Add(device);
-            device.Color = Color.Black;
-
-            var mappedDevice = new MappedDevice(device, MappedDevice.Components.R);
-            InternalMapDevice(unit, circuitR, mappedDevice);
-
-            mappedDevice = new MappedDevice(device, MappedDevice.Components.G);
-            InternalMapDevice(unit, circuitG, mappedDevice);
-
-            mappedDevice = new MappedDevice(device, MappedDevice.Components.B);
-            InternalMapDevice(unit, circuitB, mappedDevice);
-
-            return this;
-        }
-
-        public T MapDevice<T>(int unit, int circuitR, int circuitG, int circuitB, Func<string, T> logicalDevice) where T : LogicalDevice.IHasColorControl
-        {
-            string name = string.Format("{0}/{1}/{2}",
-                GetChannelName(unit, circuitR), GetChannelName(unit, circuitG), GetChannelName(unit, circuitB));
-
-            var device = logicalDevice.Invoke(name);
-
-            MapDevice(unit, circuitR, circuitG, circuitB, device);
-
-            return device;
-        }
-
         // Light-O-Rama Musical Sequence
-        public LorTimeline CreateTimeline(bool loop)
+        public override Timeline CreateTimeline(bool loop)
         {
-            var timeline = new LorTimeline(loop);
-            timeline.MultiTimelineTrigger += timeline_MultiTimelineTrigger;
+            var timeline = InternalCreateTimeline(loop);
+//            timeline.MultiTimelineTrigger += timeline_MultiTimelineTrigger;
 
             foreach (var channel in this.sequence.channels)
             {
@@ -272,11 +176,11 @@ namespace Animatroller.Framework.Import
 
                 var mappedKey = new UnitCircuit(channel.unit, channel.circuit);
                 HashSet<MappedDevice> mapDevices;
-                if (!mappedDevices.TryGetValue(mappedKey, out mapDevices))
-                {
-                    log.Warn("No devices mapped to unit {0}/circuit {1}, skipping", channel.unit, channel.circuit);
-                    continue;
-                }
+                //if (!mappedDevices.TryGetValue(mappedKey, out mapDevices))
+                //{
+                //    log.Warn("No devices mapped to unit {0}/circuit {1}, skipping", channel.unit, channel.circuit);
+                //    continue;
+                //}
 
                 //HashSet<LogicalDevice.IHasBrightnessControl> devices;
                 //var key = new Tuple<int, int>(channel.unit, channel.circuit);
@@ -291,9 +195,9 @@ namespace Animatroller.Framework.Import
                     if (channel.deviceType != "LOR")
                         log.Warn("Not supporting device type {0} yet", channel.deviceType);
 
-                    var lorEvent = new LOREvent(mapDevices, effect);
+//                    var lorEvent = new LOREvent(mapDevices, effect);
 
-                    timeline.AddMs((int)(effect.startCentisecond * 10), lorEvent);
+//                    timeline.AddMs((int)(effect.startCentisecond * 10), lorEvent);
                 }
             }
 
@@ -335,6 +239,38 @@ namespace Animatroller.Framework.Import
                     }
                 }
             }
+
+        }
+
+
+        public class UnitCircuit : IChannelIdentity
+        {
+            public int Unit { get; set; }
+            public int Circuit { get; set; }
+
+            public UnitCircuit(int unit, int circuit)
+            {
+                this.Unit = unit;
+                this.Circuit = circuit;
+            }
+
+            public override bool Equals(object obj)
+            {
+                var b = (obj as UnitCircuit);
+                
+                return this.Unit == (obj as UnitCircuit).Unit &&
+                    this.Circuit == (obj as UnitCircuit).Circuit;
+            }
+
+            public override int GetHashCode()
+            {
+                return this.Unit.GetHashCode() ^ this.Circuit.GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return string.Format("U{0}C{1}", this.Unit, this.Circuit);
+            }
         }
     }
 
@@ -351,14 +287,6 @@ namespace Animatroller.Framework.Import
             base.startCentisecond = effect.startCentisecond;
             base.startIntensity = effect.startIntensity;
             base.type = effect.type;
-        }
-    }
-
-    public class LorTimeline : Timeline<LOREvent>
-    {
-        public LorTimeline(bool loop)
-            : base(loop)
-        {
         }
     }
 }

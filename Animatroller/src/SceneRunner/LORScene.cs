@@ -14,95 +14,95 @@ namespace Animatroller.SceneRunner
 {
     internal class LORScene : BaseScene
     {
-        //protected ColorDimmer light1_1;
-        //protected ColorDimmer light1_2;
-        //protected ColorDimmer light1_3;
-        //protected ColorDimmer light1_4;
-        //protected ColorDimmer light1_5;
-        //protected ColorDimmer light1_6;
-        //protected ColorDimmer light1_7;
-        //protected ColorDimmer light1_8;
-        //protected ColorDimmer light1_9;
-        //protected ColorDimmer light1_10;
-        //protected ColorDimmer light1_11;
-        //protected ColorDimmer light1_12;
-        //protected ColorDimmer light1_13;
-        //protected ColorDimmer light1_14;
-        //protected ColorDimmer light1_15;
-        //protected ColorDimmer light1_16;
+        //private ColorDimmer light1_1;
+        //private ColorDimmer light1_2;
+        //private ColorDimmer light1_3;
+        //private ColorDimmer light1_4;
+        //private ColorDimmer light1_5;
+        //private ColorDimmer light1_6;
+        //private ColorDimmer light1_7;
+        //private ColorDimmer light1_8;
+        //private ColorDimmer light1_9;
+        //private ColorDimmer light1_10;
+        //private ColorDimmer light1_11;
+        //private ColorDimmer light1_12;
+        //private ColorDimmer light1_13;
+        //private ColorDimmer light1_14;
+        //private ColorDimmer light1_15;
+        //private ColorDimmer light1_16;
 
-        //protected ColorDimmer light2_1;
-        //protected ColorDimmer light2_2;
-        //protected ColorDimmer light2_3;
-        //protected ColorDimmer light2_4;
-        //protected ColorDimmer light2_5;
-        //protected ColorDimmer light2_6;
-        //protected ColorDimmer light2_7;
-        //protected ColorDimmer light2_8;
-        //protected ColorDimmer light2_9;
-        //protected ColorDimmer light2_10;
-        //protected ColorDimmer light2_11;
-        //protected ColorDimmer light2_12;
-        //protected ColorDimmer light2_13;
-        //protected ColorDimmer light2_14;
-        //protected ColorDimmer light2_15;
-        //protected ColorDimmer light2_16;
+        //private ColorDimmer light2_1;
+        //private ColorDimmer light2_2;
+        //private ColorDimmer light2_3;
+        //private ColorDimmer light2_4;
+        //private ColorDimmer light2_5;
+        //private ColorDimmer light2_6;
+        //private ColorDimmer light2_7;
+        //private ColorDimmer light2_8;
+        //private ColorDimmer light2_9;
+        //private ColorDimmer light2_10;
+        //private ColorDimmer light2_11;
+        //private ColorDimmer light2_12;
+        //private ColorDimmer light2_13;
+        //private ColorDimmer light2_14;
+        //private ColorDimmer light2_15;
+        //private ColorDimmer light2_16;
 
-        //protected ColorDimmer light3_1;
-        //protected ColorDimmer light3_2;
-        //protected ColorDimmer light3_3;
-        //protected ColorDimmer light3_4;
-        //protected ColorDimmer light3_5;
-        //protected ColorDimmer light3_6;
-        //protected ColorDimmer light3_7;
-        //protected ColorDimmer light3_8;
-        //protected ColorDimmer light3_9;
-        //protected ColorDimmer light3_10;
-        //protected ColorDimmer light3_11;
-        //protected ColorDimmer light3_12;
-        //protected ColorDimmer light3_13;
-        //protected ColorDimmer light3_14;
-        //protected ColorDimmer light3_15;
-        //protected ColorDimmer light3_16;
+        //private ColorDimmer light3_1;
+        //private ColorDimmer light3_2;
+        //private ColorDimmer light3_3;
+        //private ColorDimmer light3_4;
+        //private ColorDimmer light3_5;
+        //private ColorDimmer light3_6;
+        //private ColorDimmer light3_7;
+        //private ColorDimmer light3_8;
+        //private ColorDimmer light3_9;
+        //private ColorDimmer light3_10;
+        //private ColorDimmer light3_11;
+        //private ColorDimmer light3_12;
+        //private ColorDimmer light3_13;
+        //private ColorDimmer light3_14;
+        //private ColorDimmer light3_15;
+        //private ColorDimmer light3_16;
 
-        //protected ColorDimmer light4_1;
-        //protected ColorDimmer light4_2;
-        //protected ColorDimmer light4_3;
-        //protected ColorDimmer light4_4;
-        //protected ColorDimmer light4_5;
-        //protected ColorDimmer light4_6;
-        //protected ColorDimmer light4_7;
-        //protected ColorDimmer light4_8;
-        //protected ColorDimmer light4_9;
-        //protected ColorDimmer light4_10;
-        //protected ColorDimmer light4_11;
-        //protected ColorDimmer light4_12;
-        //protected ColorDimmer light4_13;
-        //protected ColorDimmer light4_14;
-        //protected ColorDimmer light4_15;
-        //protected ColorDimmer light4_16;
+        //private ColorDimmer light4_1;
+        //private ColorDimmer light4_2;
+        //private ColorDimmer light4_3;
+        //private ColorDimmer light4_4;
+        //private ColorDimmer light4_5;
+        //private ColorDimmer light4_6;
+        //private ColorDimmer light4_7;
+        //private ColorDimmer light4_8;
+        //private ColorDimmer light4_9;
+        //private ColorDimmer light4_10;
+        //private ColorDimmer light4_11;
+        //private ColorDimmer light4_12;
+        //private ColorDimmer light4_13;
+        //private ColorDimmer light4_14;
+        //private ColorDimmer light4_15;
+        //private ColorDimmer light4_16;
 
-        protected ColorDimmer light5_1;
-        //protected ColorDimmer light5_2;
-        //protected ColorDimmer light5_3;
-        //protected ColorDimmer light5_4;
-        //protected ColorDimmer light5_5;
-        //protected ColorDimmer light5_6;
-        //protected ColorDimmer light5_7;
-        //protected ColorDimmer light5_8;
-        //protected ColorDimmer light5_9;
-        //protected ColorDimmer light5_10;
-        //protected ColorDimmer light5_11;
-        //protected ColorDimmer light5_12;
-        //protected ColorDimmer light5_13;
-        //protected ColorDimmer light5_14;
-        //protected ColorDimmer light5_15;
-        //protected ColorDimmer light5_16;
+        private ColorDimmer light5_1;
+        //private ColorDimmer light5_2;
+        //private ColorDimmer light5_3;
+        //private ColorDimmer light5_4;
+        //private ColorDimmer light5_5;
+        //private ColorDimmer light5_6;
+        //private ColorDimmer light5_7;
+        //private ColorDimmer light5_8;
+        //private ColorDimmer light5_9;
+        //private ColorDimmer light5_10;
+        //private ColorDimmer light5_11;
+        //private ColorDimmer light5_12;
+        //private ColorDimmer light5_13;
+        //private ColorDimmer light5_14;
+        //private ColorDimmer light5_15;
+        //private ColorDimmer light5_16;
 
-        protected VirtualPixel1D allPixels;
+        private VirtualPixel1D allPixels;
 
-        protected DigitalInput testButton;
-        protected Import.LorTimeline lorTimeline;
+        private DigitalInput testButton;
+        private Import.TimelineImporter.Timeline lorTimeline;
 
 
         public LORScene()
@@ -200,7 +200,7 @@ namespace Animatroller.SceneRunner
             light5_16 = lorImport.MapDevice(5, 16, name => new StrobeColorDimmer(name));
 */
 
-            light5_1 = lorImport.MapDevice(5, 1, name => new StrobeColorDimmer(name));
+            light5_1 = lorImport.MapDevice(new Import.LorImport.UnitCircuit(5, 1), name => new StrobeColorDimmer(name));
 
             for (int unit = 1; unit <= 5; unit++)
             {
@@ -208,7 +208,7 @@ namespace Animatroller.SceneRunner
                 {
                     int pixelPos = (unit - 1) * 16 + circuit - 1;
 
-                    var pixel = lorImport.MapDevice(unit, circuit, name => new SinglePixel(name, allPixels, pixelPos));
+                    var pixel = lorImport.MapDevice(new Import.LorImport.UnitCircuit(unit, circuit), name => new SinglePixel(name, allPixels, pixelPos));
 
                     var color = lorImport.GetChannelColor(unit, circuit);
                     allPixels.SetColor(pixelPos, color, 0);

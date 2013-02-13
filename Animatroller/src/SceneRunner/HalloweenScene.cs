@@ -16,28 +16,28 @@ namespace Animatroller.SceneRunner
 {
     internal class HalloweenScene : BaseScene
     {
-        protected OperatingHours hours;
-        protected StrobeDimmer georgeStrobeLight;
-        protected StrobeColorDimmer spiderLight;
-        protected Dimmer skullsLight;
-        protected Dimmer cobWebLight;
-        protected Switch blinkyEyesLight;
-        protected StrobeColorDimmer rgbLightRight;
-        protected StrobeColorDimmer georgeLight;
-        protected StrobeColorDimmer leftSkeletonLight;
-        protected MotorWithFeedback georgeMotor;
-        protected StrobeColorDimmer candyLight;
-        protected Switch spiderLift;
-        protected Switch smokeMachine;
-        protected Switch spiderEyes;
-        protected DigitalInput pressureMat;
-        protected DigitalInput testButton;
-        protected Physical.NetworkAudioPlayer audioPlayer;
+        private OperatingHours hours;
+        private StrobeDimmer georgeStrobeLight;
+        private StrobeColorDimmer spiderLight;
+        private Dimmer skullsLight;
+        private Dimmer cobWebLight;
+        private Switch blinkyEyesLight;
+        private StrobeColorDimmer rgbLightRight;
+        private StrobeColorDimmer georgeLight;
+        private StrobeColorDimmer leftSkeletonLight;
+        private MotorWithFeedback georgeMotor;
+        private StrobeColorDimmer candyLight;
+        private Switch spiderLift;
+        private Switch smokeMachine;
+        private Switch spiderEyes;
+        private DigitalInput pressureMat;
+        private DigitalInput testButton;
+        private Physical.NetworkAudioPlayer audioPlayer;
 
-        protected Effect.Pulsating pulsatingEffect1;
-        protected Effect.Pulsating pulsatingEffect2;
-        protected Effect.Pulsating candyPulse;
-        protected Effect.Flicker flickerEffect;
+        private Effect.Pulsating pulsatingEffect1;
+        private Effect.Pulsating pulsatingEffect2;
+        private Effect.Pulsating candyPulse;
+        private Effect.Flicker flickerEffect;
 
 
         public HalloweenScene()

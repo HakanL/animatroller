@@ -18,13 +18,13 @@ namespace Animatroller.SceneRunner
     {
         private Random random = new Random();
 
-        protected Pixel1D testPixels;
-        protected Dimmer explosion1;
-        protected Dimmer explosion2;
-        protected Dimmer explosion3;
-        protected Dimmer explosion4;
-        protected DigitalInput testButton;
-        protected Physical.NetworkAudioPlayer audioPlayer;
+        private Pixel1D testPixels;
+        private Dimmer explosion1;
+        private Dimmer explosion2;
+        private Dimmer explosion3;
+        private Dimmer explosion4;
+        private DigitalInput testButton;
+        private Physical.NetworkAudioPlayer audioPlayer;
 
 
         public XmasScene()
