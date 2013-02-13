@@ -64,6 +64,7 @@
     <Compile Include="Expander\AcnStream.cs" />
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />
+    <Compile Include="Import\BufferImporter.cs" />
     <Compile Include="Interface\ICanExecute.cs" />
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="Controller\ChannelIdentity.cs" />
@@ -76,7 +77,7 @@
     <Compile Include="LogicalDevice\Pixel1D.cs" />
     <Compile Include="LogicalDevice\Event\OpenHoursChanged.cs" />
     <Compile Include="LogicalDevice\OperatingHours.cs" />
-    <Compile Include="Import\TimelineImporter.cs" />
+    <Compile Include="Import\BaseImporter.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />
     <Compile Include="PhysicalDevice\PixelRGB.cs" />

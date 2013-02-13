@@ -13,7 +13,7 @@ namespace Animatroller.SceneRunner
     {
         private VirtualPixel1D allPixels;
         private DigitalInput testButton;
-        private Import.TimelineImporter.Timeline lorTimeline;
+        private Import.BaseImporter.Timeline lorTimeline;
 
         public Nutcracker1Scene()
         {

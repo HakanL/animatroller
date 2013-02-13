@@ -6,7 +6,7 @@ using Animatroller.Framework.Controller;
 
 namespace Animatroller.Framework.Import
 {
-    public abstract class TimelineImporter
+    public abstract class BaseImporter
     {
         public interface ISimpleInvokeEvent
         {
@@ -62,7 +62,7 @@ namespace Animatroller.Framework.Import
         protected Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>> mappedDevices;
         protected Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>> mappedRGBDevices;
 
-        public TimelineImporter()
+        public BaseImporter()
         {
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>>();
@@ -180,45 +180,5 @@ namespace Animatroller.Framework.Import
         }
 
         public abstract Timeline CreateTimeline(bool loop);
-    }
-
-    public class SimpleDimmerEvent : TimelineImporter.ISimpleInvokeEvent
-    {
-        private IEnumerable<TimelineImporter.MappedDeviceDimmer> devices;
-        private double brightness;
-
-        public SimpleDimmerEvent(IEnumerable<TimelineImporter.MappedDeviceDimmer> devices, double brightness)
-        {
-            this.devices = devices;
-            this.brightness = brightness;
-        }
-
-        public void Invoke()
-        {
-            foreach (var device in this.devices)
-            {
-                device.Device.Brightness = this.brightness;
-            }
-        }
-    }
-
-    public class SimpleColorEvent : TimelineImporter.ISimpleInvokeEvent
-    {
-        private IEnumerable<TimelineImporter.MappedDeviceRGB> devices;
-        private Color color;
-
-        public SimpleColorEvent(IEnumerable<TimelineImporter.MappedDeviceRGB> devices, Color color)
-        {
-            this.devices = devices;
-            this.color = color;
-        }
-
-        public void Invoke()
-        {
-            foreach (var device in this.devices)
-            {
-                device.Device.Color = this.color;
-            }
-        }
     }
 }

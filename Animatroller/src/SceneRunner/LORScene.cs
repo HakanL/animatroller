@@ -102,7 +102,7 @@ namespace Animatroller.SceneRunner
         private VirtualPixel1D allPixels;
 
         private DigitalInput testButton;
-        private Import.TimelineImporter.Timeline lorTimeline;
+        private Import.BaseImporter.Timeline lorTimeline;
 
 
         public LORScene()
@@ -210,8 +210,8 @@ namespace Animatroller.SceneRunner
 
                     var pixel = lorImport.MapDevice(new Import.LorImport.UnitCircuit(unit, circuit), name => new SinglePixel(name, allPixels, pixelPos));
 
-                    var color = lorImport.GetChannelColor(unit, circuit);
-                    allPixels.SetColor(pixelPos, color, 0);
+//FIXME                    var color = lorImport.GetChannelColor(unit, circuit);
+//FIXME                    allPixels.SetColor(pixelPos, color, 0);
 
                     log.Debug("Mapping unit {0}  circuit {1} to pixel {2} [{3}]", unit, circuit, pixelPos, pixel.Name);
                 }

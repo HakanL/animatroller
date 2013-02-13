@@ -75,7 +75,7 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
-                else if (field.FieldType == typeof(Animatroller.Framework.Import.TimelineImporter.Timeline))
+                else if (field.FieldType == typeof(Animatroller.Framework.Import.BaseImporter.Timeline))
                 {
                     // Skip
                 }
