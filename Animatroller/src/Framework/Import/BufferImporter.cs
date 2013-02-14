@@ -17,9 +17,9 @@ namespace Animatroller.Framework.Import
             this.effectDataPerChannel = new Dictionary<IChannelIdentity, byte[]>();
         }
 
-        public override Timeline CreateTimeline(bool loop)
+        public override Timeline CreateTimeline(int? iterations)
         {
-            var timeline = InternalCreateTimeline(loop);
+            var timeline = InternalCreateTimeline(iterations);
 
             foreach (var kvp in this.mappedDevices)
             {
@@ -34,8 +34,8 @@ namespace Animatroller.Framework.Import
                         continue;
                     lastValue = effectData[i];
 
-                    var vixEvent = new SimpleDimmerEvent(kvp.Value, (double)effectData[i] / 255);
-                    timeline.AddMs(i * eventPeriodInMilliseconds, vixEvent);
+                    var timelineEvent = new SimpleDimmerEvent(kvp.Value, (double)effectData[i] / 255);
+                    timeline.AddMs(i * eventPeriodInMilliseconds, timelineEvent);
                 }
             }
 
@@ -55,8 +55,11 @@ namespace Animatroller.Framework.Import
                         continue;
                     lastValue = color;
 
-                    var vixEvent = new SimpleColorEvent(kvp.Value, color);
-                    timeline.AddMs(i * eventPeriodInMilliseconds, vixEvent);
+                    var timelineEvent = new SimpleColorEvent(kvp.Value, color);
+                    timeline.AddMs(i * eventPeriodInMilliseconds, timelineEvent);
+
+                    //log.Debug("Pos {0} set color {1} for device R:{2}/G:{3}/B:{4}", i, color, channelIdentity.R,
+                    //    channelIdentity.G, channelIdentity.B);
                 }
             }
 

@@ -25,4 +25,10 @@ namespace Animatroller.Framework
     public interface IPhysicalDevice : IDevice
     {
     }
+
+    public interface IControlledDevice : ILogicalDevice
+    {
+        void Suspend();
+        void Resume();
+    }
 }

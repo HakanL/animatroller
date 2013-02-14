@@ -24,4 +24,9 @@ namespace Animatroller.Framework.LogicalDevice
         //Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration);
         //void StopEffect();
     }
+
+    public interface IHasControlledDevice : ILogicalDevice
+    {
+        IControlledDevice ControlledDevice { get; }
+    }
 }

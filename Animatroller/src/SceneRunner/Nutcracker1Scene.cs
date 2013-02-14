@@ -19,7 +19,7 @@ namespace Animatroller.SceneRunner
         {
             testButton = new DigitalInput("Test");
 
-            allPixels = new VirtualPixel1D("All Pixels", 80);
+            allPixels = new VirtualPixel1D("All Pixels", 60);
             allPixels.SetAll(Color.White, 0);
 
             var lorImport = new Import.LorImport(@"..\..\..\Test Files\HAUK~HALLOWEEN1.lms");
@@ -60,37 +60,7 @@ namespace Animatroller.SceneRunner
                 pixelPosition++;
             }
 
-            lorTimeline = lorImport.CreateTimeline(true);
-
-            //foreach(int unit in lorImport.AvailableUnits)
-            //{
-            //    var circuits = lorImport.GetCircuits(unit).GetEnumerator();
-
-            //    while (true)
-            //    {
-            //        int circuitR, circuitG, circuitB;
-
-            //        if (!circuits.MoveNext())
-            //            break;
-            //        circuitR = circuits.Current;
-
-            //        if (!circuits.MoveNext())
-            //            break;
-            //        circuitG = circuits.Current;
-
-            //        if (!circuits.MoveNext())
-            //            break;
-            //        circuitB = circuits.Current;
-
-            //        var pixel = lorImport.MapDevice(unit, circuitR, circuitG, circuitB, name => new SinglePixel(name, allPixels, pixelPosition));
-
-            //        log.Debug("Mapping unit {0}  circuits R{1}/G{2}/B{3} to pixel {4} [{5}]", unit, circuitR, circuitG, circuitB, pixelPosition, pixel.Name);
-
-            //        pixelPosition++;
-            //    }
-            //}
-
-            //lorTimeline = lorImport.CreateTimeline(true);
+            lorTimeline = lorImport.CreateTimeline(null);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)

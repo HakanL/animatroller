@@ -29,7 +29,7 @@ namespace Animatroller.Framework.Import
             foreach (var channel in sequence.Channels)
             {
                 var channelIdentity = new VixenChannel(channel.output);
-                this.channelData[channelIdentity] = new ChannelData(channel.Value);
+                AddChannelData(channelIdentity, new ChannelData(channel.Value));
 
                 var channelEffectData = new byte[this.effectsPerChannel];
                 Array.Copy(effectData, i, channelEffectData, 0, channelEffectData.Length);

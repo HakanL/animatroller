@@ -64,8 +64,8 @@ namespace Animatroller.SceneRunner
             //var scene = new TestScene2();
             //var scene = new LORScene();
             //var scene = new PixelScene1(sceneArgs);
-            var scene = new Nutcracker1Scene();
-            //var scene = new Nutcracker2Scene();
+            //var scene = new Nutcracker1Scene();
+            var scene = new Nutcracker2Scene();
             //var scene = new HalloweenScene();
             //var scene = new XmasScene();
             //var scene = new XmasScene2(sceneArgs);

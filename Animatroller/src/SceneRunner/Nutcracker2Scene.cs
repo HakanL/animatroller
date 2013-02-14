@@ -19,7 +19,7 @@ namespace Animatroller.SceneRunner
         {
             testButton = new DigitalInput("Test");
 
-            allPixels = new VirtualPixel1D("All Pixels", 80);
+            allPixels = new VirtualPixel1D("All Pixels", 60);
             allPixels.SetAll(Color.White, 0);
 
             var vixImport = new Import.VixenImport(@"..\..\..\Test Files\HAUK~HALLOWEEN1.vix");
@@ -60,7 +60,7 @@ namespace Animatroller.SceneRunner
                 pixelPosition++;
             }
 
-            vixTimeline = vixImport.CreateTimeline(true);
+            vixTimeline = vixImport.CreateTimeline(null);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)

@@ -42,15 +42,15 @@ namespace Animatroller.Framework.Controller
         private SortedList<int, HashSet<T>> timeline;
         private Task task;
         private System.Threading.CancellationTokenSource cancelSource;
-        private bool loop;
+        private int? iterations;
 
         public event EventHandler<TimelineEventArgs> TimelineTrigger;
         public event EventHandler<MultiTimelineEventArgs> MultiTimelineTrigger;
 
-        public Timeline(bool loop)
+        public Timeline(int? iterations)
         {
             this.timeline = new SortedList<int, HashSet<T>>();
-            this.loop = loop;
+            this.iterations = iterations;
         }
 
         public Timeline<T> PopulateFromCSV(string filename)
@@ -111,8 +111,11 @@ namespace Animatroller.Framework.Controller
 
             this.task = new Task(() =>
             {
-                while (this.loop)
+                while (!this.iterations.HasValue || this.iterations.GetValueOrDefault() > 0)
                 {
+                    if (this.iterations.HasValue)
+                        this.iterations = this.iterations.Value - 1;
+
                     var watch = System.Diagnostics.Stopwatch.StartNew();
                     for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
                     {

@@ -114,7 +114,7 @@ namespace Animatroller.SceneRunner
             buttonRed = new DigitalInput("Button Red");
             buttonStartReindeer = new DigitalInput("Start Reindeer");
 
-            timeline = new Controller.Timeline<string>(false);
+            timeline = new Controller.Timeline<string>(1);
             stateMachine = new Controller.StateMachine<States>("Main");
             candyCane = new Controller.Sequence("Candy Cane");
             starwarsCane = new Controller.Sequence("Starwars Cane");

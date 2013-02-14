@@ -15,9 +15,6 @@ namespace Animatroller.Framework.Import
     public class LorImport : BufferImporter
     {
         private Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
-//        private Dictionary<IChannelIdentity, LMS.channelsChannel> channels;
-        //protected Dictionary<IChannelIdentity, byte[]> effectDataPerChannel;
-        //protected int effectsPerChannel;
 
         public LorImport(string filename)
         {
@@ -41,7 +38,7 @@ namespace Animatroller.Framework.Import
                 }
 
                 var channelIdentity = new UnitCircuit(channel.unit, channel.circuit);
-                this.channelData[channelIdentity] = new ChannelData(channel.name);
+                AddChannelData(channelIdentity, new ChannelData(channel.name));
 
                 var channelEffectData = new byte[this.effectsPerChannel];
 
@@ -50,7 +47,10 @@ namespace Animatroller.Framework.Import
                     long centiSeconds = pos * this.eventPeriodInMilliseconds / 10;
                     foreach (var effect in channel.effect)
                     {
-                        if (effect.startCentisecond >= centiSeconds && centiSeconds <= effect.endCentisecond)
+                        if (effect.startCentisecond > centiSeconds)
+                            break;
+
+                        if (centiSeconds >= effect.startCentisecond && centiSeconds < effect.endCentisecond)
                         {
                             channelEffectData[pos] = (byte)(effect.intensity * 255 / 100);
                             break;

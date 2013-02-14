@@ -10,7 +10,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class SinglePixel : IOutput, ILogicalDevice, IOwner, IHasBrightnessControl, IHasColorControl
+    public class SinglePixel : IOutput, ILogicalDevice, IOwner, IHasBrightnessControl, IHasColorControl, IHasControlledDevice
     {
         protected object lockObject = new object();
         protected string name;
@@ -37,6 +37,11 @@ namespace Animatroller.Framework.LogicalDevice
         public string Name
         {
             get { return this.name; }
+        }
+
+        public IControlledDevice ControlledDevice
+        {
+            get { return this.pixelDevice; }
         }
 
         public double Brightness

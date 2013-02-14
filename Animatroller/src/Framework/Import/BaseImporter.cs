@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using NLog;
 using Animatroller.Framework.Controller;
 
@@ -15,8 +16,8 @@ namespace Animatroller.Framework.Import
 
         public class Timeline : Timeline<ISimpleInvokeEvent>
         {
-            public Timeline(bool loop)
-                : base(loop)
+            public Timeline(int? iterations)
+                : base(iterations)
             {
             }
         }
@@ -58,22 +59,26 @@ namespace Animatroller.Framework.Import
         }
 
         protected static Logger log = LogManager.GetCurrentClassLogger();
-        protected Dictionary<IChannelIdentity, ChannelData> channelData;
+        private Dictionary<IChannelIdentity, ChannelData> channelData;
+        private List<IChannelIdentity> channels;
         protected Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>> mappedDevices;
         protected Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>> mappedRGBDevices;
+        protected HashSet<IControlledDevice> controlledDevices;
 
         public BaseImporter()
         {
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
+            this.channels = new List<IChannelIdentity>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>>();
             this.mappedRGBDevices = new Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>>();
+            this.controlledDevices = new HashSet<IControlledDevice>();
         }
 
         public IEnumerable<IChannelIdentity> GetChannels
         {
             get
             {
-                return this.channelData.Keys;
+                return this.channels;
             }
         }
 
@@ -82,6 +87,12 @@ namespace Animatroller.Framework.Import
             var channel = this.channelData[channelIdentity];
 
             return channel.Name;
+        }
+
+        protected void AddChannelData(IChannelIdentity channelIdentity, ChannelData data)
+        {
+            this.channelData[channelIdentity] = data;
+            this.channels.Add(channelIdentity);
         }
 
         protected void InternalMapDevice(IChannelIdentity channelIdentity, MappedDeviceDimmer device)
@@ -95,6 +106,11 @@ namespace Animatroller.Framework.Import
             devices.Add(device);
          
             this.channelData[channelIdentity].Mapped = true;
+
+            if (device.Device is IControlledDevice)
+                this.controlledDevices.Add((IControlledDevice)device.Device);
+            if (device.Device is LogicalDevice.IHasControlledDevice)
+                this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device.Device).ControlledDevice);
         }
 
         protected void InternalMapDevice(RGBChannelIdentity channelIdentity, MappedDeviceRGB device)
@@ -110,6 +126,11 @@ namespace Animatroller.Framework.Import
             this.channelData[channelIdentity.R].Mapped = true;
             this.channelData[channelIdentity.G].Mapped = true;
             this.channelData[channelIdentity.B].Mapped = true;
+
+            if (device.Device is IControlledDevice)
+                this.controlledDevices.Add((IControlledDevice)device.Device);
+            if (device.Device is LogicalDevice.IHasControlledDevice)
+                this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device.Device).ControlledDevice);
         }
 
         public void MapDevice(IChannelIdentity channelIdentity, LogicalDevice.IHasBrightnessControl device)
@@ -159,7 +180,7 @@ namespace Animatroller.Framework.Import
             return device;
         }
 
-        protected Timeline InternalCreateTimeline(bool loop)
+        protected Timeline InternalCreateTimeline(int? iterations)
         {
             foreach (var kvp in this.channelData)
             {
@@ -169,16 +190,26 @@ namespace Animatroller.Framework.Import
                 }
             }
 
-            var timeline = new Timeline(loop);
+            var timeline = new Timeline(iterations);
             timeline.MultiTimelineTrigger += (sender, e) =>
                 {
-                    foreach (var invokeEvent in e.Code)
-                        invokeEvent.Invoke();
+                    foreach (var controlledDevice in this.controlledDevices)
+                        controlledDevice.Suspend();
+                    try
+                    {
+                        foreach (var invokeEvent in e.Code)
+                            invokeEvent.Invoke();
+                    }
+                    finally
+                    {
+                        foreach (var controlledDevice in this.controlledDevices)
+                            controlledDevice.Resume();
+                    }
                 };
 
             return timeline;
         }
 
-        public abstract Timeline CreateTimeline(bool loop);
+        public abstract Timeline CreateTimeline(int? iterations);
     }
 }

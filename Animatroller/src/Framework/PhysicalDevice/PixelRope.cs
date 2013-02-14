@@ -75,19 +75,10 @@ namespace Animatroller.Framework.PhysicalDevice
                     hsv.Value = hsv.Value * e.NewBrightness;
                     var color = hsv.Color;
 
-                    if (System.Threading.Monitor.TryEnter(lockObject))
+                    lock (this.lockObject)
                     {
-                        try
-                        {
-                            PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
-                        }
-                        finally
-                        {
-                            System.Threading.Monitor.Exit(lockObject);
-                        }
+                        PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
                     }
-                    else
-                        log.Warn("Missed PixelChanged in PixelRope2");
                 }, (sender, e) =>
                 {
                     var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
@@ -100,19 +91,10 @@ namespace Animatroller.Framework.PhysicalDevice
                         values[i] = new PixelRGBByte(color.R, color.G, color.B);
                     }
 
-                    if (System.Threading.Monitor.TryEnter(lockObject))
+                    lock (this.lockObject)
                     {
-                        try
-                        {
-                            PixelOutputPort.SendPixelsValue(e.StartChannel, values);
-                        }
-                        finally
-                        {
-                            System.Threading.Monitor.Exit(lockObject);
-                        }
+                        PixelOutputPort.SendPixelsValue(e.StartChannel, values);
                     }
-                    else
-                        log.Warn("Missed send to PixelRope2");
                 });
         }
     }

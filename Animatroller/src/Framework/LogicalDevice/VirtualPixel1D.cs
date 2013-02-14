@@ -10,12 +10,15 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class VirtualPixel1D : IPixel1D, IOutput, ILogicalDevice, IHasBrightnessControl, IOwner
+    public class VirtualPixel1D : IPixel1D, IOutput, ILogicalDevice, IHasBrightnessControl, IOwner, IControlledDevice
     {
         protected object lockObject = new object();
         protected string name;
         protected IOwner owner;
         protected int pixelCount;
+        protected bool suspended;
+        private int? suspendedStart;
+        private int? suspendedEnd;
 
         protected List<PixelDevice> devices;
         protected double[] brightness;
@@ -65,6 +68,17 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void RaisePixelChanged(int position)
         {
+            if (suspended)
+            {
+                if (!suspendedStart.HasValue || position < suspendedStart.Value)
+                    suspendedStart = position;
+
+                if (!suspendedEnd.HasValue || position > suspendedEnd.Value)
+                    suspendedEnd = position;
+
+                return;
+            }
+
             var handler = PixelChanged;
             if(handler != null)
                 handler(this, new PixelChangedEventArgs(position, this.color[position], this.brightness[position]));
@@ -82,6 +96,17 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void RaiseMultiPixelChanged(int startPosition, int size)
         {
+            if (suspended)
+            {
+                if (!suspendedStart.HasValue || startPosition < suspendedStart.Value)
+                    suspendedStart = startPosition;
+
+                if (!suspendedEnd.HasValue || (startPosition + size - 1) > suspendedEnd.Value)
+                    suspendedEnd = (startPosition + size - 1);
+
+                return;
+            }
+
             var handler = MultiPixelChanged;
             if (handler != null)
             {
@@ -515,6 +540,27 @@ namespace Animatroller.Framework.LogicalDevice
         public int Priority
         {
             get { return 0; }
+        }
+
+        public void Suspend()
+        {
+            lock (this.lockObject)
+            {
+                this.suspended = true;
+                this.suspendedStart = null;
+                this.suspendedEnd = null;
+            }
+        }
+
+        public void Resume()
+        {
+            lock (this.lockObject)
+            {
+                this.suspended = false;
+
+                if (this.suspendedStart.HasValue && this.suspendedEnd.HasValue)
+                    RaiseMultiPixelChanged(this.suspendedStart.Value, this.suspendedEnd.Value - this.suspendedStart.Value + 1);
+            }
         }
     }
 }
