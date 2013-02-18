@@ -163,6 +163,14 @@ namespace Animatroller.Framework
             return this;
         }
 
+        internal void RegisterCancelSource(CancellationTokenSource tokenSource, Task task, string name)
+        {
+            lock (lockObject)
+            {
+                this.cancellable.Add(Guid.NewGuid(), new Tuple<CancellationTokenSource, Task, string>(tokenSource, task, name));
+            }
+        }
+
         internal CancellationTokenSource Execute(Action<CancellationToken> action, string name, out Task task)
         {
             var tokenSource = new CancellationTokenSource();

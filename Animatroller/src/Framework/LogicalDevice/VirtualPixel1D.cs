@@ -419,7 +419,7 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        public VirtualPixel1D TurnOff()
+        public void TurnOff()
         {
             for (int i = 0; i < this.brightness.Length; i++)
             {
@@ -427,8 +427,6 @@ namespace Animatroller.Framework.LogicalDevice
             }
 
             RaiseMultiPixelChanged(0, this.brightness.Length);
-
-            return this;
         }
 
         public VirtualPixel1D SetAll(Color color, double brightness)

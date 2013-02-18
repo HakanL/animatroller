@@ -30,5 +30,6 @@ namespace Animatroller.Framework
     {
         void Suspend();
         void Resume();
+        void TurnOff();
     }
 }

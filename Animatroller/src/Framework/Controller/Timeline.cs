@@ -46,11 +46,17 @@ namespace Animatroller.Framework.Controller
 
         public event EventHandler<TimelineEventArgs> TimelineTrigger;
         public event EventHandler<MultiTimelineEventArgs> MultiTimelineTrigger;
+        protected Action tearDownAction;
 
         public Timeline(int? iterations)
         {
             this.timeline = new SortedList<int, HashSet<T>>();
             this.iterations = iterations;
+        }
+
+        public void TearDown(Action action)
+        {
+            this.tearDownAction = action;
         }
 
         public Timeline<T> PopulateFromCSV(string filename)
@@ -107,7 +113,8 @@ namespace Animatroller.Framework.Controller
 
         public Task Start()
         {
-            this.cancelSource = new System.Threading.CancellationTokenSource();
+            if (this.cancelSource == null)
+                this.cancelSource = new System.Threading.CancellationTokenSource();
 
             this.task = new Task(() =>
             {
@@ -125,7 +132,12 @@ namespace Animatroller.Framework.Controller
                         {
                             System.Threading.Thread.Sleep(1);
                             if (this.cancelSource.Token.IsCancellationRequested)
+                            {
+                                if (this.tearDownAction != null)
+                                    this.tearDownAction.Invoke();
+
                                 return;
+                            }
                         }
 
                         var codes = this.timeline.Values[currentPos];
@@ -146,9 +158,13 @@ namespace Animatroller.Framework.Controller
                             multiHandler(this, new MultiTimelineEventArgs(elapsed, codes, currentPos + 1));
                     }
                 }
+
+                if (this.tearDownAction != null)
+                    this.tearDownAction.Invoke();
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
             task.Start();
+            Executor.Current.RegisterCancelSource(this.cancelSource, task, "Timeline");
 
             return task;
         }

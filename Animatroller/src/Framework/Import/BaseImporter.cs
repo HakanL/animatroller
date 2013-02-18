@@ -191,6 +191,12 @@ namespace Animatroller.Framework.Import
             }
 
             var timeline = new Timeline(iterations);
+            timeline.TearDown(() =>
+                {
+                    foreach (var controlledDevice in this.controlledDevices)
+                        controlledDevice.TurnOff();
+                });
+
             timeline.MultiTimelineTrigger += (sender, e) =>
                 {
                     foreach (var controlledDevice in this.controlledDevices)
