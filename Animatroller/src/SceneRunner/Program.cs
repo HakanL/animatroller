@@ -19,6 +19,7 @@ namespace Animatroller.SceneRunner
             Animatroller.Framework.Expander.DMXPro dmxPro = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
             Animatroller.Framework.Expander.AcnStream acnOutput = null;
+            Animatroller.Framework.Expander.OscServer oscServer = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
@@ -45,6 +46,10 @@ namespace Animatroller.SceneRunner
                     case "ACN":
                         // ACN E1.31 streaming output. Will pick first non-loopback network card to bind to
                         acnOutput = new Framework.Expander.AcnStream();
+                        break;
+
+                    case "OSC":
+                        oscServer = new Framework.Expander.OscServer(Properties.Settings.Default.OSCServerPort, 4);
                         break;
 
                     default:
@@ -86,6 +91,8 @@ namespace Animatroller.SceneRunner
                 scene.WireUp(ioExpander);
             if (acnOutput != null)
                 scene.WireUp(acnOutput);
+            if (oscServer != null)
+                scene.WireUp(oscServer);
 
             // Initialize
             Executor.Current.Start();

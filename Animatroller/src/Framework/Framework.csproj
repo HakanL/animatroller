@@ -47,6 +47,9 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="Rug.Osc">
+      <HintPath>..\packages\Rug.Osc.1.2.3\lib\Rug.Osc.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -62,6 +65,7 @@
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
+    <Compile Include="Expander\OscServer.cs" />
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />
     <Compile Include="Import\BufferImporter.cs" />

@@ -46,6 +46,11 @@ namespace Animatroller.SceneRunner
         {
         }
 
+        public void WireUp(Animatroller.Framework.Expander.OscServer osc)
+        {
+            osc.DigitalInputs[0].Connect(pressureMat);
+        }
+
         public override void Start()
         {
             pressureMat.ActiveChanged += (sender, e) =>
