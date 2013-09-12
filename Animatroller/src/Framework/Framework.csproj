@@ -47,8 +47,9 @@
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="Rug.Osc">
-      <HintPath>..\packages\Rug.Osc.1.2.3\lib\Rug.Osc.dll</HintPath>
+    <Reference Include="Rug.Osc, Version=1.2.3.41122, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\Rug.Osc.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -66,7 +67,7 @@
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
     <Compile Include="Expander\OscServer.cs" />
-    <Compile Include="Expander\Osc.cs" />
+    <Compile Include="Expander\OscClient.cs" />
     <Compile Include="Expander\Raspberry.cs" />
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />

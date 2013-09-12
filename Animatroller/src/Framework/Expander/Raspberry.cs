@@ -16,6 +16,7 @@ namespace Animatroller.Framework.Expander
         private System.Threading.CancellationTokenSource cancelSource;
         private string hostName;
         private int hostPort;
+        private OscClient oscClient;
 
         public Raspberry(string hostEntry)
         {
@@ -25,6 +26,9 @@ namespace Animatroller.Framework.Expander
 
             this.hostName = hostParts[0];
             this.hostPort = int.Parse(hostParts[1]);
+
+            var ipHostEntry = System.Net.Dns.GetHostAddresses(this.hostName);
+            this.oscClient = new OscClient(ipHostEntry.First(), this.hostPort);
 
             this.DigitalInputs = new PhysicalDevice.DigitalInput[4];
             for (int index = 0; index < this.DigitalInputs.Length; index++)
@@ -78,7 +82,9 @@ namespace Animatroller.Framework.Expander
         public void Start()
         {
             this.receiverTask.Start();
-            this.receiver.Connect();
+//            this.receiver.Connect();
+
+            this.oscClient.Send("/volume", 5);
         }
 
         public void Stop()
