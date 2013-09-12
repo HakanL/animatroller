@@ -8,7 +8,7 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class OscServer : IPort, IRunnable
+    public abstract class Osc : IPort, IRunnable
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private Rug.Osc.OscReceiver receiver;
@@ -16,7 +16,7 @@ namespace Animatroller.Framework.Expander
         private System.Threading.CancellationTokenSource cancelSource;
         private Dictionary<string, Action<IEnumerable<object>>> dispatch;
 
-        public OscServer(int listenPort)
+        public Osc(int listenPort)
         {
             this.receiver = new Rug.Osc.OscReceiver(listenPort);
             this.cancelSource = new System.Threading.CancellationTokenSource();
@@ -82,22 +82,5 @@ namespace Animatroller.Framework.Expander
             this.receiver.Close();
         }
 
-        public OscServer RegisterAction(string address, Action<IEnumerable<object>> action)
-        {
-            this.dispatch[address] = action;
-
-            return this;
-        }
-
-        public OscServer RegisterAction<T>(string address, Action<IEnumerable<T>> action)
-        {
-            this.dispatch[address] = x =>
-                {
-                    var list = x.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
-                    action.Invoke(list);
-                };
-
-            return this;
-        }
     }
 }

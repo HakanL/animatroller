@@ -19,7 +19,7 @@ namespace Animatroller.SceneRunner
             Animatroller.Framework.Expander.DMXPro dmxPro = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
             Animatroller.Framework.Expander.AcnStream acnOutput = null;
-            Animatroller.Framework.Expander.OscServer oscServer = null;
+            Animatroller.Framework.Expander.Raspberry oscServer = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
@@ -48,8 +48,8 @@ namespace Animatroller.SceneRunner
                         acnOutput = new Framework.Expander.AcnStream();
                         break;
 
-                    case "OSC":
-                        oscServer = new Framework.Expander.OscServer(Properties.Settings.Default.OSCServerPort, 4);
+                    case "RASP":
+                        oscServer = new Framework.Expander.Raspberry(Properties.Settings.Default.RaspberryHost);
                         break;
 
                     default:

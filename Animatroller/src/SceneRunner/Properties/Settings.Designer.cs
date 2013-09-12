@@ -61,10 +61,10 @@ namespace Animatroller.SceneRunner.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3333")]
-        public int OSCServerPort {
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1:5005")]
+        public string RaspberryHost {
             get {
-                return ((int)(this["OSCServerPort"]));
+                return ((string)(this["RaspberryHost"]));
             }
         }
     }

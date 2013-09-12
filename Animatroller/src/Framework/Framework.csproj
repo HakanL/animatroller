@@ -66,6 +66,8 @@
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
     <Compile Include="Expander\OscServer.cs" />
+    <Compile Include="Expander\Osc.cs" />
+    <Compile Include="Expander\Raspberry.cs" />
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />
     <Compile Include="Import\BufferImporter.cs" />

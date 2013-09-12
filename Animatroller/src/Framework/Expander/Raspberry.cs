@@ -8,19 +8,30 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class OscServer : IPort, IRunnable
+    public class Raspberry : IPort, IRunnable
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private Rug.Osc.OscReceiver receiver;
         private Task receiverTask;
         private System.Threading.CancellationTokenSource cancelSource;
-        private Dictionary<string, Action<IEnumerable<object>>> dispatch;
+        private string hostName;
+        private int hostPort;
 
-        public OscServer(int listenPort)
+        public Raspberry(string hostEntry)
         {
-            this.receiver = new Rug.Osc.OscReceiver(listenPort);
+            var hostParts = hostEntry.Split(':');
+            if (hostParts.Length != 2)
+                throw new ArgumentException("Requires a host entry with this format [IP:port]");
+
+            this.hostName = hostParts[0];
+            this.hostPort = int.Parse(hostParts[1]);
+
+            this.DigitalInputs = new PhysicalDevice.DigitalInput[4];
+            for (int index = 0; index < this.DigitalInputs.Length; index++)
+                this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
+
+            this.receiver = new Rug.Osc.OscReceiver(this.hostPort);
             this.cancelSource = new System.Threading.CancellationTokenSource();
-            this.dispatch = new Dictionary<string, Action<IEnumerable<object>>>();
 
             this.receiverTask = new Task(x =>
             {
@@ -41,20 +52,12 @@ namespace Animatroller.Framework.Expander
                                     foreach (var bundle in bundles)
                                     {
                                         var oscMessage = bundle as Rug.Osc.OscMessage;
-                                        if (oscMessage != null)
+                                        if (oscMessage != null && oscMessage.Any() && oscMessage.First() is int)
                                         {
-                                            Action<IEnumerable<object>> action;
-                                            if (this.dispatch.TryGetValue(oscMessage.Address, out action))
-                                            {
-                                                try
-                                                {
-                                                    action.Invoke(oscMessage);
-                                                }
-                                                catch(Exception ex)
-                                                {
-                                                    log.ErrorException("Error while dispatching OSC message", ex);
-                                                }
-                                            }
+                                            var data = (int)oscMessage.First();
+
+                                            if (oscMessage.Address == "/OnOff")
+                                                DigitalInputs[0].Trigger(data != 0);
                                         }
                                     }
                                 }
@@ -70,6 +73,8 @@ namespace Animatroller.Framework.Expander
             Executor.Current.Register(this);
         }
 
+        public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }
+
         public void Start()
         {
             this.receiverTask.Start();
@@ -80,24 +85,6 @@ namespace Animatroller.Framework.Expander
         {
             this.cancelSource.Cancel();
             this.receiver.Close();
-        }
-
-        public OscServer RegisterAction(string address, Action<IEnumerable<object>> action)
-        {
-            this.dispatch[address] = action;
-
-            return this;
-        }
-
-        public OscServer RegisterAction<T>(string address, Action<IEnumerable<T>> action)
-        {
-            this.dispatch[address] = x =>
-                {
-                    var list = x.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
-                    action.Invoke(list);
-                };
-
-            return this;
         }
     }
 }

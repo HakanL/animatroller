@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Threading;
+using System.Linq;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
@@ -16,6 +17,7 @@ namespace Animatroller.SceneRunner
     {
         private Physical.NetworkAudioPlayer audioPlayer;
         private DigitalInput pressureMat;
+        private Expander.OscServer oscServer;
 
 
         public TestScene3()
@@ -25,6 +27,8 @@ namespace Animatroller.SceneRunner
             audioPlayer = new Physical.NetworkAudioPlayer(
                 Properties.Settings.Default.NetworkAudioPlayerIP,
                 Properties.Settings.Default.NetworkAudioPlayerPort);
+
+            this.oscServer = new Expander.OscServer(3333);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -46,13 +50,22 @@ namespace Animatroller.SceneRunner
         {
         }
 
-        public void WireUp(Animatroller.Framework.Expander.OscServer osc)
+        public void WireUp(Expander.Raspberry osc)
         {
             osc.DigitalInputs[0].Connect(pressureMat);
         }
 
         public override void Start()
         {
+            this.oscServer.RegisterAction<int>("/OnOff", x =>
+                {
+                    if (x.Any())
+                    {
+                        if (x.First() != 0)
+                            audioPlayer.PlayEffect("Laugh");
+                    }
+                });
+
             pressureMat.ActiveChanged += (sender, e) =>
             {
                 if (e.NewState)
@@ -68,7 +81,7 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
-//            audioPlayer.PlayEffect("Laugh");
+            //            audioPlayer.PlayEffect("Laugh");
         }
 
         public override void Stop()
