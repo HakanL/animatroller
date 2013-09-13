@@ -15,6 +15,8 @@ from pythonosc import osc_message_builder
 from pythonosc import udp_client
 from os import listdir
 from os.path import isfile, join
+#import pifacedigitalio as pif
+import RPi.GPIO as GPIO
 
 if not pygame.mixer: print ('Warning, sound disabled')
 
@@ -82,12 +84,17 @@ def main():
     initmsg = initmsg.build()
     client.send(initmsg)
 
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(7, GPIO.IN)
+#    GPIO.add_event_detect(7, GPIO.BOTH, callback=button1_callback)
 
-    play_next_bg_track()
+#    play_next_bg_track()
 
     running = 1
 
     try:
+        last_button_value = 0
+        
         while running:
             for event in pygame.event.get(): # User did something
                 if event.type == pygame.QUIT: # If user clicked close
@@ -97,6 +104,11 @@ def main():
                     print ('Music ended')
                     play_next_bg_track()
 
+            button_value = GPIO.input(7)
+            if button_value != last_button_value:
+                send_button_msg(7, button_value)
+                last_button_value = button_value
+
             time.sleep(0.2)
 
     except KeyboardInterrupt:
@@ -104,6 +116,23 @@ def main():
         pass
 
     print ('Done')
+
+
+def send_button_msg(channel, button_value):
+    print ('Button = ', button_value, 'on channel', channel)
+    buttonmsg = osc_message_builder.OscMessageBuilder(address = "/button")
+    buttonmsg.add_arg(channel)
+    buttonmsg.add_arg(button_value)
+    buttonmsg = buttonmsg.build()
+    client.send(buttonmsg)
+
+
+def button1_callback(channel):
+    time.sleep(0.2)
+    button_value = GPIO.input(channel)
+    print ('Button callback =', button_value, 'on channel', channel)
+    send_button_msg(channel, button_value)
+
 
 
 def osc_init(args = None):
