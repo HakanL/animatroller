@@ -15,12 +15,17 @@ namespace Animatroller.SceneRunner
 {
     internal class TestScene3 : BaseScene
     {
+        private Expander.OscServer oscServer;
         private AudioPlayer audioPlayer;
         private DigitalInput buttonPlayFX;
         private DigitalInput buttonPauseFX;
         private DigitalInput buttonCueFX;
         private DigitalInput buttonResumeFX;
-        private Expander.OscServer oscServer;
+        private DigitalInput buttonPlayBackground;
+        private DigitalInput buttonPauseBackground;
+        private DigitalInput buttonBackgroundLowVolume;
+        private DigitalInput buttonBackgroundHighVolume;
+        private DigitalInput buttonBackgroundNext;
 
 
         public TestScene3()
@@ -29,6 +34,12 @@ namespace Animatroller.SceneRunner
             buttonPauseFX = new DigitalInput("Pause FX");
             buttonCueFX = new DigitalInput("Cue FX");
             buttonResumeFX = new DigitalInput("Resume FX");
+            buttonPlayBackground = new DigitalInput("Play Background");
+            buttonPauseBackground = new DigitalInput("Pause Background");
+            buttonBackgroundLowVolume = new DigitalInput("Background Low");
+            buttonBackgroundHighVolume = new DigitalInput("Background High");
+            buttonBackgroundNext = new DigitalInput("BG next");
+            
             audioPlayer = new AudioPlayer("Audio Player");
 
             this.oscServer = new Expander.OscServer(9999);
@@ -40,6 +51,11 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_Momentarily(buttonPauseFX);
             sim.AddDigitalInput_Momentarily(buttonCueFX);
             sim.AddDigitalInput_Momentarily(buttonResumeFX);
+            sim.AddDigitalInput_Momentarily(buttonPlayBackground);
+            sim.AddDigitalInput_Momentarily(buttonPauseBackground);
+            sim.AddDigitalInput_Momentarily(buttonBackgroundLowVolume);
+            sim.AddDigitalInput_Momentarily(buttonBackgroundHighVolume);
+            sim.AddDigitalInput_Momentarily(buttonBackgroundNext);
 
             sim.AutoWireUsingReflection(this);
         }
@@ -96,6 +112,36 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                     audioPlayer.ResumeFX();
+            };
+
+            buttonPlayBackground.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                    audioPlayer.PlayBackground();
+            };
+
+            buttonPauseBackground.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                    audioPlayer.PauseBackground();
+            };
+
+            buttonBackgroundLowVolume.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                    audioPlayer.SetBackgroundVolume(0.5);
+            };
+
+            buttonBackgroundHighVolume.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                    audioPlayer.SetBackgroundVolume(1.0);
+            };
+
+            buttonBackgroundNext.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                    audioPlayer.NextBackgroundTrack();
             };
         }
 

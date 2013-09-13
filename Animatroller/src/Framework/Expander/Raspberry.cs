@@ -75,7 +75,7 @@ namespace Animatroller.Framework.Expander
                             this.oscClient.Send("/audio/bg/play");
                             break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseBackground:
-                            this.oscClient.Send("/audio/bg/stop");
+                            this.oscClient.Send("/audio/bg/pause");
                             break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeFX:
                             this.oscClient.Send("/audio/fx/resume");
@@ -83,8 +83,11 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseFX:
                             this.oscClient.Send("/audio/fx/pause");
                             break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.NextBackground:
+                            this.oscClient.Send("/audio/bg/next");
+                            break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.BackgroundVolume:
-                            this.oscClient.Send("/audio/bg/volume", ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value);
+                            this.oscClient.Send("/audio/bg/volume", ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value.ToString("f2"));
                             break;
                     }
                 };

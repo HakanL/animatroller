@@ -43,6 +43,13 @@ namespace Animatroller.Framework.LogicalDevice
                 handler(this, new AudioCommandEventArgs(command));
         }
 
+        protected virtual void RaiseExecuteCommand(AudioCommandEventArgs.Commands command, double value)
+        {
+            var handler = ExecuteCommand;
+            if (handler != null)
+                handler(this, new AudioCommandValueEventArgs(command, value));
+        }
+
         public AudioPlayer PlayEffect(string audioFile)
         {
             RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile);
@@ -64,9 +71,16 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        public AudioPlayer SetBackgroundVolume(byte volume)
+        public AudioPlayer SetBackgroundVolume(double volume)
         {
-//            SendCommand(string.Format("BV,{0}", volume));
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.BackgroundVolume, volume);
+
+            return this;
+        }
+
+        public AudioPlayer NextBackgroundTrack()
+        {
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.NextBackground);
 
             return this;
         }

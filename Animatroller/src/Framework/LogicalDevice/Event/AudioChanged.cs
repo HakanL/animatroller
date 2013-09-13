@@ -34,7 +34,8 @@ namespace Animatroller.Framework.LogicalDevice.Event
             PauseBackground,
             ResumeFX,
             PauseFX,
-            BackgroundVolume
+            BackgroundVolume,
+            NextBackground
         };
 
         public Commands Command { get; private set; }
@@ -47,9 +48,9 @@ namespace Animatroller.Framework.LogicalDevice.Event
 
     public class AudioCommandValueEventArgs : AudioCommandEventArgs
     {
-        public float Value { get; private set; }
+        public double Value { get; private set; }
 
-        public AudioCommandValueEventArgs(Commands command, float value)
+        public AudioCommandValueEventArgs(Commands command, double value)
             : base(command)
         {
             this.Value = value;
