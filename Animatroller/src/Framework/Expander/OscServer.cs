@@ -35,26 +35,46 @@ namespace Animatroller.Framework.Expander
                                 var packet = this.receiver.Receive();
                                 log.Debug("Received OSC message: {0}", packet);
 
-                                var bundles = packet as Rug.Osc.OscBundle;
-                                if (bundles != null && bundles.Any())
+                                if (packet is Rug.Osc.OscBundle)
                                 {
-                                    foreach (var bundle in bundles)
+                                    var bundles = (Rug.Osc.OscBundle)packet;
+                                    if (bundles.Any())
                                     {
-                                        var oscMessage = bundle as Rug.Osc.OscMessage;
-                                        if (oscMessage != null)
+                                        foreach (var bundle in bundles)
                                         {
-                                            Action<IEnumerable<object>> action;
-                                            if (this.dispatch.TryGetValue(oscMessage.Address, out action))
+                                            var oscMessage = bundle as Rug.Osc.OscMessage;
+                                            if (oscMessage != null)
                                             {
-                                                try
+                                                Action<IEnumerable<object>> action;
+                                                if (this.dispatch.TryGetValue(oscMessage.Address, out action))
                                                 {
-                                                    action.Invoke(oscMessage);
-                                                }
-                                                catch(Exception ex)
-                                                {
-                                                    log.ErrorException("Error while dispatching OSC message", ex);
+                                                    try
+                                                    {
+                                                        action.Invoke(oscMessage);
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+                                                        log.ErrorException("Error while dispatching OSC message", ex);
+                                                    }
                                                 }
                                             }
+                                        }
+                                    }
+                                }
+
+                                if(packet is Rug.Osc.OscMessage)
+                                {
+                                    var msg = (Rug.Osc.OscMessage)packet;
+                                    Action<IEnumerable<object>> action;
+                                    if (this.dispatch.TryGetValue(msg.Address, out action))
+                                    {
+                                        try
+                                        {
+                                            action.Invoke(msg);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            log.ErrorException("Error while dispatching OSC message", ex);
                                         }
                                     }
                                 }

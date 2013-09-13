@@ -4,7 +4,7 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class Motor : ILogicalDevice
+    public class Motor : IPhysicalDevice
     {
         private Action<double> physicalTrigger;
         protected string name;

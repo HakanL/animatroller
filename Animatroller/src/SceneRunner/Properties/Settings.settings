@@ -17,5 +17,8 @@
     <Setting Name="RaspberryHost" Type="System.String" Scope="Application">
       <Value Profile="(Default)">127.0.0.1:5005</Value>
     </Setting>
+    <Setting Name="RaspberryListenPort" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">3333</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

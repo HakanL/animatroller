@@ -31,12 +31,13 @@ namespace Animatroller.Framework.Expander
                 OscSender.DefaultMessageBufferSize,
                 OscSocket.DefaultPacketSize);
 
+            this.sender.Connect();
+
             Executor.Current.Register(this);
         }
 
         public void Start()
         {
-            this.sender.Connect();
         }
 
         public void Stop()
@@ -46,10 +47,22 @@ namespace Animatroller.Framework.Expander
 
         public OscClient Send(string address, params object[] data)
         {
-            var oscMessage = new OscMessage(address, data);
-            var oscPacket = new OscBundle(DateTime.Now, oscMessage);
+            log.Info("Sending to {0}", address);
 
-            this.sender.Send(oscPacket);
+            if (data == null || data.Length == 0)
+            {
+                // Send empty message
+                var oscMessage = new OscMessage(address);
+
+                this.sender.Send(oscMessage);
+            }
+            else
+            {
+                var oscMessage = new OscMessage(address, data);
+                var oscPacket = new OscBundle(0, oscMessage);
+
+                this.sender.Send(oscPacket);
+            }
 
             return this;
         }

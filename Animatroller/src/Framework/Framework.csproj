@@ -76,6 +76,7 @@
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="Controller\ChannelIdentity.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
+    <Compile Include="LogicalDevice\Event\AudioChanged.cs" />
     <Compile Include="LogicalDevice\SinglePixel.cs" />
     <Compile Include="LogicalDevice\Interface\IPixel.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D.cs" />

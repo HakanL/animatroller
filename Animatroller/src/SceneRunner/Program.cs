@@ -49,7 +49,8 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "RASP":
-                        oscServer = new Framework.Expander.Raspberry(Properties.Settings.Default.RaspberryHost);
+                        oscServer = new Framework.Expander.Raspberry(Properties.Settings.Default.RaspberryHost,
+                            Properties.Settings.Default.RaspberryListenPort);
                         break;
 
                     default:

@@ -15,25 +15,31 @@ namespace Animatroller.SceneRunner
 {
     internal class TestScene3 : BaseScene
     {
-        private Physical.NetworkAudioPlayer audioPlayer;
-        private DigitalInput pressureMat;
+        private AudioPlayer audioPlayer;
+        private DigitalInput buttonPlayFX;
+        private DigitalInput buttonPauseFX;
+        private DigitalInput buttonCueFX;
+        private DigitalInput buttonResumeFX;
         private Expander.OscServer oscServer;
 
 
         public TestScene3()
         {
-            pressureMat = new DigitalInput("Pressure Mat");
+            buttonPlayFX = new DigitalInput("Play FX");
+            buttonPauseFX = new DigitalInput("Pause FX");
+            buttonCueFX = new DigitalInput("Cue FX");
+            buttonResumeFX = new DigitalInput("Resume FX");
+            audioPlayer = new AudioPlayer("Audio Player");
 
-            audioPlayer = new Physical.NetworkAudioPlayer(
-                Properties.Settings.Default.NetworkAudioPlayerIP,
-                Properties.Settings.Default.NetworkAudioPlayerPort);
-
-            this.oscServer = new Expander.OscServer(3333);
+            this.oscServer = new Expander.OscServer(9999);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.AddDigitalInput_Momentarily(pressureMat);
+            sim.AddDigitalInput_Momentarily(buttonPlayFX);
+            sim.AddDigitalInput_Momentarily(buttonPauseFX);
+            sim.AddDigitalInput_Momentarily(buttonCueFX);
+            sim.AddDigitalInput_Momentarily(buttonResumeFX);
 
             sim.AutoWireUsingReflection(this);
         }
@@ -50,9 +56,11 @@ namespace Animatroller.SceneRunner
         {
         }
 
-        public void WireUp(Expander.Raspberry osc)
+        public void WireUp(Expander.Raspberry port)
         {
-            osc.DigitalInputs[0].Connect(pressureMat);
+            port.DigitalInputs[0].Connect(buttonPlayFX);
+
+            port.Connect(audioPlayer);
         }
 
         public override void Start()
@@ -62,20 +70,32 @@ namespace Animatroller.SceneRunner
                     if (x.Any())
                     {
                         if (x.First() != 0)
-                            audioPlayer.PlayEffect("Laugh");
+                            audioPlayer.PlayEffect("Scream");
                     }
                 });
 
-            pressureMat.ActiveChanged += (sender, e) =>
+            buttonPlayFX.ActiveChanged += (sender, e) =>
             {
                 if (e.NewState)
-                {
-                    log.Info("Button press!");
+                    audioPlayer.PlayEffect("Scream");
+            };
 
-                    audioPlayer.PlayEffect("Laugh");
-                    //                    candyLight2.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5));
-                    //                    Executor.Current.Execute(testSequence);
-                }
+            buttonPauseFX.ActiveChanged += (sender, e) =>
+                {
+                    if (e.NewState)
+                        audioPlayer.PauseFX();
+                };
+
+            buttonCueFX.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                    audioPlayer.CueFX("myFile");
+            };
+
+            buttonResumeFX.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                    audioPlayer.ResumeFX();
             };
         }
 

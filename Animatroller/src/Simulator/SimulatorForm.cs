@@ -63,6 +63,14 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
+                else if (field.FieldType == typeof(AudioPlayer))
+                {
+                    // Skip
+                }
+                else if (field.FieldType == typeof(Animatroller.Framework.Expander.OscServer))
+                {
+                    // Skip
+                }
                 else if (field.FieldType == typeof(Animatroller.Framework.Controller.Sequence))
                 {
                     // Skip

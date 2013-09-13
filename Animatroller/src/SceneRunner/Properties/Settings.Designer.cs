@@ -67,5 +67,14 @@ namespace Animatroller.SceneRunner.Properties {
                 return ((string)(this["RaspberryHost"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3333")]
+        public int RaspberryListenPort {
+            get {
+                return ((int)(this["RaspberryListenPort"]));
+            }
+        }
     }
 }
