@@ -77,6 +77,7 @@ namespace Animatroller.SceneRunner
         public void WireUp(Expander.Raspberry port)
         {
             port.DigitalInputs[0].Connect(buttonPlayFX);
+            port.DigitalOutputs[0].Connect(switchTest1);
 
             port.Connect(audioPlayer);
         }
