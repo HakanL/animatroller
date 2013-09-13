@@ -86,6 +86,7 @@ def main():
 
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(7, GPIO.IN)
+    GPIO.setup(13, GPIO.OUT)
 #    GPIO.add_event_detect(7, GPIO.BOTH, callback=button1_callback)
 
 #    play_next_bg_track()
@@ -202,6 +203,11 @@ def osc_bgNext():
     play_next_bg_track()
 
 
+def osc_switch(channel, value):
+    print ('Switch ', channel, 'set to', value)
+    if channel == 0:
+        GPIO.output(13, value)
+
 
 #this calls the 'main' function when this script is executed
 if __name__ == '__main__':
@@ -226,6 +232,7 @@ if __name__ == '__main__':
     dispatcher.map("/audio/bg/play", osc_bgPlay)
     dispatcher.map("/audio/bg/pause", osc_bgPause)
     dispatcher.map("/audio/bg/next", osc_bgNext)
+    dispatcher.map("/switch", osc_switch)
 
     server = osc_server.ThreadingOSCUDPServer(
         (args.ip, args.port), dispatcher)
@@ -236,6 +243,7 @@ if __name__ == '__main__':
     client = udp_client.UDPClient(args.serverip, args.serverport)
 
     main()
+    GPIO.cleanup()
     pygame.quit()
     server.shutdown()
     
