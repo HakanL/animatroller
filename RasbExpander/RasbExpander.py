@@ -5,20 +5,16 @@ Raspberry Pi Animatroller Expander
 
 
 #Import Modules
-import os, sys
+import os, sys, argparse, math, time, threading, random
 import pygame
 from pygame.locals import *
-
-import argparse
-import math
-import time
-import threading
 
 from pythonosc import dispatcher
 from pythonosc import osc_server
 from pythonosc import osc_message_builder
 from pythonosc import udp_client
-
+from os import listdir
+from os.path import isfile, join
 
 if not pygame.mixer: print ('Warning, sound disabled')
 
@@ -26,8 +22,8 @@ soundFXdict = {}
 client = udp_client
 last_fx_chn = None
 last_fx_snd = None
-
-
+bg_volume = 0.5
+bg_files = []
 
 #functions to create our resources
 def load_fx(name):
@@ -50,26 +46,57 @@ def load_fx(name):
     return sound
 
 
+def play_next_bg_track():
+    print ('Next background track')
+    
+    index = random.randint(1, len(bg_files))
+    print ('File =', bg_files[index])
+
+    pygame.mixer.music.load(os.path.join('bg', bg_files[index]))
+    pygame.mixer.music.set_volume(bg_volume)
+    pygame.mixer.music.play()
+
+
+
 def main():
+    global bg_files
     """this function is called when the program starts.
     it initializes everything it needs, then runs in
     a loop until the function returns."""
 
     #Initialize Everything
     os.environ["SDL_VIDEODRIVER"] = "dummy"
-    pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=1024)
+    pygame.mixer.pre_init(frequency=44100, size=-16, channels=2, buffer=2048)
     pygame.init()
     screen = pygame.display.set_mode((80, 25))
+    random.seed()
 
-    running = 1
-#    bg_sound = load_sound('myFile.wav')
+    pygame.mixer.music.set_endevent(pygame.constants.USEREVENT)
+
+    # Find all background tracks
+    bg_files = [ f for f in listdir('bg') if isfile(join('bg', f)) ]
+
+    print('BG files =', len(bg_files))
 
     initmsg = osc_message_builder.OscMessageBuilder(address = "/init")
     initmsg = initmsg.build()
     client.send(initmsg)
 
+
+    play_next_bg_track()
+
+    running = 1
+
     try:
         while running:
+            for event in pygame.event.get(): # User did something
+                if event.type == pygame.QUIT: # If user clicked close
+                    running = 0
+                if event.type == pygame.constants.USEREVENT:
+                    # This event is triggered when the song stops playing.
+                    print ('Music ended')
+                    play_next_bg_track()
+
             time.sleep(0.2)
 
     except KeyboardInterrupt:
@@ -120,6 +147,30 @@ def osc_resumeFx():
     elif last_fx_snd != None:
         last_fx_chn = last_fx_snd.play()
         
+def osc_bgVolume(volume):
+    global bg_volume
+    print ('Background volume', volume)
+    bg_volume = float(volume)
+    pygame.mixer.music.set_volume(bg_volume)
+
+
+def osc_bgPlay():
+    if pygame.mixer.music.get_busy():
+        print ('Background resume')
+        pygame.mixer.music.unpause()
+    else:
+        print ('Background play')
+        play_next_bg_track()
+
+
+def osc_bgPause():
+    print ('Background pause')
+    pygame.mixer.music.pause()
+
+
+def osc_bgNext():
+    print ('Background next')
+    play_next_bg_track()
 
 
 
@@ -142,6 +193,10 @@ if __name__ == '__main__':
     dispatcher.map("/audio/fx/cue", osc_cueFx)
     dispatcher.map("/audio/fx/pause", osc_pauseFx)
     dispatcher.map("/audio/fx/resume", osc_resumeFx)
+    dispatcher.map("/audio/bg/volume", osc_bgVolume)
+    dispatcher.map("/audio/bg/play", osc_bgPlay)
+    dispatcher.map("/audio/bg/pause", osc_bgPause)
+    dispatcher.map("/audio/bg/next", osc_bgNext)
 
     server = osc_server.ThreadingOSCUDPServer(
         (args.ip, args.port), dispatcher)
@@ -152,5 +207,6 @@ if __name__ == '__main__':
     client = udp_client.UDPClient(args.serverip, args.serverport)
 
     main()
+    pygame.quit()
     server.shutdown()
     
