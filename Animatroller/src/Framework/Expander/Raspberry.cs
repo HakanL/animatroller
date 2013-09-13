@@ -32,6 +32,10 @@ namespace Animatroller.Framework.Expander
             for (int index = 0; index < this.DigitalInputs.Length; index++)
                 this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
 
+            this.DigitalOutputs = new PhysicalDevice.DigitalOutput[4];
+            for (int index = 0; index < this.DigitalOutputs.Length; index++)
+                WireupOutput(index);
+
             this.oscServer = new OscServer(listenPort);
             this.oscServer.RegisterAction<string>("/init", x =>
                 {
@@ -61,6 +65,7 @@ namespace Animatroller.Framework.Expander
         }
 
         public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }
+        public PhysicalDevice.DigitalOutput[] DigitalOutputs { get; private set; }
 
         public void Start()
         {
@@ -69,6 +74,14 @@ namespace Animatroller.Framework.Expander
 
         public void Stop()
         {
+        }
+
+        private void WireupOutput(int index)
+        {
+            this.DigitalOutputs[index] = new PhysicalDevice.DigitalOutput(x =>
+            {
+                this.oscClient.Send("/switch", index, x ? 1 : 0);
+            });
         }
 
         public Raspberry Connect(LogicalDevice.AudioPlayer logicalDevice)

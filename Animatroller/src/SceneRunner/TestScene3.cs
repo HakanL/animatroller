@@ -26,6 +26,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput buttonBackgroundLowVolume;
         private DigitalInput buttonBackgroundHighVolume;
         private DigitalInput buttonBackgroundNext;
+        private Switch switchTest1;
 
 
         public TestScene3()
@@ -39,6 +40,7 @@ namespace Animatroller.SceneRunner
             buttonBackgroundLowVolume = new DigitalInput("Background Low");
             buttonBackgroundHighVolume = new DigitalInput("Background High");
             buttonBackgroundNext = new DigitalInput("BG next");
+            switchTest1 = new Switch("Switch test 1");
             
             audioPlayer = new AudioPlayer("Audio Player");
 
@@ -117,13 +119,21 @@ namespace Animatroller.SceneRunner
             buttonPlayBackground.ActiveChanged += (sender, e) =>
             {
                 if (e.NewState)
+                {
                     audioPlayer.PlayBackground();
+
+                    switchTest1.SetPower(true);
+                }
             };
 
             buttonPauseBackground.ActiveChanged += (sender, e) =>
             {
                 if (e.NewState)
+                {
                     audioPlayer.PauseBackground();
+
+                    switchTest1.SetPower(false);
+                }
             };
 
             buttonBackgroundLowVolume.ActiveChanged += (sender, e) =>
