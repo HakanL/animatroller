@@ -37,6 +37,25 @@ namespace Animatroller.Framework.Expander
                 {
                     log.Info("Raspberry is up");
                 });
+            this.oscServer.RegisterAction<int>("/button", x =>
+                {
+                    if(x.Count() >= 2)
+                    {
+                        var values = x.ToArray();
+                        log.Info("Button {0} set to {1}", values[0], values[1]);
+
+                        switch(values[0])
+                        {
+                            case 7:
+                                this.DigitalInputs[0].Trigger(values[1] != 0);
+                                break;
+                        }
+                    }
+                });
+
+            this.DigitalInputs = new PhysicalDevice.DigitalInput[4];
+            for (int index = 0; index < this.DigitalInputs.Length; index++)
+                this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
 
             Executor.Current.Register(this);
         }

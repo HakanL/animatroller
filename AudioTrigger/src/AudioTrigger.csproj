@@ -32,17 +32,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SharpDX, Version=2.3.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\SharpDX.dll</HintPath>
+    <Reference Include="SharpDX">
+      <HintPath>packages\SharpDX.2.5.0\lib\net40\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.MediaFoundation, Version=2.3.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\SharpDX.MediaFoundation.dll</HintPath>
     </Reference>
-    <Reference Include="SharpDX.XAudio2, Version=2.3.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\SharpDX.XAudio2.dll</HintPath>
+    <Reference Include="SharpDX.XAudio2">
+      <HintPath>packages\SharpDX.XAudio2.2.5.0\lib\net40\SharpDX.XAudio2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -70,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
