@@ -51,7 +51,7 @@ def load_fx(name):
 def play_next_bg_track():
     print ('Next background track')
     
-    index = random.randint(1, len(bg_files))
+    index = random.randint(0, len(bg_files) - 1)
     print ('File =', bg_files[index])
 
     pygame.mixer.music.load(os.path.join('bg', bg_files[index]))
@@ -87,7 +87,7 @@ def main():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(7, GPIO.IN)
     GPIO.setup(13, GPIO.OUT)
-#    GPIO.add_event_detect(7, GPIO.BOTH, callback=button1_callback)
+    GPIO.add_event_detect(7, GPIO.BOTH, callback=button1_callback, bouncetime=100)
 
 #    play_next_bg_track()
 
@@ -105,10 +105,10 @@ def main():
                     print ('Music ended')
                     play_next_bg_track()
 
-            button_value = GPIO.input(7)
-            if button_value != last_button_value:
-                send_button_msg(7, button_value)
-                last_button_value = button_value
+            #button_value = GPIO.input(7)
+            #if button_value != last_button_value:
+            #    send_button_msg(7, button_value)
+            #    last_button_value = button_value
 
             time.sleep(0.2)
 
@@ -129,7 +129,6 @@ def send_button_msg(channel, button_value):
 
 
 def button1_callback(channel):
-    time.sleep(0.2)
     button_value = GPIO.input(channel)
     print ('Button callback =', button_value, 'on channel', channel)
     send_button_msg(channel, button_value)
