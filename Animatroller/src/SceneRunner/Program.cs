@@ -19,7 +19,7 @@ namespace Animatroller.SceneRunner
             Animatroller.Framework.Expander.DMXPro dmxPro = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
             Animatroller.Framework.Expander.AcnStream acnOutput = null;
-            Animatroller.Framework.Expander.Raspberry oscServer = null;
+            Animatroller.Framework.Expander.Raspberry raspberry = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
@@ -49,7 +49,7 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "RASP":
-                        oscServer = new Framework.Expander.Raspberry(Properties.Settings.Default.RaspberryHost,
+                        raspberry = new Framework.Expander.Raspberry(Properties.Settings.Default.RaspberryHost,
                             Properties.Settings.Default.RaspberryListenPort);
                         break;
 
@@ -67,7 +67,8 @@ namespace Animatroller.SceneRunner
             // use Visual Studio on my scene-running PC to improve things on the fly
 
             //var scene = new TestScene();
-            var scene = new TestScene3();
+            //            var scene = new TestScene3();
+            var scene = new ItalianScene1(sceneArgs);
             //var scene = new LORScene();
 //            var scene = new PixelScene1(sceneArgs);
             //var scene = new Nutcracker1Scene();
@@ -92,8 +93,8 @@ namespace Animatroller.SceneRunner
                 scene.WireUp(ioExpander);
             if (acnOutput != null)
                 scene.WireUp(acnOutput);
-            if (oscServer != null)
-                scene.WireUp(oscServer);
+            if (raspberry != null)
+                scene.WireUp(raspberry);
 
             // Initialize
             Executor.Current.Start();

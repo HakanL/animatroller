@@ -372,6 +372,14 @@ namespace Animatroller.Framework.LogicalDevice
 
         //IDEA: Fade to new array of ColorBrightness
 
+        
+        public VirtualPixel1D Inject(ColorBrightness colorBrightness)
+        {
+            Inject(colorBrightness.Color, colorBrightness.Brightness);
+
+            return this;
+        }
+
         public VirtualPixel1D Inject(Color color, double brightness)
         {
             for (int i = this.brightness.Length - 1; i > 0; i--)
