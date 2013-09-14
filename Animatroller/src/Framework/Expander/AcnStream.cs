@@ -228,7 +228,8 @@ namespace Animatroller.Framework.Expander
         {
             foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
-                if (adapter.SupportsMulticast && adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet)
+                if (adapter.SupportsMulticast && adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+                    adapter.OperationalStatus == OperationalStatus.Up)
                 {
                     IPInterfaceProperties ipProperties = adapter.GetIPProperties();
 
