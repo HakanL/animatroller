@@ -88,12 +88,10 @@ def main():
     initmsg = initmsg.build()
     client.send(initmsg)
 
-#    pfd_listener = pif.InputEventListener()
-#    pfd_listener.register(0, pif.IODIR_ON, input_callback)
-#    pfd_listener.activate()
-
-    new_input = ''.zfill(8)
-    last_input = new_input
+    pfd_listener = pif.InputEventListener()
+    for i in range(8):
+        pfd_listener.register(i, pif.IODIR_BOTH, input_callback)
+    pfd_listener.activate()
 
     # auto-start BG music
     #play_next_bg_track()
@@ -106,25 +104,17 @@ def main():
                 if event.type == pygame.QUIT: # If user clicked close
                     running = 0
                 if event.type == pygame.constants.USEREVENT:
-                    # This event is triggered when the song stops playing.
+                    # This event is triggered when the song stops playing
                     print ('Music ended')
                     play_next_bg_track()
 
-            new_input = bin(pfd.input_port.value)[2:].zfill(8)
-            
-            for i in range(8):
-                if new_input[i] != last_input[i]:
-                    input_chn = 7 - i
-                    send_input_msg(input_chn, int(new_input[i]))
-            
-            last_input = new_input
-
-            time.sleep(0.05)
+            time.sleep(0.1)
 
     except KeyboardInterrupt:
         print ('Aborting')
         pass
 
+    pfd_listener.deactivate()
     print ('Done')
 
 
@@ -137,13 +127,9 @@ def send_input_msg(channel, button_value):
     client.send(buttonmsg)
 
 
-#def input_callback(event):
-#    input_value = event.direction
-#    time.sleep(0.1)
-#    if input_value == pfd.
-#    print ('Input callback =', input_value, 'on channel', event.pin_num)
-#    send_button_msg(channel, button_value)
-
+def input_callback(event):
+    send_input_msg(event.pin_num, 1 - event.direction)
+    time.sleep(0.1)
 
 
 def osc_init(args = None):
@@ -213,10 +199,9 @@ def osc_bgNext():
     play_next_bg_track()
 
 
-def osc_switch(channel, value):
-    print ('Switch ', channel, 'set to', value)
-    if channel == 0:
-        GPIO.output(13, value)
+def osc_output(channel, value):
+    print ('Output', channel, 'set to', value)
+    pfd.output_pins[channel].value = value
 
 
 #this calls the 'main' function when this script is executed
@@ -242,7 +227,7 @@ if __name__ == '__main__':
     dispatcher.map("/audio/bg/play", osc_bgPlay)
     dispatcher.map("/audio/bg/pause", osc_bgPause)
     dispatcher.map("/audio/bg/next", osc_bgNext)
-    dispatcher.map("/switch", osc_switch)
+    dispatcher.map("/output", osc_output)
 
     server = osc_server.ThreadingOSCUDPServer(
         (args.ip, args.port), dispatcher)
@@ -252,7 +237,9 @@ if __name__ == '__main__':
 
     client = udp_client.UDPClient(args.serverip, args.serverport)
 
-    main()
+    main()  
+    pif.deinit()
     pygame.quit()
     server.shutdown()
-    
+    print ('Goodbye')
+        
