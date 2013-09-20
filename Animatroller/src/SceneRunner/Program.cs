@@ -67,8 +67,8 @@ namespace Animatroller.SceneRunner
             // use Visual Studio on my scene-running PC to improve things on the fly
 
             //var scene = new TestScene();
-            //            var scene = new TestScene3();
-            var scene = new ItalianScene1(sceneArgs);
+            var scene = new TestScene3();
+//            var scene = new ItalianScene1(sceneArgs);
             //var scene = new LORScene();
 //            var scene = new PixelScene1(sceneArgs);
             //var scene = new Nutcracker1Scene();
