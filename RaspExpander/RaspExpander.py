@@ -15,10 +15,13 @@ from pythonosc import osc_message_builder
 from pythonosc import udp_client
 from os import listdir
 from os.path import isfile, join
-#import pifacedigitalio as pif
-import RPi.GPIO as GPIO
+import pifacedigitalio as pif
 
 if not pygame.mixer: print ('Warning, sound disabled')
+
+pif.init()
+pfd = pif.PiFaceDigital()
+
 
 soundFXdict = {}
 client = udp_client
@@ -26,6 +29,7 @@ last_fx_chn = None
 last_fx_snd = None
 bg_volume = 0.5
 bg_files = []
+
 
 #functions to create our resources
 def load_fx(name):
@@ -84,18 +88,19 @@ def main():
     initmsg = initmsg.build()
     client.send(initmsg)
 
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(7, GPIO.IN)
-    GPIO.setup(13, GPIO.OUT)
-    GPIO.add_event_detect(7, GPIO.BOTH, callback=button1_callback, bouncetime=100)
+#    pfd_listener = pif.InputEventListener()
+#    pfd_listener.register(0, pif.IODIR_ON, input_callback)
+#    pfd_listener.activate()
 
-#    play_next_bg_track()
+    new_input = ''.zfill(8)
+    last_input = new_input
+
+    # auto-start BG music
+    #play_next_bg_track()
 
     running = 1
 
     try:
-        last_button_value = 0
-        
         while running:
             for event in pygame.event.get(): # User did something
                 if event.type == pygame.QUIT: # If user clicked close
@@ -105,12 +110,16 @@ def main():
                     print ('Music ended')
                     play_next_bg_track()
 
-            #button_value = GPIO.input(7)
-            #if button_value != last_button_value:
-            #    send_button_msg(7, button_value)
-            #    last_button_value = button_value
+            new_input = bin(pfd.input_port.value)[2:].zfill(8)
+            
+            for i in range(8):
+                if new_input[i] != last_input[i]:
+                    input_chn = 7 - i
+                    send_input_msg(input_chn, int(new_input[i]))
+            
+            last_input = new_input
 
-            time.sleep(0.2)
+            time.sleep(0.05)
 
     except KeyboardInterrupt:
         print ('Aborting')
@@ -119,19 +128,21 @@ def main():
     print ('Done')
 
 
-def send_button_msg(channel, button_value):
-    print ('Button = ', button_value, 'on channel', channel)
-    buttonmsg = osc_message_builder.OscMessageBuilder(address = "/button")
+def send_input_msg(channel, button_value):
+    print ('Input value', button_value, 'on channel', channel)
+    buttonmsg = osc_message_builder.OscMessageBuilder(address = "/input")
     buttonmsg.add_arg(channel)
     buttonmsg.add_arg(button_value)
     buttonmsg = buttonmsg.build()
     client.send(buttonmsg)
 
 
-def button1_callback(channel):
-    button_value = GPIO.input(channel)
-    print ('Button callback =', button_value, 'on channel', channel)
-    send_button_msg(channel, button_value)
+#def input_callback(event):
+#    input_value = event.direction
+#    time.sleep(0.1)
+#    if input_value == pfd.
+#    print ('Input callback =', input_value, 'on channel', event.pin_num)
+#    send_button_msg(channel, button_value)
 
 
 
@@ -242,7 +253,6 @@ if __name__ == '__main__':
     client = udp_client.UDPClient(args.serverip, args.serverport)
 
     main()
-    GPIO.cleanup()
     pygame.quit()
     server.shutdown()
     
