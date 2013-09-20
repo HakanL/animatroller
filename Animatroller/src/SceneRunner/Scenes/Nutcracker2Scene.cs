@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Collections.Generic;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using Controller = Animatroller.Framework.Controller;
@@ -15,7 +16,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput testButton;
         private Import.BaseImporter.Timeline vixTimeline;
 
-        public Nutcracker2Scene()
+        public Nutcracker2Scene(IEnumerable<string> args)
         {
             testButton = new DigitalInput("Test");
 

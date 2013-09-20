@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Threading;
+using System.Collections.Generic;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
@@ -20,7 +21,7 @@ namespace Animatroller.SceneRunner
         private Effect.Pulsating pulsatingEffect;
 
 
-        public TestScene2()
+        public TestScene2(IEnumerable<string> args)
         {
             candyLight = new StrobeColorDimmer("Candy Light");
             candyLight2 = new StrobeColorDimmer("Candy Light 2");

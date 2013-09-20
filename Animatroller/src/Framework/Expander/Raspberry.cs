@@ -41,23 +41,19 @@ namespace Animatroller.Framework.Expander
                 {
                     log.Info("Raspberry is up");
                 });
-            this.oscServer.RegisterAction<int>("/button", x =>
+            this.oscServer.RegisterAction<int>("/input", x =>
                 {
                     if(x.Count() >= 2)
                     {
                         var values = x.ToArray();
-                        log.Info("Button {0} set to {1}", values[0], values[1]);
+                        log.Info("Input {0} set to {1}", values[0], values[1]);
 
-                        switch(values[0])
-                        {
-                            case 7:
-                                this.DigitalInputs[0].Trigger(values[1] != 0);
-                                break;
-                        }
+                        if (values[0] >= 0 && values[0] <= 7)
+                            this.DigitalInputs[values[0]].Trigger(values[1] != 0);
                     }
                 });
 
-            this.DigitalInputs = new PhysicalDevice.DigitalInput[4];
+            this.DigitalInputs = new PhysicalDevice.DigitalInput[8];
             for (int index = 0; index < this.DigitalInputs.Length; index++)
                 this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
 
@@ -80,7 +76,7 @@ namespace Animatroller.Framework.Expander
         {
             this.DigitalOutputs[index] = new PhysicalDevice.DigitalOutput(x =>
             {
-                this.oscClient.Send("/switch", index, x ? 1 : 0);
+                this.oscClient.Send("/output", index, x ? 1 : 0);
             });
         }
 

@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestScene : BaseScene
+    internal class TestScene1 : BaseScene
     {
         private StrobeDimmer georgeStrobeLight;
         private StrobeColorDimmer spiderLight;
@@ -31,7 +31,7 @@ namespace Animatroller.SceneRunner
         private Effect.Flicker flickerEffect;
 
 
-        public TestScene()
+        public TestScene1(IEnumerable<string> args)
         {
             georgeStrobeLight = new StrobeDimmer("George Strobe");
             spiderLight = new StrobeColorDimmer("Spider Light");

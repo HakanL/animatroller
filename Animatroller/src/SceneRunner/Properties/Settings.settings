@@ -2,23 +2,11 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Animatroller.SceneRunner.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="IOExpanderPort" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">COM3</Value>
-    </Setting>
     <Setting Name="NetworkAudioPlayerIP" Type="System.String" Scope="Application">
       <Value Profile="(Default)">127.0.0.1</Value>
     </Setting>
     <Setting Name="NetworkAudioPlayerPort" Type="System.Int32" Scope="Application">
       <Value Profile="(Default)">10009</Value>
-    </Setting>
-    <Setting Name="DMXProPort" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">COM4</Value>
-    </Setting>
-    <Setting Name="RaspberryHost" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">127.0.0.1:5005</Value>
-    </Setting>
-    <Setting Name="RaspberryListenPort" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">3333</Value>
     </Setting>
   </Settings>
 </SettingsFile>

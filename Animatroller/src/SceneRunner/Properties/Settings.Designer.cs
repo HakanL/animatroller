@@ -25,15 +25,6 @@ namespace Animatroller.SceneRunner.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("COM3")]
-        public string IOExpanderPort {
-            get {
-                return ((string)(this["IOExpanderPort"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
         public string NetworkAudioPlayerIP {
             get {
@@ -47,33 +38,6 @@ namespace Animatroller.SceneRunner.Properties {
         public int NetworkAudioPlayerPort {
             get {
                 return ((int)(this["NetworkAudioPlayerPort"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("COM4")]
-        public string DMXProPort {
-            get {
-                return ((string)(this["DMXProPort"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1:5005")]
-        public string RaspberryHost {
-            get {
-                return ((string)(this["RaspberryHost"]));
-            }
-        }
-        
-        [global::System.Configuration.ApplicationScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3333")]
-        public int RaspberryListenPort {
-            get {
-                return ((int)(this["RaspberryListenPort"]));
             }
         }
     }

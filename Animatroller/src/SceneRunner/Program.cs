@@ -23,10 +23,18 @@ namespace Animatroller.SceneRunner
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
+            string sceneName = string.Empty;
             foreach (var arg in args)
             {
-                switch (arg)
+                var parts = arg.Split('=');
+                parts[0] = parts[0].ToUpper();
+
+                switch (parts[0])
                 {
+                    case "SCENE":
+                        sceneName = parts[1].ToUpper();
+                        break;
+
                     case "SIM":
                         // WinForms simulator
                         simForm = new Animatroller.Simulator.SimulatorForm();
@@ -34,13 +42,12 @@ namespace Animatroller.SceneRunner
 
                     case "DMXPRO":
                         // Enttec DMX USB Pro or DMXLink (specify virtual COM port in config file)
-                        dmxPro = new Animatroller.Framework.Expander.DMXPro(Properties.Settings.Default.DMXProPort);
+                        dmxPro = new Animatroller.Framework.Expander.DMXPro(parts[1]);
                         break;
 
                     case "IOEXP":
                         // Propeller-based expansion board for input/output/dmx/GECE-pixels/motor, etc
-                        // Specify virtual COM port in config file
-                        ioExpander = new Animatroller.Framework.Expander.IOExpander(Properties.Settings.Default.IOExpanderPort);
+                        ioExpander = new Animatroller.Framework.Expander.IOExpander(parts[1]);
                         break;
 
                     case "ACN":
@@ -49,8 +56,9 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "RASP":
-                        raspberry = new Framework.Expander.Raspberry(Properties.Settings.Default.RaspberryHost,
-                            Properties.Settings.Default.RaspberryListenPort);
+                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
+                        var parts2 = parts[1].Split(',');
+                        raspberry = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
                         break;
 
                     default:
@@ -66,18 +74,60 @@ namespace Animatroller.SceneRunner
             // Uncomment which scene you want to execute. Can be improved later, but currently I
             // use Visual Studio on my scene-running PC to improve things on the fly
 
-            //var scene = new TestScene();
-            var scene = new TestScene3();
-//            var scene = new ItalianScene1(sceneArgs);
-            //var scene = new LORScene();
-//            var scene = new PixelScene1(sceneArgs);
-            //var scene = new Nutcracker1Scene();
-            //var scene = new Nutcracker2Scene();
-            //var scene = new Nutcracker3Scene();
-            //var scene = new HalloweenScene();
-            //var scene = new XmasScene();
-            //var scene = new XmasScene2(sceneArgs);
+            BaseScene scene = null;
+            switch (sceneName)
+            {
+                case "TEST1":
+                    scene = new TestScene2(sceneArgs);
+                    break;
 
+                case "TEST2":
+                    scene = new TestScene3(sceneArgs);
+                    break;
+
+                case "TEST3":
+                    scene = new TestScene3(sceneArgs);
+                    break;
+
+                case "ITALIAN1":
+                    scene = new ItalianScene1(sceneArgs);
+                    break;
+
+                case "LOR":
+                    scene = new LORScene(sceneArgs);
+                    break;
+
+                case "PIXEL1":
+                    scene = new PixelScene1(sceneArgs);
+                    break;
+
+                case "NUTCRACKER1":
+                    scene = new Nutcracker1Scene(sceneArgs);
+                    break;
+
+                case "NUTCRACKER2":
+                    scene = new Nutcracker2Scene(sceneArgs);
+                    break;
+
+                case "NUTCRACKER3":
+                    scene = new Nutcracker3Scene(sceneArgs);
+                    break;
+
+                case "HALLOWEEN1":
+                    scene = new HalloweenScene1(sceneArgs);
+                    break;
+
+                case "XMAS1":
+                    scene = new XmasScene1(sceneArgs);
+                    break;
+
+                case "XMAS2":
+                    scene = new XmasScene2(sceneArgs);
+                    break;
+
+                default:
+                    throw new ArgumentException("Missing start scene");
+            }
 
 
 
@@ -85,16 +135,20 @@ namespace Animatroller.SceneRunner
             Executor.Current.Register(scene);
 
             // Wire up the instantiated expanders
-            if (simForm != null)
-                scene.WireUp(simForm);
-            if (dmxPro != null)
-                scene.WireUp(dmxPro);
-            if (ioExpander != null)
-                scene.WireUp(ioExpander);
-            if (acnOutput != null)
-                scene.WireUp(acnOutput);
-            if (raspberry != null)
-                scene.WireUp(raspberry);
+            if (simForm != null && scene is ISceneSupportsSimulator)
+                ((ISceneSupportsSimulator)scene).WireUp(simForm);
+
+            if (dmxPro != null && scene is ISceneSupportsDMXPro)
+                ((ISceneSupportsDMXPro)scene).WireUp(dmxPro);
+
+            if (ioExpander != null && scene is ISceneSupportsIOExpander)
+                ((ISceneSupportsIOExpander)scene).WireUp(ioExpander);
+
+            if (acnOutput != null && scene is ISceneSupportsAcnStream)
+                ((ISceneSupportsAcnStream)scene).WireUp(acnOutput);
+
+            if (raspberry != null && scene is ISceneSupportsRaspExpander)
+                ((ISceneSupportsRaspExpander)scene).WireUp(raspberry);
 
             // Initialize
             Executor.Current.Start();

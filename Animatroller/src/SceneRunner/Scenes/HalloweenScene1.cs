@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class HalloweenScene : BaseScene
+    internal class HalloweenScene1 : BaseScene
     {
         private OperatingHours hours;
         private StrobeDimmer georgeStrobeLight;
@@ -40,7 +40,7 @@ namespace Animatroller.SceneRunner
         private Effect.Flicker flickerEffect;
 
 
-        public HalloweenScene()
+        public HalloweenScene1(IEnumerable<string> args)
         {
             hours = new OperatingHours("Hours");
             georgeStrobeLight = new StrobeDimmer("George Strobe");

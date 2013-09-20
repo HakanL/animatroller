@@ -49,17 +49,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ItalianScene1.cs" />
-    <Compile Include="TestScene3.cs" />
-    <Compile Include="Nutcracker3Scene.cs" />
-    <Compile Include="Nutcracker2Scene.cs" />
-    <Compile Include="Nutcracker1Scene.cs" />
-    <Compile Include="PixelScene1.cs" />
-    <Compile Include="TestScene2.cs" />
-    <Compile Include="XmasScene2.cs" />
-    <Compile Include="XmasScene.cs" />
-    <Compile Include="LORScene.cs" />
-    <Compile Include="HalloweenScene.cs" />
+    <Compile Include="SceneInterfaces.cs" />
+    <Compile Include="Scenes\ItalianScene1.cs" />
+    <Compile Include="Scenes\TestScene3.cs" />
+    <Compile Include="Scenes\Nutcracker3Scene.cs" />
+    <Compile Include="Scenes\Nutcracker2Scene.cs" />
+    <Compile Include="Scenes\Nutcracker1Scene.cs" />
+    <Compile Include="Scenes\PixelScene1.cs" />
+    <Compile Include="Scenes\TestScene2.cs" />
+    <Compile Include="Scenes\XmasScene2.cs" />
+    <Compile Include="Scenes\XmasScene1.cs" />
+    <Compile Include="Scenes\LORScene.cs" />
+    <Compile Include="Scenes\HalloweenScene1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -67,10 +68,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="TestScene.cs" />
+    <Compile Include="Scenes\TestScene1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

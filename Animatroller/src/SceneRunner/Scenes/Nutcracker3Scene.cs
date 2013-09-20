@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Drawing;
+using System.Collections.Generic;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using Controller = Animatroller.Framework.Controller;
 using Expander = Animatroller.Framework.Expander;
 using Import = Animatroller.Framework.Import;
 using Physical = Animatroller.Framework.PhysicalDevice;
+using Effect2 = Animatroller.Framework.Effect2;
 
 namespace Animatroller.SceneRunner
 {
-    internal class Nutcracker1Scene : BaseScene
+    internal class Nutcracker3Scene : BaseScene
     {
         private VirtualPixel1D allPixels;
         private DigitalInput testButton;
         private Import.BaseImporter.Timeline lorTimeline;
+        private StrobeColorDimmer candyLight;
 
-        public Nutcracker1Scene()
+        public Nutcracker3Scene(IEnumerable<string> args)
         {
+            candyLight = new StrobeColorDimmer("Candy Light");
             testButton = new DigitalInput("Test");
 
             allPixels = new VirtualPixel1D("All Pixels", 60);
@@ -77,6 +81,7 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Expander.DMXPro port)
         {
+            port.Connect(new Physical.SmallRGBStrobe(candyLight, 20));
         }
 
         public void WireUp(Expander.AcnStream port)
@@ -93,6 +98,10 @@ namespace Animatroller.SceneRunner
                 if (e.NewState)
                 {
                     log.Info("Button press!");
+                    candyLight.RunEffect(new Effect2.Pulse(0.0, 1.0), S(0.5));
+                    System.Threading.Thread.Sleep(S(1));
+                    candyLight.StopEffect();
+                    candyLight.TurnOff();
                 }
             };
 
@@ -101,12 +110,15 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
+//            allPixels.SetColor(0, Color.Blue);
+//            allPixels.SetColor(3, Color.Purple);
+
+
+//            candyLight.SetColor(Color.Purple, 0);
         }
 
         public override void Stop()
         {
-            // FIXME: Get rid of this sleep
-            System.Threading.Thread.Sleep(200);
         }
     }
 }

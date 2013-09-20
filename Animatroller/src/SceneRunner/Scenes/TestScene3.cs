@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using Animatroller.Framework;
@@ -13,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestScene3 : BaseScene
+    internal class TestScene3 : BaseScene, ISceneSupportsRaspExpander, ISceneSupportsSimulator
     {
         private Expander.OscServer oscServer;
         private AudioPlayer audioPlayer;
@@ -29,7 +30,7 @@ namespace Animatroller.SceneRunner
         private Switch switchTest1;
 
 
-        public TestScene3()
+        public TestScene3(IEnumerable<string> args)
         {
             buttonPlayFX = new DigitalInput("Play FX");
             buttonPauseFX = new DigitalInput("Pause FX");
@@ -62,21 +63,9 @@ namespace Animatroller.SceneRunner
             sim.AutoWireUsingReflection(this);
         }
 
-        public void WireUp(Expander.IOExpander port)
-        {
-        }
-
-        public void WireUp(Expander.DMXPro port)
-        {
-        }
-
-        public void WireUp(Expander.AcnStream port)
-        {
-        }
-
         public void WireUp(Expander.Raspberry port)
         {
-            port.DigitalInputs[0].Connect(buttonPlayFX);
+            port.DigitalInputs[4].Connect(buttonPlayFX);
             port.DigitalOutputs[0].Connect(switchTest1);
 
             port.Connect(audioPlayer);

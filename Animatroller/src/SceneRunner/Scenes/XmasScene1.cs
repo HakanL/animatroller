@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class XmasScene : BaseScene
+    internal class XmasScene1 : BaseScene
     {
         private Random random = new Random();
 
@@ -27,7 +27,7 @@ namespace Animatroller.SceneRunner
         private Physical.NetworkAudioPlayer audioPlayer;
 
 
-        public XmasScene()
+        public XmasScene1(IEnumerable<string> args)
         {
             testPixels = new Pixel1D("G35", 50);
             explosion1 = new Dimmer("Explosion 1");

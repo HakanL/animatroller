@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Threading;
+using System.Collections.Generic;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
@@ -105,7 +106,7 @@ namespace Animatroller.SceneRunner
         private Import.BaseImporter.Timeline lorTimeline;
 
 
-        public LORScene()
+        public LORScene(IEnumerable<string> args)
         {
             testButton = new DigitalInput("Test");
 
