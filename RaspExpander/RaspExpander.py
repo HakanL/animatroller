@@ -15,6 +15,7 @@ from pythonosc import osc_message_builder
 from pythonosc import udp_client
 from os import listdir
 from os.path import isfile, join
+import pifacecommon
 import pifacedigitalio as pif
 
 if not pygame.mixer: print ('Warning, sound disabled')
@@ -29,6 +30,7 @@ last_fx_chn = None
 last_fx_snd = None
 bg_volume = 0.5
 bg_files = []
+last_input_values = [0] * 8
 
 
 #functions to create our resources
@@ -90,8 +92,12 @@ def main():
 
     pfd_listener = pif.InputEventListener()
     for i in range(8):
-        pfd_listener.register(i, pif.IODIR_BOTH, input_callback)
+        pif.digital_write_pullup(i, pif.INPUT_PULLUP)
+        pfd_listener.register(i, pif.IODIR_ON, input_callback)
+        pfd_listener.register(i, pif.IODIR_OFF, input_callback)
     pfd_listener.activate()
+
+    print('Ready!')
 
     # auto-start BG music
     #play_next_bg_track()
@@ -115,6 +121,7 @@ def main():
         pass
 
     pfd_listener.deactivate()
+        
     print ('Done')
 
 
@@ -128,8 +135,14 @@ def send_input_msg(channel, button_value):
 
 
 def input_callback(event):
-    send_input_msg(event.pin_num, 1 - event.direction)
-    time.sleep(0.1)
+    global last_input_values
+
+    print ('Input_callback', event.pin_num, 'direction', event.direction)
+    
+    if last_input_values[event.pin_num] != 1 - event.direction:
+        send_input_msg(event.pin_num, 1 - event.direction)
+        last_input_values[event.pin_num] = 1 - event.direction
+        time.sleep(0.1)
 
 
 def osc_init(args = None):
@@ -242,4 +255,3 @@ if __name__ == '__main__':
     pygame.quit()
     server.shutdown()
     print ('Goodbye')
-        
