@@ -90,6 +90,7 @@ def main():
     initmsg = initmsg.build()
     client.send(initmsg)
 
+    pif.digital_write_pullup(6, 1)
     pfd_listener = pif.InputEventListener()
     for i in range(8):
         pif.digital_write_pullup(i, pif.INPUT_PULLUP)
@@ -149,16 +150,24 @@ def osc_init(args = None):
     print ('Animatroller running')
 
 
-def osc_playFx(args):
+def osc_playFx(file, leftvol = -1, rightvol = -1):
     global last_fx_snd, last_fx_chn
 
-    print ('Play FX', args)
-    fx_sound = load_fx(args + '.wav')
+    print ('Play FX', file)
+    fx_sound = load_fx(file + '.wav')
     if fx_sound != None:
         last_fx_snd = fx_sound
         if last_fx_chn != None:
             last_fx_chn.stop()
         last_fx_chn = fx_sound.play()
+        
+        leftvol = float(leftvol)
+        rightvol = float(rightvol)
+        
+        if rightvol >= 0 and leftvol >= 0:
+            last_fx_chn.set_volume(leftvol, rightvol)
+        elif leftvol >= 0:
+            last_fx_chn.set_volume(leftvol)
 
 
 def osc_cueFx(args):
