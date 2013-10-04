@@ -180,10 +180,10 @@ namespace Animatroller.Simulator
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_FlipFlop(string name)
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_FlipFlop(DigitalInput logicalDevice)
         {
             var control = new CheckBox();
-            control.Text = name;
+            control.Text = logicalDevice.Name;
             control.Size = new System.Drawing.Size(80, 80);
 
             flowLayoutPanelLights.Controls.Add(control);
@@ -194,6 +194,8 @@ namespace Animatroller.Simulator
                 {
                     device.Trigger((sender as CheckBox).Checked);
                 };
+
+            device.Connect(logicalDevice);
 
             return device;
         }

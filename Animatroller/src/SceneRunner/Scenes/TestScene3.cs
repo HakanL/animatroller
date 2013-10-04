@@ -27,6 +27,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput buttonBackgroundLowVolume;
         private DigitalInput buttonBackgroundHighVolume;
         private DigitalInput buttonBackgroundNext;
+        private DigitalInput buttonTrigger1;
         private Switch switchTest1;
 
 
@@ -41,6 +42,7 @@ namespace Animatroller.SceneRunner
             buttonBackgroundLowVolume = new DigitalInput("Background Low");
             buttonBackgroundHighVolume = new DigitalInput("Background High");
             buttonBackgroundNext = new DigitalInput("BG next");
+            buttonTrigger1 = new DigitalInput("Pop!");
             switchTest1 = new Switch("Switch test 1");
             
             audioPlayer = new AudioPlayer("Audio Player");
@@ -59,20 +61,33 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_Momentarily(buttonBackgroundLowVolume);
             sim.AddDigitalInput_Momentarily(buttonBackgroundHighVolume);
             sim.AddDigitalInput_Momentarily(buttonBackgroundNext);
+            sim.AddDigitalInput_Momentarily(buttonTrigger1);
 
             sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.Raspberry port)
         {
-            port.DigitalInputs[4].Connect(buttonPlayFX);
-            port.DigitalOutputs[0].Connect(switchTest1);
+            port.DigitalInputs[7].Connect(buttonTrigger1);
+            port.DigitalOutputs[7].Connect(switchTest1);
 
             port.Connect(audioPlayer);
         }
 
         public override void Start()
         {
+            var popSeq = new Controller.Sequence("Pop Sequence");
+            popSeq.WhenExecuted
+                .Execute(instance =>
+                    {
+//                        audioPlayer.PlayEffect("laugh");
+                        instance.WaitFor(TimeSpan.FromSeconds(1));
+                        switchTest1.SetPower(true);
+                        instance.WaitFor(TimeSpan.FromSeconds(5));
+                        switchTest1.SetPower(false);
+                        instance.WaitFor(TimeSpan.FromSeconds(1));
+                    });
+
             this.oscServer.RegisterAction<int>("/OnOff", x =>
                 {
                     if (x.Any())
@@ -85,7 +100,9 @@ namespace Animatroller.SceneRunner
             buttonPlayFX.ActiveChanged += (sender, e) =>
             {
                 if (e.NewState)
-                    audioPlayer.PlayEffect("Scream");
+                {
+                    Executor.Current.Execute(popSeq);
+                }
             };
 
             buttonPauseFX.ActiveChanged += (sender, e) =>
@@ -112,7 +129,7 @@ namespace Animatroller.SceneRunner
                 {
                     audioPlayer.PlayBackground();
 
-                    switchTest1.SetPower(true);
+//                    switchTest1.SetPower(true);
                 }
             };
 
@@ -122,7 +139,7 @@ namespace Animatroller.SceneRunner
                 {
                     audioPlayer.PauseBackground();
 
-                    switchTest1.SetPower(false);
+//                    switchTest1.SetPower(false);
                 }
             };
 
@@ -142,6 +159,14 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                     audioPlayer.NextBackgroundTrack();
+            };
+
+            buttonTrigger1.ActiveChanged += (sender, e) =>
+            {
+                if (e.NewState)
+                {
+                    Executor.Current.Execute(popSeq);
+                }
             };
         }
 

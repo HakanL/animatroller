@@ -28,11 +28,11 @@ namespace Animatroller.Framework.Expander
             var ipHostEntry = System.Net.Dns.GetHostAddresses(this.hostName);
             this.oscClient = new OscClient(ipHostEntry.First(), this.hostPort);
 
-            this.DigitalInputs = new PhysicalDevice.DigitalInput[4];
+            this.DigitalInputs = new PhysicalDevice.DigitalInput[8];
             for (int index = 0; index < this.DigitalInputs.Length; index++)
                 this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
 
-            this.DigitalOutputs = new PhysicalDevice.DigitalOutput[4];
+            this.DigitalOutputs = new PhysicalDevice.DigitalOutput[8];
             for (int index = 0; index < this.DigitalOutputs.Length; index++)
                 WireupOutput(index);
 
