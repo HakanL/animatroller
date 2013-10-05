@@ -170,6 +170,24 @@ def osc_playFx(file, leftvol = -1, rightvol = -1):
             last_fx_chn.set_volume(leftvol)
 
 
+def osc_playNewFx(file, leftvol = -1, rightvol = -1):
+    global last_fx_snd, last_fx_chn
+
+    print ('Play New FX', file)
+    fx_sound = load_fx(file + '.wav')
+    if fx_sound != None:
+        last_fx_snd = fx_sound
+        last_fx_chn = fx_sound.play()
+        
+        leftvol = float(leftvol)
+        rightvol = float(rightvol)
+        
+        if rightvol >= 0 and leftvol >= 0:
+            last_fx_chn.set_volume(leftvol, rightvol)
+        elif leftvol >= 0:
+            last_fx_chn.set_volume(leftvol)
+
+
 def osc_cueFx(args):
     global last_fx_snd, last_fx_chn
 
@@ -242,6 +260,7 @@ if __name__ == '__main__':
     dispatcher = dispatcher.Dispatcher()
     dispatcher.map("/init", osc_init)
     dispatcher.map("/audio/fx/play", osc_playFx)
+    dispatcher.map("/audio/fx/playnew", osc_playNewFx)
     dispatcher.map("/audio/fx/cue", osc_cueFx)
     dispatcher.map("/audio/fx/pause", osc_pauseFx)
     dispatcher.map("/audio/fx/resume", osc_resumeFx)
