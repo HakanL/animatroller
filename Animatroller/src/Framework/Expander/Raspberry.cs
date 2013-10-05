@@ -94,6 +94,16 @@ namespace Animatroller.Framework.Expander
                             else
                                 this.oscClient.Send("/audio/fx/play", e.AudioFile);
                             break;
+
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX:
+                            if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
+                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile, e.LeftVolume.Value.ToString("F2"), e.RightVolume.Value.ToString("F2"));
+                            else if (e.LeftVolume.HasValue)
+                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile, e.LeftVolume.Value.ToString("F2"));
+                            else
+                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile);
+                            break;
+
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueFX:
                             this.oscClient.Send("/audio/fx/cue", e.AudioFile);
                             break;

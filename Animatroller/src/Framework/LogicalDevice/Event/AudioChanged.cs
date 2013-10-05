@@ -12,7 +12,8 @@ namespace Animatroller.Framework.LogicalDevice.Event
         {
             Unknown = 0,
             PlayFX,
-            CueFX
+            CueFX,
+            PlayNewFX
         };
 
         public Commands Command { get; private set; }

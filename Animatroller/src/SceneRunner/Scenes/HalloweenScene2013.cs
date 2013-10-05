@@ -49,7 +49,7 @@ namespace Animatroller.SceneRunner
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
             sim.AddDigitalInput_FlipFlop(buttonTestHand);
-            sim.AddDigitalInput_Momentarily(buttonTestHead);
+            sim.AddDigitalInput_FlipFlop(buttonTestHead);
             sim.AddDigitalInput_FlipFlop(buttonTestDrawer1);
             sim.AddDigitalInput_FlipFlop(buttonTestDrawer2);
             
@@ -67,7 +67,7 @@ namespace Animatroller.SceneRunner
             port.DigitalInputs[3].Connect(buttonTestDrawer2);
             port.DigitalInputs[7].Connect(buttonRunSequence);
             port.DigitalOutputs[7].Connect(switchHand);
-            port.DigitalOutputs[4].Connect(switchHead);
+            port.DigitalOutputs[2].Connect(switchHead);
             port.DigitalOutputs[5].Connect(switchDrawer1);
             port.DigitalOutputs[6].Connect(switchDrawer2);
 
@@ -80,26 +80,26 @@ namespace Animatroller.SceneRunner
             popSeq.WhenExecuted
                 .Execute(instance =>
                     {
-                        instance.WaitFor(TimeSpan.FromSeconds(5));
-
-                        audioPlayer.PlayEffect("laugh");
+                        instance.WaitFor(TimeSpan.FromSeconds(1));
+                        audioPlayer.PlayEffect("myprecious");
                         instance.WaitFor(TimeSpan.FromSeconds(0.4));
                         switchHead.SetPower(true);
-                        instance.WaitFor(TimeSpan.FromSeconds(0.6));
                         switchHand.SetPower(true);
+                        instance.WaitFor(TimeSpan.FromSeconds(4));
+                        switchDrawer1.SetPower(true);
+                        instance.WaitFor(TimeSpan.FromSeconds(0.5));
+
+                        audioPlayer.PlayEffect("my_pretty");
+                        instance.WaitFor(TimeSpan.FromSeconds(4));
+                        switchDrawer2.SetPower(true);
                         instance.WaitFor(TimeSpan.FromSeconds(2));
+                        switchHand.SetPower(false);
+                        switchDrawer1.SetPower(false);
+                        instance.WaitFor(TimeSpan.FromSeconds(0.15));
+                        switchDrawer2.SetPower(false);
+                        instance.WaitFor(TimeSpan.FromSeconds(1));
+
                         switchHead.SetPower(false);
-
-                        for (int i = 0; i < 5; i++)
-                        {
-                            switchDrawer1.SetPower(true);
-                            instance.WaitFor(TimeSpan.FromSeconds(0.5));
-                            switchDrawer1.SetPower(false);
-                            switchDrawer2.SetPower(true);
-                            instance.WaitFor(TimeSpan.FromSeconds(0.5));
-                            switchDrawer2.SetPower(false);
-                        }
-
                         switchHand.SetPower(false);
                         instance.WaitFor(TimeSpan.FromSeconds(1));
                     });
@@ -116,9 +116,9 @@ namespace Animatroller.SceneRunner
                 {
                     if (e.NewState)
                     {
-                        audioPlayer.PlayEffect("laugh", 1.0, 0.0);
-                        System.Threading.Thread.Sleep(3000);
-                        audioPlayer.PlayEffect("laugh", 0.0, 1.0);
+                        audioPlayer.PlayEffect("my_pretty", 1.0, 1.0);
+//                        System.Threading.Thread.Sleep(3000);
+//                        audioPlayer.PlayEffect("laugh", 0.0, 1.0);
                     }
                 };
 

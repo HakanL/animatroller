@@ -71,6 +71,27 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        public AudioPlayer PlayNewEffect(string audioFile, double leftVolume, double rightVolume)
+        {
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayNewFX, audioFile, leftVolume, rightVolume);
+
+            return this;
+        }
+
+        public AudioPlayer PlayNewEffect(string audioFile)
+        {
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayNewFX, audioFile);
+
+            return this;
+        }
+
+        public AudioPlayer PlayNewEffect(string audioFile, double volume)
+        {
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayNewFX, audioFile, volume);
+
+            return this;
+        }
+
         public AudioPlayer PlayBackground()
         {
             RaiseExecuteCommand(AudioCommandEventArgs.Commands.PlayBackground);
