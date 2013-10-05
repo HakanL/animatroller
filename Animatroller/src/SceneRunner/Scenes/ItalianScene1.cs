@@ -71,26 +71,92 @@ namespace Animatroller.SceneRunner
                 .Execute(instance =>
                 {
                     var cbList = new List<ColorBrightness>();
-                    cbList.Add(new ColorBrightness(Color.Green, 1.00));
-                    cbList.Add(new ColorBrightness(Color.Green, 0.70));
-                    cbList.Add(new ColorBrightness(Color.Green, 0.40));
-                    cbList.Add(new ColorBrightness(Color.White, 1.00));
-                    cbList.Add(new ColorBrightness(Color.White, 0.70));
-                    cbList.Add(new ColorBrightness(Color.White, 0.40));
-                    cbList.Add(new ColorBrightness(Color.Red, 1.00));
-                    cbList.Add(new ColorBrightness(Color.Red, 0.70));
-                    cbList.Add(new ColorBrightness(Color.Red, 0.40));
-                    cbList.Add(new ColorBrightness(Color.Black, 0.0));
-                    cbList.Add(new ColorBrightness(Color.Black, 0.0));
-                    cbList.Add(new ColorBrightness(Color.Black, 0.0));
-                    cbList.Add(new ColorBrightness(Color.Black, 0.0));
+                    //cbList.Add(new ColorBrightness(Color.Green, 1.00));
+                    //cbList.Add(new ColorBrightness(Color.Green, 0.70));
+                    //cbList.Add(new ColorBrightness(Color.Green, 0.40));
+                    //cbList.Add(new ColorBrightness(Color.White, 1.00));
+                    //cbList.Add(new ColorBrightness(Color.White, 0.70));
+                    //cbList.Add(new ColorBrightness(Color.White, 0.40));
+                    //cbList.Add(new ColorBrightness(Color.Red, 1.00));
+                    //cbList.Add(new ColorBrightness(Color.Red, 0.70));
+                    //cbList.Add(new ColorBrightness(Color.Red, 0.40));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+
+                    double b1 = 1.00;
+                    double b2 = 0.70;
+                    double b3 = 0.40;
+                    Color c1 = Color.Blue;
+                    Color c2 = Color.Yellow;
+                    Color c3 = Color.Blue;
+                    Color c4 = Color.Black;
+
+                    cbList.Add(new ColorBrightness(c1, b1));
+                    cbList.Add(new ColorBrightness(c1, b2));
+                    cbList.Add(new ColorBrightness(c1, b3));
+                    cbList.Add(new ColorBrightness(c2, b1));
+                    cbList.Add(new ColorBrightness(c2, b2));
+                    cbList.Add(new ColorBrightness(c2, b3));
+                    cbList.Add(new ColorBrightness(c3, b1));
+                    cbList.Add(new ColorBrightness(c3, b2));
+                    cbList.Add(new ColorBrightness(c3, b3));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+
+                    b1 = 1.00;
+                    b2 = 0.70;
+                    b3 = 0.40;
+                    c1 = Color.White;
+                    c2 = Color.Blue;
+                    c3 = Color.Red;
+                    c4 = Color.Black;
+
+                    cbList.Add(new ColorBrightness(c1, b1));
+                    cbList.Add(new ColorBrightness(c1, b2));
+                    cbList.Add(new ColorBrightness(c1, b3));
+                    cbList.Add(new ColorBrightness(c2, b1));
+                    cbList.Add(new ColorBrightness(c2, b2));
+                    cbList.Add(new ColorBrightness(c2, b3));
+                    cbList.Add(new ColorBrightness(c3, b1));
+                    cbList.Add(new ColorBrightness(c3, b2));
+                    cbList.Add(new ColorBrightness(c3, b3));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+
+                    b1 = 1.00;
+                    b2 = 0.70;
+                    b3 = 0.40;
+                    c1 = Color.Red;
+                    c2 = Color.White;
+                    c3 = Color.Blue;
+                    c4 = Color.Black;
+
+                    cbList.Add(new ColorBrightness(c1, b1));
+                    cbList.Add(new ColorBrightness(c1, b2));
+                    cbList.Add(new ColorBrightness(c1, b3));
+                    cbList.Add(new ColorBrightness(c2, b1));
+                    cbList.Add(new ColorBrightness(c2, b2));
+                    cbList.Add(new ColorBrightness(c2, b3));
+                    cbList.Add(new ColorBrightness(c3, b1));
+                    cbList.Add(new ColorBrightness(c3, b2));
+                    cbList.Add(new ColorBrightness(c3, b3));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
 
                     while (true)
                     {
                         foreach(var cb in cbList)
                         {
                             allPixels.Inject(cb);
-                            instance.WaitFor(S(0.150), true);
+                            instance.WaitFor(S(0.350), true);
                         }
                     }
                 })
