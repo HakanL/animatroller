@@ -86,21 +86,23 @@ namespace Animatroller.SceneRunner
                         switchHead.SetPower(true);
                         switchHand.SetPower(true);
                         instance.WaitFor(TimeSpan.FromSeconds(4));
-                        switchDrawer1.SetPower(true);
-                        instance.WaitFor(TimeSpan.FromSeconds(0.5));
+                        switchHead.SetPower(false);
+                        switchHand.SetPower(false);
 
+                        instance.WaitFor(TimeSpan.FromSeconds(2));
+                        switchDrawer1.SetPower(true);
+                        switchHead.SetPower(true);
+                        instance.WaitFor(TimeSpan.FromSeconds(0.5));
                         audioPlayer.PlayEffect("my_pretty");
                         instance.WaitFor(TimeSpan.FromSeconds(4));
                         switchDrawer2.SetPower(true);
                         instance.WaitFor(TimeSpan.FromSeconds(2));
-                        switchHand.SetPower(false);
                         switchDrawer1.SetPower(false);
                         instance.WaitFor(TimeSpan.FromSeconds(0.15));
                         switchDrawer2.SetPower(false);
                         instance.WaitFor(TimeSpan.FromSeconds(1));
 
                         switchHead.SetPower(false);
-                        switchHand.SetPower(false);
                         instance.WaitFor(TimeSpan.FromSeconds(1));
                     });
 
