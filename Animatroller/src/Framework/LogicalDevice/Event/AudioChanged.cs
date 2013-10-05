@@ -17,11 +17,15 @@ namespace Animatroller.Framework.LogicalDevice.Event
 
         public Commands Command { get; private set; }
         public string AudioFile { get; private set; }
+        public double? LeftVolume { get; private set; }
+        public double? RightVolume { get; private set; }
 
-        public AudioChangedEventArgs(Commands command, string audioFile)
+        public AudioChangedEventArgs(Commands command, string audioFile, double? leftVolume = null, double? rightVolume = null)
         {
             this.Command = command;
             this.AudioFile = audioFile;
+            this.LeftVolume = leftVolume;
+            this.RightVolume = rightVolume;
         }
     }
 

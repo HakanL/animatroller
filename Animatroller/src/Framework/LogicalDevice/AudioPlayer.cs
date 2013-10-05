@@ -29,11 +29,11 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.name; }
         }
 
-        protected virtual void RaiseAudioChanged(AudioChangedEventArgs.Commands command, string audioFile)
+        protected virtual void RaiseAudioChanged(AudioChangedEventArgs.Commands command, string audioFile, double? leftVolume = null, double? rightVolume = null)
         {
             var handler = AudioChanged;
             if (handler != null)
-                handler(this, new AudioChangedEventArgs(command, audioFile));
+                handler(this, new AudioChangedEventArgs(command, audioFile, leftVolume, rightVolume));
         }
 
         protected virtual void RaiseExecuteCommand(AudioCommandEventArgs.Commands command)
@@ -50,9 +50,23 @@ namespace Animatroller.Framework.LogicalDevice
                 handler(this, new AudioCommandValueEventArgs(command, value));
         }
 
+        public AudioPlayer PlayEffect(string audioFile, double leftVolume, double rightVolume)
+        {
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile, leftVolume, rightVolume);
+
+            return this;
+        }
+
         public AudioPlayer PlayEffect(string audioFile)
         {
             RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile);
+
+            return this;
+        }
+
+        public AudioPlayer PlayEffect(string audioFile, double volume)
+        {
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile, volume);
 
             return this;
         }

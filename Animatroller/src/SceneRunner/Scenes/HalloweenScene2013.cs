@@ -22,6 +22,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput buttonTestDrawer1;
         private DigitalInput buttonTestDrawer2;
         private DigitalInput buttonRunSequence;
+        private DigitalInput buttonTestSound;
         private Switch switchHand;
         private Switch switchHead;
         private Switch switchDrawer1;
@@ -35,6 +36,7 @@ namespace Animatroller.SceneRunner
             buttonTestDrawer1 = new DigitalInput("Drawer 1");
             buttonTestDrawer2 = new DigitalInput("Drawer 2");
             buttonRunSequence = new DigitalInput("Run Seq!");
+            buttonTestSound = new DigitalInput("Test Sound");
             
             switchHand = new Switch("Hand");
             switchHead = new Switch("Head");
@@ -52,6 +54,7 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_FlipFlop(buttonTestDrawer2);
             
             sim.AddDigitalInput_Momentarily(buttonRunSequence);
+            sim.AddDigitalInput_Momentarily(buttonTestSound);
 
             sim.AutoWireUsingReflection(this);
         }
@@ -108,6 +111,16 @@ namespace Animatroller.SceneRunner
                     Executor.Current.Execute(popSeq);
                 }
             };
+
+            buttonTestSound.ActiveChanged += (sender, e) =>
+                {
+                    if (e.NewState)
+                    {
+                        audioPlayer.PlayEffect("laugh", 1.0, 0.0);
+                        System.Threading.Thread.Sleep(3000);
+                        audioPlayer.PlayEffect("laugh", 0.0, 1.0);
+                    }
+                };
 
             buttonTestHand.ActiveChanged += (sender, e) =>
                 {
