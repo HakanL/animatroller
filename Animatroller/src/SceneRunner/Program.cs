@@ -121,6 +121,10 @@ namespace Animatroller.SceneRunner
                     scene = new HalloweenScene2013(sceneArgs);
                     break;
 
+                case "HALLOWEENSCENE2013B":
+                    scene = new HalloweenScene2013B(sceneArgs);
+                    break;
+
                 case "XMAS1":
                     scene = new XmasScene1(sceneArgs);
                     break;

@@ -118,7 +118,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (e.NewState)
                     {
-                        audioPlayer.PlayEffect("my_pretty", 1.0, 1.0);
+                        audioPlayer.PlayEffect("15 Cat Growl 2", 1.0, 1.0);
 //                        System.Threading.Thread.Sleep(3000);
 //                        audioPlayer.PlayEffect("laugh", 0.0, 1.0);
                     }

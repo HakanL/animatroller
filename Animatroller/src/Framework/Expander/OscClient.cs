@@ -58,6 +58,8 @@ namespace Animatroller.Framework.Expander
             }
             else
             {
+                log.Info("   Data {0}", string.Join(" ", data));
+
                 var oscMessage = new OscMessage(address, data);
                 var oscPacket = new OscBundle(0, oscMessage);
 
