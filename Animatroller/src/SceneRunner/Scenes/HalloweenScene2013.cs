@@ -21,12 +21,16 @@ namespace Animatroller.SceneRunner
         private DigitalInput buttonTestHead;
         private DigitalInput buttonTestDrawer1;
         private DigitalInput buttonTestDrawer2;
+        private DigitalInput buttonTestPopEyes;
+        private DigitalInput buttonTestPopUp;
         private DigitalInput buttonRunSequence;
         private DigitalInput buttonTestSound;
         private Switch switchHand;
         private Switch switchHead;
         private Switch switchDrawer1;
         private Switch switchDrawer2;
+        private Switch switchPopEyes;
+        private Switch switchPopUp;
 
 
         public HalloweenScene2013(IEnumerable<string> args)
@@ -37,11 +41,15 @@ namespace Animatroller.SceneRunner
             buttonTestDrawer2 = new DigitalInput("Drawer 2");
             buttonRunSequence = new DigitalInput("Run Seq!");
             buttonTestSound = new DigitalInput("Test Sound");
+            buttonTestPopEyes = new DigitalInput("Pop Eyes");
+            buttonTestPopUp = new DigitalInput("Pop Up");
             
             switchHand = new Switch("Hand");
             switchHead = new Switch("Head");
             switchDrawer1 = new Switch("Drawer 1");
             switchDrawer2 = new Switch("Drawer 2");
+            switchPopEyes = new Switch("Pop Eyes");
+            switchPopUp = new Switch("Pop Up");
             
             audioPlayer = new AudioPlayer("Audio Player");
         }
@@ -52,6 +60,8 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_FlipFlop(buttonTestHead);
             sim.AddDigitalInput_FlipFlop(buttonTestDrawer1);
             sim.AddDigitalInput_FlipFlop(buttonTestDrawer2);
+            sim.AddDigitalInput_FlipFlop(buttonTestPopEyes);
+            sim.AddDigitalInput_FlipFlop(buttonTestPopUp);
             
             sim.AddDigitalInput_Momentarily(buttonRunSequence);
             sim.AddDigitalInput_Momentarily(buttonTestSound);
@@ -70,6 +80,8 @@ namespace Animatroller.SceneRunner
             port.DigitalOutputs[2].Connect(switchHead);
             port.DigitalOutputs[5].Connect(switchDrawer1);
             port.DigitalOutputs[6].Connect(switchDrawer2);
+            port.DigitalOutputs[3].Connect(switchPopEyes);
+            port.DigitalOutputs[4].Connect(switchPopUp);
 
             port.Connect(audioPlayer);
         }
@@ -142,6 +154,16 @@ namespace Animatroller.SceneRunner
             buttonTestDrawer2.ActiveChanged += (sender, e) =>
             {
                 switchDrawer2.SetPower(e.NewState);
+            };
+
+            buttonTestPopEyes.ActiveChanged += (sender, e) =>
+            {
+                switchPopEyes.SetPower(e.NewState);
+            };
+
+            buttonTestPopUp.ActiveChanged += (sender, e) =>
+            {
+                switchPopUp.SetPower(e.NewState);
             };
         }
 
