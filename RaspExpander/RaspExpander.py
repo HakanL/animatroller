@@ -20,9 +20,13 @@ import pifacedigitalio as pif
 
 if not pygame.mixer: print ('Warning, sound disabled')
 
-pif.init()
-pfd = pif.PiFaceDigital()
-
+pfd = None
+try:
+    pif.init()
+    pfd = pif.PiFaceDigital()
+except pif.NoPiFaceDigitalDetectedError:
+    print ('No PiFace card detected')
+    pass
 
 soundFXdict = {}
 client = udp_client
@@ -90,13 +94,15 @@ def main():
     initmsg = initmsg.build()
     client.send(initmsg)
 
-    pif.digital_write_pullup(6, 1)
-    pfd_listener = pif.InputEventListener()
-    for i in range(8):
-        pif.digital_write_pullup(i, pif.INPUT_PULLUP)
-        pfd_listener.register(i, pif.IODIR_ON, input_callback)
-        pfd_listener.register(i, pif.IODIR_OFF, input_callback)
-    pfd_listener.activate()
+    pfd_listener = None
+    if pfd != None:
+        #pif.digital_write_pullup(6, 1)
+        pfd_listener = pif.InputEventListener()
+        for i in range(8):
+            pif.digital_write_pullup(i, pif.INPUT_PULLUP)
+            pfd_listener.register(i, pif.IODIR_ON, input_callback)
+            pfd_listener.register(i, pif.IODIR_OFF, input_callback)
+        pfd_listener.activate()
 
     print('Ready!')
 
@@ -121,7 +127,8 @@ def main():
         print ('Aborting')
         pass
 
-    pfd_listener.deactivate()
+    if pfd != None:
+        pfd_listener.deactivate()
         
     print ('Done')
 
@@ -240,8 +247,11 @@ def osc_bgNext():
 
 
 def osc_output(channel, value):
-    print ('Output', channel, 'set to', value)
-    pfd.output_pins[channel].value = value
+    if pfd != None:
+        print ('Output', channel, 'set to', value)
+        pfd.output_pins[channel].value = value
+    else:
+        print ('No PiFace card')
 
 
 #this calls the 'main' function when this script is executed
