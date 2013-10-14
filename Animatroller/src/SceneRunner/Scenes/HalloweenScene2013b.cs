@@ -16,6 +16,7 @@ namespace Animatroller.SceneRunner
 {
     internal class HalloweenScene2013B : BaseScene, ISceneRequiresRaspExpander3, ISceneSupportsSimulator, ISceneRequiresDMXPro//, ISceneRequiresIOExpander
     {
+        private OperatingHours hours;
         private AudioPlayer audioCat;
         private AudioPlayer audioGeorge;
         private AudioPlayer audioBeauty;
@@ -42,6 +43,7 @@ namespace Animatroller.SceneRunner
 
         public HalloweenScene2013B(IEnumerable<string> args)
         {
+            hours = new OperatingHours("Hours");
             buttonMotion = new DigitalInput("Walkway Motion");
             buttonTrigger1 = new DigitalInput("Stairs Trigger 1");
             buttonDeadendDrive = new DigitalInput("Deadend dr");
@@ -127,6 +129,8 @@ namespace Animatroller.SceneRunner
 
         public override void Start()
         {
+            hours.AddRange("6:00 pm", "9:00 pm");
+
             var popupSeq = new Controller.Sequence("Popup Sequence");
             popupSeq.WhenExecuted
                 .Execute(instance =>
@@ -196,6 +200,19 @@ namespace Animatroller.SceneRunner
 
                         catLights.TurnOff();
                     });
+
+
+            hours.OpenHoursChanged += (sender, e) =>
+                {
+                    if (e.IsOpenNow)
+                    {
+                        audioGeorge.PlayBackground();
+                    }
+                    else
+                    {
+                        audioGeorge.PauseBackground();
+                    }
+                };
 
             buttonTestA.ActiveChanged += (sender, e) =>
                 {
