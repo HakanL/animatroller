@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class HalloweenScene2013 : BaseScene, ISceneSupportsRaspExpander, ISceneSupportsSimulator
+    internal class HalloweenScene2013 : BaseScene, ISceneRequiresRaspExpander1, ISceneSupportsSimulator
     {
         private AudioPlayer audioPlayer;
         private DigitalInput buttonTestHand;

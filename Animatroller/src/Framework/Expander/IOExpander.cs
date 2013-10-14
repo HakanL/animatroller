@@ -131,6 +131,9 @@ namespace Animatroller.Framework.Expander
                 case '#':
                     log.Info("ACK " + data);
                     break;
+                case 'X':
+                    log.Info("Init " + data);
+                    break;
                 case 'I':
                     // Input
                     if (parts.Length >= 2)
@@ -160,14 +163,36 @@ namespace Animatroller.Framework.Expander
                         byte chn = byte.Parse(parts[0]);
                         int? pos;
                         if (parts[1] != "X")
-                            pos = int.Parse(parts[1]);
+                        {
+                            if (parts[1].StartsWith("S"))
+                            {
+                                pos = int.Parse(parts[1].Substring(1));
+                                log.Info("MotorController chn={0} Starting at {1}", chn, pos);
+                            }
+                            else if (parts[1].StartsWith("E"))
+                            {
+                                pos = int.Parse(parts[1].Substring(1));
+                                log.Info("MotorController chn={0} Ends at {1}", chn, pos);
+
+                                if (chn == 1)
+                                    this.Motor.Trigger(pos, pos == null);
+                            }
+                            else
+                            {
+                                pos = int.Parse(parts[1]);
+                                log.Info("MotorController chn={0} val={1}", chn, pos);
+                            }
+                        }
                         else
+                        {
                             // Motor failed
                             pos = null;
+                            log.Info("MotorController chn={0} failed", chn);
 
-                        log.Info("MotorController chn={0} val={1}", chn, pos);
-                        if(chn == 1)
-                            this.Motor.Trigger(pos, pos == null);
+                            if (chn == 1)
+                                this.Motor.Trigger(pos, pos == null);
+                        }
+
                     }
                     break;
                 default:

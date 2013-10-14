@@ -59,6 +59,11 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D)fieldValue));
                 else if (field.FieldType == typeof(Switch))
                     this.AddDigitalOutput((Switch)fieldValue);
+                else if (field.FieldType == typeof(MotorWithFeedback))
+                {
+                    // Skip
+//                    this.AddMotor((MotorWithFeedback)fieldValue);
+                }
                 else if (field.FieldType == typeof(DigitalInput))
                 {
                     // Skip

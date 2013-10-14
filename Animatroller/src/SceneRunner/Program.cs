@@ -19,13 +19,17 @@ namespace Animatroller.SceneRunner
             Animatroller.Framework.Expander.DMXPro dmxPro = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
             Animatroller.Framework.Expander.AcnStream acnOutput = null;
-            Animatroller.Framework.Expander.Raspberry raspberry = null;
+            Animatroller.Framework.Expander.Raspberry raspberry1 = null;
+            Animatroller.Framework.Expander.Raspberry raspberry2 = null;
+            Animatroller.Framework.Expander.Raspberry raspberry3 = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
             string sceneName = string.Empty;
             foreach (var arg in args)
             {
+                string[] parts2;
+
                 var parts = arg.Split('=');
                 parts[0] = parts[0].ToUpper();
 
@@ -56,9 +60,22 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "RASP":
+                    case "RASP1":
                         // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
-                        var parts2 = parts[1].Split(',');
-                        raspberry = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
+                        parts2 = parts[1].Split(',');
+                        raspberry1 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
+                        break;
+
+                    case "RASP2":
+                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
+                        parts2 = parts[1].Split(',');
+                        raspberry2 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
+                        break;
+
+                    case "RASP3":
+                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
+                        parts2 = parts[1].Split(',');
+                        raspberry3 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
                         break;
 
                     default:
@@ -143,20 +160,51 @@ namespace Animatroller.SceneRunner
             Executor.Current.Register(scene);
 
             // Wire up the instantiated expanders
-            if (simForm != null && scene is ISceneSupportsSimulator)
+            if (scene is ISceneSupportsSimulator && simForm != null)
+            {
                 ((ISceneSupportsSimulator)scene).WireUp(simForm);
+            }
 
-            if (dmxPro != null && scene is ISceneSupportsDMXPro)
-                ((ISceneSupportsDMXPro)scene).WireUp(dmxPro);
+            if (scene is ISceneRequiresDMXPro)
+            {
+                if (dmxPro == null)
+                    throw new ArgumentNullException("DMXpro not configured");
+                ((ISceneRequiresDMXPro)scene).WireUp(dmxPro);
+            }
 
-            if (ioExpander != null && scene is ISceneSupportsIOExpander)
-                ((ISceneSupportsIOExpander)scene).WireUp(ioExpander);
+            if (scene is ISceneRequiresIOExpander)
+            {
+                if (ioExpander == null)
+                    throw new ArgumentNullException("IOExpander not configured");
+                ((ISceneRequiresIOExpander)scene).WireUp(ioExpander);
+            }
 
-            if (acnOutput != null && scene is ISceneSupportsAcnStream)
-                ((ISceneSupportsAcnStream)scene).WireUp(acnOutput);
+            if (scene is ISceneRequiresAcnStream)
+            {
+                if (acnOutput == null)
+                    throw new ArgumentNullException("AcnOutput not configured");
+                ((ISceneRequiresAcnStream)scene).WireUp(acnOutput);
+            }
 
-            if (raspberry != null && scene is ISceneSupportsRaspExpander)
-                ((ISceneSupportsRaspExpander)scene).WireUp(raspberry);
+            if (scene is ISceneRequiresRaspExpander1)
+            {
+                if (raspberry1 == null)
+                    throw new ArgumentNullException("Raspberry1 not configured");
+                ((ISceneRequiresRaspExpander1)scene).WireUp(raspberry1);
+            }
+
+            if (scene is ISceneRequiresRaspExpander3)
+            {
+                if (raspberry1 == null)
+                    throw new ArgumentNullException("Raspberry1 not configured");
+                if (raspberry2 == null)
+                    throw new ArgumentNullException("Raspberry2 not configured");
+                if (raspberry3 == null)
+                    throw new ArgumentNullException("Raspberry3 not configured");
+                ((ISceneRequiresRaspExpander3)scene).WireUp1(raspberry1);
+                ((ISceneRequiresRaspExpander3)scene).WireUp2(raspberry2);
+                ((ISceneRequiresRaspExpander3)scene).WireUp3(raspberry3);
+            }
 
             // Initialize
             Executor.Current.Start();

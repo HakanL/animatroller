@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestScene3 : BaseScene, ISceneSupportsRaspExpander, ISceneSupportsSimulator
+    internal class TestScene3 : BaseScene, ISceneRequiresRaspExpander1, ISceneSupportsSimulator
     {
         private Expander.OscServer oscServer;
         private AudioPlayer audioPlayer;

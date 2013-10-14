@@ -1,14 +1,14 @@
 CON
         _clkmode = xtal1 + pll16x                                               'Standard clock mode * crystal frequency = 80 MHz
         _xinfreq = 5_000_000
-        BTN1 = 2
-        BTN2 = 3
-        BTN3 = 13
-        OUT1 = 0
-        OUT2 = 1
-        OUT3 = 4
-        OUT4 = 5
-        GECE_PIN = 12
+        BTN1 = 8
+        BTN2 = 9
+        BTN3 = 10
+        OUT1 = 20
+        OUT2 = 21
+        OUT3 = 22
+        OUT4 = 23
+        GECE_PIN = 24
          
         MAXSTR_LENGTH = 63
 
@@ -41,7 +41,7 @@ OBJ
   pwm  :  "PWMMotorDriver"
   Encoder : "Quadrature Encoder"
   timerMotor : "Timer32"
-  gece : "GECE"
+'  gece : "GECE"
 
   
 PUB Main | cmd, chn, level
@@ -49,8 +49,8 @@ PUB Main | cmd, chn, level
   
   pst.StartRxTx(31, 30, 0, 38_400)
 
-  gece.Start(GECE_PIN)
-  gece.set_standard_enum
+'  gece.Start(GECE_PIN)
+'  gece.set_standard_enum
   
   serout(string("X"))
 
@@ -63,8 +63,8 @@ PUB Main | cmd, chn, level
   dira[OUT3]~~               ' Set pin to output
   dira[OUT4]~~               ' Set pin to output
 
-  cognew(InputReader, @inpStack)
-'  cognew(MotorController, @inpStack2)
+'  cognew(InputReader, @inpStack)
+  cognew(MotorController, @inpStack2)
 
 '  gece.set_bulb(0, $CC, $FFF)
 '  gece.set_bulb(1, $CC, $DDD)
@@ -106,35 +106,37 @@ PUB Main | cmd, chn, level
         MotorTrigger := 1           
         if MotorFailed
           serout(string("M,1,X"))
+        else
+          seroutDec(string("M,1,S"), Pos[0])            
+           
+'      elseif cmd == "P"
+'        chn := rxDec
+'        PixelR := rxDec
+'        PixelG := rxDec
+'        PixelB := rxDec
+'        gece.set_bulb2(chn, PixelR, PixelG, PixelB) 
 
-      elseif cmd == "P"
-        chn := rxDec
-        PixelR := rxDec
-        PixelG := rxDec
-        PixelB := rxDec
-        gece.set_bulb2(chn, PixelR, PixelG, PixelB) 
-
-      elseif cmd == "R"
-        ' Optimized pixel
-        chn := pst.CharIn
-'        seroutDec(string("X,C="), chn)
-'        NumPixels := 0            
-        repeat
-'          NumPixels := NumPixels + 1
-          PixelR := pst.CharIn
-          PixelG := pst.CharIn
-          PixelB := pst.CharIn
-
-'          seroutDec(string("X,R="), PixelR)            
-'          seroutDec(string("X,G="), PixelG)            
-'          seroutDec(string("X,B="), PixelB)            
-
-          gece.set_bulb2(chn, PixelR, PixelG, PixelB)
-          lastReadByte := pst.CharIn
-          chn := chn + 1
-          if lastReadByte == 13
-'            seroutDec(string("X,Tot="), NumPixels)        
-            quit
+'      elseif cmd == "R"
+'        ' Optimized pixel
+'        chn := pst.CharIn
+''        seroutDec(string("X,C="), chn)
+''        NumPixels := 0            
+'        repeat
+''          NumPixels := NumPixels + 1
+'          PixelR := pst.CharIn
+'          PixelG := pst.CharIn
+'          PixelB := pst.CharIn
+'
+''          seroutDec(string("X,R="), PixelR)            
+''          seroutDec(string("X,G="), PixelG)            
+''          seroutDec(string("X,B="), PixelB)            
+'
+'          gece.set_bulb2(chn, PixelR, PixelG, PixelB)
+'          lastReadByte := pst.CharIn
+'          chn := chn + 1
+'          if lastReadByte == 13
+''            seroutDec(string("X,Tot="), NumPixels)        
+'            quit
            
       quit
 
@@ -176,8 +178,8 @@ PRI InputReader | lastValue, lastButton1, lastButton2, lastButton3
 
 
 PRI MotorController | x
-'  pwm.Start(2, 1, 0, 15000)
-'  Encoder.Start(12, 1, 1, @Pos)           'Start continuous two-encoder reader (encoders connected to pins 8 - 11)
+  pwm.Start(2, 1, 0, 15000)
+  Encoder.Start(12, 1, 1, @Pos)           'Start continuous two-encoder reader (encoders connected to pins 8 - 11)
   timerMotor.Init
 
   repeat
@@ -204,12 +206,14 @@ PRI MotorController | x
       serout(string("M,1,X"))
       quit
     else            
-      seroutDec(string("M,1,"), Pos[0])            
+      seroutDec(string("M,1,E"), Pos[0])            
 
 PRI MoveMotorUntilInRange | x
   timerMotor.Mark
   repeat until timerMotor.TimeOutS(MotorTimeout) or ||(MotorTarget - Pos[0]) =< 10
     timerMotor.Tick
+'    seroutDec(string("M,1,"), Pos[0])
+      
   if timerMotor.TimeOutS(MotorTimeout)
     MotorFailed := 1
     pwm.Halt
@@ -222,6 +226,8 @@ PRI MoveMotorUntilInRange | x
 PRI setDutyAndWait(duty)
   pwm.SetDuty(duty)
   waitcnt(clkfreq/200+cnt)
+
+
 
 
 PUB rxDec : outvalue | place, ptr, x
