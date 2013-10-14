@@ -41,7 +41,7 @@ def load_fx(name):
     if sound != None:
         return sound
 
-    fullname = os.path.join('halloweenfx/fx', name)
+    fullname = os.path.join('halloweensounds/fx', name)
     try:
         print ('Loading ', fullname)
         sound = pygame.mixer.Sound(fullname)
@@ -60,7 +60,7 @@ def play_next_bg_track():
     index = random.randint(0, len(bg_files) - 1)
     print ('File =', bg_files[index])
 
-    pygame.mixer.music.load(os.path.join('halloweenfx/bg', bg_files[index]))
+    pygame.mixer.music.load(os.path.join('halloweensounds/bg', bg_files[index]))
     pygame.mixer.music.set_volume(bg_volume)
     pygame.mixer.music.play()
 
@@ -82,7 +82,7 @@ def main():
     pygame.mixer.music.set_endevent(pygame.constants.USEREVENT)
 
     # Find all background tracks
-    bg_files = [ f for f in listdir('halloweenfx/bg') if isfile(join('halloweenfx/bg', f)) ]
+    bg_files = [ f for f in listdir('halloweensounds/bg') if isfile(join('halloweensounds/bg', f)) ]
 
     print('BG files =', len(bg_files))
 
