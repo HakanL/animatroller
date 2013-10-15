@@ -107,7 +107,9 @@ PUB Main | cmd, chn, level
         if MotorFailed
           serout(string("M,1,X"))
         else
-          seroutDec(string("M,1,S"), Pos[0])            
+          seroutDec(string("M,1,S"), Pos[0])
+          if ||(MotorTarget - Pos[0]) <= 10            
+            seroutDec(string("M,1,E"), Pos[0])
            
 '      elseif cmd == "P"
 '        chn := rxDec
