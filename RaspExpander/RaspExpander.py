@@ -74,6 +74,39 @@ def play_next_bg_track():
     pygame.mixer.music.play()
 
 
+def decode_motor_command(cmd):
+    print('Decode motor command:', cmd)
+    cmds = cmd.split(',')
+
+    motor_chn = 0
+    motor_pos = None
+    
+    if len(cmds) >= 2:
+        motor_chn = int(cmds[0])
+        
+        if cmds[1] == 'X':
+            print('Motor', motor_chn, 'failed!')
+            motor_pos = 'FAIL'
+            
+        if cmds[1].startswith('S'):
+            pos = int(cmds[1][1:])
+            print('Motor', motor_chn, 'start moving, currently in position', pos)
+
+        elif cmds[1].startswith('E'):
+            motor_pos = int(cmds[1][1:])
+            print('Motor', motor_chn, 'done moving, currently in position', motor_pos)
+            
+        else:
+            pos = int(cmds[1])
+            print('Motor', motor_chn, 'moving, currently in position', pos)
+
+    if motor_pos is not None:
+        motormsg = osc_message_builder.OscMessageBuilder(address = "/motor/feedback")
+        motormsg.add_arg(motor_chn)
+        motormsg.add_arg(motor_pos)
+        motormsg = motormsg.build()
+        client.send(motormsg)
+
 
 def main():
     global bg_files
@@ -118,7 +151,8 @@ def main():
 
     try:
         if ser is not None:
-            ser.write("!!\n".encode('utf-8'))
+            ser.write("!!\r".encode('utf-8'))
+
         while running:
             for event in pygame.event.get(): # User did something
                 if event.type == pygame.QUIT: # If user clicked close
@@ -129,11 +163,22 @@ def main():
                     play_next_bg_track()
 
             if ser is not None:
-                serline = ser.readline(timeout=0.5)
-                if serline != '':
-                    print ('Serial data', serline)
-
-            time.sleep(0.1)
+                serline = ser.readline(timeout=0.3)
+                if serline != '' and serline.startswith('!IOX:0,'):
+                    serline = serline[7:]
+                    if len(serline) < 1:
+                        continue
+                    if serline[0] == '#':
+                        print ('Serial: ACK')
+                    elif serline[0:2] == 'M,':
+                        decode_motor_command(serline[2:].rstrip())
+                    else:
+                        print ('Serial data:', serline)
+                else:
+                    if serline != '':
+                        print(serline)
+            else:
+                time.sleep(0.1)
 
     except KeyboardInterrupt:
         print ('Aborting')
@@ -167,6 +212,14 @@ def input_callback(event):
 
 def osc_init(args = None):
     print ('Animatroller running')
+
+
+def osc_motor(chn, target, speed, timeout):
+    print('Motor command: chn:', chn, '  target:', target, '  speed:', speed, '  timeout:', timeout)
+    output = '!M,{0},{1},{2},{3}\r'.format(chn, target, speed, timeout)
+
+    print('Output:', output)
+#    ser.write("!M,1,0,100,5\r".encode('utf-8'))
 
 
 def osc_playFx(file, leftvol = -1, rightvol = -1):
@@ -280,7 +333,7 @@ class EnhancedSerial(Serial):
         tries = 0
         while 1:
             self.buf += self.read(512).decode('utf-8') 
-            pos = self.buf.find('\n')
+            pos = self.buf.find('\r')
             if pos >= 0:
                 line, self.buf = self.buf[:pos+1], self.buf[pos+1:]
                 return line
@@ -298,7 +351,7 @@ class EnhancedSerial(Serial):
             line = self.readline(timeout=timeout)
             if line:
                 lines.append(line)
-            if not line or line[-1:] != '\n':
+            if not line or line[-1:] != '\r':
                 break
         return lines
 
@@ -329,6 +382,7 @@ if __name__ == '__main__':
     dispatcher.map("/audio/bg/pause", osc_bgPause)
     dispatcher.map("/audio/bg/next", osc_bgNext)
     dispatcher.map("/output", osc_output)
+    dispatcher.map("/motor/exec", osc_motor)
 
     if args.serialport != "":
         sys.stdout.write("Serial port /dev/" + args.serialport + "\n")
