@@ -17,8 +17,13 @@ from os import listdir
 from os.path import isfile, join
 import pifacecommon
 import pifacedigitalio as pif
+from serial import Serial
+from serial import serialutil
 
 if not pygame.mixer: print ('Warning, sound disabled')
+
+ser = None
+        
 
 pfd = None
 try:
@@ -42,7 +47,7 @@ def load_fx(name):
 
     sound = soundFXdict.get(name.lower())
 
-    if sound != None:
+    if sound is not None:
         return sound
 
     fullname = os.path.join('halloweensounds/fx', name)
@@ -95,7 +100,7 @@ def main():
     client.send(initmsg)
 
     pfd_listener = None
-    if pfd != None:
+    if pfd is not None:
         #pif.digital_write_pullup(6, 1)
         pfd_listener = pif.InputEventListener()
         for i in range(8):
@@ -112,6 +117,8 @@ def main():
     running = 1
 
     try:
+        if ser is not None:
+            ser.write("!!\n".encode('utf-8'))
         while running:
             for event in pygame.event.get(): # User did something
                 if event.type == pygame.QUIT: # If user clicked close
@@ -121,13 +128,18 @@ def main():
                     print ('Music ended')
                     play_next_bg_track()
 
+            if ser is not None:
+                serline = ser.readline(timeout=0.5)
+                if serline != '':
+                    print ('Serial data', serline)
+
             time.sleep(0.1)
 
     except KeyboardInterrupt:
         print ('Aborting')
         pass
 
-    if pfd != None:
+    if pfd is not None:
         pfd_listener.deactivate()
         
     print ('Done')
@@ -162,9 +174,9 @@ def osc_playFx(file, leftvol = -1, rightvol = -1):
 
     print ('Play FX', file)
     fx_sound = load_fx(file + '.wav')
-    if fx_sound != None:
+    if fx_sound is not None:
         last_fx_snd = fx_sound
-        if last_fx_chn != None:
+        if last_fx_chn is not None:
             last_fx_chn.stop()
         last_fx_chn = fx_sound.play()
         
@@ -182,7 +194,7 @@ def osc_playNewFx(file, leftvol = -1, rightvol = -1):
 
     print ('Play New FX', file)
     fx_sound = load_fx(file + '.wav')
-    if fx_sound != None:
+    if fx_sound is not None:
         last_fx_snd = fx_sound
         last_fx_chn = fx_sound.play()
         
@@ -200,7 +212,7 @@ def osc_cueFx(args):
 
     print ('Cue FX', args)
     fx_sound = load_fx(args + '.wav')
-    if fx_sound != None:
+    if fx_sound is not None:
         last_fx_snd = fx_sound
         fx_sound.stop()
         last_fx_chn = None
@@ -208,16 +220,16 @@ def osc_cueFx(args):
 
 def osc_pauseFx():
     print ('Pause FX')
-    if last_fx_chn != None:
+    if last_fx_chn is not None:
         last_fx_chn.pause()
 
 
 def osc_resumeFx():
     global last_fx_chn
     print ('Resume FX')
-    if last_fx_chn != None:
+    if last_fx_chn is not None:
         last_fx_chn.unpause()
-    elif last_fx_snd != None:
+    elif last_fx_snd is not None:
         last_fx_chn = last_fx_snd.play()
         
 def osc_bgVolume(volume):
@@ -247,11 +259,48 @@ def osc_bgNext():
 
 
 def osc_output(channel, value):
-    if pfd != None:
+    if pfd is not None:
         print ('Output', channel, 'set to', value)
         pfd.output_pins[channel].value = value
     else:
         print ('No PiFace card')
+
+
+class EnhancedSerial(Serial):
+    def __init__(self, *args, **kwargs):
+        #ensure that a reasonable timeout is set
+        timeout = kwargs.get('timeout',0.1)
+        if timeout < 0.01: timeout = 0.1
+        kwargs['timeout'] = timeout
+        Serial.__init__(self, *args, **kwargs)
+        self.buf = ''
+        
+    def readline(self, maxsize=None, timeout=1):
+        """maxsize is ignored, timeout in seconds is the max time that is way for a complete line"""
+        tries = 0
+        while 1:
+            self.buf += self.read(512).decode('utf-8') 
+            pos = self.buf.find('\n')
+            if pos >= 0:
+                line, self.buf = self.buf[:pos+1], self.buf[pos+1:]
+                return line
+            tries += 1
+            if tries * self.timeout > timeout:
+                break
+        line, self.buf = self.buf, ''
+        return line
+
+    def readlines(self, sizehint=None, timeout=1):
+        """read all lines that are available. abort after timout
+        when no more data arrives."""
+        lines = []
+        while 1:
+            line = self.readline(timeout=timeout)
+            if line:
+                lines.append(line)
+            if not line or line[-1:] != '\n':
+                break
+        return lines
 
 
 #this calls the 'main' function when this script is executed
@@ -265,6 +314,7 @@ if __name__ == '__main__':
         default="127.0.0.1", help="The server ip to send messages to")
     parser.add_argument("--serverport",
         type=int, default=3333, help="The server port to send messages to")
+    parser.add_argument("--serialport", default="", help="Serial port to connect to")
     args = parser.parse_args()
 
     dispatcher = dispatcher.Dispatcher()
@@ -280,6 +330,10 @@ if __name__ == '__main__':
     dispatcher.map("/audio/bg/next", osc_bgNext)
     dispatcher.map("/output", osc_output)
 
+    if args.serialport != "":
+        sys.stdout.write("Serial port /dev/" + args.serialport + "\n")
+        ser = EnhancedSerial("/dev/" + args.serialport, 38400, timeout=0.5)
+
     server = osc_server.ThreadingOSCUDPServer(
         (args.ip, args.port), dispatcher)
     print("Serving on {}".format(server.server_address))
@@ -292,4 +346,6 @@ if __name__ == '__main__':
     pif.deinit()
     pygame.quit()
     server.shutdown()
+    if ser is not None:
+        ser.close()
     print ('Goodbye')
