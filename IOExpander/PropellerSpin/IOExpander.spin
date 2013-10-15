@@ -108,7 +108,7 @@ PUB Main | cmd, chn, level
           serout(string("M,1,X"))
         else
           seroutDec(string("M,1,S"), Pos[0])
-          if ||(MotorTarget - Pos[0]) <= 10            
+          if ||(MotorTarget - Pos[0]) =< 10            
             seroutDec(string("M,1,E"), Pos[0])
            
 '      elseif cmd == "P"
