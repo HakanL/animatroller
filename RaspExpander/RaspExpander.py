@@ -88,13 +88,15 @@ def decode_motor_command(cmd):
             print('Motor', motor_chn, 'failed!')
             motor_pos = 'FAIL'
             
-        if cmds[1].startswith('S'):
+        elif cmds[1].startswith('S'):
+            motor_pos = cmds[1]
             pos = int(cmds[1][1:])
             print('Motor', motor_chn, 'start moving, currently in position', pos)
 
         elif cmds[1].startswith('E'):
-            motor_pos = int(cmds[1][1:])
-            print('Motor', motor_chn, 'done moving, currently in position', motor_pos)
+            motor_pos = cmds[1]
+            pos = int(cmds[1][1:])
+            print('Motor', motor_chn, 'done moving, currently in position', pos)
             
         else:
             pos = int(cmds[1])
@@ -219,7 +221,7 @@ def osc_motor(chn, target, speed, timeout):
     output = '!M,{0},{1},{2},{3}\r'.format(chn, target, speed, timeout)
 
     print('Output:', output)
-#    ser.write("!M,1,0,100,5\r".encode('utf-8'))
+    ser.write(output.encode('utf-8'))
 
 
 def osc_playFx(file, leftvol = -1, rightvol = -1):
