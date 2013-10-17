@@ -66,7 +66,7 @@ namespace Animatroller.SceneRunner
             sim.AutoWireUsingReflection(this);
         }
 
-        public void WireUp(Expander.Raspberry port)
+        public void WireUp1(Expander.Raspberry port)
         {
             port.DigitalInputs[7].Connect(buttonTrigger1);
             port.DigitalOutputs[7].Connect(switchTest1);

@@ -22,6 +22,7 @@ namespace Animatroller.SceneRunner
             Animatroller.Framework.Expander.Raspberry raspberry1 = null;
             Animatroller.Framework.Expander.Raspberry raspberry2 = null;
             Animatroller.Framework.Expander.Raspberry raspberry3 = null;
+            Animatroller.Framework.Expander.Raspberry raspberry4 = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
@@ -76,6 +77,12 @@ namespace Animatroller.SceneRunner
                         // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
                         parts2 = parts[1].Split(',');
                         raspberry3 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
+                        break;
+
+                    case "RASP4":
+                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
+                        parts2 = parts[1].Split(',');
+                        raspberry4 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
                         break;
 
                     default:
@@ -190,20 +197,28 @@ namespace Animatroller.SceneRunner
             {
                 if (raspberry1 == null)
                     throw new ArgumentNullException("Raspberry1 not configured");
-                ((ISceneRequiresRaspExpander1)scene).WireUp(raspberry1);
+                ((ISceneRequiresRaspExpander1)scene).WireUp1(raspberry1);
+            }
+
+            if (scene is ISceneRequiresRaspExpander2)
+            {
+                if (raspberry2 == null)
+                    throw new ArgumentNullException("Raspberry2 not configured");
+                ((ISceneRequiresRaspExpander2)scene).WireUp2(raspberry2);
             }
 
             if (scene is ISceneRequiresRaspExpander3)
             {
-                if (raspberry1 == null)
-                    throw new ArgumentNullException("Raspberry1 not configured");
-                if (raspberry2 == null)
-                    throw new ArgumentNullException("Raspberry2 not configured");
                 if (raspberry3 == null)
                     throw new ArgumentNullException("Raspberry3 not configured");
-                ((ISceneRequiresRaspExpander3)scene).WireUp1(raspberry1);
-                ((ISceneRequiresRaspExpander3)scene).WireUp2(raspberry2);
                 ((ISceneRequiresRaspExpander3)scene).WireUp3(raspberry3);
+            }
+
+            if (scene is ISceneRequiresRaspExpander4)
+            {
+                if (raspberry4 == null)
+                    throw new ArgumentNullException("Raspberry4 not configured");
+                ((ISceneRequiresRaspExpander4)scene).WireUp4(raspberry4);
             }
 
             // Initialize

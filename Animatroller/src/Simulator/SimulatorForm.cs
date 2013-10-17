@@ -92,6 +92,10 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
+                else if (field.FieldType == typeof(Animatroller.Framework.LogicalDevice.OperatingHours))
+                {
+                    // Skip
+                }
                 else
                 {
                     log.Info("Unknown field {0}", field.FieldType);

@@ -36,6 +36,11 @@ namespace Animatroller.Framework.Expander
             for (int index = 0; index < this.DigitalOutputs.Length; index++)
                 WireupOutput(index);
 
+            this.Motor = new PhysicalDevice.MotorWithFeedback((target, speed, timeout) =>
+            {
+                this.oscClient.Send("/motor/exec", 1, target, (int)(speed * 100), timeout.TotalSeconds.ToString("F0"));
+            });
+
             this.oscServer = new OscServer(listenPort);
             this.oscServer.RegisterAction<string>("/init", x =>
                 {
@@ -43,13 +48,52 @@ namespace Animatroller.Framework.Expander
                 });
             this.oscServer.RegisterAction<int>("/input", x =>
                 {
-                    if(x.Count() >= 2)
+                    if (x.Count() >= 2)
                     {
                         var values = x.ToArray();
                         log.Info("Input {0} set to {1}", values[0], values[1]);
 
                         if (values[0] >= 0 && values[0] <= 7)
                             this.DigitalInputs[values[0]].Trigger(values[1] != 0);
+                    }
+                });
+            this.oscServer.RegisterAction("/motor/feedback", x =>
+                {
+                    if (x.Count() >= 2)
+                    {
+                        var values = x.ToArray();
+
+                        int motorChn = int.Parse(values[0].ToString());
+                        string motorPos = values[1].ToString();
+
+                        if (motorPos == "FAIL")
+                        {
+                            log.Info("Motor {0} failed", motorChn);
+
+                            if (motorChn == 1)
+                                this.Motor.Trigger(null, true);
+                        }
+                        else
+                        {
+                            if (motorPos.StartsWith("S"))
+                            {
+                                int pos = int.Parse(motorPos.Substring(1));
+                                log.Info("Motor {0} starting at position {1}", motorChn, pos);
+                            }
+                            else if (motorPos.StartsWith("E"))
+                            {
+                                int pos = int.Parse(motorPos.Substring(1));
+                                log.Info("Motor {0} ending at position {1}", motorChn, pos);
+
+                                if (motorChn == 1)
+                                    this.Motor.Trigger(pos, false);
+                            }
+                            else
+                            {
+                                int pos = int.Parse(motorPos);
+                                log.Debug("Motor {0} at position {1}", motorChn, pos);
+                            }
+                        }
                     }
                 });
 
@@ -62,6 +106,7 @@ namespace Animatroller.Framework.Expander
 
         public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }
         public PhysicalDevice.DigitalOutput[] DigitalOutputs { get; private set; }
+        public PhysicalDevice.MotorWithFeedback Motor { get; private set; }
 
         public void Start()
         {
@@ -84,12 +129,12 @@ namespace Animatroller.Framework.Expander
         {
             logicalDevice.AudioChanged += (sender, e) =>
                 {
-                    switch(e.Command)
+                    switch (e.Command)
                     {
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayFX:
-                            if(e.LeftVolume.HasValue && e.RightVolume.HasValue)
+                            if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
                                 this.oscClient.Send("/audio/fx/play", e.AudioFile, e.LeftVolume.Value.ToString("F2"), e.RightVolume.Value.ToString("F2"));
-                            else if(e.LeftVolume.HasValue)
+                            else if (e.LeftVolume.HasValue)
                                 this.oscClient.Send("/audio/fx/play", e.AudioFile, e.LeftVolume.Value.ToString("F2"));
                             else
                                 this.oscClient.Send("/audio/fx/play", e.AudioFile);

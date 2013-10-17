@@ -19,6 +19,7 @@ namespace Animatroller.Framework.LogicalDevice
         private List<TimeRange> ranges;
         private Timer timer;
         private bool? isOpen;
+        private bool forcedOpen;
 
         public event EventHandler<Event.OpenHoursEventArgs> OpenHoursChanged;
 
@@ -72,7 +73,7 @@ namespace Animatroller.Framework.LogicalDevice
                 }
             }
 
-            IsOpen = isOpenNow;
+            IsOpen = isOpenNow || forcedOpen;
         }
 
         public void StartDevice()
@@ -83,6 +84,11 @@ namespace Animatroller.Framework.LogicalDevice
         public string Name
         {
             get { return this.name; }
+        }
+
+        public void SetForceOpen(bool forcedOpen)
+        {
+            this.forcedOpen = forcedOpen;
         }
 
         public bool IsOpen

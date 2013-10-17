@@ -97,6 +97,7 @@ namespace Animatroller.Framework.Effect
 
     public class Flicker : IEffect
     {
+        protected bool isRunning;
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected int priority;
         protected string name;
@@ -142,18 +143,21 @@ namespace Animatroller.Framework.Effect
             else
                 log.Warn("Missed execute in Flicker");
 
-            this.timer.Change(random.Next(90) + 10, Timeout.Infinite);
+            if(isRunning)
+                this.timer.Change(random.Next(90) + 10, Timeout.Infinite);
         }
 
         public IEffect Start()
         {
             this.timer.Change(TimeSpan.FromMilliseconds(0), TimeSpan.FromMilliseconds(-1));
+            this.isRunning = true;
 
             return this;
         }
 
         public IEffect Stop()
         {
+            this.isRunning = false;
             this.timer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
             lock (lockObject)
