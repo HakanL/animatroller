@@ -102,15 +102,19 @@ namespace Animatroller.SceneRunner
             switch (sceneName)
             {
                 case "TEST1":
-                    scene = new TestScene2(sceneArgs);
+                    scene = new TestScene1(sceneArgs);
                     break;
 
                 case "TEST2":
-                    scene = new TestScene3(sceneArgs);
+                    scene = new TestScene2(sceneArgs);
                     break;
 
                 case "TEST3":
                     scene = new TestScene3(sceneArgs);
+                    break;
+
+                case "TESTPIFACE":
+                    scene = new TestPiFace(sceneArgs);
                     break;
 
                 case "ITALIAN1":
