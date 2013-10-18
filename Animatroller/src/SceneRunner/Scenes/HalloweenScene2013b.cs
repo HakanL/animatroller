@@ -15,12 +15,13 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 namespace Animatroller.SceneRunner
 {
     internal class HalloweenScene2013B : BaseScene,
-        ISceneRequiresRaspExpander1,
+/*        ISceneRequiresRaspExpander1,
         ISceneRequiresRaspExpander2,
         ISceneRequiresRaspExpander3,
         ISceneRequiresRaspExpander4,
-        ISceneSupportsSimulator,
-        ISceneRequiresDMXPro//, ISceneRequiresIOExpander
+        ISceneRequiresDMXPro,*/
+    //, ISceneRequiresIOExpander
+        ISceneSupportsSimulator
     {
         public enum States
         {

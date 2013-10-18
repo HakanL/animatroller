@@ -16,6 +16,7 @@ namespace Animatroller.Framework.Controller
         protected Dictionary<T, Sequence.SequenceJob> stateConfigs;
         protected T currentState;
         private Stack<T> momentaryStates;
+        private T? backgroundState;
 
         public StateMachine(string name)
         {
@@ -28,6 +29,39 @@ namespace Animatroller.Framework.Controller
             this.momentaryStates = new Stack<T>();
 
             Executor.Current.Register(this);
+        }
+
+        public StateMachine<T> SetBackgroundState(T? backgroundState)
+        {
+            this.backgroundState = backgroundState;
+
+            return this;
+        }
+
+        public StateMachine<T> NextState()
+        {
+            var values = Enum.GetValues(typeof(T));
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values.GetValue(i).Equals(CurrentState))
+                {
+                    i++;
+                    if (i < values.Length)
+                    {
+                        SetState((T)values.GetValue(i));
+                    }
+                    else
+                    {
+                        if (this.backgroundState.HasValue)
+                            SetState(backgroundState.Value);
+                        else
+                            Hold();
+                    }
+                    break;
+                }
+            }
+
+            return this;
         }
 
         public T CurrentState
