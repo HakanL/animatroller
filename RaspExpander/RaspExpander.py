@@ -111,7 +111,7 @@ def decode_motor_command(cmd):
 
 
 def main():
-    global bg_files
+    global bg_files, last_input_values
     """this function is called when the program starts.
     it initializes everything it needs, then runs in
     a loop until the function returns."""
@@ -130,21 +130,17 @@ def main():
 
     print('BG files =', len(bg_files))
 
+#    pfd_listener = None
+    if pfd is not None:
+        for i in range(8):
+            inputValue = pif.digital_read(i)
+            send_input_msg(i, inputValue)
+            last_input_values[i] = inputValue
+
+    print('Ready!')
     initmsg = osc_message_builder.OscMessageBuilder(address = "/init")
     initmsg = initmsg.build()
     client.send(initmsg)
-
-    pfd_listener = None
-    if pfd is not None:
-        #pif.digital_write_pullup(6, 1)
-        pfd_listener = pif.InputEventListener()
-        for i in range(8):
-            pif.digital_write_pullup(i, pif.INPUT_PULLUP)
-            pfd_listener.register(i, pif.IODIR_ON, input_callback)
-            pfd_listener.register(i, pif.IODIR_OFF, input_callback)
-        pfd_listener.activate()
-
-    print('Ready!')
 
     # auto-start BG music
     #play_next_bg_track()
@@ -182,12 +178,20 @@ def main():
             else:
                 time.sleep(0.1)
 
+            if pfd is not None:
+                for i in range(8):
+                    inputValue = pif.digital_read(i)
+                    if last_input_values[i] != inputValue:                        
+                        send_input_msg(i, inputValue)
+                        last_input_values[i] = inputValue
+
+
     except KeyboardInterrupt:
         print ('Aborting')
         pass
 
-    if pfd is not None:
-        pfd_listener.deactivate()
+#    if pfd is not None:
+#        pfd_listener.deactivate()
         
     print ('Done')
 
