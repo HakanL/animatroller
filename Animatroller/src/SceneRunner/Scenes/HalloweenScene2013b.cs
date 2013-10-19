@@ -316,7 +316,7 @@ namespace Animatroller.SceneRunner
                     if (e.IsOpenNow)
                     {
                         stateMachine.SetState(States.Background);
-//FIXME                        catFan.SetPower(true);
+                        catFan.SetPower(true);
                     }
                     else
                     {
