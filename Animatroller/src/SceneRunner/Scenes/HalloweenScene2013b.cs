@@ -15,11 +15,11 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 namespace Animatroller.SceneRunner
 {
     internal class HalloweenScene2013B : BaseScene,
-/*        ISceneRequiresRaspExpander1,
+        ISceneRequiresRaspExpander1,
         ISceneRequiresRaspExpander2,
         ISceneRequiresRaspExpander3,
         ISceneRequiresRaspExpander4,
-        ISceneRequiresDMXPro,*/
+        ISceneRequiresDMXPro,
     //, ISceneRequiresIOExpander
         ISceneSupportsSimulator
     {
@@ -38,7 +38,7 @@ namespace Animatroller.SceneRunner
         private AudioPlayer audioBeauty;
         private AudioPlayer audioSpider;
         private DigitalInput buttonMotion;
-        private DigitalInput buttonTrigger1;
+        private DigitalInput buttonTriggerStairs;
         private DigitalInput buttonTriggerPopup;
         private DigitalInput buttonDeadendDrive;
         private DigitalInput buttonTestA;
@@ -63,20 +63,23 @@ namespace Animatroller.SceneRunner
         private Switch switchSpider;
         private Effect.Pulsating pulsatingEffect1;
         private Effect.Flicker flickerEffect;
+        private Effect.Flicker flickerEffect2;
         private Effect.PopOut popOutEffect;
 
 
         public HalloweenScene2013B(IEnumerable<string> args)
         {
             stateMachine = new Controller.StateMachine<States>("Main");
+            stateMachine.SetBackgroundState(States.Background);
 
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 0.5);
-            flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6);
+            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 0.5, false);
+            flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6, false);
+            flickerEffect2 = new Effect.Flicker("Flicker 2", 0.4, 0.6, false);
             popOutEffect = new Effect.PopOut("PopOut", S(1));
 
             hours = new OperatingHours("Hours");
             buttonMotion = new DigitalInput("Walkway Motion");
-            buttonTrigger1 = new DigitalInput("Stairs Trigger 1");
+            buttonTriggerStairs = new DigitalInput("Stairs Trigger 1");
             buttonTriggerPopup = new DigitalInput("Popup Trigger");
             buttonDeadendDrive = new DigitalInput("Deadend dr");
             buttonTestA = new DigitalInput("Test A");
@@ -112,7 +115,7 @@ namespace Animatroller.SceneRunner
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
             sim.AddDigitalInput_Momentarily(buttonMotion);
-            sim.AddDigitalInput_Momentarily(buttonTrigger1);
+            sim.AddDigitalInput_Momentarily(buttonTriggerStairs);
             sim.AddDigitalInput_Momentarily(buttonTriggerPopup);
             sim.AddDigitalInput_Momentarily(buttonDeadendDrive);
 
@@ -127,7 +130,7 @@ namespace Animatroller.SceneRunner
         public void WireUp1(Expander.Raspberry port)
         {
             port.DigitalInputs[0].Connect(buttonMotion);
-            port.DigitalInputs[1].Connect(buttonTrigger1);
+            port.DigitalInputs[4].Connect(buttonTriggerStairs);
             port.DigitalOutputs[0].Connect(switchDeadendDrive);
             port.Motor.Connect(georgeMotor);
 
@@ -213,13 +216,38 @@ namespace Animatroller.SceneRunner
                         instance.WaitFor(S(2));
                         audioGeorge.PlayNewEffect("sixthsense-deadpeople");
                         instance.WaitFor(S(10));
-//                        stateMachine.SetMomentaryState(States.George);
+                        stateMachine.NextState();
                     })
                 .TearDown(() =>
                     {
                         audioGeorge.PauseFX();
 //                        Executor.Current.Execute(backgroundSeq);
                     });
+
+            var georgeSeq = new Controller.Sequence("George Sequence");
+            georgeSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    audioGeorge.PlayEffect("laugh");
+                    //                        georgeMotor.SetVector(1.0, 350, S(10));
+                    instance.WaitFor(TimeSpan.FromSeconds(0.8));
+                    lightGeorge.SetColor(Color.Red);
+                    //                        georgeMotor.WaitForVectorReached();
+                    instance.WaitFor(TimeSpan.FromSeconds(2));
+                    //                        georgeMotor.SetVector(0.9, 0, S(15));
+                    lightGeorge.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
+                    instance.WaitFor(TimeSpan.FromSeconds(1));
+                    lightFloor.SetOnlyColor(Color.White);
+                    pulsatingEffect1.Start();
+                    //                        georgeMotor.WaitForVectorReached();
+
+
+                    instance.WaitUntilCancel();
+                })
+                .TearDown(() =>
+                {
+                    pulsatingEffect1.Stop();
+                });
 
             var popupSeq = new Controller.Sequence("Popup Sequence");
             popupSeq.WhenExecuted
@@ -237,23 +265,6 @@ namespace Animatroller.SceneRunner
                         switchPopEyes.TurnOff();
                         switchPopUp.TurnOff();
                         instance.WaitFor(TimeSpan.FromSeconds(6));
-                    });
-
-            var georgeSeq = new Controller.Sequence("George Sequence");
-            georgeSeq.WhenExecuted
-                .Execute(instance =>
-                    {
-                        audioGeorge.PlayEffect("laugh");
-//                        georgeMotor.SetVector(1.0, 350, S(10));
-                        instance.WaitFor(TimeSpan.FromSeconds(0.8));
-                        lightGeorge.SetColor(Color.Red);
-//                        georgeMotor.WaitForVectorReached();
-                        instance.WaitFor(TimeSpan.FromSeconds(2));
-//                        georgeMotor.SetVector(0.9, 0, S(15));
-                        lightGeorge.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
-//                        georgeMotor.WaitForVectorReached();
-
-                        instance.WaitFor(S(0.5));
                     });
 
             var catSeq = new Controller.Sequence("Cat Sequence");
@@ -315,13 +326,16 @@ namespace Animatroller.SceneRunner
                 {
                     if (e.IsOpenNow)
                     {
+                        flickerEffect2.Start();
                         stateMachine.SetState(States.Background);
                         catFan.SetPower(true);
                     }
                     else
                     {
+                        flickerEffect2.Stop();
                         stateMachine.Hold();
                         catFan.SetPower(false);
+                        audioGeorge.PauseBackground();
                     }
                 };
 
@@ -384,11 +398,12 @@ namespace Animatroller.SceneRunner
                     }
                 };
 
-            buttonTrigger1.ActiveChanged += (sender, e) =>
+            buttonTriggerStairs.ActiveChanged += (sender, e) =>
                 {
-                    if (e.NewState)
+                    if (e.NewState && hours.IsOpen)
                     {
-                        stateMachine.SetMomentaryState(States.Stair);
+                        if(stateMachine.CurrentState == States.Background)
+                            stateMachine.SetState(States.Stair);
 //                        Executor.Current.Execute(stairSeq);
 //                        Executor.Current.Execute(georgeSeq);
                     }
@@ -398,7 +413,8 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                 {
-                    Executor.Current.Execute(popupSeq);
+                    if (stateMachine.CurrentState == States.George)
+                        stateMachine.SetState(States.Popup);
                 }
             };
 
@@ -413,14 +429,11 @@ namespace Animatroller.SceneRunner
             };
 
             flickerEffect.AddDevice(skullsLight);
-            flickerEffect.AddDevice(skullsLight2);
+            flickerEffect2.AddDevice(skullsLight2);
             lightFloor.SetColor(Color.Orange, 0);
             pulsatingEffect1.AddDevice(lightFloor);
 
             popOutEffect.AddDevice(skullsLight);
-
-            flickerEffect.Stop();
-            pulsatingEffect1.Stop();
         }
 
         public override void Run()

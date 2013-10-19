@@ -15,6 +15,7 @@ namespace Animatroller.Framework.Controller
         protected object lockObject = new object();
         protected Dictionary<T, Sequence.SequenceJob> stateConfigs;
         protected T currentState;
+        protected T? nextState;
         private Stack<T> momentaryStates;
         private T? backgroundState;
 
@@ -48,12 +49,48 @@ namespace Animatroller.Framework.Controller
                     i++;
                     if (i < values.Length)
                     {
+                        this.nextState = (T)values.GetValue(i);
+                        if (IsIdle)
+                            SetState(this.nextState.Value);
+                    }
+                    else
+                    {
+                        this.nextState = this.backgroundState;
+                        if (IsIdle)
+                        {
+                            if (this.nextState.HasValue)
+                                SetState(this.nextState.Value);
+                            else
+                                Hold();
+                        }
+                    }
+                    break;
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Don't call this from within a sequence (running job)
+        /// </summary>
+        /// <returns></returns>
+        public StateMachine<T> StopAndNextState()
+        {
+            var values = Enum.GetValues(typeof(T));
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (values.GetValue(i).Equals(CurrentState))
+                {
+                    i++;
+                    if (i < values.Length)
+                    {
                         SetState((T)values.GetValue(i));
                     }
                     else
                     {
                         if (this.backgroundState.HasValue)
-                            SetState(backgroundState.Value);
+                            SetState(this.nextState.Value);
                         else
                             Hold();
                     }
@@ -128,6 +165,9 @@ namespace Animatroller.Framework.Controller
         {
             lock (lockObject)
             {
+                if (this.nextState.HasValue)
+                    this.nextState = null;
+
                 if (!IsIdle)
                 {
                     if (this.currentState.Equals(newState))
@@ -173,6 +213,10 @@ namespace Animatroller.Framework.Controller
                             }
                             if (popState.HasValue)
                                 InternalSetState(popState.Value);
+                            else if (nextState.HasValue)
+                                InternalSetState(this.nextState.Value);
+                            else if (this.backgroundState.HasValue)
+                                InternalSetState(this.backgroundState.Value);
                         }
                     }, this.name, out jobTask);
 

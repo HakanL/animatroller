@@ -108,7 +108,7 @@ namespace Animatroller.Framework.Effect
         private double minBrightness;
         private double maxBrightness;
 
-        public Flicker(string name, double minBrightness, double maxBrightness)
+        public Flicker(string name, double minBrightness, double maxBrightness, bool startRunning = true)
         {
             this.name = name;
             Executor.Current.Register(this);
@@ -119,7 +119,8 @@ namespace Animatroller.Framework.Effect
             this.devices = new List<LogicalDevice.IHasBrightnessControl>();
             this.timer = new Timer(new TimerCallback(TimerCallback));
 
-            Start();
+            if(startRunning)
+                Start();
         }
 
         private void TimerCallback(object state)
