@@ -40,7 +40,8 @@ last_fx_snd = None
 bg_volume = 0.5
 bg_files = []
 last_input_values = [0] * 8
-
+input_mute = [None] * 8
+input_lock = threading.Lock()
 
 #functions to create our resources
 def load_fx(name):
@@ -111,7 +112,7 @@ def decode_motor_command(cmd):
 
 
 def main():
-    global bg_files, last_input_values
+    global bg_files, last_input_values, input_mute
     """this function is called when the program starts.
     it initializes everything it needs, then runs in
     a loop until the function returns."""
@@ -130,12 +131,19 @@ def main():
 
     print('BG files =', len(bg_files))
 
-#    pfd_listener = None
+    pfd_listener = None
     if pfd is not None:
+        pfd_listener = pif.InputEventListener()
+
         for i in range(8):
             inputValue = pif.digital_read(i)
             send_input_msg(i, inputValue)
             last_input_values[i] = inputValue
+
+            pfd_listener.register(i, pif.IODIR_ON, input_callback)
+            pfd_listener.register(i, pif.IODIR_OFF, input_callback)
+            
+        pfd_listener.activate()
 
     print('Ready!')
     initmsg = osc_message_builder.OscMessageBuilder(address = "/init")
@@ -179,19 +187,24 @@ def main():
                 time.sleep(0.1)
 
             if pfd is not None:
+                now = time.time()
                 for i in range(8):
-                    inputValue = pif.digital_read(i)
-                    if last_input_values[i] != inputValue:                        
-                        send_input_msg(i, inputValue)
-                        last_input_values[i] = inputValue
+                    if input_mute[i] is not None and (now - input_mute[i]) >= 0.1:
+                        input_lock.acquire()
+                        input_mute[i] = None
+                        inputValue = pif.digital_read(i)
+                        if last_input_values[i] != inputValue:                        
+                            print ('input', i, 'reset in main to', inputValue)
+                            update_input(i, inputValue)
+                        input_lock.release()
 
 
     except KeyboardInterrupt:
         print ('Aborting')
         pass
 
-#    if pfd is not None:
-#        pfd_listener.deactivate()
+    if pfd is not None:
+        pfd_listener.deactivate()
         
     print ('Done')
 
@@ -205,15 +218,32 @@ def send_input_msg(channel, button_value):
     client.send(buttonmsg)
 
 
-def input_callback(event):
-    global last_input_values
 
-    print ('Input_callback', event.pin_num, 'direction', event.direction)
+def update_input(pin, value):
+    global last_input_values, input_mute
+    input_mute[pin] = time.time()
+    last_input_values[pin] = value
+    send_input_msg(pin, value)
+
+
+def input_callback(event):
+    global last_input_values, input_mute
+
+    pin = event.pin_num
+    print ('Input_callback', pin, 'value', 1 - event.direction)
+
+    if input_mute[pin] is not None and (time.time() - input_mute[pin]) < 0.1:
+        print ('muted')
+        return
+
+    input_lock.acquire()
+    input_mute[pin] = None
     
-    if last_input_values[event.pin_num] != 1 - event.direction:
-        send_input_msg(event.pin_num, 1 - event.direction)
-        last_input_values[event.pin_num] = 1 - event.direction
-        time.sleep(0.1)
+    inputValue = pif.digital_read(pin)
+    
+    if last_input_values[pin] != inputValue:
+        update_input(pin, inputValue)
+    input_lock.release()
 
 
 def osc_init(args = None):
