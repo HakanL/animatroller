@@ -101,13 +101,19 @@ namespace Animatroller.Simulator
                     var stateMachine = (Animatroller.Framework.Controller.IStateMachine)fieldValue;
 
                     var control = AddLabel(stateMachine.Name);
-                    control.Text = stateMachine.CurrentStateString;
+                    if (string.IsNullOrEmpty(stateMachine.CurrentStateString))
+                        control.Text = "<idle>";
+                    else
+                        control.Text = stateMachine.CurrentStateString;
 
                     stateMachine.StateChangedString += (sender, e) =>
                         {
                             this.UIThread(delegate
                             {
-                                control.Text = e.NewState;
+                                if (string.IsNullOrEmpty(e.NewState))
+                                    control.Text = "<idle>";
+                                else
+                                    control.Text = e.NewState;
                             });
                         };
                 }

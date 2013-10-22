@@ -28,9 +28,9 @@ namespace Animatroller.Framework.Controller
     {
         public class StateChangedEventArgs : EventArgs
         {
-            public T NewState { get; private set; }
+            public T? NewState { get; private set; }
 
-            public StateChangedEventArgs(T newState)
+            public StateChangedEventArgs(T? newState)
             {
                 this.NewState = newState;
             }
@@ -44,7 +44,7 @@ namespace Animatroller.Framework.Controller
         private Tuple<System.Threading.CancellationTokenSource, Task> currentJob;
         protected object lockObject = new object();
         protected Dictionary<T, Sequence.SequenceJob> stateConfigs;
-        protected T currentState;
+        protected T? currentState;
         protected T? nextState;
         private Stack<T> momentaryStates;
         private T? backgroundState;
@@ -70,7 +70,7 @@ namespace Animatroller.Framework.Controller
 
             var handlerString = StateChangedString;
             if(handlerString != null)
-                handlerString(this, new StateChangedStringEventArgs(this.CurrentState.ToString()));
+                handlerString(this, new StateChangedStringEventArgs(this.CurrentStateString));
         }
 
         public StateMachine<T> SetBackgroundState(T? backgroundState)
@@ -82,7 +82,7 @@ namespace Animatroller.Framework.Controller
 
         public string CurrentStateString
         {
-            get { return this.CurrentState.ToString(); }
+            get { return this.CurrentState == null ? null : this.CurrentState.Value.ToString(); }
         }
 
         public StateMachine<T> NextState()
@@ -147,7 +147,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        public T CurrentState
+        public T? CurrentState
         {
             get { return this.currentState; }
         }
@@ -180,7 +180,8 @@ namespace Animatroller.Framework.Controller
             {
                 lock (lockObject)
                 {
-                    this.momentaryStates.Push(this.currentState);
+                    if(this.currentState.HasValue)
+                        this.momentaryStates.Push(this.currentState.Value);
                 }
 
                 this.InternalSetState(newState);
@@ -225,7 +226,7 @@ namespace Animatroller.Framework.Controller
                 }
             }
 
-            Hold();
+            InternalHold();
 
             Sequence.SequenceJob sequenceJob;
             lock (lockObject)
@@ -263,6 +264,8 @@ namespace Animatroller.Framework.Controller
                                 InternalSetState(this.nextState.Value);
                             else if (this.backgroundState.HasValue)
                                 InternalSetState(this.backgroundState.Value);
+                            else
+                                Hold();
                         }
                     }, this.name, out jobTask);
 
@@ -272,11 +275,20 @@ namespace Animatroller.Framework.Controller
                         cancelSource, jobTask);
                     this.currentState = newState;
                 }
-                RaiseStateChanged();
             }
+            RaiseStateChanged();
         }
 
         public StateMachine<T> Hold()
+        {
+            InternalHold();
+
+            RaiseStateChanged();
+
+            return this;
+        }
+
+        public void InternalHold()
         {
             Tuple<System.Threading.CancellationTokenSource, Task> jobToCancel = null;
             lock (lockObject)
@@ -285,6 +297,7 @@ namespace Animatroller.Framework.Controller
                 if (this.currentJob != null)
                     jobToCancel = this.currentJob;
                 this.currentJob = null;
+                this.currentState = null;
             }
 
             if (jobToCancel != null)
@@ -296,8 +309,6 @@ namespace Animatroller.Framework.Controller
                 watch.Stop();
                 log.Info("State {0} took {1:N1}ms to stop", this.currentState, watch.Elapsed.TotalMilliseconds);
             }
-
-            return this;
         }
 
         public void Start()
@@ -306,7 +317,7 @@ namespace Animatroller.Framework.Controller
 
         public void Stop()
         {
-            Hold();
+            InternalHold();
         }
 
         public string Name
