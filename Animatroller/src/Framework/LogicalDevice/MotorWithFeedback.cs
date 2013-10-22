@@ -29,6 +29,7 @@ namespace Animatroller.Framework.LogicalDevice
         private ManualResetEvent movementDone;
         private bool failed;
         private DateTime? lastCommandSent;
+        private bool disabled;
 
         public event EventHandler<MotorVectorChangedEventArgs> VectorChanged;
 
@@ -43,6 +44,12 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected virtual void RaiseVectorChanged()
         {
+            if (disabled)
+            {
+                this.movementDone.Set();
+                return;
+            }
+
             var handler = VectorChanged;
             if (handler != null)
                 handler(this, new MotorVectorChangedEventArgs(this.vector));
@@ -99,6 +106,13 @@ namespace Animatroller.Framework.LogicalDevice
         public void StartDevice()
         {
             RaiseVectorChanged();
+        }
+
+        public MotorWithFeedback SetDisabled(bool disabled)
+        {
+            this.disabled = disabled;
+
+            return this;
         }
 
         public string Name

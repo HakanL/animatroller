@@ -10,6 +10,7 @@ namespace Animatroller.Framework.LogicalDevice
     public class AudioPlayer : ILogicalDevice
     {
         protected string name;
+        private bool silent;
 
         public event EventHandler<AudioChangedEventArgs> AudioChanged;
         public event EventHandler<AudioCommandEventArgs> ExecuteCommand;
@@ -31,6 +32,9 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected virtual void RaiseAudioChanged(AudioChangedEventArgs.Commands command, string audioFile, double? leftVolume = null, double? rightVolume = null)
         {
+            if (this.silent)
+                return;
+
             var handler = AudioChanged;
             if (handler != null)
                 handler(this, new AudioChangedEventArgs(command, audioFile, leftVolume, rightVolume));
@@ -38,6 +42,9 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected virtual void RaiseExecuteCommand(AudioCommandEventArgs.Commands command)
         {
+            if (this.silent)
+                return;
+
             var handler = ExecuteCommand;
             if (handler != null)
                 handler(this, new AudioCommandEventArgs(command));
@@ -45,6 +52,9 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected virtual void RaiseExecuteCommand(AudioCommandEventArgs.Commands command, double value)
         {
+            if (this.silent)
+                return;
+
             var handler = ExecuteCommand;
             if (handler != null)
                 handler(this, new AudioCommandValueEventArgs(command, value));
@@ -137,6 +147,13 @@ namespace Animatroller.Framework.LogicalDevice
         public AudioPlayer PauseFX()
         {
             RaiseExecuteCommand(AudioCommandEventArgs.Commands.PauseFX);
+
+            return this;
+        }
+
+        public AudioPlayer SetSilent(bool silent)
+        {
+            this.silent = silent;
 
             return this;
         }

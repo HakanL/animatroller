@@ -96,6 +96,21 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
+                else if (field.FieldType.Name.StartsWith("StateMachine"))
+                {
+                    var stateMachine = (Animatroller.Framework.Controller.IStateMachine)fieldValue;
+
+                    var control = AddLabel(stateMachine.Name);
+                    control.Text = stateMachine.CurrentStateString;
+
+                    stateMachine.StateChangedString += (sender, e) =>
+                        {
+                            this.UIThread(delegate
+                            {
+                                control.Text = e.NewState;
+                            });
+                        };
+                }
                 else
                 {
                     log.Info("Unknown field {0}", field.FieldType);
@@ -133,6 +148,25 @@ namespace Animatroller.Simulator
             flowLayoutPanelLights.Controls.Add(moduleControl);
 
             return control;
+        }
+
+        public Label AddLabel(string label)
+        {
+            var moduleControl = new Control.ModuleControl();
+            moduleControl.Text = label;
+            moduleControl.Size = new System.Drawing.Size(150, 80);
+            flowLayoutPanelLights.Controls.Add(moduleControl);
+
+            var centerControl = new Control.CenterControl();
+            moduleControl.ChildControl = centerControl;
+
+            var labelControl = new Label();
+            labelControl.Size = new System.Drawing.Size(150, 60);
+            labelControl.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            labelControl.TextAlign = ContentAlignment.MiddleCenter;
+            centerControl.ChildControl = labelControl;
+
+            return labelControl;
         }
 
         public Animatroller.Framework.PhysicalDevice.MotorWithFeedback AddMotor(MotorWithFeedback logicalDevice)

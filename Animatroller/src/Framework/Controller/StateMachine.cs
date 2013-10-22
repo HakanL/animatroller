@@ -7,8 +7,38 @@ using NLog;
 
 namespace Animatroller.Framework.Controller
 {
-    public class StateMachine<T> : IRunnable where T : struct, IConvertible
+    public class StateChangedStringEventArgs : EventArgs
     {
+        public string NewState { get; private set; }
+
+        public StateChangedStringEventArgs(string newState)
+        {
+            this.NewState = newState;
+        }
+    }
+
+    public interface IStateMachine
+    {
+        event EventHandler<StateChangedStringEventArgs> StateChangedString;
+        string CurrentStateString { get; }
+        string Name { get; }
+    }
+
+    public class StateMachine<T> : IRunnable, IStateMachine where T : struct, IConvertible
+    {
+        public class StateChangedEventArgs : EventArgs
+        {
+            public T NewState { get; private set; }
+
+            public StateChangedEventArgs(T newState)
+            {
+                this.NewState = newState;
+            }
+        }
+
+        public event EventHandler<StateChangedEventArgs> StateChanged;
+        public event EventHandler<StateChangedStringEventArgs> StateChangedString;
+
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
         private Tuple<System.Threading.CancellationTokenSource, Task> currentJob;
@@ -32,11 +62,27 @@ namespace Animatroller.Framework.Controller
             Executor.Current.Register(this);
         }
 
+        private void RaiseStateChanged()
+        {
+            var handler = StateChanged;
+            if (handler != null)
+                handler(this, new StateChangedEventArgs(this.CurrentState));
+
+            var handlerString = StateChangedString;
+            if(handlerString != null)
+                handlerString(this, new StateChangedStringEventArgs(this.CurrentState.ToString()));
+        }
+
         public StateMachine<T> SetBackgroundState(T? backgroundState)
         {
             this.backgroundState = backgroundState;
 
             return this;
+        }
+
+        public string CurrentStateString
+        {
+            get { return this.CurrentState.ToString(); }
         }
 
         public StateMachine<T> NextState()
@@ -226,6 +272,7 @@ namespace Animatroller.Framework.Controller
                         cancelSource, jobTask);
                     this.currentState = newState;
                 }
+                RaiseStateChanged();
             }
         }
 
@@ -260,6 +307,11 @@ namespace Animatroller.Framework.Controller
         public void Stop()
         {
             Hold();
+        }
+
+        public string Name
+        {
+            get { return this.name; }
         }
     }
 }

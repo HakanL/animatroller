@@ -32,15 +32,17 @@ namespace Animatroller.SceneRunner
         }
 
         private Controller.StateMachine<States> stateMachine;
-        private OperatingHours hours;
+        private OperatingHours hoursSmall;
+        private OperatingHours hoursFull;
         private AudioPlayer audioCat;
         private AudioPlayer audioGeorge;
         private AudioPlayer audioBeauty;
         private AudioPlayer audioSpider;
-        private DigitalInput buttonMotion;
+        private DigitalInput buttonMotionCat;
+        private DigitalInput buttonMotionBeauty;
         private DigitalInput buttonTriggerStairs;
         private DigitalInput buttonTriggerPopup;
-        private DigitalInput buttonDeadendDrive;
+        private DigitalInput buttonTestC;
         private DigitalInput buttonTestA;
         private DigitalInput buttonTestB;
         private DigitalInput buttonTestSpider;
@@ -54,6 +56,8 @@ namespace Animatroller.SceneRunner
         private StrobeColorDimmer lightFloor;
         private Dimmer skullsLight;
         private Dimmer skullsLight2;
+        private Dimmer lightSpiderWeb;
+        private Switch lightEyes;
         private Switch switchHand;
         private Switch switchHead;
         private Switch switchDrawer1;
@@ -61,6 +65,7 @@ namespace Animatroller.SceneRunner
         private Switch switchPopEyes;
         private Switch switchPopUp;
         private Switch switchSpider;
+        private Switch switchFog;
         private Effect.Pulsating pulsatingEffect1;
         private Effect.Flicker flickerEffect;
         private Effect.Flicker flickerEffect2;
@@ -77,13 +82,15 @@ namespace Animatroller.SceneRunner
             flickerEffect2 = new Effect.Flicker("Flicker 2", 0.4, 0.6, false);
             popOutEffect = new Effect.PopOut("PopOut", S(1));
 
-            hours = new OperatingHours("Hours");
-            buttonMotion = new DigitalInput("Walkway Motion");
+            hoursSmall = new OperatingHours("Hours Small");
+            hoursFull = new OperatingHours("Hours Full");
+            buttonMotionCat = new DigitalInput("Walkway Motion");
+            buttonMotionBeauty = new DigitalInput("Beauty Motion");
             buttonTriggerStairs = new DigitalInput("Stairs Trigger 1");
             buttonTriggerPopup = new DigitalInput("Popup Trigger");
-            buttonDeadendDrive = new DigitalInput("Deadend dr");
             buttonTestA = new DigitalInput("Test A");
             buttonTestB = new DigitalInput("Test B");
+            buttonTestC = new DigitalInput("Test C");
             buttonTestSpider = new DigitalInput("Spider");
 
             switchDeadendDrive = new Switch("Deadend dr");
@@ -97,6 +104,8 @@ namespace Animatroller.SceneRunner
             lightFloor = new StrobeColorDimmer("Floor light");
             skullsLight = new Dimmer("Skulls");
             skullsLight2 = new Dimmer("Skulls 2");
+            lightSpiderWeb = new Dimmer("Spiderweb");
+            lightEyes = new Switch("Eyes");
 
             audioCat = new AudioPlayer("Audio Cat");
             audioGeorge = new AudioPlayer("Audio George");
@@ -110,14 +119,16 @@ namespace Animatroller.SceneRunner
             switchPopEyes = new Switch("Pop Eyes");
             switchPopUp = new Switch("Pop Up");
             switchSpider = new Switch("Spider");
+            switchFog = new Switch("Fog");
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.AddDigitalInput_Momentarily(buttonMotion);
+            sim.AddDigitalInput_Momentarily(buttonMotionCat);
+            sim.AddDigitalInput_Momentarily(buttonMotionBeauty);
             sim.AddDigitalInput_Momentarily(buttonTriggerStairs);
             sim.AddDigitalInput_Momentarily(buttonTriggerPopup);
-            sim.AddDigitalInput_Momentarily(buttonDeadendDrive);
+            sim.AddDigitalInput_FlipFlop(buttonTestC);
 
             sim.AddDigitalInput_Momentarily(buttonTestA);
             sim.AddDigitalInput_Momentarily(buttonTestB);
@@ -129,9 +140,10 @@ namespace Animatroller.SceneRunner
         // Cat
         public void WireUp1(Expander.Raspberry port)
         {
-            port.DigitalInputs[0].Connect(buttonMotion);
-            port.DigitalInputs[4].Connect(buttonTriggerStairs);
+            port.DigitalInputs[0].Connect(buttonMotionCat);
+            port.DigitalInputs[4].Connect(buttonTriggerStairs, true);
             port.DigitalOutputs[0].Connect(switchDeadendDrive);
+            port.DigitalOutputs[1].Connect(switchFog);
             port.Motor.Connect(georgeMotor);
 
             port.Connect(audioCat);
@@ -148,7 +160,8 @@ namespace Animatroller.SceneRunner
             port.DigitalOutputs[3].Connect(switchPopEyes);
             port.DigitalOutputs[4].Connect(switchPopUp);
 
-            port.DigitalInputs[6].Connect(buttonTriggerPopup);
+            port.DigitalInputs[5].Connect(buttonMotionBeauty, true);
+            port.DigitalInputs[6].Connect(buttonTriggerPopup, true);
         }
 
         // Background/George
@@ -172,21 +185,34 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.AmericanDJStrobe(lightPopup, 5));
             port.Connect(new Physical.RGBStrobe(lightGeorge, 40));
             port.Connect(new Physical.RGBStrobe(lightBeauty, 30));
-            port.Connect(new Physical.SmallRGBStrobe(lightFloor, 20));
+            port.Connect(new Physical.RGBStrobe(lightFloor, 20));
 
             port.Connect(new Physical.GenericDimmer(skullsLight, 100));
-            port.Connect(new Physical.GenericDimmer(skullsLight2, 104));
+            port.Connect(new Physical.GenericDimmer(lightSpiderWeb, 104));
+            port.Connect(new Physical.GenericDimmer(skullsLight2, 105));
+            port.Connect(new Physical.GenericDimmer(lightEyes, 106));
         }
 
         public override void Start()
         {
-            hours.AddRange("5:00 pm", "9:00 pm");
+            hoursSmall.AddRange("5:00 pm", "9:00 pm");
+            hoursFull.AddRange("5:00 pm", "9:00 pm");
 
+#if true
+            hoursFull.SetForced(true);
+
+            audioBeauty.SetSilent(true);
+            audioCat.SetSilent(true);
+            audioGeorge.SetSilent(true);
+            audioSpider.SetSilent(true);
+            georgeMotor.SetDisabled(true);
+#endif
             var backgroundSeq = new Controller.Sequence("BG Sequence");
             backgroundSeq.WhenExecuted
                 .SetUp(() =>
                     {
                         audioGeorge.PlayBackground();
+                        lightFloor.SetOnlyColor(Color.Orange);
                         pulsatingEffect1.Start();
                         flickerEffect.Start();
                     })
@@ -201,21 +227,31 @@ namespace Animatroller.SceneRunner
                         flickerEffect.Stop();
                     });
 
+            var deadendSeq = new Controller.Sequence("Deadend dr");
+            deadendSeq.WhenExecuted
+                .Execute(instance =>
+                    {
+                        switchDeadendDrive.SetPower(true);
+                        Thread.Sleep(1000);
+                        switchDeadendDrive.SetPower(false);
+                    });
+
             var stairSeq = new Controller.Sequence("Stair Sequence");
             stairSeq.WhenExecuted
                 .SetUp(() =>
                     {
-//                        Executor.Current.Cancel(backgroundSeq);
-                        Thread.Sleep(500);
-                        popOutEffect.Pop(1.0);
-                        audioGeorge.PlayEffect("ghostly");
-//                        audioBeauty.PlayEffect("door-creak", 0.2);
                     })
                 .Execute(instance =>
                     {
+                        Executor.Current.Execute(deadendSeq);
+                        audioSpider.PlayEffect("door-creak", 0.8);
+                        audioGeorge.PlayEffect("ghostly");
+                        instance.WaitFor(S(0.5));
+                        popOutEffect.Pop(1.0);
+
                         instance.WaitFor(S(2));
-                        audioGeorge.PlayNewEffect("sixthsense-deadpeople");
-                        instance.WaitFor(S(10));
+                        audioGeorge.PlayNewEffect("scream");
+                        instance.WaitFor(S(7));
                         stateMachine.NextState();
                     })
                 .TearDown(() =>
@@ -228,24 +264,27 @@ namespace Animatroller.SceneRunner
             georgeSeq.WhenExecuted
                 .Execute(instance =>
                 {
+                    switchFog.SetPower(true);
                     audioGeorge.PlayEffect("laugh");
-                    //                        georgeMotor.SetVector(1.0, 350, S(10));
+                    georgeMotor.SetVector(1.0, 350, S(10));
                     instance.WaitFor(TimeSpan.FromSeconds(0.8));
                     lightGeorge.SetColor(Color.Red);
-                    //                        georgeMotor.WaitForVectorReached();
+                    georgeMotor.WaitForVectorReached();
                     instance.WaitFor(TimeSpan.FromSeconds(2));
-                    //                        georgeMotor.SetVector(0.9, 0, S(15));
+                    georgeMotor.SetVector(0.9, 0, S(15));
                     lightGeorge.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
                     instance.WaitFor(TimeSpan.FromSeconds(1));
-                    lightFloor.SetOnlyColor(Color.White);
+                    lightFloor.SetOnlyColor(Color.Green);
                     pulsatingEffect1.Start();
-                    //                        georgeMotor.WaitForVectorReached();
-
+                    georgeMotor.WaitForVectorReached();
+                    switchFog.SetPower(false);
 
                     instance.WaitUntilCancel();
                 })
                 .TearDown(() =>
                 {
+                    georgeMotor.SetVector(0.9, 0, S(15));
+                    switchFog.SetPower(false);
                     pulsatingEffect1.Stop();
                 });
 
@@ -259,12 +298,11 @@ namespace Animatroller.SceneRunner
                         lightPopup.SetBrightness(1.0);
                         switchPopUp.SetPower(true);
 
-                        instance.WaitFor(TimeSpan.FromSeconds(5));
+                        instance.WaitFor(S(3));
 
                         lightPopup.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
                         switchPopEyes.TurnOff();
                         switchPopUp.TurnOff();
-                        instance.WaitFor(TimeSpan.FromSeconds(6));
                     });
 
             var catSeq = new Controller.Sequence("Cat Sequence");
@@ -322,19 +360,21 @@ namespace Animatroller.SceneRunner
             stateMachine.ForFromSequence(States.George, georgeSeq);
             stateMachine.ForFromSequence(States.Popup, popupSeq);
 
-            hours.OpenHoursChanged += (sender, e) =>
+            hoursSmall.OpenHoursChanged += (sender, e) =>
                 {
                     if (e.IsOpenNow)
                     {
                         flickerEffect2.Start();
                         stateMachine.SetState(States.Background);
                         catFan.SetPower(true);
+                        lightEyes.SetPower(true);
                     }
                     else
                     {
                         flickerEffect2.Stop();
                         stateMachine.Hold();
                         catFan.SetPower(false);
+                        lightEyes.SetPower(false);
                         audioGeorge.PauseBackground();
                     }
                 };
@@ -343,16 +383,16 @@ namespace Animatroller.SceneRunner
                 {
                     if (e.NewState)
                     {
-                        audioBeauty.PlayEffect("348 Spider Hiss", 1.0, 0.0);
-                        switchHand.SetPower(true);
-                        audioGeorge.PlayBackground();
-                        lightBeauty.SetBrightness(1.0);
-                        Thread.Sleep(5000);
-                        lightGeorge.TurnOff();
-                        lightPopup.TurnOff();
-                        lightBeauty.TurnOff();
-//                        lightFloor.TurnOff();
-                        switchHand.SetPower(false);
+                        audioSpider.PlayEffect("gollum_precious1");
+//                        switchHand.SetPower(true);
+//                        audioGeorge.PlayBackground();
+//                        lightBeauty.SetBrightness(1.0);
+//                        Thread.Sleep(5000);
+//                        lightGeorge.TurnOff();
+//                        lightPopup.TurnOff();
+//                        lightBeauty.TurnOff();
+////                        lightFloor.TurnOff();
+//                        switchHand.SetPower(false);
 
 
                         //                        audioPlayer.PlayEffect("266 Monster Growl 7", 1.0, 1.0);
@@ -382,11 +422,11 @@ namespace Animatroller.SceneRunner
                     switchSpider.SetPower(e.NewState);
                 };
 
-            buttonMotion.ActiveChanged += (sender, e) =>
+            buttonMotionCat.ActiveChanged += (sender, e) =>
                 {
                     if (e.NewState)
                     {
-                        if (hours.IsOpen)
+                        if (hoursSmall.IsOpen)
                         {
                             catLights.SetPower(true);
                             Executor.Current.Execute(catSeq);
@@ -398,15 +438,26 @@ namespace Animatroller.SceneRunner
                     }
                 };
 
+            buttonMotionBeauty.ActiveChanged += (sender, e) =>
+                {
+                    lightBeauty.SetColor(Color.Purple, e.NewState ? 0.4 : 0.0);
+                    switchHand.SetPower(e.NewState);
+                    switchHead.SetPower(e.NewState);
+                };
+
             buttonTriggerStairs.ActiveChanged += (sender, e) =>
                 {
-                    if (e.NewState && hours.IsOpen)
+#if CHECK_SENSOR_ALIGNMENT
+                    lightFloor.SetColor(Color.Purple, e.NewState ? 1.0 : 0.0);
+#else
+                    if (e.NewState && hoursFull.IsOpen)
                     {
                         if(stateMachine.CurrentState == States.Background)
                             stateMachine.SetState(States.Stair);
 //                        Executor.Current.Execute(stairSeq);
 //                        Executor.Current.Execute(georgeSeq);
                     }
+#endif
                 };
 
             buttonTriggerPopup.ActiveChanged += (sender, e) =>
@@ -418,20 +469,16 @@ namespace Animatroller.SceneRunner
                 }
             };
 
-            buttonDeadendDrive.ActiveChanged += (sender, e) =>
+            buttonTestC.ActiveChanged += (sender, e) =>
             {
-                if (e.NewState)
-                {
-                    switchDeadendDrive.SetPower(true);
-                    Thread.Sleep(1000);
-                    switchDeadendDrive.SetPower(false);
-                }
+                switchFog.SetPower(e.NewState);
             };
 
             flickerEffect.AddDevice(skullsLight);
             flickerEffect2.AddDevice(skullsLight2);
             lightFloor.SetColor(Color.Orange, 0);
             pulsatingEffect1.AddDevice(lightFloor);
+            pulsatingEffect1.AddDevice(lightSpiderWeb);
 
             popOutEffect.AddDevice(skullsLight);
         }
