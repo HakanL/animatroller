@@ -65,6 +65,8 @@ namespace Animatroller.SceneRunner
         private Switch switchPopEyes;
         private Switch switchPopUp;
         private Switch switchSpider;
+        private Switch switchSpiderEyes1;
+        private Switch switchSpiderEyes2;
         private Switch switchFog;
         private Effect.Pulsating pulsatingEffect1;
         private Effect.Flicker flickerEffect;
@@ -118,6 +120,8 @@ namespace Animatroller.SceneRunner
             switchPopEyes = new Switch("Pop Eyes");
             switchPopUp = new Switch("Pop Up");
             switchSpider = new Switch("Spider");
+            switchSpiderEyes1 = new Switch("Spider Eyes 1");
+            switchSpiderEyes2 = new Switch("Spider Eyes 2");
             switchFog = new Switch("Fog");
         }
 
@@ -175,6 +179,8 @@ namespace Animatroller.SceneRunner
             port.Connect(audioSpider);
 
             port.DigitalOutputs[0].Connect(switchSpider);
+            port.DigitalOutputs[2].Connect(switchSpiderEyes1);
+            port.DigitalOutputs[3].Connect(switchSpiderEyes2);
         }
 
         public void WireUp(Expander.DMXPro port)
@@ -196,6 +202,8 @@ namespace Animatroller.SceneRunner
         {
             hoursSmall.AddRange("5:00 pm", "9:00 pm");
             hoursFull.AddRange("5:00 pm", "9:00 pm");
+            //hoursFull.SetForced(true);
+            //hoursSmall.SetForced(true);
 
 #if !true
             hoursFull.SetForced(true);
@@ -243,17 +251,18 @@ namespace Animatroller.SceneRunner
                 .Execute(instance =>
                     {
                         Executor.Current.Execute(deadendSeq);
-                        audioSpider.PlayEffect("door-creak", 0.8);
                         audioGeorge.PlayEffect("ghostly");
                         instance.WaitFor(S(0.5));
                         popOutEffect.Pop(1.0);
 
                         instance.WaitFor(S(2));
-                        audioSpider.PlayEffect("348 Spider Hiss");
+                        audioSpider.PlayNewEffect("348 Spider Hiss");
                         switchSpider.SetPower(true);
-                        audioGeorge.PlayNewEffect("scream");
+                        instance.WaitFor(S(0.5));
+                        switchSpiderEyes1.SetPower(true);
                         instance.WaitFor(S(2));
                         switchSpider.SetPower(false);
+                        switchSpiderEyes1.SetPower(false);
                         instance.WaitFor(S(5));
                         stateMachine.NextState();
                     })
@@ -281,7 +290,7 @@ namespace Animatroller.SceneRunner
                     georgeMotor.WaitForVectorReached();
                     switchFog.SetPower(false);
 
-                    instance.WaitUntilCancel();
+                    instance.WaitFor(S(15));
                 })
                 .TearDown(() =>
                 {
@@ -290,6 +299,20 @@ namespace Animatroller.SceneRunner
                     pulsatingEffect1.Stop();
                     lightGeorge.TurnOff();
                 });
+
+            var spiderEyes2Seq = new Controller.Sequence("Spider Eyes 2");
+            spiderEyes2Seq.WhenExecuted
+                .Execute(instance =>
+                    {
+                        var rnd = new Random();
+                        while (!instance.IsCancellationRequested)
+                        {
+                            switchSpiderEyes2.SetPower(true);
+                            instance.WaitFor(S(1.0 + rnd.Next(10)));
+                            switchSpiderEyes2.SetPower(false);
+                            instance.WaitFor(S(1.0 + rnd.Next(2)));
+                        }
+                    });
 
             var popupSeq = new Controller.Sequence("Popup Sequence");
             popupSeq.WhenExecuted
@@ -315,7 +338,7 @@ namespace Animatroller.SceneRunner
                     flickerEffect2.Stop();
                     lightBeauty.SetColor(Color.Purple);
                     instance.WaitFor(TimeSpan.FromSeconds(1));
-                    audioBeauty.PlayEffect("myprecious", 1.0, 0.0);
+                    audioBeauty.PlayEffect("gollum_precious1", 1.0, 0.0);
                     instance.WaitFor(TimeSpan.FromSeconds(0.4));
                     switchHead.SetPower(true);
                     switchHand.SetPower(true);
@@ -403,22 +426,36 @@ namespace Animatroller.SceneRunner
                 {
                     if (e.IsOpenNow)
                     {
+                        flickerEffect.Start();
                         flickerEffect2.Start();
-                        stateMachine.SetBackgroundState(States.Background);
-                        stateMachine.SetState(States.Background);
                         catFan.SetPower(true);
                         lightEyes.SetPower(true);
                     }
                     else
                     {
+                        flickerEffect.Stop();
                         flickerEffect2.Stop();
-                        stateMachine.Hold();
-                        stateMachine.SetBackgroundState(null);
                         catFan.SetPower(false);
                         lightEyes.SetPower(false);
-                        audioGeorge.PauseBackground();
                     }
                 };
+
+            hoursFull.OpenHoursChanged += (sender, e) =>
+            {
+                if (e.IsOpenNow)
+                {
+                    Executor.Current.Execute(spiderEyes2Seq);
+                    stateMachine.SetBackgroundState(States.Background);
+                    stateMachine.SetState(States.Background);
+                }
+                else
+                {
+                    Executor.Current.Cancel(spiderEyes2Seq);
+                    stateMachine.Hold();
+                    stateMachine.SetBackgroundState(null);
+                    audioGeorge.PauseBackground();
+                }
+            };
 
             buttonMotionCat.ActiveChanged += (sender, e) =>
                 {
@@ -475,7 +512,10 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                 {
-                    audioSpider.PlayEffect("gollum_precious1");
+                    switchSpiderEyes2.SetPower(true);
+                    Thread.Sleep(1000);
+                    switchSpiderEyes2.SetPower(false);
+//                    audioSpider.PlayEffect("gollum_precious1");
                     //                        switchHand.SetPower(true);
                     //                        audioGeorge.PlayBackground();
                     //                        lightBeauty.SetBrightness(1.0);
@@ -511,12 +551,23 @@ namespace Animatroller.SceneRunner
 
             buttonTestC.ActiveChanged += (sender, e) =>
             {
-                switchFog.SetPower(e.NewState);
+                if (e.NewState)
+                {
+                    flickerEffect.Start();
+                    flickerEffect2.Start();
+                }
+                else
+                {
+                    flickerEffect.Stop();
+                    flickerEffect2.Stop();
+                }
+//                switchFog.SetPower(e.NewState);
             };
 
             buttonTestSpider.ActiveChanged += (sender, e) =>
             {
                 switchSpider.SetPower(e.NewState);
+                switchSpiderEyes2.SetPower(e.NewState);
             };
         }
 
