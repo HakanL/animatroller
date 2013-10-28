@@ -15,11 +15,11 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 namespace Animatroller.SceneRunner
 {
     internal class HalloweenScene2013B : BaseScene,
-        //ISceneRequiresRaspExpander1,
-        //ISceneRequiresRaspExpander2,
-        //ISceneRequiresRaspExpander3,
-        //ISceneRequiresRaspExpander4,
-        //ISceneRequiresDMXPro,
+        ISceneRequiresRaspExpander1,
+        ISceneRequiresRaspExpander2,
+        ISceneRequiresRaspExpander3,
+        ISceneRequiresRaspExpander4,
+        ISceneRequiresDMXPro,
         ISceneRequiresAcnStream,
     //, ISceneRequiresIOExpander
         ISceneSupportsSimulator
@@ -560,7 +560,8 @@ namespace Animatroller.SceneRunner
                         catFan.SetPower(true);
                         lightEyes.SetPower(true);
                         lightTreeGhost.SetBrightness(1.0);
-                        Exec.Execute(candyCane);
+//                        Exec.Execute(candyCane);
+                        allPixels.SetAll(Color.FromArgb(255, 115, 0), 0.5);
                     }
                     else
                     {
@@ -569,7 +570,7 @@ namespace Animatroller.SceneRunner
                         catFan.SetPower(false);
                         lightEyes.SetPower(false);
                         lightTreeGhost.TurnOff();
-                        Exec.Cancel(candyCane);
+                        allPixels.TurnOff();
                     }
                 };
 
