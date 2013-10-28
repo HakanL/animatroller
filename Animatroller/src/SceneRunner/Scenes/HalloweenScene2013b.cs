@@ -58,6 +58,7 @@ namespace Animatroller.SceneRunner
         private Dimmer skullsLight;
         private Dimmer skullsLight2;
         private Dimmer lightSpiderWeb;
+        private Dimmer lightTreeGhost;
         private Switch lightEyes;
         private Switch switchHand;
         private Switch switchHead;
@@ -73,11 +74,13 @@ namespace Animatroller.SceneRunner
         private Effect.Flicker flickerEffect;
         private Effect.Flicker flickerEffect2;
         private Effect.PopOut popOutEffect;
+        private DateTime? lastFogRun;
         private VirtualPixel1D allPixels;
 
 
         public HalloweenScene2013B(IEnumerable<string> args)
         {
+            this.lastFogRun = DateTime.Now;
             stateMachine = new Controller.StateMachine<States>("Main");
 
             pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 0.5, false);
@@ -106,6 +109,7 @@ namespace Animatroller.SceneRunner
             lightBeauty = new StrobeColorDimmer("Beauty light");
             lightFloor = new StrobeColorDimmer("Floor light");
             skullsLight = new Dimmer("Skulls");
+            lightTreeGhost = new Dimmer("Ghosts in tree");
             skullsLight2 = new Dimmer("Skulls 2");
             lightSpiderWeb = new Dimmer("Spiderweb");
             lightEyes = new Switch("Eyes");
@@ -197,6 +201,7 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.RGBStrobe(lightFloor, 20));
 
             port.Connect(new Physical.GenericDimmer(skullsLight, 100));
+            port.Connect(new Physical.GenericDimmer(lightTreeGhost, 103));
             port.Connect(new Physical.GenericDimmer(lightSpiderWeb, 104));
             port.Connect(new Physical.GenericDimmer(skullsLight2, 105));
             port.Connect(new Physical.GenericDimmer(lightEyes, 106));
@@ -237,7 +242,18 @@ namespace Animatroller.SceneRunner
                     })
                 .Execute(instance =>
                     {
-                        instance.WaitUntilCancel();
+                        while (!instance.IsCancellationRequested)
+                        {
+                            instance.WaitFor(S(1));
+                            if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 10)
+                            {
+                                // Run the fog for a little while
+                                switchFog.SetPower(true);
+                                instance.WaitFor(S(4));
+                                switchFog.SetPower(false);
+                                this.lastFogRun = DateTime.Now;
+                            }
+                        }
                     })
                 .TearDown(() =>
                     {
@@ -262,6 +278,8 @@ namespace Animatroller.SceneRunner
                     })
                 .Execute(instance =>
                     {
+                        switchFog.SetPower(true);
+                        this.lastFogRun = DateTime.Now;
                         Executor.Current.Execute(deadendSeq);
                         audioGeorge.PlayEffect("ghostly");
                         instance.WaitFor(S(0.5));
@@ -280,6 +298,7 @@ namespace Animatroller.SceneRunner
                     })
                 .TearDown(() =>
                     {
+                        switchFog.SetPower(false);
                         audioGeorge.PauseFX();
                     });
 
@@ -287,7 +306,6 @@ namespace Animatroller.SceneRunner
             georgeSeq.WhenExecuted
                 .Execute(instance =>
                 {
-                    switchFog.SetPower(true);
                     audioGeorge.PlayEffect("laugh");
                     georgeMotor.SetVector(1.0, 350, S(10));
                     instance.WaitFor(TimeSpan.FromSeconds(0.8));
@@ -300,14 +318,12 @@ namespace Animatroller.SceneRunner
                     lightFloor.SetOnlyColor(Color.Green);
                     pulsatingEffect1.Start();
                     georgeMotor.WaitForVectorReached();
-                    switchFog.SetPower(false);
 
                     instance.WaitFor(S(15));
                 })
                 .TearDown(() =>
                 {
                     georgeMotor.SetVector(0.9, 0, S(15));
-                    switchFog.SetPower(false);
                     pulsatingEffect1.Stop();
                     lightGeorge.TurnOff();
                 });
@@ -543,6 +559,7 @@ namespace Animatroller.SceneRunner
                         flickerEffect2.Start();
                         catFan.SetPower(true);
                         lightEyes.SetPower(true);
+                        lightTreeGhost.SetBrightness(1.0);
                         Exec.Execute(candyCane);
                     }
                     else
@@ -551,6 +568,7 @@ namespace Animatroller.SceneRunner
                         flickerEffect2.Stop();
                         catFan.SetPower(false);
                         lightEyes.SetPower(false);
+                        lightTreeGhost.TurnOff();
                         Exec.Cancel(candyCane);
                     }
                 };
@@ -603,11 +621,15 @@ namespace Animatroller.SceneRunner
 
             buttonTriggerPopup.ActiveChanged += (sender, e) =>
             {
+#if CHECK_SENSOR_ALIGNMENT
+                lightPopup.SetBrightness(e.NewState ? 1.0 : 0.0);
+#else
                 if (e.NewState)
                 {
                     if (stateMachine.CurrentState == States.George)
                         stateMachine.SetState(States.Popup);
                 }
+#endif
             };
 
             flickerEffect.AddDevice(skullsLight);
@@ -666,17 +688,17 @@ namespace Animatroller.SceneRunner
 
             buttonTestC.ActiveChanged += (sender, e) =>
             {
-                if (e.NewState)
-                {
-                    flickerEffect.Start();
-                    flickerEffect2.Start();
-                }
-                else
-                {
-                    flickerEffect.Stop();
-                    flickerEffect2.Stop();
-                }
-//                switchFog.SetPower(e.NewState);
+                //if (e.NewState)
+                //{
+                //    flickerEffect.Start();
+                //    flickerEffect2.Start();
+                //}
+                //else
+                //{
+                //    flickerEffect.Stop();
+                //    flickerEffect2.Stop();
+                //}
+                switchFog.SetPower(e.NewState);
             };
 
             buttonTestSpider.ActiveChanged += (sender, e) =>
