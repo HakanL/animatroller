@@ -15,11 +15,12 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 namespace Animatroller.SceneRunner
 {
     internal class HalloweenScene2013B : BaseScene,
-        ISceneRequiresRaspExpander1,
-        ISceneRequiresRaspExpander2,
-        ISceneRequiresRaspExpander3,
-        ISceneRequiresRaspExpander4,
-        ISceneRequiresDMXPro,
+        //ISceneRequiresRaspExpander1,
+        //ISceneRequiresRaspExpander2,
+        //ISceneRequiresRaspExpander3,
+        //ISceneRequiresRaspExpander4,
+        //ISceneRequiresDMXPro,
+        ISceneRequiresAcnStream,
     //, ISceneRequiresIOExpander
         ISceneSupportsSimulator
     {
@@ -72,6 +73,7 @@ namespace Animatroller.SceneRunner
         private Effect.Flicker flickerEffect;
         private Effect.Flicker flickerEffect2;
         private Effect.PopOut popOutEffect;
+        private VirtualPixel1D allPixels;
 
 
         public HalloweenScene2013B(IEnumerable<string> args)
@@ -123,6 +125,8 @@ namespace Animatroller.SceneRunner
             switchSpiderEyes1 = new Switch("Spider Eyes 1");
             switchSpiderEyes2 = new Switch("Spider Eyes 2");
             switchFog = new Switch("Fog");
+
+            allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -196,6 +200,14 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.GenericDimmer(lightSpiderWeb, 104));
             port.Connect(new Physical.GenericDimmer(skullsLight2, 105));
             port.Connect(new Physical.GenericDimmer(lightEyes, 106));
+        }
+
+        public void WireUp(Expander.AcnStream port)
+        {
+            // WS2811
+            port.Connect(new Physical.PixelRope(allPixels, 0, 28), 1, 1);
+            // WS2811
+            port.Connect(new Physical.PixelRope(allPixels, 28, 50), 1, 151);
         }
 
         public override void Start()
@@ -416,6 +428,107 @@ namespace Animatroller.SceneRunner
                             catLights.TurnOff();
                         });
 
+            var candyCane = new Controller.Sequence("Candy Cane");
+            candyCane
+                .WhenExecuted
+                .SetUp(() => allPixels.TurnOff())
+                .Execute(instance =>
+                {
+                    var cbList = new List<ColorBrightness>();
+                    //cbList.Add(new ColorBrightness(Color.Green, 1.00));
+                    //cbList.Add(new ColorBrightness(Color.Green, 0.70));
+                    //cbList.Add(new ColorBrightness(Color.Green, 0.40));
+                    //cbList.Add(new ColorBrightness(Color.White, 1.00));
+                    //cbList.Add(new ColorBrightness(Color.White, 0.70));
+                    //cbList.Add(new ColorBrightness(Color.White, 0.40));
+                    //cbList.Add(new ColorBrightness(Color.Red, 1.00));
+                    //cbList.Add(new ColorBrightness(Color.Red, 0.70));
+                    //cbList.Add(new ColorBrightness(Color.Red, 0.40));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+                    //cbList.Add(new ColorBrightness(Color.Black, 0.0));
+
+                    double b1 = 1.00;
+                    double b2 = 0.70;
+                    double b3 = 0.40;
+                    Color c1 = Color.Blue;
+                    Color c2 = Color.Yellow;
+                    Color c3 = Color.Blue;
+                    Color c4 = Color.Black;
+
+                    cbList.Add(new ColorBrightness(c1, b1));
+                    cbList.Add(new ColorBrightness(c1, b2));
+                    cbList.Add(new ColorBrightness(c1, b3));
+                    cbList.Add(new ColorBrightness(c2, b1));
+                    cbList.Add(new ColorBrightness(c2, b2));
+                    cbList.Add(new ColorBrightness(c2, b3));
+                    cbList.Add(new ColorBrightness(c3, b1));
+                    cbList.Add(new ColorBrightness(c3, b2));
+                    cbList.Add(new ColorBrightness(c3, b3));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+
+                    b1 = 1.00;
+                    b2 = 0.70;
+                    b3 = 0.40;
+                    c1 = Color.White;
+                    c2 = Color.Blue;
+                    c3 = Color.Red;
+                    c4 = Color.Black;
+
+                    cbList.Add(new ColorBrightness(c1, b1));
+                    cbList.Add(new ColorBrightness(c1, b2));
+                    cbList.Add(new ColorBrightness(c1, b3));
+                    cbList.Add(new ColorBrightness(c2, b1));
+                    cbList.Add(new ColorBrightness(c2, b2));
+                    cbList.Add(new ColorBrightness(c2, b3));
+                    cbList.Add(new ColorBrightness(c3, b1));
+                    cbList.Add(new ColorBrightness(c3, b2));
+                    cbList.Add(new ColorBrightness(c3, b3));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+
+                    b1 = 1.00;
+                    b2 = 0.70;
+                    b3 = 0.40;
+                    c1 = Color.Red;
+                    c2 = Color.White;
+                    c3 = Color.Blue;
+                    c4 = Color.Black;
+
+                    cbList.Add(new ColorBrightness(c1, b1));
+                    cbList.Add(new ColorBrightness(c1, b2));
+                    cbList.Add(new ColorBrightness(c1, b3));
+                    cbList.Add(new ColorBrightness(c2, b1));
+                    cbList.Add(new ColorBrightness(c2, b2));
+                    cbList.Add(new ColorBrightness(c2, b3));
+                    cbList.Add(new ColorBrightness(c3, b1));
+                    cbList.Add(new ColorBrightness(c3, b2));
+                    cbList.Add(new ColorBrightness(c3, b3));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+                    cbList.Add(new ColorBrightness(c4, 0.0));
+
+                    while (true)
+                    {
+                        foreach (var cb in cbList)
+                        {
+                            allPixels.Inject(cb);
+                            instance.WaitFor(S(0.350), true);
+                        }
+                    }
+                })
+                .TearDown(() =>
+                {
+                    allPixels.TurnOff();
+                });
+
 
             stateMachine.ForFromSequence(States.Background, backgroundSeq);
             stateMachine.ForFromSequence(States.Stair, stairSeq);
@@ -430,6 +543,7 @@ namespace Animatroller.SceneRunner
                         flickerEffect2.Start();
                         catFan.SetPower(true);
                         lightEyes.SetPower(true);
+                        Exec.Execute(candyCane);
                     }
                     else
                     {
@@ -437,6 +551,7 @@ namespace Animatroller.SceneRunner
                         flickerEffect2.Stop();
                         catFan.SetPower(false);
                         lightEyes.SetPower(false);
+                        Exec.Cancel(candyCane);
                     }
                 };
 
