@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestOSC : BaseScene, ISceneSupportsSimulator
+    internal class TestOSC : BaseScene, ISceneSupportsSimulator, ISceneRequiresAcnStream
     {
         public struct Finger
         {
@@ -27,9 +27,12 @@ namespace Animatroller.SceneRunner
         private Dimmer testDimmer;
         private Finger[] fingers;
         private Controller.Sequence loopSeq;
+        private VirtualPixel1D allPixels;
 
         public TestOSC(IEnumerable<string> args)
         {
+            allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
+
             loopSeq = new Controller.Sequence("Loop Seq");
             fingers = new Finger[10];
             for (int i = 0; i < 10; i++)
@@ -45,6 +48,14 @@ namespace Animatroller.SceneRunner
             sim.AutoWireUsingReflection(this);
         }
 
+        public void WireUp(Expander.AcnStream port)
+        {
+            // WS2811
+            port.Connect(new Physical.PixelRope(allPixels, 0, 28), 1, 1);
+            // WS2811
+            port.Connect(new Physical.PixelRope(allPixels, 28, 50), 1, 151);
+        }
+
         public override void Start()
         {
             loopSeq
@@ -53,6 +64,7 @@ namespace Animatroller.SceneRunner
                 .Execute(instance =>
                     {
                         testDimmer.SetBrightness(Math.Abs(this.fingers[0].X));
+                        allPixels.SetAll(Color.Yellow, Math.Abs(this.fingers[0].X));
                         instance.WaitFor(S(0.1));
                     });
             
