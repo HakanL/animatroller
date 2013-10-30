@@ -63,9 +63,12 @@ namespace Animatroller.SceneRunner
                 .WhenExecuted
                 .Execute(instance =>
                     {
-                        testDimmer.SetBrightness(Math.Abs(this.fingers[0].X));
-                        allPixels.SetAll(Color.Yellow, Math.Abs(this.fingers[0].X));
-                        instance.WaitFor(S(0.1));
+//                        testDimmer.SetBrightness(Math.Abs(this.fingers[0].X));
+                        int r = (int)Math.Truncate(255.0 * (2.0 + fingers[0].X) / 4.0).Limit(0, 255);
+                        int g = (int)Math.Truncate(255.0 * (2.0 + fingers[0].Y) / 4.0).Limit(0, 255);
+                        int b = (int)Math.Truncate(255.0 * (2.0 + fingers[0].Z) / 4.0).Limit(0, 255);
+                        allPixels.Inject(Color.FromArgb(r, g, b), 1.0);
+                        instance.WaitFor(S(0.05));
                     });
             
             this.oscServer.RegisterAction<double>("/1/fader*", (msg, data) =>
