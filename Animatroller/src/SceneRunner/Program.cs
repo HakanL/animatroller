@@ -117,6 +117,10 @@ namespace Animatroller.SceneRunner
                     scene = new TestPiFace(sceneArgs);
                     break;
 
+                case "TESTOSC":
+                    scene = new TestOSC(sceneArgs);
+                    break;
+
                 case "ITALIAN1":
                     scene = new ItalianScene1(sceneArgs);
                     break;

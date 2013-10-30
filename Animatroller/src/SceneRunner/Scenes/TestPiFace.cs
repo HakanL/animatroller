@@ -102,11 +102,11 @@ namespace Animatroller.SceneRunner
                         instance.WaitFor(TimeSpan.FromSeconds(1));
                     });
 
-            this.oscServer.RegisterAction<int>("/OnOff", x =>
+            this.oscServer.RegisterAction<int>("/OnOff", (msg, data) =>
                 {
-                    if (x.Any())
+                    if (data.Any())
                     {
-                        if (x.First() != 0)
+                        if (data.First() != 0)
                             audioPlayer.PlayEffect("Scream");
                     }
                 });

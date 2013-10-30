@@ -42,26 +42,28 @@ namespace Animatroller.Framework.Expander
             });
 
             this.oscServer = new OscServer(listenPort);
-            this.oscServer.RegisterAction<string>("/init", x =>
+            this.oscServer.RegisterAction("/init", msg =>
                 {
                     log.Info("Raspberry is up");
                 });
-            this.oscServer.RegisterAction<int>("/input", x =>
+
+            this.oscServer.RegisterAction<int>("/input", (msg, data) =>
                 {
-                    if (x.Count() >= 2)
+                    if (data.Count() >= 2)
                     {
-                        var values = x.ToArray();
+                        var values = data.ToArray();
                         log.Info("Input {0} set to {1}", values[0], values[1]);
 
                         if (values[0] >= 0 && values[0] <= 7)
                             this.DigitalInputs[values[0]].Trigger(values[1] != 0);
                     }
                 });
-            this.oscServer.RegisterAction("/motor/feedback", x =>
+
+            this.oscServer.RegisterAction("/motor/feedback", msg =>
                 {
-                    if (x.Count() >= 2)
+                    if (msg.Data.Count() >= 2)
                     {
-                        var values = x.ToArray();
+                        var values = msg.Data.ToArray();
 
                         int motorChn = int.Parse(values[0].ToString());
                         string motorPos = values[1].ToString();

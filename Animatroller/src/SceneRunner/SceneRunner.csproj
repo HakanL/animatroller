@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SceneInterfaces.cs" />
+    <Compile Include="Scenes\TestOSC.cs" />
     <Compile Include="Scenes\TestPiFace.cs" />
     <Compile Include="Scenes\HalloweenScene2013b.cs" />
     <Compile Include="Scenes\HalloweenScene2013.cs" />
