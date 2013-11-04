@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice.Event;
 using Animatroller.Framework.Extensions;
 using NLog;
@@ -96,6 +97,21 @@ namespace Animatroller.Framework.LogicalDevice
                 return;
 
             movementDone.WaitOne();
+            if (lastCommandSent.HasValue)
+            {
+                TimeSpan duration = DateTime.Now - lastCommandSent.Value;
+                log.Info("Last movement took {0:F1} s", duration.TotalSeconds);
+            }
+        }
+
+        public void WaitForVectorReached(ISequenceInstance instance)
+        {
+            if (failed)
+                return;
+
+            WaitHandle.WaitAny(new WaitHandle[] { instance.CancelToken.WaitHandle, movementDone });
+            instance.CancelToken.ThrowIfCancellationRequested();
+                
             if (lastCommandSent.HasValue)
             {
                 TimeSpan duration = DateTime.Now - lastCommandSent.Value;

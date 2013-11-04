@@ -21,7 +21,7 @@ namespace Animatroller.SceneRunner
         ISceneRequiresRaspExpander4,
         ISceneRequiresDMXPro,
         ISceneRequiresAcnStream,
-    //, ISceneRequiresIOExpander
+        //, ISceneRequiresIOExpander
         ISceneSupportsSimulator
     {
         public enum States
@@ -55,6 +55,7 @@ namespace Animatroller.SceneRunner
         private StrobeColorDimmer lightGeorge;
         private StrobeColorDimmer lightBeauty;
         private StrobeColorDimmer lightFloor;
+        private StrobeColorDimmer lightSign;
         private Dimmer skullsLight;
         private Dimmer skullsLight2;
         private Dimmer lightSpiderWeb;
@@ -71,6 +72,7 @@ namespace Animatroller.SceneRunner
         private Switch switchSpiderEyes2;
         private Switch switchFog;
         private Effect.Pulsating pulsatingEffect1;
+        private Effect.Pulsating pulsatingEffect2;
         private Effect.Flicker flickerEffect;
         private Effect.Flicker flickerEffect2;
         private Effect.PopOut popOutEffect;
@@ -84,6 +86,7 @@ namespace Animatroller.SceneRunner
             stateMachine = new Controller.StateMachine<States>("Main");
 
             pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 0.5, false);
+            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", S(2), 0.2, 0.8, false);
             flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6, false);
             flickerEffect2 = new Effect.Flicker("Flicker 2", 0.4, 0.6, false);
             popOutEffect = new Effect.PopOut("PopOut", S(1));
@@ -108,6 +111,7 @@ namespace Animatroller.SceneRunner
             lightGeorge = new StrobeColorDimmer("George light");
             lightBeauty = new StrobeColorDimmer("Beauty light");
             lightFloor = new StrobeColorDimmer("Floor light");
+            lightSign = new StrobeColorDimmer("Sign");
             skullsLight = new Dimmer("Skulls");
             lightTreeGhost = new Dimmer("Ghosts in tree");
             skullsLight2 = new Dimmer("Skulls 2");
@@ -199,6 +203,7 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.RGBStrobe(lightGeorge, 40));
             port.Connect(new Physical.RGBStrobe(lightBeauty, 30));
             port.Connect(new Physical.RGBStrobe(lightFloor, 20));
+            port.Connect(new Physical.SmallRGBStrobe(lightSign, 50));
 
             port.Connect(new Physical.GenericDimmer(skullsLight, 100));
             port.Connect(new Physical.GenericDimmer(lightTreeGhost, 103));
@@ -221,6 +226,8 @@ namespace Animatroller.SceneRunner
             hoursFull.AddRange("5:00 pm", "9:00 pm");
             //hoursFull.SetForced(true);
             //hoursSmall.SetForced(true);
+            //hoursFull.SetForced(false);
+            //hoursSmall.SetForced(false);
 
 #if !true
             hoursFull.SetForced(true);
@@ -285,7 +292,7 @@ namespace Animatroller.SceneRunner
                         instance.WaitFor(S(0.5));
                         popOutEffect.Pop(1.0);
 
-                        instance.WaitFor(S(2));
+                        instance.WaitFor(S(1.0));
                         audioSpider.PlayNewEffect("348 Spider Hiss");
                         switchSpider.SetPower(true);
                         instance.WaitFor(S(0.5));
@@ -293,7 +300,7 @@ namespace Animatroller.SceneRunner
                         instance.WaitFor(S(2));
                         switchSpider.SetPower(false);
                         switchSpiderEyes1.SetPower(false);
-                        instance.WaitFor(S(5));
+                        instance.WaitFor(S(4));
                         stateMachine.NextState();
                     })
                 .TearDown(() =>
@@ -302,28 +309,39 @@ namespace Animatroller.SceneRunner
                         audioGeorge.PauseFX();
                     });
 
+            var georgeReturnSeq = new Controller.Sequence("George Return Seq");
+            georgeReturnSeq.WhenExecuted
+                .Execute(instance =>
+                    {
+                        georgeMotor.WaitForVectorReached();
+                        georgeMotor.SetVector(0.9, 0, S(15));
+                        georgeMotor.WaitForVectorReached();
+                    });
+
             var georgeSeq = new Controller.Sequence("George Sequence");
             georgeSeq.WhenExecuted
                 .Execute(instance =>
                 {
+                    //Exec.WaitUntilFinished(georgeReturnSeq);
+                        
                     audioGeorge.PlayEffect("laugh");
                     georgeMotor.SetVector(1.0, 350, S(10));
                     instance.WaitFor(TimeSpan.FromSeconds(0.8));
                     lightGeorge.SetColor(Color.Red);
-                    georgeMotor.WaitForVectorReached();
+                    georgeMotor.WaitForVectorReached(instance);
                     instance.WaitFor(TimeSpan.FromSeconds(2));
                     georgeMotor.SetVector(0.9, 0, S(15));
                     lightGeorge.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
                     instance.WaitFor(TimeSpan.FromSeconds(1));
                     lightFloor.SetOnlyColor(Color.Green);
                     pulsatingEffect1.Start();
-                    georgeMotor.WaitForVectorReached();
+                    georgeMotor.WaitForVectorReached(instance);
 
                     instance.WaitFor(S(15));
                 })
                 .TearDown(() =>
                 {
-                    georgeMotor.SetVector(0.9, 0, S(15));
+                    Exec.Execute(georgeReturnSeq);
                     pulsatingEffect1.Stop();
                     lightGeorge.TurnOff();
                 });
@@ -365,12 +383,12 @@ namespace Animatroller.SceneRunner
                 {
                     flickerEffect2.Stop();
                     lightBeauty.SetColor(Color.Purple);
+                    switchHand.SetPower(true);
                     instance.WaitFor(TimeSpan.FromSeconds(1));
                     audioBeauty.PlayEffect("gollum_precious1", 1.0, 0.0);
                     instance.WaitFor(TimeSpan.FromSeconds(0.4));
                     switchHead.SetPower(true);
-                    switchHand.SetPower(true);
-                    instance.WaitFor(TimeSpan.FromSeconds(4));
+                    instance.WaitFor(TimeSpan.FromSeconds(6));
                     switchHead.SetPower(false);
                     switchHand.SetPower(false);
 
@@ -392,7 +410,7 @@ namespace Animatroller.SceneRunner
 
                     switchHead.SetPower(false);
                     lightBeauty.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
-                    if(hoursSmall.IsOpen)
+                    if (hoursSmall.IsOpen)
                         flickerEffect2.Start();
                     instance.WaitFor(TimeSpan.FromSeconds(5));
                 });
@@ -555,16 +573,18 @@ namespace Animatroller.SceneRunner
                 {
                     if (e.IsOpenNow)
                     {
+                        pulsatingEffect2.Start();
                         flickerEffect.Start();
                         flickerEffect2.Start();
                         catFan.SetPower(true);
                         lightEyes.SetPower(true);
                         lightTreeGhost.SetBrightness(1.0);
-//                        Exec.Execute(candyCane);
+                        //                        Exec.Execute(candyCane);
                         allPixels.SetAll(Color.FromArgb(255, 115, 0), 0.5);
                     }
                     else
                     {
+                        pulsatingEffect2.Stop();
                         flickerEffect.Stop();
                         flickerEffect2.Stop();
                         catFan.SetPower(false);
@@ -609,35 +629,43 @@ namespace Animatroller.SceneRunner
 
             buttonTriggerStairs.ActiveChanged += (sender, e) =>
                 {
-#if CHECK_SENSOR_ALIGNMENT
-                    lightFloor.SetColor(Color.Purple, e.NewState ? 1.0 : 0.0);
-#else
-                    if (e.NewState && hoursFull.IsOpen)
+                    if (!hoursSmall.IsOpen)
                     {
-                        if(!stateMachine.CurrentState.HasValue || stateMachine.CurrentState == States.Background)
-                            stateMachine.SetState(States.Stair);
+                        lightFloor.SetColor(Color.Purple, e.NewState ? 0.6 : 0.0);
                     }
-#endif
+                    else
+                    {
+                        if (e.NewState && hoursFull.IsOpen)
+                        {
+                            if (!stateMachine.CurrentState.HasValue || stateMachine.CurrentState == States.Background)
+                                stateMachine.SetState(States.Stair);
+                        }
+                    }
                 };
 
             buttonTriggerPopup.ActiveChanged += (sender, e) =>
             {
-#if CHECK_SENSOR_ALIGNMENT
-                lightPopup.SetBrightness(e.NewState ? 1.0 : 0.0);
-#else
-                if (e.NewState)
+                if (!hoursSmall.IsOpen)
                 {
-                    if (stateMachine.CurrentState == States.George)
-                        stateMachine.SetState(States.Popup);
+                    lightPopup.SetBrightness(e.NewState ? 0.5 : 0.0);
                 }
-#endif
+                else
+                {
+                    if (e.NewState)
+                    {
+                        if (stateMachine.CurrentState == States.George)
+                            stateMachine.SetState(States.Popup);
+                    }
+                }
             };
 
             flickerEffect.AddDevice(skullsLight);
             flickerEffect2.AddDevice(skullsLight2);
             lightFloor.SetColor(Color.Orange, 0);
+            lightSign.SetColor(Color.Pink, 0);
             pulsatingEffect1.AddDevice(lightFloor);
             pulsatingEffect1.AddDevice(lightSpiderWeb);
+            pulsatingEffect2.AddDevice(lightSign);
 
             popOutEffect.AddDevice(skullsLight);
 
@@ -653,7 +681,7 @@ namespace Animatroller.SceneRunner
                     switchSpiderEyes2.SetPower(true);
                     Thread.Sleep(1000);
                     switchSpiderEyes2.SetPower(false);
-//                    audioSpider.PlayEffect("gollum_precious1");
+                    //                    audioSpider.PlayEffect("gollum_precious1");
                     //                        switchHand.SetPower(true);
                     //                        audioGeorge.PlayBackground();
                     //                        lightBeauty.SetBrightness(1.0);
@@ -711,7 +739,7 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
-//            hours.SetForceOpen(true);
+            //            hours.SetForceOpen(true);
         }
 
         public override void Stop()
