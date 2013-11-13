@@ -55,6 +55,7 @@
     <Compile Include="Scenes\HalloweenScene2013b.cs" />
     <Compile Include="Scenes\HalloweenScene2013.cs" />
     <Compile Include="Scenes\ItalianScene1.cs" />
+    <Compile Include="Scenes\DemoScene1.cs" />
     <Compile Include="Scenes\TestScene3.cs" />
     <Compile Include="Scenes\Nutcracker3Scene.cs" />
     <Compile Include="Scenes\Nutcracker2Scene.cs" />

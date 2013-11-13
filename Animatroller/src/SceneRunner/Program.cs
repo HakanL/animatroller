@@ -165,6 +165,10 @@ namespace Animatroller.SceneRunner
                     scene = new XmasScene2(sceneArgs);
                     break;
 
+                case "DEMO1":
+                    scene = new DemoScene1(sceneArgs);
+                    break;
+
                 default:
                     throw new ArgumentException("Missing start scene");
             }
