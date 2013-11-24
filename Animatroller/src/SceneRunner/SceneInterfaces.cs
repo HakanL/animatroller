@@ -41,4 +41,9 @@ namespace Animatroller.SceneRunner
     {
         void WireUp(Expander.AcnStream port);
     }
+
+    public interface ISceneRequiresRenard
+    {
+        void WireUp(Expander.Renard port);
+    }
 }

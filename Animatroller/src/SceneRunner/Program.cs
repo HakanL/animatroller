@@ -17,6 +17,7 @@ namespace Animatroller.SceneRunner
             // Variables for al types of IO expanders, etc
             Animatroller.Simulator.SimulatorForm simForm = null;
             Animatroller.Framework.Expander.DMXPro dmxPro = null;
+            Animatroller.Framework.Expander.Renard renard = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
             Animatroller.Framework.Expander.AcnStream acnOutput = null;
             Animatroller.Framework.Expander.Raspberry raspberry1 = null;
@@ -48,6 +49,11 @@ namespace Animatroller.SceneRunner
                     case "DMXPRO":
                         // Enttec DMX USB Pro or DMXLink (specify virtual COM port in config file)
                         dmxPro = new Animatroller.Framework.Expander.DMXPro(parts[1]);
+                        break;
+
+                    case "RENARD":
+                        // Renard (specify virtual COM port in config file)
+                        renard = new Animatroller.Framework.Expander.Renard(parts[1]);
                         break;
 
                     case "IOEXP":
@@ -111,6 +117,10 @@ namespace Animatroller.SceneRunner
 
                 case "TEST3":
                     scene = new TestScene3(sceneArgs);
+                    break;
+
+                case "RENARD1":
+                    scene = new TestRenard1(sceneArgs);
                     break;
 
                 case "TESTPIFACE":
@@ -189,6 +199,13 @@ namespace Animatroller.SceneRunner
                 if (dmxPro == null)
                     throw new ArgumentNullException("DMXpro not configured");
                 ((ISceneRequiresDMXPro)scene).WireUp(dmxPro);
+            }
+
+            if (scene is ISceneRequiresRenard)
+            {
+                if (renard == null)
+                    throw new ArgumentNullException("Renard not configured");
+                ((ISceneRequiresRenard)scene).WireUp(renard);
             }
 
             if (scene is ISceneRequiresIOExpander)
