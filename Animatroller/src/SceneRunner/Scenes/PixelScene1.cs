@@ -15,7 +15,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class PixelScene1 : BaseScene
+    internal class PixelScene1 : BaseScene, ISceneRequiresAcnStream, ISceneSupportsSimulator
     {
         private VirtualPixel1D allPixels;
         private DigitalInput buttonTest;
@@ -30,7 +30,7 @@ namespace Animatroller.SceneRunner
             candyCane = new Controller.Sequence("Candy Cane");
             laserSeq = new Controller.Sequence("Laser");
 
-            allPixels = new VirtualPixel1D("All Pixels", 100);
+            allPixels = new VirtualPixel1D("All Pixels", 150);
 
             buttonTest = new DigitalInput("Test");
         }
@@ -42,23 +42,12 @@ namespace Animatroller.SceneRunner
             sim.AutoWireUsingReflection(this);
         }
 
-        public void WireUp(Expander.IOExpander port)
-        {
-            port.Connect(new Physical.PixelRope(allPixels, 0, 50));
-
-            port.DigitalInputs[1].Connect(buttonTest);
-        }
-
-        public void WireUp(Expander.DMXPro port)
-        {
-        }
-
         public void WireUp(Expander.AcnStream port)
         {
-            // GECE
-            port.Connect(new Physical.PixelRope(allPixels, 50, 50), 2, 91);
             // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 0, 60), 3, 181);
+            port.Connect(new Physical.PixelRope(allPixels, 0, 100), 4, 1);
+            // GECE
+            port.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
         }
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)
