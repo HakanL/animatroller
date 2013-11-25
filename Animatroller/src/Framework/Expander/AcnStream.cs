@@ -21,6 +21,7 @@ namespace Animatroller.Framework.Expander
     {
         public readonly Guid animatrollerAcnId = new Guid("{53A974B9-8286-4DC1-BFAB-00FEC91FD7A9}");
         protected static Logger log = LogManager.GetCurrentClassLogger();
+        private bool isRunning;
 
         protected class AcnPixelUniverse : IPixelOutput
         {
@@ -195,7 +196,7 @@ namespace Animatroller.Framework.Expander
             return this;
         }
 
-        private void socket_NewPacket(object sender, NewPacketEventArgs<DmxPacket> e)
+        private void socket_NewPacket(object sender, NewPacketEventArgs<StreamingAcnDmxPacket> e)
         {
             log.Debug("Received DMX packet on ACN stream");
         }
@@ -211,7 +212,7 @@ namespace Animatroller.Framework.Expander
 
                     this.sendingUniverses.Add(universe, acnUniverse);
 
-                    if (!this.dmxStreamer.Streaming)
+                    if (this.isRunning && !this.dmxStreamer.Streaming)
                         this.dmxStreamer.Start();
                 }
             }
@@ -262,6 +263,8 @@ namespace Animatroller.Framework.Expander
         {
             if(this.sendingUniverses.Any())
                 this.dmxStreamer.Start();
+
+            this.isRunning = true;
         }
 
         public void Stop()
@@ -274,6 +277,8 @@ namespace Animatroller.Framework.Expander
             }
 
             this.dmxStreamer.Stop();
+
+            this.isRunning = false;
         }
     }
 

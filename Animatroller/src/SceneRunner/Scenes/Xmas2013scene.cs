@@ -15,13 +15,15 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class Xmas2013scene : BaseScene, ISceneRequiresAcnStream, ISceneSupportsSimulator, ISceneRequiresDMXPro
+    internal class Xmas2013scene : BaseScene, ISceneRequiresAcnStream, ISceneSupportsSimulator
     {
         private VirtualPixel1D allPixels;
         private DigitalInput buttonTest;
+        private StrobeColorDimmer lightTest;
         private Dimmer lightStar;
         private Dimmer lightStairs1;
 
+        private Effect.Pulsating pulsatingEffect1;
         private Controller.Sequence testSeq;
         private Controller.Sequence candyCane;
         private Controller.Sequence laserSeq;
@@ -30,6 +32,9 @@ namespace Animatroller.SceneRunner
         {
             lightStar = new Dimmer("Star");
             lightStairs1 = new Dimmer("Stair 1");
+            lightTest = new StrobeColorDimmer("Small");
+
+            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.0, 1.0, false);
 
             testSeq = new Controller.Sequence("Pulse");
             candyCane = new Controller.Sequence("Candy Cane");
@@ -50,9 +55,11 @@ namespace Animatroller.SceneRunner
         public void WireUp(Expander.AcnStream port)
         {
             // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 0, 100), 4, 1);
+//            port.Connect(new Physical.PixelRope(allPixels, 0, 100), 4, 1);
             // GECE
-            port.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
+//            port.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
+
+            port.Connect(new Physical.SmallRGBStrobe(lightTest, 48), 20);
         }
 
         public void WireUp(Expander.DMXPro port)
@@ -163,6 +170,9 @@ namespace Animatroller.SceneRunner
 
                 Exec.Execute(candyCane);
             };
+
+            lightTest.SetOnlyColor(Color.Orange);
+            pulsatingEffect1.AddDevice(lightTest);
         }
 
         public override void Run()
@@ -170,10 +180,12 @@ namespace Animatroller.SceneRunner
             lightStar.SetBrightness(1.0);
             lightStairs1.SetBrightness(1.0);
             Exec.Execute(testSeq);
+            pulsatingEffect1.Start();
         }
 
         public override void Stop()
         {
+            pulsatingEffect1.Stop();
             lightStar.TurnOff();
             lightStairs1.TurnOff();
             Exec.Cancel(candyCane);
