@@ -143,6 +143,10 @@ namespace Animatroller.SceneRunner
                     scene = new PixelScene1(sceneArgs);
                     break;
 
+                case "XMAS2013":
+                    scene = new Xmas2013scene(sceneArgs);
+                    break;
+
                 case "NUTCRACKER1":
                     scene = new Nutcracker1Scene(sceneArgs);
                     break;
