@@ -35,7 +35,7 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Expander.Renard port)
         {
-            port.Connect(new Physical.GenericDimmer(testLight1, 1));
+            port.Connect(new Physical.GenericDimmer(testLight1, 24));
         }
 
         public override void Start()

@@ -72,43 +72,55 @@ namespace Animatroller.Framework.Expander
 
                 try
                 {
-                    if(sendBytes >= 100)
-                    {
-                        serialPort.Write(new byte[] { 0x7D }, 0, 1);
-                        sendBytes = 0;
-                    }
-
-                    serialPort.Write(new byte[] { 0x7E, 0x80 }, 0, 2);
-                    sendBytes += 2;
-
-                    var outputBuffer = new byte[data.Length * 2];
+                    var outputBuffer = new byte[data.Length * 2 + 10];
                     int index = 0;
-                    foreach (byte b in data)
+
+                    for (int i = 0; i < data.Length; i++)
                     {
+                        if(i % 8 == 0)
+                        {
+                            if(sendBytes >= 100)
+                            {
+                                // Send PAD
+                                outputBuffer[index++] = 0x7D;
+                                sendBytes = 0;
+                            }
+
+                            // Send address
+                            outputBuffer[index++] = 0x7E;
+                            outputBuffer[index++] = (byte)(0x80 + (i / 8));
+                            sendBytes += 2;
+                        }
+
+                        byte b = data[i];
                         switch(b)
                         {
                             case 0x7D:
                                 outputBuffer[index++] = 0x7F;
                                 outputBuffer[index++] = 0x2F;
+                                sendBytes += 2;
                                 break;
 
                             case 0x7E:
                                 outputBuffer[index++] = 0x7F;
                                 outputBuffer[index++] = 0x30;
+                                sendBytes += 2;
                                 break;
 
                             case 0x7F:
                                 outputBuffer[index++] = 0x7F;
                                 outputBuffer[index++] = 0x31;
+                                sendBytes += 2;
                                 break;
                                 
                             default:
                                 outputBuffer[index++] = b;
+                                sendBytes++;
                                 break;
                         }
                     }
+
                     serialPort.Write(outputBuffer, 0, index);
-                    sendBytes += index;
                 }
                 catch (Exception ex)
                 {
