@@ -59,7 +59,15 @@ namespace Animatroller.SceneRunner
             // GECE
 //            port.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
 
-            port.Connect(new Physical.SmallRGBStrobe(lightTest, 48), 20);
+//            port.Connect(new Physical.SmallRGBStrobe(lightTest, 48), 20);
+            port.Connect(new Physical.GenericDimmer(lightStar, 1), 21);
+            port.Connect(new Physical.GenericDimmer(lightStar, 2), 21);
+            port.Connect(new Physical.GenericDimmer(lightStar, 3), 21);
+            port.Connect(new Physical.GenericDimmer(lightStar, 4), 21);
+            port.Connect(new Physical.GenericDimmer(lightStar, 5), 21);
+            port.Connect(new Physical.GenericDimmer(lightStar, 6), 21);
+            port.Connect(new Physical.GenericDimmer(lightStar, 7), 21);
+            port.Connect(new Physical.GenericDimmer(lightStar, 24), 21);
         }
 
         public void WireUp(Expander.DMXPro port)
@@ -173,11 +181,13 @@ namespace Animatroller.SceneRunner
 
             lightTest.SetOnlyColor(Color.Orange);
             pulsatingEffect1.AddDevice(lightTest);
+
+            pulsatingEffect1.AddDevice(lightStar);
         }
 
         public override void Run()
         {
-            lightStar.SetBrightness(1.0);
+//            lightStar.SetBrightness(1.0);
             lightStairs1.SetBrightness(1.0);
             Exec.Execute(testSeq);
             pulsatingEffect1.Start();
