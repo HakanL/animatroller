@@ -12,6 +12,7 @@ namespace Animatroller.Framework.Expander
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private int sendCounter;
+        private int sendBytes;
         private SerialPort serialPort;
         private object lockObject = new object();
         private byte[] renardData;
@@ -71,7 +72,15 @@ namespace Animatroller.Framework.Expander
 
                 try
                 {
+                    if(sendBytes >= 100)
+                    {
+                        serialPort.Write(new byte[] { 0x7D }, 0, 1);
+                        sendBytes = 0;
+                    }
+
                     serialPort.Write(new byte[] { 0x7E, 0x80 }, 0, 2);
+                    sendBytes += 2;
+
                     var outputBuffer = new byte[data.Length * 2];
                     int index = 0;
                     foreach (byte b in data)
@@ -99,6 +108,7 @@ namespace Animatroller.Framework.Expander
                         }
                     }
                     serialPort.Write(outputBuffer, 0, index);
+                    sendBytes += index;
                 }
                 catch (Exception ex)
                 {
