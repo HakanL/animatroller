@@ -59,7 +59,7 @@ namespace Animatroller.SceneRunner
             // GECE
 //            port.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
 
-//            port.Connect(new Physical.SmallRGBStrobe(lightTest, 48), 20);
+            port.Connect(new Physical.SmallRGBStrobe(lightTest, 48), 20);
             port.Connect(new Physical.GenericDimmer(lightStar, 1), 21);
             port.Connect(new Physical.GenericDimmer(lightStar, 2), 21);
             port.Connect(new Physical.GenericDimmer(lightStar, 3), 21);
