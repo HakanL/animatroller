@@ -143,7 +143,13 @@ namespace Animatroller.Framework.Controller
                         var codes = this.timeline.Values[currentPos];
 
                         // Invoke
-                        log.Debug(string.Format("Invoking {1} code(s) at {0:N2} s   (pos {2})", elapsed, codes.Count, currentPos + 1));
+                        string debugStr;
+                        if (codes.Count == 1)
+                            debugStr = string.Format("1 code ({0})", codes.First());
+                        else
+                            debugStr = string.Format("{0} codes ({1})", codes.Count,
+                                string.Join(",", codes));
+                        log.Debug(string.Format("Invoking {1} at {0:N2} s   (pos {2})", elapsed, debugStr, currentPos + 1));
                         var handler = TimelineTrigger;
                         if (handler != null)
                         {

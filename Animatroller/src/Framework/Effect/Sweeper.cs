@@ -22,6 +22,7 @@ namespace Animatroller.Framework.Effect
         private List<EffectAction.Action> jobs;
         private TimeSpan interval;
         private bool oneShot;
+        private bool ended;
         private int hitCounter;
         private long ticks;
 
@@ -34,11 +35,12 @@ namespace Animatroller.Framework.Effect
             InternalReset();
             this.jobs = new List<EffectAction.Action>();
             this.timer = new Timer(new TimerCallback(TimerCallback));
+            this.ended = false;
 
             this.interval = new TimeSpan(duration.Ticks / dataPoints);
             log.Debug("Interval {0:N1} ms", this.interval.TotalMilliseconds);
 
-            if(startRunning)
+            if (startRunning)
                 Resume();
         }
 
@@ -70,6 +72,7 @@ namespace Animatroller.Framework.Effect
             this.index2 = positions / 4;
             this.index3 = positions / 2;
             this.ticks = 0;
+            this.ended = false;
         }
 
         public Sweeper Reset()
@@ -104,10 +107,21 @@ namespace Animatroller.Framework.Effect
 
         private void TimerCallback(object state)
         {
+            if (this.ended)
+            {
+                Pause();
+
+                ForceValue(0, 0, 0, ticks);
+
+                this.ended = false;
+                return;
+            }
+
             double value1;
             double value2;
             double value3;
             long valueTicks;
+            bool ended = false;
 
             lock (lockObject)
             {
@@ -126,7 +140,9 @@ namespace Animatroller.Framework.Effect
                 ticks++;
 
                 if (++hitCounter >= positions && this.oneShot)
-                    Pause();
+                {
+                    this.ended = true;
+                }
             }
 
             if (Monitor.TryEnter(lockJobs))
