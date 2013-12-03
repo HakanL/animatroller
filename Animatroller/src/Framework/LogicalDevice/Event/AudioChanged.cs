@@ -13,7 +13,9 @@ namespace Animatroller.Framework.LogicalDevice.Event
             Unknown = 0,
             PlayFX,
             CueFX,
-            PlayNewFX
+            PlayNewFX,
+            PlayTrack,
+            CueTrack
         };
 
         public Commands Command { get; private set; }
@@ -40,7 +42,9 @@ namespace Animatroller.Framework.LogicalDevice.Event
             ResumeFX,
             PauseFX,
             BackgroundVolume,
-            NextBackground
+            NextBackground,
+            ResumeTrack,
+            PauseTrack
         };
 
         public Commands Command { get; private set; }

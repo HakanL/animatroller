@@ -157,5 +157,39 @@ namespace Animatroller.Framework.LogicalDevice
 
             return this;
         }
+
+        public AudioPlayer CueTrack(string audioFile)
+        {
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.CueTrack, audioFile);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Cue and play track
+        /// </summary>
+        /// <param name="audioFile"></param>
+        /// <returns></returns>
+        public AudioPlayer PlayTrack(string audioFile)
+        {
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayTrack, audioFile);
+
+            return this;
+        }
+
+        public AudioPlayer ResumeTrack()
+        {
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.ResumeTrack);
+
+            return this;
+        }
+
+        public AudioPlayer PauseTrack()
+        {
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.PauseTrack);
+
+            return this;
+        }
+
     }
 }

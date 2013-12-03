@@ -154,6 +154,14 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueFX:
                             this.oscClient.Send("/audio/fx/cue", e.AudioFile);
                             break;
+
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueTrack:
+                            this.oscClient.Send("/audio/trk/cue", e.AudioFile);
+                            break;
+                    
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayTrack:
+                            this.oscClient.Send("/audio/trk/play", e.AudioFile);
+                            break;
                     }
                 };
 
@@ -178,6 +186,12 @@ namespace Animatroller.Framework.Expander
                             break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.BackgroundVolume:
                             this.oscClient.Send("/audio/bg/volume", ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value.ToString("f2"));
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeTrack:
+                            this.oscClient.Send("/audio/trk/resume");
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseTrack:
+                            this.oscClient.Send("/audio/trk/pause");
                             break;
                     }
                 };
