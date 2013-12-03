@@ -42,11 +42,11 @@ namespace Animatroller.SceneRunner
         private Dimmer lightSnow1;
         private Dimmer lightSnow2;
         private Dimmer lightStairs1;
+        private Dimmer lightStairs2;
         private Dimmer lightGarland1;
         private Dimmer lightGarland2;
         private Dimmer lightGarland3;
         private Dimmer lightGarland4;
-        private Dimmer lightGarland5;
         private Dimmer lightString1;
         private Dimmer lightString2;
         private Dimmer lightXmasTree;
@@ -75,17 +75,29 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence twinkleSeq;
         private bool inflatablesRunning;
 
-        private Effect.PopOut popOutPiano;
-        private Effect.PopOut popOutDrums;
-        private Effect.PopOut popOutDrumsFast;
-        private Effect.PopOut popOutChord;
-        private Effect.PopOut popOutSolo;
-        private Effect.PopOut popOutSolo2;
-        private Effect.PopOut popOutChoir;
-        private Effect.PopOut popOutVoice;
-        private Effect.PopOut popOutVocal2;
-        private Effect.PopOut popOutVocalLong;
-        private Effect.PopOut popOutEnd;
+        private Effect.PopOut popOut1Piano;
+        private Effect.PopOut popOut1Drums;
+        private Effect.PopOut popOut1DrumsFast;
+        private Effect.PopOut popOut1Chord;
+        private Effect.PopOut popOut1Solo;
+        private Effect.PopOut popOut1Solo2;
+        private Effect.PopOut popOut1Choir;
+        private Effect.PopOut popOut1Voice;
+        private Effect.PopOut popOut1Vocal2;
+        private Effect.PopOut popOut1VocalLong;
+        private Effect.PopOut popOut1End;
+
+        private Effect.PopOut popOut2Piano;
+        private Effect.PopOut popOut2Drums;
+        private Effect.PopOut popOut2DrumsFast;
+        private Effect.PopOut popOut2Chord;
+        private Effect.PopOut popOut2Solo;
+        private Effect.PopOut popOut2Solo2;
+        private Effect.PopOut popOut2Choir;
+        private Effect.PopOut popOut2Voice;
+        private Effect.PopOut popOut2Vocal2;
+        private Effect.PopOut popOut2VocalLong;
+        private Effect.PopOut popOut2End;
 
         public Xmas2013scene(IEnumerable<string> args)
         {
@@ -101,11 +113,11 @@ namespace Animatroller.SceneRunner
             lightSnow1 = new Dimmer("Snow 1");
             lightSnow2 = new Dimmer("Snow 2");
             lightStairs1 = new Dimmer("Stair 1");
+            lightStairs2 = new Dimmer("Stairs 2");
             lightGarland1 = new Dimmer("Garland 1");
             lightGarland2 = new Dimmer("Garland 2");
             lightGarland3 = new Dimmer("Garland 3");
             lightGarland4 = new Dimmer("Garland 4");
-            lightGarland5 = new Dimmer("Garland 5");
             lightString1 = new Dimmer("String 1");
             lightString2 = new Dimmer("String 1");
             lightXmasTree = new Dimmer("Xmas Tree");
@@ -144,94 +156,117 @@ namespace Animatroller.SceneRunner
             switchButtonRed = new Switch("Red");
             audioPlayer = new AudioPlayer("Audio");
 
-            popOutPiano = new Effect.PopOut("Piano", S(0.4));
-            popOutDrums = new Effect.PopOut("Drums", S(0.4));
-            popOutDrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
-            popOutChord = new Effect.PopOut("Chord", S(0.4));
-            popOutSolo = new Effect.PopOut("Solo", S(0.3));
-            popOutSolo2 = new Effect.PopOut("Solo 2", S(0.2));
-            popOutChoir = new Effect.PopOut("Choir", S(1.0));
-            popOutVoice = new Effect.PopOut("Voice", S(1.0));
-            popOutVocal2 = new Effect.PopOut("Vocal 2", S(2.0));
-            popOutVocalLong = new Effect.PopOut("Vocal Long", S(5.0));
-            popOutEnd = new Effect.PopOut("End", S(5.0));
+            popOut1Piano = new Effect.PopOut("Piano", S(0.4));
+            popOut1Drums = new Effect.PopOut("Drums", S(0.4));
+            popOut1DrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
+            popOut1Chord = new Effect.PopOut("Chord", S(0.4));
+            popOut1Solo = new Effect.PopOut("Solo", S(0.3));
+            popOut1Solo2 = new Effect.PopOut("Solo 2", S(0.2));
+            popOut1Choir = new Effect.PopOut("Choir", S(1.0));
+            popOut1Voice = new Effect.PopOut("Voice", S(1.0));
+            popOut1Vocal2 = new Effect.PopOut("Vocal 2", S(2.0));
+            popOut1VocalLong = new Effect.PopOut("Vocal Long", S(5.0));
+            popOut1End = new Effect.PopOut("End", S(5.0));
         }
 
         private void ConfigureMusic1()
         {
-            popOutPiano = new Effect.PopOut("Piano", S(0.4));
-            popOutDrums = new Effect.PopOut("Drums", S(0.4));
-            popOutDrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
-            popOutChord = new Effect.PopOut("Chord", S(0.4));
-            popOutSolo = new Effect.PopOut("Solo", S(0.3));
-            popOutSolo2 = new Effect.PopOut("Solo 2", S(0.2));
-            popOutChoir = new Effect.PopOut("Choir", S(1.0));
-            popOutVoice = new Effect.PopOut("Voice", S(1.0));
-            popOutVocal2 = new Effect.PopOut("Vocal 2", S(2.0));
-            popOutVocalLong = new Effect.PopOut("Vocal Long", S(5.0));
-            popOutEnd = new Effect.PopOut("End", S(5.0));
+            popOut1Piano = new Effect.PopOut("Piano", S(0.4));
+            popOut1Drums = new Effect.PopOut("Drums", S(0.4));
+            popOut1DrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
+            popOut1Chord = new Effect.PopOut("Chord", S(0.4));
+            popOut1Solo = new Effect.PopOut("Solo", S(0.3));
+            popOut1Solo2 = new Effect.PopOut("Solo 2", S(0.2));
+            popOut1Choir = new Effect.PopOut("Choir", S(1.0));
+            popOut1Voice = new Effect.PopOut("Voice", S(1.0));
+            popOut1Vocal2 = new Effect.PopOut("Vocal 2", S(2.0));
+            popOut1VocalLong = new Effect.PopOut("Vocal Long", S(5.0));
+            popOut1End = new Effect.PopOut("End", S(5.0));
 
-            popOutPiano
+            popOut1Piano
                 .AddDevice(lightXmasTree);
 
-            popOutDrums
+            popOut1Drums
+                .AddDevice(lightDeerSmall)
                 .AddDevice(lightDeerLarge)
-                .AddDevice(lightHat1);
+                .AddDevice(lightHat1)
+                .AddDevice(lightHat2)
+                .AddDevice(lightHat3)
+                .AddDevice(lightHat4);
 
-            popOutDrumsFast
-                //.AddDevice(lightCeiling1)
+            popOut1DrumsFast
+                .AddDevice(lightGarland1)
+                .AddDevice(lightGarland2)
+                .AddDevice(lightGarland3)
+                .AddDevice(lightGarland4)
                 .AddDevice(allPixels);
 
-            popOutChord
-                .AddDevice(lightTopperSmall);
-                //.AddDevice(lightTree)
-                //.AddDevice(lightCeiling2)
-                //.AddDevice(lightCeiling3);
-
-            popOutSolo
-                //.AddDevice(lightNetLeft)
-                //.AddDevice(lightNetRight)
-                //.AddDevice(lightCeiling1)
-                //.AddDevice(lightCeiling3)
-                .SetPriority(2);
-
-            popOutSolo2
-                //.AddDevice(lightCeiling1)
-                //.AddDevice(lightCeiling3)
-                .SetPriority(2);
-
-            popOutChoir
-                .AddDevice(lightGarland2)
+            popOut1Chord
+                .AddDevice(lightTopperSmall)
                 .AddDevice(lightTopperLarge);
-                //.AddDevice(lightCeiling1);
+            //.AddDevice(lightTree)
+            //.AddDevice(lightCeiling2)
+            //.AddDevice(lightCeiling3);
 
-            popOutVoice
-                .AddDevice(lightGarland1);
-                //.AddDevice(lightCeiling3);
+            popOut1Solo
+                .AddDevice(lightNet1)
+                .AddDevice(lightNet2)
+                //.AddDevice(lightCeiling1)
+                //.AddDevice(lightCeiling3)
+                .SetPriority(2);
 
-            popOutVocal2
+            popOut1Solo2
+                .AddDevice(lightTreeUp)
+                //.AddDevice(lightCeiling1)
+                //.AddDevice(lightCeiling3)
+                .SetPriority(2);
+
+            popOut1Choir
+                .AddDevice(lightGarland1)
+                .AddDevice(lightTopperLarge);
+            //.AddDevice(lightCeiling1);
+
+            popOut1Voice
+                .AddDevice(lightGarland2);
+            //.AddDevice(lightCeiling3);
+
+            popOut1Vocal2
                 //.AddDevice(lightReindeers)
                 .AddDevice(allPixels)
                 .SetPriority(10);
 
-            popOutVocalLong
+            popOut1VocalLong
+                .AddDevice(lightSnow1)
+                .AddDevice(lightSnow2)
                 //.AddDevice(lightNetRight)
                 //.AddDevice(lightGarlandRight)
                 //.AddDevice(lightHatsRight)
                 .SetPriority(10);
 
-            popOutEnd
+            popOut1End
+                .AddDevice(lightStar)
+                .AddDevice(lightHat1)
+                .AddDevice(lightHat2)
+                .AddDevice(lightHat3)
+                .AddDevice(lightHat4)
+                .AddDevice(lightSnow1)
+                .AddDevice(lightSnow2)
+                .AddDevice(lightStairs1)
+                .AddDevice(lightStairs2)
+                .AddDevice(lightGarland1)
+                .AddDevice(lightGarland2)
+                .AddDevice(lightGarland3)
+                .AddDevice(lightGarland4)
+                .AddDevice(lightString1)
+                .AddDevice(lightString2)
+                .AddDevice(lightXmasTree)
+                .AddDevice(lightDeerLarge)
+                .AddDevice(lightDeerSmall)
                 .AddDevice(lightTreeUp)
-                //.AddDevice(lightReindeers)
-                //.AddDevice(lightHatsRight)
-                //.AddDevice(lightCeiling1)
-                //.AddDevice(lightCeiling2)
-                //.AddDevice(lightCeiling3)
-                //.AddDevice(lightGarlandRight)
-                //.AddDevice(lightGarlandLeft)
-                //.AddDevice(lightTreesRight)
-                //.AddDevice(lightNetRight)
-                //.AddDevice(lightNetLeft)
+                .AddDevice(lightTopperSmall)
+                .AddDevice(lightTopperLarge)
+                .AddDevice(lightNet1)
+                .AddDevice(lightNet2)
                 .AddDevice(allPixels)
                 .SetPriority(100);
 
@@ -314,55 +349,55 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "N1":
-                        popOutPiano.Pop(0.4);
+                        popOut1Piano.Pop(0.4);
                         if (state == 0)
                             allPixels.Inject(Color.Red, 0.5);
                         break;
 
                     case "N2":
-                        popOutPiano.Pop(0.6);
+                        popOut1Piano.Pop(0.6);
                         if (state == 0)
                             allPixels.Inject(Color.White, 0.5);
                         break;
 
                     case "N3":
-                        popOutPiano.Pop(0.8);
+                        popOut1Piano.Pop(0.8);
                         if (state == 0)
                             allPixels.Inject(Color.Blue, 0.5);
                         break;
 
                     case "N4":
-                        popOutPiano.Pop(1.0);
+                        popOut1Piano.Pop(1.0);
                         if (state == 0)
                             allPixels.Inject(Color.Black, 0.0);
                         break;
 
                     case "Base":
-                        popOutDrums.Pop(1.0);
+                        popOut1Drums.Pop(1.0);
                         if (state < 3)
                         {
                             allPixels.SetAllOnlyColor(Color.Purple);
-                            popOutDrumsFast.Pop(1.0);
+                            popOut1DrumsFast.Pop(1.0);
                         }
                         break;
 
                     case "Cymbal":
-                        popOutDrums.Pop(1.0);
+                        popOut1Drums.Pop(1.0);
                         if (state < 3)
                         {
                             allPixels.SetAllOnlyColor(Color.Green);
-                            popOutDrumsFast.Pop(1.0);
+                            popOut1DrumsFast.Pop(1.0);
                         }
                         break;
 
                     case "Chord":
-                        popOutChord.Pop(1.0);
+                        popOut1Chord.Pop(1.0);
                         break;
 
                     case "Solo":
-                        popOutSolo.Pop(1.0);
+                        popOut1Solo.Pop(1.0);
                         if ((halfSolo++ % 2) == 0)
-                            popOutSolo2.Pop(0.8);
+                            popOut1Solo2.Pop(0.8);
                         if (state == 3 || state == 6 || state == 8)
                         {
                             Color pixCol = Color.Black;
@@ -386,19 +421,19 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "Choir":
-                        popOutChoir.Pop(1.0);
+                        popOut1Choir.Pop(1.0);
                         break;
 
                     case "Voice":
-                        popOutVoice.Pop(1.0);
+                        popOut1Voice.Pop(1.0);
                         break;
 
                     case "Vocal2":
-                        popOutVocal2.Pop(1.0);
+                        popOut1Vocal2.Pop(1.0);
                         break;
 
                     case "Long":
-                        popOutVocalLong.Pop(1.0);
+                        popOut1VocalLong.Pop(1.0);
                         break;
 
                     case "LongUp":
@@ -411,7 +446,294 @@ namespace Animatroller.SceneRunner
 
                     case "End":
                         EverythingOff();
-                        popOutEnd.Pop(1.0);
+                        popOut1End.Pop(1.0);
+                        break;
+
+                    default:
+                        log.Info("Unhandled code: " + e.Code);
+                        break;
+                }
+            };
+        }
+
+        private void ConfigureMusic2()
+        {
+            popOut2Piano = new Effect.PopOut("Piano", S(0.4));
+            popOut2Drums = new Effect.PopOut("Drums", S(0.4));
+            popOut2DrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
+            popOut2Chord = new Effect.PopOut("Chord", S(0.4));
+            popOut2Solo = new Effect.PopOut("Solo", S(0.3));
+            popOut2Solo2 = new Effect.PopOut("Solo 2", S(0.2));
+            popOut2Choir = new Effect.PopOut("Choir", S(1.0));
+            popOut2Voice = new Effect.PopOut("Voice", S(1.0));
+            popOut2Vocal2 = new Effect.PopOut("Vocal 2", S(2.0));
+            popOut2VocalLong = new Effect.PopOut("Vocal Long", S(5.0));
+            popOut2End = new Effect.PopOut("End", S(5.0));
+
+            popOut2Piano
+                .AddDevice(lightXmasTree);
+
+            popOut2Drums
+                .AddDevice(lightDeerSmall)
+                .AddDevice(lightDeerLarge)
+                .AddDevice(lightHat1)
+                .AddDevice(lightHat2)
+                .AddDevice(lightHat3)
+                .AddDevice(lightHat4);
+
+            popOut2DrumsFast
+                .AddDevice(lightGarland1)
+                .AddDevice(lightGarland2)
+                .AddDevice(lightGarland3)
+                .AddDevice(lightGarland4)
+                .AddDevice(allPixels);
+
+            popOut2Chord
+                .AddDevice(lightTopperSmall)
+                .AddDevice(lightTopperLarge);
+            //.AddDevice(lightTree)
+            //.AddDevice(lightCeiling2)
+            //.AddDevice(lightCeiling3);
+
+            popOut2Solo
+                .AddDevice(lightNet1)
+                .AddDevice(lightNet2)
+                //.AddDevice(lightCeiling1)
+                //.AddDevice(lightCeiling3)
+                .SetPriority(2);
+
+            popOut2Solo2
+                .AddDevice(lightTreeUp)
+                //.AddDevice(lightCeiling1)
+                //.AddDevice(lightCeiling3)
+                .SetPriority(2);
+
+            popOut2Choir
+                .AddDevice(lightGarland1)
+                .AddDevice(lightTopperLarge);
+            //.AddDevice(lightCeiling1);
+
+            popOut2Voice
+                .AddDevice(lightGarland2);
+            //.AddDevice(lightCeiling3);
+
+            popOut2Vocal2
+                //.AddDevice(lightReindeers)
+                .AddDevice(allPixels)
+                .SetPriority(10);
+
+            popOut2VocalLong
+                .AddDevice(lightSnow1)
+                .AddDevice(lightSnow2)
+                //.AddDevice(lightNetRight)
+                //.AddDevice(lightGarlandRight)
+                //.AddDevice(lightHatsRight)
+                .SetPriority(10);
+
+            popOut2End
+                .AddDevice(lightStar)
+                .AddDevice(lightHat1)
+                .AddDevice(lightHat2)
+                .AddDevice(lightHat3)
+                .AddDevice(lightHat4)
+                .AddDevice(lightSnow1)
+                .AddDevice(lightSnow2)
+                .AddDevice(lightStairs1)
+                .AddDevice(lightStairs2)
+                .AddDevice(lightGarland1)
+                .AddDevice(lightGarland2)
+                .AddDevice(lightGarland3)
+                .AddDevice(lightGarland4)
+                .AddDevice(lightString1)
+                .AddDevice(lightString2)
+                .AddDevice(lightXmasTree)
+                .AddDevice(lightDeerLarge)
+                .AddDevice(lightDeerSmall)
+                .AddDevice(lightTreeUp)
+                .AddDevice(lightTopperSmall)
+                .AddDevice(lightTopperLarge)
+                .AddDevice(lightNet1)
+                .AddDevice(lightNet2)
+                .AddDevice(allPixels)
+                .SetPriority(100);
+
+            timeline.AddMs(0, "INIT");
+            timeline.PopulateFromCSV("Christmas Canon Rock All Labels.csv");
+            int state = 0;
+            int halfSolo = 0;
+
+            timeline.TimelineTrigger += (sender, e) =>
+            {
+                switch (e.Step)
+                {
+                    case 62:
+                        // First drum
+                        state = 1;
+                        allPixels.TurnOff();
+                        break;
+
+                    case 69:
+                        state = 2;
+                        //lightCeiling2.SetOnlyColor(Color.Green);
+                        //lightCeiling3.SetOnlyColor(Color.Blue);
+                        break;
+
+                    case 136:
+                        // First solo
+                        state = 3;
+                        allPixels.TurnOff();
+                        //lightCeiling2.SetOnlyColor(Color.White);
+                        //lightCeiling3.SetOnlyColor(Color.Red);
+                        break;
+
+                    case 265:
+                        // First choir
+                        allPixels.TurnOff();
+                        state = 4;
+                        break;
+
+                    case 396:
+                        // Vocal 2
+                        state = 5;
+                        allPixels.SetAllOnlyColor(Color.Blue);
+                        break;
+
+                    case 497:
+                        // Second solo
+                        state = 6;
+                        allPixels.TurnOff();
+                        //lightCeiling2.SetOnlyColor(Color.White);
+                        //lightCeiling3.SetOnlyColor(Color.Red);
+                        break;
+
+                    case 561:
+                        // End second solo
+                        state = 7;
+                        allPixels.TurnOff();
+                        break;
+
+                    case 585:
+                        // End third solo
+                        state = 8;
+                        allPixels.TurnOff();
+                        break;
+
+                    case 721:
+                        // End third solo
+                        state = 9;
+                        allPixels.TurnOff();
+                        break;
+                }
+
+                switch (e.Code)
+                {
+                    case "INIT":
+                        state = 0;
+                        halfSolo = 0;
+                        //lightCeiling1.SetColor(Color.White, 0);
+                        //lightCeiling2.SetColor(Color.Blue, 0);
+                        //lightCeiling3.SetColor(Color.Red, 0);
+                        break;
+
+                    case "N1":
+                        popOut2Piano.Pop(0.4);
+                        if (state == 0)
+                            allPixels.Inject(Color.Red, 0.5);
+                        break;
+
+                    case "N2":
+                        popOut2Piano.Pop(0.6);
+                        if (state == 0)
+                            allPixels.Inject(Color.White, 0.5);
+                        break;
+
+                    case "N3":
+                        popOut2Piano.Pop(0.8);
+                        if (state == 0)
+                            allPixels.Inject(Color.Blue, 0.5);
+                        break;
+
+                    case "N4":
+                        popOut2Piano.Pop(1.0);
+                        if (state == 0)
+                            allPixels.Inject(Color.Black, 0.0);
+                        break;
+
+                    case "Base":
+                        popOut2Drums.Pop(1.0);
+                        if (state < 3)
+                        {
+                            allPixels.SetAllOnlyColor(Color.Purple);
+                            popOut2DrumsFast.Pop(1.0);
+                        }
+                        break;
+
+                    case "Cymbal":
+                        popOut2Drums.Pop(1.0);
+                        if (state < 3)
+                        {
+                            allPixels.SetAllOnlyColor(Color.Green);
+                            popOut2DrumsFast.Pop(1.0);
+                        }
+                        break;
+
+                    case "Chord":
+                        popOut2Chord.Pop(1.0);
+                        break;
+
+                    case "Solo":
+                        popOut2Solo.Pop(1.0);
+                        if ((halfSolo++ % 2) == 0)
+                            popOut2Solo2.Pop(0.8);
+                        if (state == 3 || state == 6 || state == 8)
+                        {
+                            Color pixCol = Color.Black;
+                            switch (e.Step % 4)
+                            {
+                                case 0:
+                                    pixCol = Color.Red;
+                                    break;
+                                case 1:
+                                    pixCol = Color.Yellow;
+                                    break;
+                                case 2:
+                                    pixCol = Color.Blue;
+                                    break;
+                                case 3:
+                                    pixCol = Color.Pink;
+                                    break;
+                            }
+                            allPixels.Inject(pixCol, 1.0);
+                        }
+                        break;
+
+                    case "Choir":
+                        popOut2Choir.Pop(1.0);
+                        break;
+
+                    case "Voice":
+                        popOut2Voice.Pop(1.0);
+                        break;
+
+                    case "Vocal2":
+                        popOut2Vocal2.Pop(1.0);
+                        break;
+
+                    case "Long":
+                        popOut2VocalLong.Pop(1.0);
+                        break;
+
+                    case "LongUp":
+                        // TODO
+                        break;
+
+                    case "Down":
+                        // TODO
+                        break;
+
+                    case "End":
+                        EverythingOff();
+                        popOut2End.Pop(1.0);
                         break;
 
                     default:
@@ -433,7 +755,7 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.AddDigitalInput_Momentarily(buttonTest);
+            sim.AddDigitalInput_FlipFlop(buttonTest);
             sim.AddDigitalInput_FlipFlop(buttonOverrideHours);
             sim.AddDigitalInput_Momentarily(buttonStartInflatables);
 
@@ -459,16 +781,16 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.GenericDimmer(lightSnow2, 7), 21);
             port.Connect(new Physical.GenericDimmer(lightTopperSmall, 8), 21);
             port.Connect(new Physical.GenericDimmer(lightTopperLarge, 9), 21);
-            port.Connect(new Physical.GenericDimmer(lightGarland1, 22), 21);
-            port.Connect(new Physical.GenericDimmer(lightGarland2, 10), 21);
+            port.Connect(new Physical.GenericDimmer(lightGarland1, 10), 21);
             port.Connect(new Physical.GenericDimmer(lightString2, 11), 21);
-            port.Connect(new Physical.GenericDimmer(lightGarland3, 12), 21);
-            port.Connect(new Physical.GenericDimmer(lightGarland5, 13), 21);
+            port.Connect(new Physical.GenericDimmer(lightGarland4, 12), 21);
+            port.Connect(new Physical.GenericDimmer(lightGarland3, 13), 21);
             port.Connect(new Physical.GenericDimmer(lightXmasTree, 14), 21);
-            port.Connect(new Physical.GenericDimmer(lightGarland4, 15), 21);
+            port.Connect(new Physical.GenericDimmer(lightStairs2, 15), 21);
             port.Connect(new Physical.GenericDimmer(lightNet1, 17), 21);
             port.Connect(new Physical.GenericDimmer(lightString1, 19), 21);
             port.Connect(new Physical.GenericDimmer(lightNet2, 20), 21);
+            port.Connect(new Physical.GenericDimmer(lightGarland2, 22), 21);
             port.Connect(new Physical.GenericDimmer(lightStairs1, 24), 21);
 
             port.Connect(new Physical.GenericDimmer(switchDeerHuge, 3), 20);
@@ -501,13 +823,29 @@ namespace Animatroller.SceneRunner
             //TODO
             pulsatingEffect1.Stop();
             flickerEffect.Stop();
+
+            lightGarland1.TurnOff();
+            lightGarland2.TurnOff();
+            lightGarland3.TurnOff();
+            lightGarland4.TurnOff();
+            lightStairs1.TurnOff();
+            lightStairs2.TurnOff();
+            lightXmasTree.TurnOff();
+            lightDeerSmall.TurnOff();
+            lightDeerLarge.TurnOff();
+            lightTopperLarge.TurnOff();
+            lightTopperSmall.TurnOff();
+            lightNet1.TurnOff();
+            lightNet2.TurnOff();
+            lightString1.TurnOff();
+            lightString2.TurnOff();
         }
 
         public override void Start()
         {
             hours.AddRange("5:00 pm", "11:00 pm");
 
-            bool.TryParse(Exec.GetKey("InflatablesRunning", false.ToString()) , out inflatablesRunning);
+            bool.TryParse(Exec.GetKey("InflatablesRunning", false.ToString()), out inflatablesRunning);
 
             buttonOverrideHours.ActiveChanged += (i, e) =>
                 {
@@ -572,18 +910,24 @@ namespace Animatroller.SceneRunner
                 {
                     pulsatingEffect1.Start();
                     flickerEffect.Start();
-                    //lightGarlandLeft.Brightness = 1;
-                    //lightGarlandRight.Brightness = 1;
-                    //lightIcicles.Brightness = 1;
-                    //lightTreesRight.Brightness = 1;
-                    //lightHatsRight.Brightness = 1;
-                    //lightNetLeft.Brightness = 0.5;
-                    //lightNetRight.Brightness = 0.5;
-                    //lightReindeers.Brightness = 1;
-                    //lightTree.Brightness = 1;
-                    //lightCeiling1.SetColor(Color.Red, 0.5);
-                    //lightCeiling2.SetColor(Color.Red, 0.5);
-                    //lightCeiling3.SetColor(Color.Red, 0.5);
+                    switchButtonBlue.SetPower(true);
+                    switchButtonRed.SetPower(true);
+
+                    lightGarland1.SetBrightness(1.0);
+                    lightGarland2.SetBrightness(1.0);
+                    lightGarland3.SetBrightness(1.0);
+                    lightGarland4.SetBrightness(1.0);
+                    lightStairs1.SetBrightness(1.0);
+                    lightStairs2.SetBrightness(1.0);
+                    lightXmasTree.SetBrightness(1.0);
+                    lightDeerSmall.SetBrightness(1.0);
+                    lightDeerLarge.SetBrightness(1.0);
+                    lightTopperLarge.SetBrightness(1.0);
+                    lightTopperSmall.SetBrightness(1.0);
+                    lightNet1.SetBrightness(1.0);
+                    lightNet2.SetBrightness(1.0);
+                    lightString1.SetBrightness(1.0);
+                    lightString2.SetBrightness(1.0);
 
                     Executor.Current.Execute(twinkleSeq);
                 })
@@ -591,6 +935,8 @@ namespace Animatroller.SceneRunner
                 {
                     Executor.Current.Cancel(twinkleSeq);
 
+                    switchButtonBlue.SetPower(false);
+                    switchButtonRed.SetPower(false);
                     EverythingOff();
                 });
 
@@ -599,7 +945,6 @@ namespace Animatroller.SceneRunner
                 .SetUp(() =>
                 {
                     audioPlayer.CueTrack("21. Christmas Canon Rock");
-                    ConfigureMusic1();
                     // Make sure it's ready
                     System.Threading.Thread.Sleep(800);
 
@@ -645,7 +990,6 @@ namespace Animatroller.SceneRunner
                 .SetUp(() =>
                 {
                     audioPlayer.CueTrack("05. Frozen - Let It Go");
-                    //ConfigureMusic2();
                     // Make sure it's ready
                     System.Threading.Thread.Sleep(800);
 
@@ -748,6 +1092,8 @@ namespace Animatroller.SceneRunner
             // Test Button
             buttonTest.ActiveChanged += (sender, e) =>
             {
+//                lightGarland4.Brightness = e.NewState ? 1.0 : 0.0;
+
                 if (!e.NewState)
                     return;
 
@@ -780,9 +1126,14 @@ namespace Animatroller.SceneRunner
 
             buttonRed.ActiveChanged += (o, e) =>
             {
-                switchButtonRed.SetPower(e.NewState);
                 if (e.NewState)
-                    audioPlayer.PauseTrack();
+                {
+                    if (hours.IsOpen)
+                    {
+                        if (stateMachine.CurrentState == States.Background)
+                            stateMachine.SetMomentaryState(States.Music2);
+                    }
+                }
             };
 
             audioPlayer.AudioTrackDone += (o, e) =>
@@ -857,6 +1208,9 @@ namespace Animatroller.SceneRunner
             //lightVader.Follow(hours);
             //switchButtonBlue.Follow(hours);
             //switchButtonRed.Follow(hours);
+
+            ConfigureMusic1();
+            ConfigureMusic2();
         }
 
         public override void Run()
