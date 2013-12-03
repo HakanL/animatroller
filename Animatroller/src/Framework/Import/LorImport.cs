@@ -45,15 +45,18 @@ namespace Animatroller.Framework.Import
                 for (int pos = 0; pos < this.effectsPerChannel; pos++)
                 {
                     long centiSeconds = pos * this.eventPeriodInMilliseconds / 10;
-                    foreach (var effect in channel.effect)
+                    if (channel.effect != null)
                     {
-                        if (effect.startCentisecond > centiSeconds)
-                            break;
-
-                        if (centiSeconds >= effect.startCentisecond && centiSeconds < effect.endCentisecond)
+                        foreach (var effect in channel.effect)
                         {
-                            channelEffectData[pos] = (byte)(effect.intensity * 255 / 100);
-                            break;
+                            if (effect.startCentisecond > centiSeconds)
+                                break;
+
+                            if (centiSeconds >= effect.startCentisecond && centiSeconds < effect.endCentisecond)
+                            {
+                                channelEffectData[pos] = (byte)(effect.intensity * 255 / 100);
+                                break;
+                            }
                         }
                     }
                 }
