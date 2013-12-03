@@ -10,6 +10,13 @@ namespace Animatroller.Framework
     public abstract class BaseScene : IScene
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
+        //protected HashFile.HashFile hashFile;
+
+        public BaseScene()
+        {
+            //this.hashFile = new HashFile.HashFile();
+            //this.hashFile.Initialize(this.GetType().Name, 50, 100);
+        }
 
         protected TimeSpan S(double seconds)
         {

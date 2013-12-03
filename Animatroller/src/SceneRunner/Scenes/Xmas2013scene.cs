@@ -17,10 +17,20 @@ namespace Animatroller.SceneRunner
 {
     internal class Xmas2013scene : BaseScene, ISceneRequiresAcnStream, ISceneSupportsSimulator, ISceneRequiresRaspExpander1
     {
+        public enum States
+        {
+            Background,
+            Music1,
+            Music2,
+            Vader
+        }
+
+        private Controller.Timeline<string> timeline;
+        private Controller.StateMachine<States> stateMachine;
         private OperatingHours hours;
         private VirtualPixel1D allPixels;
         private DigitalInput buttonTest;
-        private DigitalInput buttonStartDeer;
+        private DigitalInput buttonStartInflatables;
         private DigitalInput buttonOverrideHours;
         private DigitalInput buttonBlue;
         private DigitalInput buttonRed;
@@ -53,18 +63,24 @@ namespace Animatroller.SceneRunner
         private Switch switchDeerHuge;
         private Switch switchButtonBlue;
         private Switch switchButtonRed;
-        private AudioPlayer audio;
+        private AudioPlayer audioPlayer;
+        private Controller.Sequence backgroundLoop;
+        private Controller.Sequence music1Seq;
+        private Controller.Sequence music2Seq;
+        private Controller.Sequence fatherSeq;
 
         private Effect.Pulsating pulsatingEffect1;
         private Effect.Flicker flickerEffect;
         private Controller.Sequence candyCane;
         private Controller.Sequence twinkleSeq;
-        private bool hugeDeerStarted;
+        private bool inflatablesRunning;
 
         public Xmas2013scene(IEnumerable<string> args)
         {
             hours = new OperatingHours("Hours");
 
+            timeline = new Controller.Timeline<string>(1);
+            stateMachine = new Controller.StateMachine<States>("Main");
             lightStar = new Dimmer("Star");
             lightHat1 = new Dimmer("Hat 1");
             lightHat2 = new Dimmer("Hat 2");
@@ -99,25 +115,39 @@ namespace Animatroller.SceneRunner
 
             candyCane = new Controller.Sequence("Candy Cane");
             twinkleSeq = new Controller.Sequence("Twinkle");
+            backgroundLoop = new Controller.Sequence("Background");
+            music1Seq = new Controller.Sequence("Christmas Canon");
+            music2Seq = new Controller.Sequence("Let It Go");
+            fatherSeq = new Controller.Sequence("Father");
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
 
             buttonTest = new DigitalInput("Test");
-            buttonStartDeer = new DigitalInput("Start Deer");
-            buttonOverrideHours = new DigitalInput("Override hours");
+            buttonStartInflatables = new DigitalInput("Inflatables");
+            buttonOverrideHours = new DigitalInput("Override hours", true);
 
             buttonBlue = new DigitalInput("Blue");
             buttonRed = new DigitalInput("Red");
             switchButtonBlue = new Switch("Blue");
             switchButtonRed = new Switch("Red");
-            audio = new AudioPlayer("Audio");
+            audioPlayer = new AudioPlayer("Audio");
+        }
+
+        private bool InflatablesRunning
+        {
+            get { return this.inflatablesRunning; }
+            set
+            {
+                this.inflatablesRunning = value;
+                Exec.SetKey("InflatablesRunning", inflatablesRunning.ToString());
+            }
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
             sim.AddDigitalInput_Momentarily(buttonTest);
             sim.AddDigitalInput_FlipFlop(buttonOverrideHours);
-            sim.AddDigitalInput_Momentarily(buttonStartDeer);
+            sim.AddDigitalInput_Momentarily(buttonStartInflatables);
 
             sim.AddDigitalInput_Momentarily(buttonBlue);
             sim.AddDigitalInput_Momentarily(buttonRed);
@@ -169,7 +199,7 @@ namespace Animatroller.SceneRunner
             port.DigitalOutputs[0].Connect(switchButtonBlue);
             port.DigitalOutputs[1].Connect(switchButtonRed);
 
-            port.Connect(audio);
+            port.Connect(audioPlayer);
         }
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)
@@ -178,9 +208,18 @@ namespace Animatroller.SceneRunner
             System.Threading.Thread.Sleep(delay);
         }
 
+        private void EverythingOff()
+        {
+            //TODO
+            pulsatingEffect1.Stop();
+            flickerEffect.Stop();
+        }
+
         public override void Start()
         {
             hours.AddRange("5:00 pm", "11:00 pm");
+
+            bool.TryParse(Exec.GetKey("InflatablesRunning", false.ToString()) , out inflatablesRunning);
 
             buttonOverrideHours.ActiveChanged += (i, e) =>
                 {
@@ -239,7 +278,182 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() => allPixels.TurnOff());
 
+            backgroundLoop
+                .WhenExecuted
+                .SetUp(() =>
+                {
+                    pulsatingEffect1.Start();
+                    flickerEffect.Start();
+                    //lightGarlandLeft.Brightness = 1;
+                    //lightGarlandRight.Brightness = 1;
+                    //lightIcicles.Brightness = 1;
+                    //lightTreesRight.Brightness = 1;
+                    //lightHatsRight.Brightness = 1;
+                    //lightNetLeft.Brightness = 0.5;
+                    //lightNetRight.Brightness = 0.5;
+                    //lightReindeers.Brightness = 1;
+                    //lightTree.Brightness = 1;
+                    //lightCeiling1.SetColor(Color.Red, 0.5);
+                    //lightCeiling2.SetColor(Color.Red, 0.5);
+                    //lightCeiling3.SetColor(Color.Red, 0.5);
 
+                    Executor.Current.Execute(twinkleSeq);
+                })
+                .TearDown(() =>
+                {
+                    Executor.Current.Cancel(twinkleSeq);
+
+                    EverythingOff();
+                });
+
+            music1Seq
+                .WhenExecuted
+                .SetUp(() =>
+                {
+                    audioPlayer.CueTrack("05. Frozen - Let It Go");
+                    // Make sure it's ready
+                    System.Threading.Thread.Sleep(800);
+
+                    EverythingOff();
+                })
+                .Execute(instance =>
+                {
+                    audioPlayer.ResumeTrack();
+                    var task = timeline.Start();
+
+                    try
+                    {
+                        task.Wait(instance.CancelToken);
+
+                        instance.WaitFor(S(10));
+                    }
+                    finally
+                    {
+                        timeline.Stop();
+                        audioPlayer.PauseTrack();
+                    }
+
+                    if (!instance.IsCancellationRequested)
+                        instance.WaitFor(S(2));
+                    EverythingOff();
+
+                    instance.WaitFor(S(2), true);
+
+
+                    Executor.Current.Execute(backgroundLoop);
+                    instance.WaitFor(S(30));
+                    Executor.Current.Cancel(backgroundLoop);
+                    EverythingOff();
+                    instance.WaitFor(S(1));
+                })
+                    .TearDown(() =>
+                    {
+                        EverythingOff();
+                    });
+
+            music2Seq
+                .WhenExecuted
+                .SetUp(() =>
+                {
+                    audioPlayer.CueTrack("05. Frozen - Let It Go");
+                    // Make sure it's ready
+                    System.Threading.Thread.Sleep(800);
+
+                    EverythingOff();
+                })
+                .Execute(instance =>
+                {
+                    audioPlayer.ResumeTrack();
+                    var task = timeline.Start();
+
+                    try
+                    {
+                        task.Wait(instance.CancelToken);
+
+                        instance.WaitFor(S(10));
+                    }
+                    finally
+                    {
+                        timeline.Stop();
+                        audioPlayer.PauseTrack();
+                    }
+
+                    if (!instance.IsCancellationRequested)
+                        instance.WaitFor(S(2));
+                    EverythingOff();
+
+                    instance.WaitFor(S(2), true);
+
+
+                    Executor.Current.Execute(backgroundLoop);
+                    instance.WaitFor(S(30));
+                    Executor.Current.Cancel(backgroundLoop);
+                    EverythingOff();
+                    instance.WaitFor(S(1));
+                })
+                    .TearDown(() =>
+                    {
+                        EverythingOff();
+                    });
+
+            fatherSeq
+                .WhenExecuted
+                .Execute(instance =>
+                {
+                    //Executor.Current.Execute(starwarsCane);
+
+                    EverythingOff();
+
+                    audioPlayer.CueTrack("01. Star Wars - Main Title");
+                    // Make sure it's ready
+                    instance.WaitFor(S(0.5));
+                    audioPlayer.ResumeTrack();
+
+                    //lightCeiling1.SetOnlyColor(Color.Yellow);
+                    //lightCeiling2.SetOnlyColor(Color.Yellow);
+                    //lightCeiling3.SetOnlyColor(Color.Yellow);
+                    //pulsatingEffect2.Start();
+                    instance.WaitFor(S(16));
+                    //pulsatingEffect2.Stop();
+                    audioPlayer.PauseTrack();
+                    //Executor.Current.Cancel(starwarsCane);
+                    allPixels.TurnOff();
+                    instance.WaitFor(S(0.5));
+
+                    //elJesus.SetPower(true);
+                    //lightJesus.SetColor(Color.White, 0.3);
+
+                    instance.WaitFor(S(1.5));
+
+                    //elLightsaber.SetPower(true);
+                    audioPlayer.PlayEffect("saberon");
+                    instance.WaitFor(S(1));
+
+                    lightVader.SetColor(Color.Red, 1.0);
+                    audioPlayer.PlayEffect("father");
+                    instance.WaitFor(S(3));
+
+                    lightVader.TurnOff();
+                    audioPlayer.PlayEffect("saberoff");
+                    instance.WaitFor(S(0.5));
+                    //elLightsaber.SetPower(false);
+                    instance.WaitFor(S(1));
+
+                    //lightJesus.TurnOff();
+                    //elLightsaber.TurnOff();
+                    //elJesus.TurnOff();
+                });
+
+            buttonStartInflatables.ActiveChanged += (o, e) =>
+                {
+                    if (e.NewState && hours.IsOpen)
+                    {
+                        InflatablesRunning = true;
+
+                        switchDeerHuge.SetPower(true);
+                        switchSanta.SetPower(true);
+                    }
+                };
 
             // Test Button
             buttonTest.ActiveChanged += (sender, e) =>
@@ -266,8 +480,11 @@ namespace Animatroller.SceneRunner
                 {
                     if (e.NewState)
                     {
-                        switchButtonBlue.SetPower(true);
-                        audio.PlayTrack("05. Frozen - Let It Go");
+                        if (hours.IsOpen)
+                        {
+                            if (stateMachine.CurrentState == States.Background)
+                                stateMachine.SetMomentaryState(States.Music2);
+                        }
                     }
                 };
 
@@ -275,10 +492,10 @@ namespace Animatroller.SceneRunner
             {
                 switchButtonRed.SetPower(e.NewState);
                 if (e.NewState)
-                    audio.PauseTrack();
+                    audioPlayer.PauseTrack();
             };
 
-            audio.AudioTrackDone += (o, e) =>
+            audioPlayer.AudioTrackDone += (o, e) =>
             {
                 switchButtonBlue.SetPower(false);
             };
@@ -294,25 +511,40 @@ namespace Animatroller.SceneRunner
             {
                 if (e.IsOpenNow)
                 {
+                    stateMachine.SetBackgroundState(States.Background);
+                    stateMachine.SetState(States.Background);
                     lightTreeUp.SetColor(Color.Red, 1.0);
-
-                    Exec.Execute(twinkleSeq);
-                    pulsatingEffect1.Start();
-                    flickerEffect.Start();
                     lightSnow1.SetBrightness(1.0);
                     lightSnow2.SetBrightness(1.0);
+
+                    if (InflatablesRunning)
+                    {
+                        switchDeerHuge.SetPower(true);
+                        switchSanta.SetPower(true);
+                    }
                 }
                 else
                 {
+                    if (buttonOverrideHours.Active)
+                        return;
+
+                    stateMachine.Hold();
+                    stateMachine.SetBackgroundState(null);
                     lightSnow1.TurnOff();
                     lightSnow2.TurnOff();
                     lightTreeUp.TurnOff();
-                    flickerEffect.Stop();
-                    pulsatingEffect1.Stop();
-                    Exec.Cancel(twinkleSeq);
                     System.Threading.Thread.Sleep(200);
+
+                    switchDeerHuge.TurnOff();
+                    switchSanta.TurnOff();
+                    InflatablesRunning = false;
                 }
             };
+
+            stateMachine.ForFromSequence(States.Background, backgroundLoop);
+            stateMachine.ForFromSequence(States.Music1, music1Seq);
+            stateMachine.ForFromSequence(States.Music2, music2Seq);
+            stateMachine.ForFromSequence(States.Vader, fatherSeq);
 
             lightGarland1.Follow(hours);
             lightGarland2.Follow(hours);
@@ -323,7 +555,6 @@ namespace Animatroller.SceneRunner
             lightStairs1.Follow(hours);
             lightDeerSmall.Follow(hours);
             lightDeerLarge.Follow(hours);
-            switchSanta.Follow(hours);
             //light3wise.Follow(hours);
             //lightVader.Follow(hours);
             lightTopperLarge.Follow(hours);
@@ -334,7 +565,6 @@ namespace Animatroller.SceneRunner
             lightNet2.Follow(hours);
             lightString1.Follow(hours);
             lightString2.Follow(hours);
-            switchDeerHuge.Follow(hours);
         }
 
         public override void Run()

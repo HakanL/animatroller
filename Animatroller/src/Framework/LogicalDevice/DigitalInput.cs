@@ -11,13 +11,22 @@ namespace Animatroller.Framework.LogicalDevice
     {
         protected string name;
         protected bool active;
+        protected string instanceKey;
 
         public event EventHandler<StateChangedEventArgs> ActiveChanged;
 
-        public DigitalInput(string name)
+        public DigitalInput(string name, bool persistState = false)
         {
             this.name = name;
             Executor.Current.Register(this);
+
+            if (persistState)
+                instanceKey = name.GetHashCode().ToString() + "_";
+            else
+                instanceKey = null;
+
+            if(instanceKey != null)
+                bool.TryParse(Executor.Current.GetKey(instanceKey + "input", false.ToString()), out active);
         }
 
         protected virtual void RaiseActiveChanged()
@@ -48,6 +57,9 @@ namespace Animatroller.Framework.LogicalDevice
                     this.active = value;
 
                     RaiseActiveChanged();
+
+                    if (instanceKey != null)
+                        Executor.Current.SetKey(this.instanceKey + "input", this.active.ToString());
                 }
             }
         }

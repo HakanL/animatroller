@@ -32,6 +32,7 @@ namespace Animatroller.Framework
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
         private Controller.HighPrecisionTimer masterTimer;
         private Effect.MasterSweeper masterSweeper;
+        private string keyStoragePath;
 
         public Executor()
         {
@@ -45,6 +46,24 @@ namespace Animatroller.Framework
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
             this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
+            this.keyStoragePath = System.IO.Path.GetTempPath();
+        }
+
+        public string GetKey(string key, string defaultValue)
+        {
+            try
+            {
+                return BinaryRage.DB<string>.Get(key, this.keyStoragePath);
+            }
+            catch (System.IO.DirectoryNotFoundException)
+            {
+                return defaultValue;
+            }
+        }
+
+        public void SetKey(string key, string value)
+        {
+            BinaryRage.DB<string>.Insert(key, value, this.keyStoragePath);
         }
 
         public Executor Register(IDevice device)

@@ -41,18 +41,24 @@
     <Reference Include="Acn">
       <HintPath>..\..\lib\Acn.dll</HintPath>
     </Reference>
+    <Reference Include="BinaryRage">
+      <HintPath>..\packages\BinaryRage.0.1.2\lib\net40\BinaryRage.dll</HintPath>
+    </Reference>
     <Reference Include="CircularBuffer">
       <HintPath>..\..\lib\CircularBuffer.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+    <Reference Include="NLog, Version=2.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NLog.2.1.0\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Rug.Osc, Version=1.2.3.41122, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\Rug.Osc.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />

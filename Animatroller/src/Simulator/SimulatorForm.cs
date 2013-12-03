@@ -246,6 +246,8 @@ namespace Animatroller.Simulator
 
             device.Connect(logicalDevice);
 
+            control.Checked = logicalDevice.Active;
+
             return device;
         }
 
