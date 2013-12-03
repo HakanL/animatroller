@@ -15,6 +15,7 @@ namespace Animatroller.Framework.Expander
         private OscServer oscServer;
         private string hostName;
         private int hostPort;
+        private event EventHandler<EventArgs> AudioTrackDone;
 
         public Raspberry(string hostEntry, int listenPort)
         {
@@ -45,6 +46,12 @@ namespace Animatroller.Framework.Expander
             this.oscServer.RegisterAction("/init", msg =>
                 {
                     log.Info("Raspberry is up");
+                });
+
+            this.oscServer.RegisterAction("/audio/trk/done", msg =>
+                {
+                    log.Debug("Audio track done");
+                    RaiseAudioTrackDone();
                 });
 
             this.oscServer.RegisterAction<int>("/input", (msg, data) =>
@@ -110,6 +117,13 @@ namespace Animatroller.Framework.Expander
         public PhysicalDevice.DigitalOutput[] DigitalOutputs { get; private set; }
         public PhysicalDevice.MotorWithFeedback Motor { get; private set; }
 
+        protected virtual void RaiseAudioTrackDone()
+        {
+            var handler = AudioTrackDone;
+            if (handler != null)
+                handler(this, EventArgs.Empty);
+        }
+
         public void Start()
         {
             this.oscClient.Send("/init");
@@ -129,6 +143,11 @@ namespace Animatroller.Framework.Expander
 
         public Raspberry Connect(LogicalDevice.AudioPlayer logicalDevice)
         {
+            this.AudioTrackDone += (o, e) =>
+                {
+                    logicalDevice.RaiseAudioTrackDone();
+                };
+
             logicalDevice.AudioChanged += (sender, e) =>
                 {
                     switch (e.Command)

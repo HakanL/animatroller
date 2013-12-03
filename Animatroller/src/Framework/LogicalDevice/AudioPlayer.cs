@@ -14,6 +14,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public event EventHandler<AudioChangedEventArgs> AudioChanged;
         public event EventHandler<AudioCommandEventArgs> ExecuteCommand;
+        public event EventHandler<EventArgs> AudioTrackDone;
 
         public AudioPlayer(string name)
         {
@@ -28,6 +29,13 @@ namespace Animatroller.Framework.LogicalDevice
         public string Name
         {
             get { return this.name; }
+        }
+
+        internal void RaiseAudioTrackDone()
+        {
+            var handler = AudioTrackDone;
+            if (handler != null)
+                handler(this, EventArgs.Empty);
         }
 
         protected virtual void RaiseAudioChanged(AudioChangedEventArgs.Commands command, string audioFile, double? leftVolume = null, double? rightVolume = null)

@@ -37,6 +37,8 @@ namespace Animatroller.SceneRunner
         private Dimmer lightGarland3;
         private Dimmer lightGarland4;
         private Dimmer lightGarland5;
+        private Dimmer lightString1;
+        private Dimmer lightString2;
         private Dimmer lightXmasTree;
         private Dimmer lightDeerLarge;
         private Dimmer lightDeerSmall;
@@ -76,6 +78,8 @@ namespace Animatroller.SceneRunner
             lightGarland3 = new Dimmer("Garland 3");
             lightGarland4 = new Dimmer("Garland 4");
             lightGarland5 = new Dimmer("Garland 5");
+            lightString1 = new Dimmer("String 1");
+            lightString2 = new Dimmer("String 1");
             lightXmasTree = new Dimmer("Xmas Tree");
 
             lightDeerLarge = new Dimmer("Deer Large");
@@ -139,11 +143,13 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.GenericDimmer(lightTopperLarge, 9), 21);
             port.Connect(new Physical.GenericDimmer(lightGarland1, 22), 21);
             port.Connect(new Physical.GenericDimmer(lightGarland2, 10), 21);
+            port.Connect(new Physical.GenericDimmer(lightString2, 11), 21);
             port.Connect(new Physical.GenericDimmer(lightGarland3, 12), 21);
             port.Connect(new Physical.GenericDimmer(lightGarland5, 13), 21);
             port.Connect(new Physical.GenericDimmer(lightXmasTree, 14), 21);
             port.Connect(new Physical.GenericDimmer(lightGarland4, 15), 21);
             port.Connect(new Physical.GenericDimmer(lightNet1, 17), 21);
+            port.Connect(new Physical.GenericDimmer(lightString1, 19), 21);
             port.Connect(new Physical.GenericDimmer(lightNet2, 20), 21);
             port.Connect(new Physical.GenericDimmer(lightStairs1, 24), 21);
 
@@ -258,12 +264,23 @@ namespace Animatroller.SceneRunner
 
             buttonBlue.ActiveChanged += (o, e) =>
                 {
-                    switchButtonBlue.SetPower(e.NewState);
+                    if (e.NewState)
+                    {
+                        switchButtonBlue.SetPower(true);
+                        audio.PlayTrack("05. Frozen - Let It Go");
+                    }
                 };
 
             buttonRed.ActiveChanged += (o, e) =>
             {
                 switchButtonRed.SetPower(e.NewState);
+                if (e.NewState)
+                    audio.PauseTrack();
+            };
+
+            audio.AudioTrackDone += (o, e) =>
+            {
+                switchButtonBlue.SetPower(false);
             };
 
             pulsatingEffect1.AddDevice(lightStar);
@@ -315,6 +332,8 @@ namespace Animatroller.SceneRunner
             //switchButtonRed.Follow(hours);
             lightNet1.Follow(hours);
             lightNet2.Follow(hours);
+            lightString1.Follow(hours);
+            lightString2.Follow(hours);
             switchDeerHuge.Follow(hours);
         }
 
