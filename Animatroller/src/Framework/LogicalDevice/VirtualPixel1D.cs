@@ -273,6 +273,13 @@ namespace Animatroller.Framework.LogicalDevice
 
         public VirtualPixel1D FadeTo(int position, Color color, double brightness, TimeSpan duration)
         {
+            FadeToAsync(null, position, color, brightness, duration).Wait();
+
+            return this;
+        }
+
+        public Task FadeToAsync(ISequenceInstance instance, int position, Color color, double brightness, TimeSpan duration)
+        {
             if (position < 0 || position >= this.pixelCount)
                 throw new ArgumentOutOfRangeException();
 
@@ -297,23 +304,29 @@ namespace Animatroller.Framework.LogicalDevice
             int steps = (int)(duration.TotalMilliseconds / 100);
 
             double fadePosition = 0;
-            for (int i = 0; i < steps; i++)
-            {
-                double newBrightness = startBrightness + (brightness - startBrightness) * fadePosition;
+            var task = Task.Factory.StartNew(() =>
+                {
+                    for (int i = 0; i < steps; i++)
+                    {
+                        double newBrightness = startBrightness + (brightness - startBrightness) * fadePosition;
 
-                int r = (int)(startColor.R + (endColor.R - startColor.R) * fadePosition);
-                int g = (int)(startColor.G + (endColor.G - startColor.G) * fadePosition);
-                int b = (int)(startColor.B + (endColor.B - startColor.B) * fadePosition);
-                Color newColor = Color.FromArgb(r, g, b);
+                        int r = (int)(startColor.R + (endColor.R - startColor.R) * fadePosition);
+                        int g = (int)(startColor.G + (endColor.G - startColor.G) * fadePosition);
+                        int b = (int)(startColor.B + (endColor.B - startColor.B) * fadePosition);
+                        Color newColor = Color.FromArgb(r, g, b);
 
-                SetColor(position, newColor, newBrightness);
+                        SetColor(position, newColor, newBrightness);
 
-                System.Threading.Thread.Sleep(100);
+                        if (instance != null)
+                            instance.WaitFor(TimeSpan.FromMilliseconds(100));
+                        else
+                            System.Threading.Thread.Sleep(100);
 
-                fadePosition += 1.0 / (steps - 1);
-            }
+                        fadePosition += 1.0 / (steps - 1);
+                    }
+                });
 
-            return this;
+            return task;
         }
 
         public VirtualPixel1D FadeTo(ColorBrightness[] values, TimeSpan duration)

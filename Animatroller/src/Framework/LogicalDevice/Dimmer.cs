@@ -34,6 +34,19 @@ namespace Animatroller.Framework.LogicalDevice
                 handler(this, new BrightnessChangedEventArgs(this.Brightness));
         }
 
+        public Dimmer Follow(OperatingHours source)
+        {
+            source.OpenHoursChanged += (o, e) =>
+                {
+                    if (e.IsOpenNow)
+                        this.SetBrightness(1.0);
+                    else
+                        this.TurnOff();
+                };
+
+            return this;
+        }
+
         public double Brightness
         {
             get { return this.brightness; }

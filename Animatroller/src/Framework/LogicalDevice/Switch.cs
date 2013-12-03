@@ -30,6 +30,19 @@ namespace Animatroller.Framework.LogicalDevice
                 handler(this, new StateChangedEventArgs(this.Power));
         }
 
+        public Switch Follow(OperatingHours source)
+        {
+            source.OpenHoursChanged += (o, e) =>
+            {
+                if (e.IsOpenNow)
+                    this.SetPower(true);
+                else
+                    this.TurnOff();
+            };
+
+            return this;
+        }
+
         public bool Power
         {
             get { return this.power; }
