@@ -40,6 +40,7 @@ last_fx_chn = None
 last_fx_snd = None
 bg_volume = 0.5
 bg_files = []
+bg_playing = 0
 last_input_values = [0] * 8
 input_mute = [None] * 8
 input_lock = threading.Lock()
@@ -66,6 +67,7 @@ def load_fx(name):
 
 
 def play_next_bg_track():
+    global bg_playing
     print ('Next background track')
     
     index = random.randint(0, len(bg_files) - 1)
@@ -74,6 +76,7 @@ def play_next_bg_track():
     pygame.mixer.music.load(os.path.join(soundPath + '/bg', bg_files[index]))
     pygame.mixer.music.set_volume(bg_volume)
     pygame.mixer.music.play()
+    bg_playing = 1
 
 def cue_track(file):
     print ('Cue track', file)
@@ -172,7 +175,10 @@ def main():
                 if event.type == pygame.constants.USEREVENT:
                     # This event is triggered when the song stops playing
                     print ('Music ended')
-                    play_next_bg_track()
+                    if bg_playing:
+                        play_next_bg_track()
+                    else:
+                        send_track_done()                    
 
             if ser is not None:
                 serline = ser.readline(timeout=0.3)
@@ -215,6 +221,12 @@ def main():
     print ('Done')
 
 
+def send_track_done():
+    msg = osc_message_builder.OscMessageBuilder(address = "/audio/trk/done")
+    msg = msg.build()
+    client.send(msg)
+
+
 def send_input_msg(channel, button_value):
     print ('Input value', button_value, 'on channel', channel)
     buttonmsg = osc_message_builder.OscMessageBuilder(address = "/input")
@@ -222,7 +234,6 @@ def send_input_msg(channel, button_value):
     buttonmsg.add_arg(button_value)
     buttonmsg = buttonmsg.build()
     client.send(buttonmsg)
-
 
 
 def update_input(pin, value):
@@ -245,10 +256,10 @@ def input_callback(event):
     input_lock.acquire()
     input_mute[pin] = None
     
-    inputValue = pif.digital_read(pin)
+#    inputValue = pif.digital_read(pin)
     
-    if last_input_values[pin] != inputValue:
-        update_input(pin, inputValue)
+#    if last_input_values[pin] != inputValue:
+    update_input(pin, 1 - event.direction)
     input_lock.release()
 
 
@@ -326,6 +337,7 @@ def osc_resumeFx():
         last_fx_chn.unpause()
     elif last_fx_snd is not None:
         last_fx_chn = last_fx_snd.play()
+
         
 def osc_bgVolume(volume):
     global bg_volume
@@ -335,21 +347,27 @@ def osc_bgVolume(volume):
 
 
 def osc_bgPlay():
+    global bg_playing
     if pygame.mixer.music.get_busy():
         print ('Background resume')
         pygame.mixer.music.unpause()
     else:
         print ('Background play')
         play_next_bg_track()
+    bg_playing = 1
 
     
 def osc_trkPlay(file):
-    cue_track(file)
+    global bg_playing
+    cue_track(file + '.wav')
     pygame.mixer.music.play()
+    bg_playing = 0
     
 
 def osc_trkCue(file):
-    cue_track(file)
+    global bg_playing
+    cue_track(file + '.wav')
+    bg_playing = 0
 
 
 def osc_trkResume():
