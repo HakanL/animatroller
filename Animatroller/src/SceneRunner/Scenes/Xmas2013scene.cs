@@ -762,7 +762,7 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_Momentarily(buttonBlue);
             sim.AddDigitalInput_Momentarily(buttonRed);
 
-            sim.AutoWireUsingReflection(this);
+//            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.AcnStream port)
@@ -839,6 +839,9 @@ namespace Animatroller.SceneRunner
             lightNet2.TurnOff();
             lightString1.TurnOff();
             lightString2.TurnOff();
+            lightSnow1.TurnOff();
+            lightSnow2.TurnOff();
+            lightTreeUp.TurnOff();
         }
 
         public override void Start()
@@ -928,6 +931,9 @@ namespace Animatroller.SceneRunner
                     lightNet2.SetBrightness(1.0);
                     lightString1.SetBrightness(1.0);
                     lightString2.SetBrightness(1.0);
+                    lightSnow1.SetBrightness(1.0);
+                    lightSnow2.SetBrightness(1.0);
+                    lightTreeUp.SetBrightness(1.0);
 
                     Executor.Current.Execute(twinkleSeq);
                 })
@@ -1172,9 +1178,6 @@ namespace Animatroller.SceneRunner
                     stateMachine.Hold();
                     stateMachine.SetBackgroundState(null);
                     EverythingOff();
-                    lightSnow1.TurnOff();
-                    lightSnow2.TurnOff();
-                    lightTreeUp.TurnOff();
                     System.Threading.Thread.Sleep(200);
 
                     switchDeerHuge.TurnOff();
