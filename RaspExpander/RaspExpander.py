@@ -33,6 +33,7 @@ except pif.NoPiFaceDigitalDetectedError:
     print ('No PiFace card detected')
     pass
 
+soundPath = 'christmassounds'
 soundFXdict = {}
 client = udp_client
 last_fx_chn = None
@@ -51,7 +52,7 @@ def load_fx(name):
     if sound is not None:
         return sound
 
-    fullname = os.path.join('halloweensounds/fx', name)
+    fullname = os.path.join(soundPath + '/fx', name)
     try:
         print ('Loading ', fullname)
         sound = pygame.mixer.Sound(fullname)
@@ -70,9 +71,14 @@ def play_next_bg_track():
     index = random.randint(0, len(bg_files) - 1)
     print ('File =', bg_files[index])
 
-    pygame.mixer.music.load(os.path.join('halloweensounds/bg', bg_files[index]))
+    pygame.mixer.music.load(os.path.join(soundPath + '/bg', bg_files[index]))
     pygame.mixer.music.set_volume(bg_volume)
     pygame.mixer.music.play()
+
+def cue_track(file):
+    print ('Cue track', file)
+    pygame.mixer.music.load(os.path.join(soundPath + '/trk', file))
+    pygame.mixer.music.set_volume(1.0)
 
 
 def decode_motor_command(cmd):
@@ -127,7 +133,7 @@ def main():
     pygame.mixer.music.set_endevent(pygame.constants.USEREVENT)
 
     # Find all background tracks
-    bg_files = [ f for f in listdir('halloweensounds/bg') if isfile(join('halloweensounds/bg', f)) ]
+    bg_files = [ f for f in listdir(soundPath + '/bg') if isfile(join(soundPath + '/bg', f)) ]
 
     print('BG files =', len(bg_files))
 
@@ -336,6 +342,19 @@ def osc_bgPlay():
         print ('Background play')
         play_next_bg_track()
 
+    
+def osc_trkPlay(file):
+    cue_track(file)
+    pygame.mixer.music.play()
+    
+
+def osc_trkCue(file):
+    cue_track(file)
+
+
+def osc_trkResume():
+    pygame.mixer.music.play()
+
 
 def osc_bgPause():
     print ('Background pause')
@@ -417,6 +436,12 @@ if __name__ == '__main__':
     dispatcher.map("/audio/bg/play", osc_bgPlay)
     dispatcher.map("/audio/bg/pause", osc_bgPause)
     dispatcher.map("/audio/bg/next", osc_bgNext)
+
+    dispatcher.map("/audio/trk/cue", osc_trkCue)
+    dispatcher.map("/audio/trk/play", osc_trkPlay)
+    dispatcher.map("/audio/trk/pause", osc_bgPause)
+    dispatcher.map("/audio/trk/resume", osc_trkResume)
+    
     dispatcher.map("/output", osc_output)
     dispatcher.map("/motor/exec", osc_motor)
 
