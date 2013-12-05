@@ -51,7 +51,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput buttonStartReindeer;
 
         private Controller.Timeline<string> timeline;
-        private Controller.StateMachine<States> stateMachine;
+        private Controller.EnumStateMachine<States> stateMachine;
         private Effect.PopOut popOutPiano;
         private Effect.PopOut popOutDrums;
         private Effect.PopOut popOutDrumsFast;
@@ -115,7 +115,7 @@ namespace Animatroller.SceneRunner
             buttonStartReindeer = new DigitalInput("Start Reindeer");
 
             timeline = new Controller.Timeline<string>(1);
-            stateMachine = new Controller.StateMachine<States>("Main");
+            stateMachine = new Controller.EnumStateMachine<States>("Main");
             candyCane = new Controller.Sequence("Candy Cane");
             starwarsCane = new Controller.Sequence("Starwars Cane");
             backgroundLoop = new Controller.Sequence("Background");

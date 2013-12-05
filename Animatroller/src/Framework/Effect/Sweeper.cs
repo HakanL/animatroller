@@ -121,7 +121,6 @@ namespace Animatroller.Framework.Effect
             double value2;
             double value3;
             long valueTicks;
-            bool ended = false;
 
             lock (lockObject)
             {

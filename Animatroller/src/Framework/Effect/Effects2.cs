@@ -40,11 +40,18 @@ namespace Animatroller.Framework.Effect2
         private Effect.Transformer.EaseInOut easeTransform = new Effect.Transformer.EaseInOut();
         private double minBrightness;
         private double maxBrightness;
+        private int? iterations;
 
-        public Pulse(double minBrightness, double maxBrightness)
+        public Pulse(double minBrightness, double maxBrightness, int? iterations)
         {
             this.minBrightness = minBrightness;
             this.maxBrightness = maxBrightness;
+            this.iterations = iterations;
+        }
+
+        public Pulse(double minBrightness, double maxBrightness)
+            : this(minBrightness, maxBrightness, null)
+        {
         }
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
@@ -60,8 +67,44 @@ namespace Animatroller.Framework.Effect2
 
         public int? Iterations
         {
-            // Forever
-            get { return null; }
+            get { return this.iterations; }
+        }
+    }
+
+    // Is this the same as Fader?
+    public class Pop : IMasterBrightnessEffect
+    {
+        private Effect.Transformer.EaseOut easeTransform = new Effect.Transformer.EaseOut();
+        private double startBrightness;
+        private double endBrightness;
+        private int? iterations;
+
+        public Pop(double startBrightness, double endBrightness, int? iterations)
+        {
+            this.startBrightness = startBrightness;
+            this.endBrightness = endBrightness;
+            this.iterations = iterations;
+        }
+
+        public Pop(double startBrightness, double endBrightness)
+            : this(startBrightness, endBrightness, null)
+        {
+        }
+
+        public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
+        {
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks) =>
+            {
+                double brightness = easeTransform.Transform(zeroToOne)
+                    .ScaleToMinMax(this.startBrightness, this.endBrightness);
+
+                setBrightnessAction.Invoke(brightness);
+            });
+        }
+
+        public int? Iterations
+        {
+            get { return this.iterations; }
         }
     }
 

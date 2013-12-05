@@ -67,8 +67,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\IntStateMachine.cs" />
     <Compile Include="Effect\EffectAction.cs" />
-    <Compile Include="Effect\PopOut.cs" />
+    <Compile Include="Effect\Effects2.cs" />
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
@@ -103,7 +104,7 @@
     <Compile Include="Effect\BaseEffect.cs" />
     <Compile Include="Effect\Effects.cs" />
     <Compile Include="Effect\Interface.cs" />
-    <Compile Include="Controller\StateMachine.cs" />
+    <Compile Include="Controller\EnumStateMachine.cs" />
     <Compile Include="Import\VixenImport.cs" />
     <Compile Include="Utility\Enum.cs" />
     <Compile Include="Interface\IScene.cs" />

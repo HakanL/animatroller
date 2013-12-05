@@ -25,8 +25,10 @@ namespace Animatroller.SceneRunner
             Vader
         }
 
-        private Controller.Timeline<string> timeline;
-        private Controller.StateMachine<States> stateMachine;
+        private Controller.Timeline<string> timeline1;
+        private Controller.Timeline<string> timeline2;
+        private Controller.EnumStateMachine<States> stateMachine;
+        private Controller.IntStateMachine hatLightState;
         private OperatingHours hours;
         private VirtualPixel1D allPixels;
         private DigitalInput buttonTest;
@@ -68,6 +70,9 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence music1Seq;
         private Controller.Sequence music2Seq;
         private Controller.Sequence fatherSeq;
+        private Controller.Sequence offHours1Seq;
+        private Controller.Sequence offHours2Seq;
+        private Controller.Sequence hatSeq;
 
         private Effect.Pulsating pulsatingEffect1;
         private Effect.Flicker flickerEffect;
@@ -103,8 +108,10 @@ namespace Animatroller.SceneRunner
         {
             hours = new OperatingHours("Hours");
 
-            timeline = new Controller.Timeline<string>(1);
-            stateMachine = new Controller.StateMachine<States>("Main");
+            timeline1 = new Controller.Timeline<string>(1);
+            timeline2 = new Controller.Timeline<string>(1);
+            stateMachine = new Controller.EnumStateMachine<States>("Main");
+            hatLightState = new Controller.IntStateMachine("Hats");
             lightStar = new Dimmer("Star");
             lightHat1 = new Dimmer("Hat 1");
             lightHat2 = new Dimmer("Hat 2");
@@ -143,6 +150,9 @@ namespace Animatroller.SceneRunner
             music1Seq = new Controller.Sequence("Christmas Canon");
             music2Seq = new Controller.Sequence("Let It Go");
             fatherSeq = new Controller.Sequence("Father");
+            offHours1Seq = new Controller.Sequence("Off hours 1");
+            offHours2Seq = new Controller.Sequence("Off hours 2");
+            hatSeq = new Controller.Sequence("Hat");
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
 
@@ -184,17 +194,14 @@ namespace Animatroller.SceneRunner
             popOut1End = new Effect.PopOut("End", S(5.0));
 
             popOut1Piano
-                .AddDevice(lightXmasTree);
+                .AddDevice(lightXmasTree)
+                .AddDevice(lightStar);
 
             popOut1Drums
-                .AddDevice(lightDeerSmall)
-                .AddDevice(lightDeerLarge)
-                .AddDevice(lightHat1)
-                .AddDevice(lightHat2)
-                .AddDevice(lightHat3)
-                .AddDevice(lightHat4);
+                .AddDevice(lightDeerLarge);
 
             popOut1DrumsFast
+                .AddDevice(lightDeerSmall)
                 .AddDevice(lightGarland1)
                 .AddDevice(lightGarland2)
                 .AddDevice(lightGarland3)
@@ -270,12 +277,12 @@ namespace Animatroller.SceneRunner
                 .AddDevice(allPixels)
                 .SetPriority(100);
 
-            timeline.AddMs(0, "INIT");
-            timeline.PopulateFromCSV("Christmas Canon Rock All Labels.csv");
+            timeline1.AddMs(0, "INIT");
+            timeline1.PopulateFromCSV("Christmas Canon Rock All Labels.csv");
             int state = 0;
             int halfSolo = 0;
 
-            timeline.TimelineTrigger += (sender, e) =>
+            timeline1.TimelineTrigger += (sender, e) =>
             {
                 switch (e.Step)
                 {
@@ -349,30 +356,35 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "N1":
+                        hatLightState.NextState();
                         popOut1Piano.Pop(0.4);
                         if (state == 0)
                             allPixels.Inject(Color.Red, 0.5);
                         break;
 
                     case "N2":
+                        hatLightState.NextState();
                         popOut1Piano.Pop(0.6);
                         if (state == 0)
                             allPixels.Inject(Color.White, 0.5);
                         break;
 
                     case "N3":
+                        hatLightState.NextState();
                         popOut1Piano.Pop(0.8);
                         if (state == 0)
                             allPixels.Inject(Color.Blue, 0.5);
                         break;
 
                     case "N4":
+                        hatLightState.NextState();
                         popOut1Piano.Pop(1.0);
                         if (state == 0)
                             allPixels.Inject(Color.Black, 0.0);
                         break;
 
                     case "Base":
+                        hatLightState.NextState();
                         popOut1Drums.Pop(1.0);
                         if (state < 3)
                         {
@@ -557,12 +569,12 @@ namespace Animatroller.SceneRunner
                 .AddDevice(allPixels)
                 .SetPriority(100);
 
-            timeline.AddMs(0, "INIT");
-            timeline.PopulateFromCSV("Christmas Canon Rock All Labels.csv");
+            timeline2.AddMs(0, "INIT");
+            timeline2.PopulateFromCSV("Christmas Canon Rock All Labels.csv");
             int state = 0;
             int halfSolo = 0;
 
-            timeline.TimelineTrigger += (sender, e) =>
+            timeline2.TimelineTrigger += (sender, e) =>
             {
                 switch (e.Step)
                 {
@@ -755,14 +767,14 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.AddDigitalInput_FlipFlop(buttonTest);
+            sim.AddDigitalInput_Momentarily(buttonTest);
             sim.AddDigitalInput_FlipFlop(buttonOverrideHours);
             sim.AddDigitalInput_Momentarily(buttonStartInflatables);
 
             sim.AddDigitalInput_Momentarily(buttonBlue);
             sim.AddDigitalInput_Momentarily(buttonRed);
 
-//            sim.AutoWireUsingReflection(this);
+            sim.AutoWireUsingReflection_Simple(this);
         }
 
         public void WireUp(Expander.AcnStream port)
@@ -946,6 +958,71 @@ namespace Animatroller.SceneRunner
                     EverythingOff();
                 });
 
+            offHours1Seq
+                .WhenExecuted
+                .Execute(instance =>
+                {
+                    audioPlayer.PlayEffect("force1");
+                    instance.WaitFor(S(4));
+                });
+
+            offHours2Seq
+                .WhenExecuted
+                .Execute(instance =>
+                {
+                    audioPlayer.PlayEffect("darkside");
+                    instance.WaitFor(S(4));
+                });
+
+            hatSeq
+                .WhenExecuted
+                .Execute(i =>
+                {
+                    //int s = 0;
+                    //while (!i.IsCancellationRequested)
+                    //{
+                    //    Dimmer whichLight;
+                    //    switch (s++ % 4)
+                    //    {
+                    //        case 0:
+                    //            whichLight = lightHat1;
+                    //            break;
+                    //        case 1:
+                    //            whichLight = lightHat2;
+                    //            break;
+                    //        case 2:
+                    //            whichLight = lightHat3;
+                    //            break;
+                    //        case 3:
+                    //            whichLight = lightHat4;
+                    //            break;
+                    //        default:
+                    //            continue;
+                    //    }
+
+                    //    if (s == 0)
+                    //        whichLight.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5));
+
+                    //    i.WaitFor(S(1.0), true);
+                    //}
+
+                    int s = 0;
+                    while (!i.IsCancellationRequested)
+                    {
+                        hatLightState.NextState();
+
+                        i.WaitFor(S(1.0), true);
+                    }
+                })
+                .TearDown(() =>
+                {
+                    hatLightState.Hold();
+                    lightHat1.TurnOff();
+                    lightHat2.TurnOff();
+                    lightHat3.TurnOff();
+                    lightHat4.TurnOff();
+                });
+
             music1Seq
                 .WhenExecuted
                 .SetUp(() =>
@@ -959,7 +1036,7 @@ namespace Animatroller.SceneRunner
                 .Execute(instance =>
                 {
                     audioPlayer.ResumeTrack();
-                    var task = timeline.Start();
+                    var task = timeline1.Start();
 
                     try
                     {
@@ -969,7 +1046,7 @@ namespace Animatroller.SceneRunner
                     }
                     finally
                     {
-                        timeline.Stop();
+                        timeline1.Stop();
                         audioPlayer.PauseTrack();
                     }
 
@@ -1000,11 +1077,12 @@ namespace Animatroller.SceneRunner
                     System.Threading.Thread.Sleep(800);
 
                     EverythingOff();
+                    Exec.Execute(hatSeq);
                 })
                 .Execute(instance =>
                 {
                     audioPlayer.ResumeTrack();
-                    var task = timeline.Start();
+                    var task = timeline2.Start();
 
                     try
                     {
@@ -1014,7 +1092,7 @@ namespace Animatroller.SceneRunner
                     }
                     finally
                     {
-                        timeline.Stop();
+                        timeline2.Stop();
                         audioPlayer.PauseTrack();
                     }
 
@@ -1098,11 +1176,12 @@ namespace Animatroller.SceneRunner
             // Test Button
             buttonTest.ActiveChanged += (sender, e) =>
             {
-//                lightGarland4.Brightness = e.NewState ? 1.0 : 0.0;
+                //                lightGarland4.Brightness = e.NewState ? 1.0 : 0.0;
 
                 if (!e.NewState)
                     return;
 
+                hatLightState.NextState();
                 //Exec.Cancel(candyCane);
 
                 //allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).Wait();
@@ -1127,6 +1206,8 @@ namespace Animatroller.SceneRunner
                             if (stateMachine.CurrentState == States.Background)
                                 stateMachine.SetMomentaryState(States.Music1);
                         }
+                        else
+                            Exec.Execute(offHours1Seq);
                     }
                 };
 
@@ -1139,6 +1220,8 @@ namespace Animatroller.SceneRunner
                         if (stateMachine.CurrentState == States.Background)
                             stateMachine.SetMomentaryState(States.Music2);
                     }
+                    else
+                        Exec.Execute(offHours2Seq);
                 }
             };
 
@@ -1147,7 +1230,9 @@ namespace Animatroller.SceneRunner
                 switchButtonBlue.SetPower(false);
             };
 
-            pulsatingEffect1.AddDevice(lightStar);
+            pulsatingEffect1
+                .AddDevice(lightStar);
+
             flickerEffect
                 .AddDevice(lightHat1)
                 .AddDevice(lightHat2)
@@ -1190,6 +1275,13 @@ namespace Animatroller.SceneRunner
             stateMachine.ForFromSequence(States.Music1, music1Seq);
             stateMachine.ForFromSequence(States.Music2, music2Seq);
             stateMachine.ForFromSequence(States.Vader, fatherSeq);
+
+            hatLightState.For(0).Execute(i => lightHat1.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5)));
+            hatLightState.For(1).Execute(i => lightHat2.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5)));
+            hatLightState.For(2).Execute(i => lightHat3.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5)));
+            hatLightState.For(3).Execute(i => lightHat4.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5)));
+            hatLightState.For(4).Execute(i => lightHat3.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5)));
+            hatLightState.For(5).Execute(i => lightHat2.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5)));
 
             //lightGarland1.Follow(hours);
             //lightGarland2.Follow(hours);

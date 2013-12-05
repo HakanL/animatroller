@@ -32,7 +32,7 @@ namespace Animatroller.SceneRunner
             Popup
         }
 
-        private Controller.StateMachine<States> stateMachine;
+        private Controller.EnumStateMachine<States> stateMachine;
         private OperatingHours hoursSmall;
         private OperatingHours hoursFull;
         private AudioPlayer audioCat;
@@ -83,7 +83,7 @@ namespace Animatroller.SceneRunner
         public HalloweenScene2013B(IEnumerable<string> args)
         {
             this.lastFogRun = DateTime.Now;
-            stateMachine = new Controller.StateMachine<States>("Main");
+            stateMachine = new Controller.EnumStateMachine<States>("Main");
 
             pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 0.5, false);
             pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", S(2), 0.2, 0.8, false);

@@ -25,6 +25,8 @@ namespace Animatroller.Simulator
 
         public SimulatorForm AutoWireUsingReflection(IScene scene, params IDevice[] excludeDevices)
         {
+            AutoWireUsingReflection_Simple(scene, excludeDevices);
+
             var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             foreach (var field in fields)
@@ -96,6 +98,35 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
+                else
+                {
+                    log.Info("Unknown field {0}", field.FieldType);
+                }
+            }
+
+            return this;
+        }
+
+        public SimulatorForm AutoWireUsingReflection_Simple(IScene scene, params IDevice[] excludeDevices)
+        {
+            var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            foreach (var field in fields)
+            {
+                object fieldValue = field.GetValue(scene);
+                if (fieldValue == null)
+                    continue;
+
+                // Auto-wire
+                if (typeof(IDevice).IsInstanceOfType(fieldValue))
+                {
+                    if (excludeDevices.Contains((IDevice)fieldValue))
+                        // Excluded
+                        continue;
+                }
+
+                if (field.FieldType == typeof(Switch))
+                    this.AddDigitalOutput((Switch)fieldValue);
                 else if (field.FieldType.Name.StartsWith("StateMachine"))
                 {
                     var stateMachine = (Animatroller.Framework.Controller.IStateMachine)fieldValue;
@@ -107,19 +138,15 @@ namespace Animatroller.Simulator
                         control.Text = stateMachine.CurrentStateString;
 
                     stateMachine.StateChangedString += (sender, e) =>
+                    {
+                        this.UIThread(delegate
                         {
-                            this.UIThread(delegate
-                            {
-                                if (string.IsNullOrEmpty(e.NewState))
-                                    control.Text = "<idle>";
-                                else
-                                    control.Text = e.NewState;
-                            });
-                        };
-                }
-                else
-                {
-                    log.Info("Unknown field {0}", field.FieldType);
+                            if (string.IsNullOrEmpty(e.NewState))
+                                control.Text = "<idle>";
+                            else
+                                control.Text = e.NewState;
+                        });
+                    };
                 }
             }
 

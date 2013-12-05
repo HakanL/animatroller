@@ -24,7 +24,7 @@ namespace Animatroller.Framework.Controller
         string Name { get; }
     }
 
-    public class StateMachine<T> : IRunnable, IStateMachine where T : struct, IConvertible
+    public class EnumStateMachine<T> : IRunnable, IStateMachine where T : struct, IConvertible
     {
         public class StateChangedEventArgs : EventArgs
         {
@@ -49,7 +49,7 @@ namespace Animatroller.Framework.Controller
         private Stack<T> momentaryStates;
         private T? backgroundState;
 
-        public StateMachine(string name)
+        public EnumStateMachine(string name)
         {
             if (!typeof(T).IsEnum)
                 throw new ArgumentException("T must be an enumerated type");
@@ -73,7 +73,7 @@ namespace Animatroller.Framework.Controller
                 handlerString(this, new StateChangedStringEventArgs(this.CurrentStateString));
         }
 
-        public StateMachine<T> SetBackgroundState(T? backgroundState)
+        public EnumStateMachine<T> SetBackgroundState(T? backgroundState)
         {
             this.backgroundState = backgroundState;
 
@@ -85,7 +85,7 @@ namespace Animatroller.Framework.Controller
             get { return this.CurrentState == null ? null : this.CurrentState.Value.ToString(); }
         }
 
-        public StateMachine<T> NextState()
+        public EnumStateMachine<T> NextState()
         {
             var values = Enum.GetValues(typeof(T));
             for (int i = 0; i < values.Length; i++)
@@ -121,7 +121,7 @@ namespace Animatroller.Framework.Controller
         /// Don't call this from within a sequence (running job)
         /// </summary>
         /// <returns></returns>
-        public StateMachine<T> StopAndNextState()
+        public EnumStateMachine<T> StopAndNextState()
         {
             var values = Enum.GetValues(typeof(T));
             for (int i = 0; i < values.Length; i++)
@@ -164,7 +164,7 @@ namespace Animatroller.Framework.Controller
             return stateConfig;
         }
 
-        public StateMachine<T> ForFromSequence(T state, Sequence sequence)
+        public EnumStateMachine<T> ForFromSequence(T state, Sequence sequence)
         {
             var seqJob = (sequence.WhenExecuted as Sequence.SequenceJob);
             this.stateConfigs[state] = seqJob;
@@ -172,7 +172,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        public StateMachine<T> SetMomentaryState(T newState)
+        public EnumStateMachine<T> SetMomentaryState(T newState)
         {
             if (IsIdle)
                 this.InternalSetState(newState);
@@ -190,7 +190,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        public StateMachine<T> SetState(T newState)
+        public EnumStateMachine<T> SetState(T newState)
         {
             lock (lockObject)
             {
@@ -279,7 +279,7 @@ namespace Animatroller.Framework.Controller
             RaiseStateChanged();
         }
 
-        public StateMachine<T> Hold()
+        public EnumStateMachine<T> Hold()
         {
             InternalHold();
 
