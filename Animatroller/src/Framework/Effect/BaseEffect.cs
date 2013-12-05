@@ -24,56 +24,53 @@ namespace Animatroller.Framework.Effect
             this.devices = new List<T>();
             this.sweeper = new Sweeper(sweepDuration, dataPoints, startRunning);
 
-            this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks) =>
+            this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
                 {
+                    bool isUnlocked = false;
                     if (forced)
                     {
-                        lock (lockObject)
+                        Monitor.Enter(lockObject);
+                        isUnlocked = true;
+                    }
+                    else
+                        isUnlocked = Monitor.TryEnter(lockObject);
+
+                    if (isUnlocked)
+                    {
+                        try
                         {
-                            foreach (var device in this.devices)
-                                StopDevice(device);
+                            var totalWatch = System.Diagnostics.Stopwatch.StartNew();
+
+                            var watches = new System.Diagnostics.Stopwatch[this.devices.Count];
+                            for (int i = 0; i < this.devices.Count; i++)
+                            {
+                                watches[i] = System.Diagnostics.Stopwatch.StartNew();
+
+                                ExecutePerDevice(this.devices[i], zeroToOne, negativeOneToOne, oneToZeroToOne, final);
+
+                                watches[i].Stop();
+                            }
+                            totalWatch.Stop();
+
+                            double max = watches.Select(x => x.ElapsedMilliseconds).Max();
+                            double avg = watches.Select(x => x.ElapsedMilliseconds).Average();
+
+                            if (totalWatch.ElapsedMilliseconds > 25)
+                            {
+                                log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
+                                    this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
+                            }
+                        }
+                        catch
+                        {
+                        }
+                        finally
+                        {
+                            Monitor.Exit(lockObject);
                         }
                     }
                     else
-                    {
-                        if (Monitor.TryEnter(lockObject))
-                        {
-                            try
-                            {
-                                var totalWatch = System.Diagnostics.Stopwatch.StartNew();
-
-                                var watches = new System.Diagnostics.Stopwatch[this.devices.Count];
-                                for(int i = 0; i < this.devices.Count; i++)
-                                {
-                                    watches[i] = System.Diagnostics.Stopwatch.StartNew();
-
-                                    ExecutePerDevice(this.devices[i], zeroToOne, negativeOneToOne, oneToZeroToOne);
-
-                                    watches[i].Stop();
-                                }
-                                totalWatch.Stop();
-
-                                double max = watches.Select(x => x.ElapsedMilliseconds).Max();
-                                double avg = watches.Select(x => x.ElapsedMilliseconds).Average();
-
-                                if (totalWatch.ElapsedMilliseconds > 25)
-                                {
-                                    log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
-                                        this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
-                                }
-                            }
-                            catch
-                            {
-                            }
-                            finally
-                            {
-                                Monitor.Exit(lockObject);
-                            }
-                        }
-                        else
-                            log.Warn("Missed Job in BaseSweepEffect   Name: " + Name);
-                    }
-
+                        log.Warn("Missed Job in BaseSweepEffect   Name: " + Name);
                 });
         }
 
@@ -85,8 +82,7 @@ namespace Animatroller.Framework.Effect
         {
         }
 
-        protected abstract void ExecutePerDevice(T device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne);
-        protected abstract void StopDevice(T device);
+        protected abstract void ExecutePerDevice(T device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final);
 
         public BaseSweeperEffect<T> SetPriority(int priority)
         {
@@ -98,6 +94,13 @@ namespace Animatroller.Framework.Effect
         public IEffect Start()
         {
             this.sweeper.Resume();
+
+            return this;
+        }
+
+        public IEffect Restart()
+        {
+            this.sweeper.Reset();
 
             return this;
         }

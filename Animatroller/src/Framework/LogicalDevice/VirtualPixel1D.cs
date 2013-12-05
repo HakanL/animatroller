@@ -513,6 +513,11 @@ namespace Animatroller.Framework.LogicalDevice
             this.Brightness = value;
         }
 
+        public void ReleaseOwner()
+        {
+            this.owner = null;
+        }
+
         protected class PixelDevice
         {
             public EventHandler<PixelChangedEventArgs> PixelChanged { get; set; }

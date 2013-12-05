@@ -73,6 +73,11 @@ namespace Animatroller.Framework.LogicalDevice
             this.Brightness = value;
         }
 
+        public void ReleaseOwner()
+        {
+            this.owner = null;
+        }
+
         public Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
         {
             var effectAction = effect.GetEffectAction(brightness =>

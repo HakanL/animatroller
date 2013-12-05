@@ -136,7 +136,7 @@ namespace Animatroller.Framework.Effect
                 {
                     Pause();
 
-                    this.action.Invoke(this.value1, this.value2, this.value3, true, this.valueTicks);
+                    this.action.Invoke(this.value1, this.value2, this.value3, true, this.valueTicks, true);
                 }
 
                 return this;
@@ -218,7 +218,7 @@ namespace Animatroller.Framework.Effect
 
                 lock (lockObject)
                 {
-                    this.action.Invoke(this.value1, this.value2, this.value3, false, this.valueTicks);
+                    this.action.Invoke(this.value1, this.value2, this.value3, false, this.valueTicks, false);
                 }
             }
         }

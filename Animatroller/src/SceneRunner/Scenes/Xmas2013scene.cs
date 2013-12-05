@@ -31,11 +31,14 @@ namespace Animatroller.SceneRunner
         private Controller.IntStateMachine hatLightState;
         private OperatingHours hours;
         private VirtualPixel1D allPixels;
+        private VirtualPixel1D starwarsPixels;
+        private VirtualPixel1D saberPixels;
         private DigitalInput buttonTest;
         private DigitalInput buttonStartInflatables;
         private DigitalInput buttonOverrideHours;
         private DigitalInput buttonBlue;
         private DigitalInput buttonRed;
+        private StrobeColorDimmer lightJesus;
         private Dimmer lightStar;
         private Dimmer lightHat1;
         private Dimmer lightHat2;
@@ -65,6 +68,7 @@ namespace Animatroller.SceneRunner
         private Switch switchDeerHuge;
         private Switch switchButtonBlue;
         private Switch switchButtonRed;
+        private Switch elJesus;
         private AudioPlayer audioPlayer;
         private Controller.Sequence backgroundLoop;
         private Controller.Sequence music1Seq;
@@ -73,12 +77,16 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence offHours1Seq;
         private Controller.Sequence offHours2Seq;
         private Controller.Sequence hatSeq;
+        private Controller.Sequence starwarsCane;
 
         private Effect.Pulsating pulsatingEffect1;
+        private Effect.Pulsating pulsatingStar;
+        private Effect.Fader faderIn;
         private Effect.Flicker flickerEffect;
         private Controller.Sequence candyCane;
         private Controller.Sequence twinkleSeq;
         private bool inflatablesRunning;
+        private int whichMusic;
 
         private Effect.PopOut popOut1Piano;
         private Effect.PopOut popOut1Drums;
@@ -112,6 +120,7 @@ namespace Animatroller.SceneRunner
             timeline2 = new Controller.Timeline<string>(1);
             stateMachine = new Controller.EnumStateMachine<States>("Main");
             hatLightState = new Controller.IntStateMachine("Hats");
+            lightJesus = new StrobeColorDimmer("Jesus");
             lightStar = new Dimmer("Star");
             lightHat1 = new Dimmer("Hat 1");
             lightHat2 = new Dimmer("Hat 2");
@@ -142,19 +151,24 @@ namespace Animatroller.SceneRunner
             light3wise = new StrobeColorDimmer("3wise");
 
             pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(4), 0.4, 1.0, false);
+            pulsatingStar = new Effect.Pulsating("Pulse Star", S(2), 0.2, 0.4, false);
             flickerEffect = new Effect.Flicker("Flicker", 0.5, 0.6, false);
+            faderIn = new Effect.Fader("FaderIn", S(2), 0.0, 1.0, false);
 
             candyCane = new Controller.Sequence("Candy Cane");
             twinkleSeq = new Controller.Sequence("Twinkle");
             backgroundLoop = new Controller.Sequence("Background");
             music1Seq = new Controller.Sequence("Christmas Canon");
             music2Seq = new Controller.Sequence("Let It Go");
+            starwarsCane = new Controller.Sequence("Starwars Cane");
             fatherSeq = new Controller.Sequence("Father");
             offHours1Seq = new Controller.Sequence("Off hours 1");
             offHours2Seq = new Controller.Sequence("Off hours 2");
             hatSeq = new Controller.Sequence("Hat");
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
+            starwarsPixels = new VirtualPixel1D("Star wars", 50);
+            saberPixels = new VirtualPixel1D("Saber", 60);
 
             buttonTest = new DigitalInput("Test");
             buttonStartInflatables = new DigitalInput("Inflatables");
@@ -164,6 +178,7 @@ namespace Animatroller.SceneRunner
             buttonRed = new DigitalInput("Red");
             switchButtonBlue = new Switch("Blue");
             switchButtonRed = new Switch("Red");
+            elJesus = new Switch("Jesus Halo");
             audioPlayer = new AudioPlayer("Audio");
 
             popOut1Piano = new Effect.PopOut("Piano", S(0.4));
@@ -194,7 +209,7 @@ namespace Animatroller.SceneRunner
             popOut1End = new Effect.PopOut("End", S(5.0));
 
             popOut1Piano
-                .AddDevice(lightXmasTree)
+                .AddDevice(lightTreeUp)
                 .AddDevice(lightStar);
 
             popOut1Drums
@@ -767,7 +782,7 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
         {
-            sim.AddDigitalInput_Momentarily(buttonTest);
+            sim.AddDigitalInput_FlipFlop(buttonTest);
             sim.AddDigitalInput_FlipFlop(buttonOverrideHours);
             sim.AddDigitalInput_Momentarily(buttonStartInflatables);
 
@@ -781,8 +796,11 @@ namespace Animatroller.SceneRunner
         {
             // WS2811
             port.Connect(new Physical.PixelRope(allPixels, 0, 100), 4, 1);
+            port.Connect(new Physical.PixelRope(saberPixels, 0, 60), 1, 1);
+            port.Connect(new Physical.PixelRope(starwarsPixels, 0, 50), 4, 1);
             // GECE
             port.Connect(new Physical.PixelRope(allPixels, 0, 50), 2, 91);
+            port.Connect(new Physical.PixelRope(starwarsPixels, 0, 50), 2, 91);
 
             port.Connect(new Physical.GenericDimmer(lightStar, 1), 21);
             port.Connect(new Physical.GenericDimmer(lightHat1, 2), 21);
@@ -808,10 +826,11 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.GenericDimmer(switchDeerHuge, 3), 20);
             port.Connect(new Physical.GenericDimmer(switchSanta, 4), 20);
             port.Connect(new Physical.RGBStrobe(lightTreeUp, 20), 20);
-            port.Connect(new Physical.RGBStrobe(lightVader, 30), 20);
-            port.Connect(new Physical.RGBStrobe(light3wise, 40), 20);
+            port.Connect(new Physical.RGBStrobe(lightVader, 40), 20);
+            port.Connect(new Physical.RGBStrobe(light3wise, 30), 20);
             port.Connect(new Physical.GenericDimmer(lightDeerLarge, 100), 20);
             port.Connect(new Physical.GenericDimmer(lightDeerSmall, 101), 20);
+            port.Connect(new Physical.SmallRGBStrobe(lightJesus, 48), 20);
         }
 
         public void WireUp1(Expander.Raspberry port)
@@ -820,6 +839,7 @@ namespace Animatroller.SceneRunner
             port.DigitalInputs[5].Connect(buttonBlue);
             port.DigitalOutputs[0].Connect(switchButtonBlue);
             port.DigitalOutputs[1].Connect(switchButtonRed);
+            port.DigitalOutputs[2].Connect(elJesus);
 
             port.Connect(audioPlayer);
         }
@@ -834,6 +854,8 @@ namespace Animatroller.SceneRunner
         {
             //TODO
             pulsatingEffect1.Stop();
+            pulsatingStar.Stop();
+            faderIn.Stop();
             flickerEffect.Stop();
 
             lightGarland1.TurnOff();
@@ -854,6 +876,9 @@ namespace Animatroller.SceneRunner
             lightSnow1.TurnOff();
             lightSnow2.TurnOff();
             lightTreeUp.TurnOff();
+            allPixels.TurnOff();
+            starwarsPixels.TurnOff();
+            saberPixels.TurnOff();
         }
 
         public override void Start()
@@ -927,25 +952,9 @@ namespace Animatroller.SceneRunner
                     flickerEffect.Start();
                     switchButtonBlue.SetPower(true);
                     switchButtonRed.SetPower(true);
+                    lightTreeUp.SetOnlyColor(Color.Red);
 
-                    lightGarland1.SetBrightness(1.0);
-                    lightGarland2.SetBrightness(1.0);
-                    lightGarland3.SetBrightness(1.0);
-                    lightGarland4.SetBrightness(1.0);
-                    lightStairs1.SetBrightness(1.0);
-                    lightStairs2.SetBrightness(1.0);
-                    lightXmasTree.SetBrightness(1.0);
-                    lightDeerSmall.SetBrightness(1.0);
-                    lightDeerLarge.SetBrightness(1.0);
-                    lightTopperLarge.SetBrightness(1.0);
-                    lightTopperSmall.SetBrightness(1.0);
-                    lightNet1.SetBrightness(1.0);
-                    lightNet2.SetBrightness(1.0);
-                    lightString1.SetBrightness(1.0);
-                    lightString2.SetBrightness(1.0);
-                    lightSnow1.SetBrightness(1.0);
-                    lightSnow2.SetBrightness(1.0);
-                    lightTreeUp.SetBrightness(1.0);
+                    faderIn.Restart();
 
                     Executor.Current.Execute(twinkleSeq);
                 })
@@ -972,55 +981,6 @@ namespace Animatroller.SceneRunner
                 {
                     audioPlayer.PlayEffect("darkside");
                     instance.WaitFor(S(4));
-                });
-
-            hatSeq
-                .WhenExecuted
-                .Execute(i =>
-                {
-                    //int s = 0;
-                    //while (!i.IsCancellationRequested)
-                    //{
-                    //    Dimmer whichLight;
-                    //    switch (s++ % 4)
-                    //    {
-                    //        case 0:
-                    //            whichLight = lightHat1;
-                    //            break;
-                    //        case 1:
-                    //            whichLight = lightHat2;
-                    //            break;
-                    //        case 2:
-                    //            whichLight = lightHat3;
-                    //            break;
-                    //        case 3:
-                    //            whichLight = lightHat4;
-                    //            break;
-                    //        default:
-                    //            continue;
-                    //    }
-
-                    //    if (s == 0)
-                    //        whichLight.RunEffect(new Effect2.Fader(1.0, 0.0), S(0.5));
-
-                    //    i.WaitFor(S(1.0), true);
-                    //}
-
-                    int s = 0;
-                    while (!i.IsCancellationRequested)
-                    {
-                        hatLightState.NextState();
-
-                        i.WaitFor(S(1.0), true);
-                    }
-                })
-                .TearDown(() =>
-                {
-                    hatLightState.Hold();
-                    lightHat1.TurnOff();
-                    lightHat2.TurnOff();
-                    lightHat3.TurnOff();
-                    lightHat4.TurnOff();
                 });
 
             music1Seq
@@ -1114,18 +1074,51 @@ namespace Animatroller.SceneRunner
                         EverythingOff();
                     });
 
+            starwarsCane
+                .WhenExecuted
+                .SetUp(() =>
+                {
+                    allPixels.TurnOff();
+                    starwarsPixels.TurnOff();
+                })
+                .Execute(instance =>
+                {
+                    const int spacing = 4;
+
+                    while (!instance.CancelToken.IsCancellationRequested)
+                    {
+                        for (int i = 0; i < spacing; i++)
+                        {
+                            switch (i % spacing)
+                            {
+                                case 0:
+                                case 1:
+                                    starwarsPixels.InjectRev(Color.Yellow, 1.0);
+                                    break;
+                                case 2:
+                                case 3:
+                                    starwarsPixels.InjectRev(Color.Orange, 0.2);
+                                    break;
+                            }
+
+                            instance.WaitFor(S(0.1));
+
+                            if (instance.IsCancellationRequested)
+                                break;
+                        }
+                    }
+                })
+                .TearDown(() => starwarsPixels.TurnOff());
+
             fatherSeq
                 .WhenExecuted
                 .Execute(instance =>
                 {
-                    //Executor.Current.Execute(starwarsCane);
+                    Executor.Current.Execute(starwarsCane);
 
                     EverythingOff();
 
-                    audioPlayer.CueTrack("01. Star Wars - Main Title");
-                    // Make sure it's ready
-                    instance.WaitFor(S(0.5));
-                    audioPlayer.ResumeTrack();
+                    audioPlayer.PlayTrack("01. Star Wars - Main Title");
 
                     //lightCeiling1.SetOnlyColor(Color.Yellow);
                     //lightCeiling2.SetOnlyColor(Color.Yellow);
@@ -1134,32 +1127,59 @@ namespace Animatroller.SceneRunner
                     instance.WaitFor(S(16));
                     //pulsatingEffect2.Stop();
                     audioPlayer.PauseTrack();
-                    //Executor.Current.Cancel(starwarsCane);
+                    Executor.Current.Cancel(starwarsCane);
                     allPixels.TurnOff();
                     instance.WaitFor(S(0.5));
 
-                    //elJesus.SetPower(true);
-                    //lightJesus.SetColor(Color.White, 0.3);
+                    elJesus.SetPower(true);
+                    pulsatingStar.Start();
+                    lightJesus.SetColor(Color.White, 0.3);
+                    light3wise.SetOnlyColor(Color.LightYellow);
+                    light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
+                    lightVader.SetOnlyColor(Color.LightYellow);
+                    lightVader.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
 
-                    instance.WaitFor(S(1.5));
+                    instance.WaitFor(S(2.5));
 
                     //elLightsaber.SetPower(true);
                     audioPlayer.PlayEffect("saberon");
-                    instance.WaitFor(S(1));
+                    for (int sab = 0; sab < 60; sab++)
+                    {
+                        saberPixels.Inject(Color.Red, 0.5);
+                        instance.WaitFor(S(0.01));
+                    }
 
-                    lightVader.SetColor(Color.Red, 1.0);
+//                    lightVader.SetColor(Color.Red, 1.0);
                     audioPlayer.PlayEffect("father");
-                    instance.WaitFor(S(3));
+                    instance.WaitFor(S(4));
+
+                    lightVader.TurnOff();
+                    light3wise.TurnOff();
+                    lightJesus.TurnOff();
+                    pulsatingStar.Stop();
+                    elJesus.TurnOff();
+
+                    audioPlayer.PlayEffect("darkside");
+                    instance.WaitFor(S(4));
 
                     lightVader.TurnOff();
                     audioPlayer.PlayEffect("saberoff");
-                    instance.WaitFor(S(0.5));
+                    instance.WaitFor(S(0.7));
+                    for (int sab = 0; sab < 30; sab++)
+                    {
+                        saberPixels.InjectRev(Color.Black, 0);
+                        saberPixels.InjectRev(Color.Black, 0);
+                        instance.WaitFor(S(0.01));
+                    }
                     //elLightsaber.SetPower(false);
-                    instance.WaitFor(S(1));
+                    instance.WaitFor(S(2));
 
                     //lightJesus.TurnOff();
+                    //light3wise.TurnOff();
                     //elLightsaber.TurnOff();
+                    //pulsatingStar.Stop();
                     //elJesus.TurnOff();
+                    //instance.WaitFor(S(2));
                 });
 
             buttonStartInflatables.ActiveChanged += (o, e) =>
@@ -1178,10 +1198,12 @@ namespace Animatroller.SceneRunner
             {
                 //                lightGarland4.Brightness = e.NewState ? 1.0 : 0.0;
 
+
                 if (!e.NewState)
                     return;
 
-                hatLightState.NextState();
+
+
                 //Exec.Cancel(candyCane);
 
                 //allPixels.RunEffect(new Effect2.Fader(1.0, 0.0), S(2.0)).Wait();
@@ -1199,38 +1221,48 @@ namespace Animatroller.SceneRunner
 
             buttonBlue.ActiveChanged += (o, e) =>
                 {
-                    if (e.NewState)
+                    if (!e.NewState)
+                        return;
+
+                    if (hours.IsOpen)
                     {
-                        if (hours.IsOpen)
+                        switch (this.whichMusic++ % 2)
                         {
-                            if (stateMachine.CurrentState == States.Background)
-                                stateMachine.SetMomentaryState(States.Music1);
+                            case 0:
+                                stateMachine.SetState(States.Music1);
+                                break;
+
+                            case 1:
+                                stateMachine.SetState(States.Music2);
+                                break;
                         }
-                        else
-                            Exec.Execute(offHours1Seq);
                     }
+                    else
+                        Exec.Execute(offHours1Seq);
                 };
 
             buttonRed.ActiveChanged += (o, e) =>
             {
-                if (e.NewState)
+                if (!e.NewState)
+                    return;
+
+                if (hours.IsOpen)
                 {
-                    if (hours.IsOpen)
-                    {
-                        if (stateMachine.CurrentState == States.Background)
-                            stateMachine.SetMomentaryState(States.Music2);
-                    }
-                    else
-                        Exec.Execute(offHours2Seq);
+                    stateMachine.SetState(States.Vader);
                 }
+                else
+                    Exec.Execute(offHours2Seq);
             };
 
             audioPlayer.AudioTrackDone += (o, e) =>
             {
-                switchButtonBlue.SetPower(false);
+                //                switchButtonBlue.SetPower(false);
             };
 
             pulsatingEffect1
+                .AddDevice(lightStar);
+
+            pulsatingStar
                 .AddDevice(lightStar);
 
             flickerEffect
@@ -1270,6 +1302,26 @@ namespace Animatroller.SceneRunner
                     InflatablesRunning = false;
                 }
             };
+
+            faderIn
+                .AddDevice(lightGarland1)
+                .AddDevice(lightGarland2)
+                .AddDevice(lightGarland3)
+                .AddDevice(lightGarland4)
+                .AddDevice(lightStairs1)
+                .AddDevice(lightStairs2)
+                .AddDevice(lightXmasTree)
+                .AddDevice(lightDeerSmall)
+                .AddDevice(lightDeerLarge)
+                .AddDevice(lightTopperLarge)
+                .AddDevice(lightTopperSmall)
+                .AddDevice(lightNet1)
+                .AddDevice(lightNet2)
+                .AddDevice(lightString1)
+                .AddDevice(lightString2)
+                .AddDevice(lightSnow1)
+                .AddDevice(lightSnow2)
+                .AddDevice(lightTreeUp);
 
             stateMachine.ForFromSequence(States.Background, backgroundLoop);
             stateMachine.ForFromSequence(States.Music1, music1Seq);

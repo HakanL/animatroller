@@ -47,6 +47,11 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        public void ReleaseOwner()
+        {
+            this.owner = null;
+        }
+
         public double Brightness
         {
             get { return this.brightness; }

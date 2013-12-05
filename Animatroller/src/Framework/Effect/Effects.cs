@@ -27,17 +27,59 @@ namespace Animatroller.Framework.Effect
         }
 
         protected override void ExecutePerDevice(LogicalDevice.IHasBrightnessControl device,
-            double zeroToOne, double negativeOneToOne, double oneToZeroToOne)
+            double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
         {
             double brightness = easeTransform.Transform(oneToZeroToOne)
                 .ScaleToMinMax(this.minBrightness, this.maxBrightness);
 
             device.SetBrightness(brightness, this);
+
+            if (final)
+                device.Brightness = 0;
         }
 
-        protected override void StopDevice(LogicalDevice.IHasBrightnessControl device)
+        public double MinBrightness
         {
-            device.Brightness = 0;
+            get { return this.minBrightness; }
+            set { this.minBrightness = value.Limit(0, 1); }
+        }
+
+        public double MaxBrightness
+        {
+            get { return this.maxBrightness; }
+            set { this.maxBrightness = value.Limit(0, 1); }
+        }
+    }
+
+    public class Fader : BaseSweeperEffect<LogicalDevice.IHasBrightnessControl>
+    {
+        private Transformer.EaseInOut easeTransform = new Transformer.EaseInOut();
+        private double minBrightness;
+        private double maxBrightness;
+
+        public Fader(string name, TimeSpan sweepDuration, double minBrightness, double maxBrightness, bool startRunning = true)
+            : base(name, sweepDuration, startRunning)
+        {
+            this.minBrightness = minBrightness;
+            this.maxBrightness = maxBrightness;
+            base.sweeper.OneShot();
+        }
+
+        public Fader(string name, TimeSpan sweepDuration)
+            : this(name, sweepDuration, 0, 1)
+        {
+        }
+
+        protected override void ExecutePerDevice(LogicalDevice.IHasBrightnessControl device,
+            double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            double brightness = zeroToOne
+                .ScaleToMinMax(this.minBrightness, this.maxBrightness);
+
+            device.SetBrightness(brightness, this);
+
+            if (final)
+                device.ReleaseOwner();
         }
 
         public double MinBrightness
@@ -79,7 +121,7 @@ namespace Animatroller.Framework.Effect
         }
 
         protected override void ExecutePerDevice(LogicalDevice.IHasBrightnessControl device,
-            double zeroToOne, double negativeOneToOne, double oneToZeroToOne)
+            double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
         {
             double brightness = this.startBrightness * (1 - zeroToOne);
 
@@ -87,11 +129,9 @@ namespace Animatroller.Framework.Effect
                 brightness = 0;
 
             device.SetBrightness(brightness, this);
-        }
 
-        protected override void StopDevice(LogicalDevice.IHasBrightnessControl device)
-        {
-            device.Brightness = 0;
+            if (final)
+                device.Brightness = 0;
         }
     }
 

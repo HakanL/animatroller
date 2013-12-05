@@ -380,6 +380,11 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
+        public void ReleaseOwner()
+        {
+            this.owner = null;
+        }
+
         public void SetBrightness(double value, IOwner owner)
         {
             if (this.owner != null && owner != this.owner)

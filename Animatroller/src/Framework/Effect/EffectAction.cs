@@ -7,6 +7,6 @@ namespace Animatroller.Framework.Effect
 {
     public static class EffectAction
     {
-        public delegate void Action(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool forced, long totalTicks);
+        public delegate void Action(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool forced, long totalTicks, bool final);
     }
 }

@@ -13,6 +13,7 @@ namespace Animatroller.Framework.LogicalDevice
     {
         double Brightness { set; }
         void SetBrightness(double value, IOwner owner);
+        void ReleaseOwner();
         Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration);
         void StopEffect();
     }

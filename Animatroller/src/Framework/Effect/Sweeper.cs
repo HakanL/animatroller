@@ -89,7 +89,7 @@ namespace Animatroller.Framework.Effect
             lock (lockJobs)
             {
                 foreach (var job in jobs)
-                    job(zeroToOne, negativeOneToOne, oneToZeroToOne, true, totalTicks);
+                    job(zeroToOne, negativeOneToOne, oneToZeroToOne, true, totalTicks, true);
             }
 
             return this;
@@ -111,7 +111,7 @@ namespace Animatroller.Framework.Effect
             {
                 Pause();
 
-                ForceValue(0, 0, 0, ticks);
+                ForceValue(1.0, 1.0, 1.0, ticks);
 
                 this.ended = false;
                 return;
@@ -149,7 +149,7 @@ namespace Animatroller.Framework.Effect
                 try
                 {
                     foreach (var job in jobs)
-                        job(value1, value2, value3, false, valueTicks);
+                        job(value1, value2, value3, false, valueTicks, this.ended);
                 }
                 catch (Exception ex)
                 {
