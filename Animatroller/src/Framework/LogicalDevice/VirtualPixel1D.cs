@@ -318,7 +318,11 @@ namespace Animatroller.Framework.LogicalDevice
                         SetColor(position, newColor, newBrightness);
 
                         if (instance != null)
-                            instance.WaitFor(TimeSpan.FromMilliseconds(100));
+                        {
+                            instance.WaitFor(TimeSpan.FromMilliseconds(100), false);
+                            if (instance.IsCancellationRequested)
+                                return;
+                        }
                         else
                             System.Threading.Thread.Sleep(100);
 

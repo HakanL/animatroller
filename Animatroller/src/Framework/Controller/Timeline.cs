@@ -42,6 +42,7 @@ namespace Animatroller.Framework.Controller
         private SortedList<int, HashSet<T>> timeline;
         private Task task;
         private System.Threading.CancellationTokenSource cancelSource;
+        private int? iterationsLeft;
         private int? iterations;
 
         public event EventHandler<TimelineEventArgs> TimelineTrigger;
@@ -113,15 +114,17 @@ namespace Animatroller.Framework.Controller
 
         public Task Start()
         {
-            if (this.cancelSource == null)
+            if (this.cancelSource == null || this.cancelSource.IsCancellationRequested)
                 this.cancelSource = new System.Threading.CancellationTokenSource();
+
+            this.iterationsLeft = this.iterations;
 
             this.task = new Task(() =>
             {
-                while (!this.iterations.HasValue || this.iterations.GetValueOrDefault() > 0)
+                while (!this.iterationsLeft.HasValue || this.iterationsLeft.GetValueOrDefault() > 0)
                 {
-                    if (this.iterations.HasValue)
-                        this.iterations = this.iterations.Value - 1;
+                    if (this.iterationsLeft.HasValue)
+                        this.iterationsLeft = this.iterationsLeft.Value - 1;
 
                     var watch = System.Diagnostics.Stopwatch.StartNew();
                     for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
@@ -169,8 +172,8 @@ namespace Animatroller.Framework.Controller
                     this.tearDownAction.Invoke();
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
-            task.Start();
-            Executor.Current.RegisterCancelSource(this.cancelSource, task, "Timeline");
+            this.task.Start();
+            Executor.Current.RegisterCancelSource(this.cancelSource, this.task, "Timeline");
 
             return task;
         }

@@ -76,7 +76,6 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence fatherSeq;
         private Controller.Sequence offHours1Seq;
         private Controller.Sequence offHours2Seq;
-        private Controller.Sequence hatSeq;
         private Controller.Sequence starwarsCane;
 
         private Effect.Pulsating pulsatingEffect1;
@@ -164,7 +163,6 @@ namespace Animatroller.SceneRunner
             fatherSeq = new Controller.Sequence("Father");
             offHours1Seq = new Controller.Sequence("Off hours 1");
             offHours2Seq = new Controller.Sequence("Off hours 2");
-            hatSeq = new Controller.Sequence("Hat");
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
             starwarsPixels = new VirtualPixel1D("Star wars", 50);
@@ -209,6 +207,8 @@ namespace Animatroller.SceneRunner
             popOut1End = new Effect.PopOut("End", S(5.0));
 
             popOut1Piano
+                .AddDevice(lightString1)
+                .AddDevice(lightString2)
                 .AddDevice(lightTreeUp)
                 .AddDevice(lightStar);
 
@@ -245,11 +245,15 @@ namespace Animatroller.SceneRunner
 
             popOut1Choir
                 .AddDevice(lightGarland1)
-                .AddDevice(lightTopperLarge);
+                .AddDevice(lightSnow1)
+                .AddDevice(lightTopperLarge)
+                .AddDevice(lightTopperSmall);
             //.AddDevice(lightCeiling1);
 
             popOut1Voice
-                .AddDevice(lightGarland2);
+                .AddDevice(lightGarland1)
+                .AddDevice(lightGarland2)
+                .AddDevice(lightSnow2);
             //.AddDevice(lightCeiling3);
 
             popOut1Vocal2
@@ -260,6 +264,10 @@ namespace Animatroller.SceneRunner
             popOut1VocalLong
                 .AddDevice(lightSnow1)
                 .AddDevice(lightSnow2)
+                .AddDevice(lightGarland1)
+                .AddDevice(lightGarland2)
+                .AddDevice(lightGarland3)
+                .AddDevice(lightGarland4)
                 //.AddDevice(lightNetRight)
                 //.AddDevice(lightGarlandRight)
                 //.AddDevice(lightHatsRight)
@@ -399,7 +407,6 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "Base":
-                        hatLightState.NextState();
                         popOut1Drums.Pop(1.0);
                         if (state < 3)
                         {
@@ -852,7 +859,9 @@ namespace Animatroller.SceneRunner
 
         private void EverythingOff()
         {
-            //TODO
+            Exec.Cancel(starwarsCane);
+            audioPlayer.PauseTrack();
+            audioPlayer.PauseFX();
             pulsatingEffect1.Stop();
             pulsatingStar.Stop();
             faderIn.Stop();
@@ -1014,19 +1023,12 @@ namespace Animatroller.SceneRunner
                         instance.WaitFor(S(2));
                     EverythingOff();
 
-                    instance.WaitFor(S(2), true);
-
-
-                    Executor.Current.Execute(backgroundLoop);
-                    instance.WaitFor(S(30));
-                    Executor.Current.Cancel(backgroundLoop);
-                    EverythingOff();
-                    instance.WaitFor(S(1));
+                    instance.WaitFor(S(2));
                 })
-                    .TearDown(() =>
-                    {
-                        EverythingOff();
-                    });
+                .TearDown(() =>
+                {
+                    EverythingOff();
+                });
 
             music2Seq
                 .WhenExecuted
@@ -1037,7 +1039,6 @@ namespace Animatroller.SceneRunner
                     System.Threading.Thread.Sleep(800);
 
                     EverythingOff();
-                    Exec.Execute(hatSeq);
                 })
                 .Execute(instance =>
                 {
@@ -1060,19 +1061,12 @@ namespace Animatroller.SceneRunner
                         instance.WaitFor(S(2));
                     EverythingOff();
 
-                    instance.WaitFor(S(2), true);
-
-
-                    Executor.Current.Execute(backgroundLoop);
-                    instance.WaitFor(S(30));
-                    Executor.Current.Cancel(backgroundLoop);
-                    EverythingOff();
-                    instance.WaitFor(S(1));
+                    instance.WaitFor(S(2));
                 })
-                    .TearDown(() =>
-                    {
-                        EverythingOff();
-                    });
+                .TearDown(() =>
+                {
+                    EverythingOff();
+                });
 
             starwarsCane
                 .WhenExecuted
@@ -1114,9 +1108,9 @@ namespace Animatroller.SceneRunner
                 .WhenExecuted
                 .Execute(instance =>
                 {
-                    Executor.Current.Execute(starwarsCane);
-
                     EverythingOff();
+
+                    Executor.Current.Execute(starwarsCane);
 
                     audioPlayer.PlayTrack("01. Star Wars - Main Title");
 
@@ -1180,6 +1174,9 @@ namespace Animatroller.SceneRunner
                     //pulsatingStar.Stop();
                     //elJesus.TurnOff();
                     //instance.WaitFor(S(2));
+                })
+                .TearDown(() => {
+                    EverythingOff();
                 });
 
             buttonStartInflatables.ActiveChanged += (o, e) =>
@@ -1226,7 +1223,15 @@ namespace Animatroller.SceneRunner
 
                     if (hours.IsOpen)
                     {
-                        switch (this.whichMusic++ % 2)
+                        if (stateMachine.CurrentState == States.Music1 ||
+                            stateMachine.CurrentState == States.Music2)
+                        {
+                            // Stop
+                            stateMachine.SetState(States.Background);
+                            return;
+                        }
+
+                        switch (this.whichMusic++ % 1)
                         {
                             case 0:
                                 stateMachine.SetState(States.Music1);
@@ -1248,7 +1253,10 @@ namespace Animatroller.SceneRunner
 
                 if (hours.IsOpen)
                 {
-                    stateMachine.SetState(States.Vader);
+                    if (stateMachine.CurrentState == States.Vader)
+                        stateMachine.SetState(States.Background);
+                    else
+                        stateMachine.SetState(States.Vader);
                 }
                 else
                     Exec.Execute(offHours2Seq);

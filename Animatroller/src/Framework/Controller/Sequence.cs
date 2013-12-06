@@ -59,9 +59,7 @@ namespace Animatroller.Framework.Controller
 
             public ISequenceInstance WaitFor(TimeSpan value)
             {
-                this.cancelToken.WaitHandle.WaitOne(value);
-
-                return this;
+                return WaitFor(value, true);
             }
 
             public ISequenceInstance WaitFor(TimeSpan value, bool throwExceptionIfCanceled)

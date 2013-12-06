@@ -59,8 +59,6 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel1D))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D)fieldValue));
-                else if (field.FieldType == typeof(Switch))
-                    this.AddDigitalOutput((Switch)fieldValue);
                 else if (field.FieldType == typeof(MotorWithFeedback))
                 {
                     // Skip
@@ -127,7 +125,8 @@ namespace Animatroller.Simulator
 
                 if (field.FieldType == typeof(Switch))
                     this.AddDigitalOutput((Switch)fieldValue);
-                else if (field.FieldType.Name.StartsWith("StateMachine"))
+                else if (field.FieldType.Name.StartsWith("EnumStateMachine") ||
+                    field.FieldType.Name.StartsWith("IntStateMachine"))
                 {
                     var stateMachine = (Animatroller.Framework.Controller.IStateMachine)fieldValue;
 
