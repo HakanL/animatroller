@@ -44,5 +44,15 @@ namespace Animatroller.Framework.Extensions
         {
             return (byte)(d.Limit(0, 1) * scale);
         }
+
+        public static double GetDouble(this byte b)
+        {
+            return ((double)b) / 255.0;
+        }
+
+        public static double LimitAndScale(this double d, double start, double end, double min = 0.0, double max = 1.0)
+        {
+            return ((d.Limit(start, end) - start) / (end - start)).ScaleToMinMax(min, max);
+        }
     }
 }

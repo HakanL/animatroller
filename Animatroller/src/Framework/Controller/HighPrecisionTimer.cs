@@ -10,8 +10,13 @@ namespace Animatroller.Framework.Controller
     {
         public class TickEventArgs : EventArgs
         {
-            public TimeSpan Duration { get; private set; }
-            public long TotalTicks { get; private set; }
+            public TimeSpan Duration { get; internal set; }
+            public long TotalTicks { get; internal set; }
+            public bool Cancel { get; set; }
+
+            public TickEventArgs()
+            {
+            }
 
             public TickEventArgs(TimeSpan totalDuration, long totalTicks)
             {
@@ -25,8 +30,10 @@ namespace Animatroller.Framework.Controller
         protected CircularBuffer.CircularBuffer<int> tickTiming;
         protected CircularBuffer.CircularBuffer<long> execTiming;
         protected CancellationTokenSource cancelSource;
+        private ManualResetEvent taskComplete;
+        private Task task;
 
-        public HighPrecisionTimer(int intervalMs)
+        public HighPrecisionTimer(int intervalMs, bool startRunning = true)
         {
             log.Info("Starting HighPrecisionTimer with {0} ms interval", intervalMs);
 
@@ -35,7 +42,8 @@ namespace Animatroller.Framework.Controller
             System.Diagnostics.Trace.Assert(intervalMs >= 10, "Not reliable/tested, may use too much CPU");
 
             this.IntervalMs = intervalMs;
-            cancelSource = new CancellationTokenSource();
+            this.cancelSource = new CancellationTokenSource();
+            this.taskComplete = new ManualResetEvent(false);
 
 #if PROFILE
             // Used to report timing accuracy for 1 sec, running total
@@ -51,8 +59,10 @@ namespace Animatroller.Framework.Controller
             long lastReport = 0;
 #endif
 
-            var task = new Task(() =>
+            this.task = new Task(() =>
                 {
+                    var eventArgs = new TickEventArgs();
+
                     while (!this.cancelSource.IsCancellationRequested)
                     {
                         long msLeft = nextStop - watch.ElapsedMilliseconds;
@@ -66,7 +76,13 @@ namespace Animatroller.Framework.Controller
 #endif
                             var handler = Tick;
                             if (handler != null)
-                                handler(this, new TickEventArgs(TimeSpan.FromMilliseconds(durationMs), totalTicks));
+                            {
+                                eventArgs.Duration = TimeSpan.FromMilliseconds(durationMs);
+                                eventArgs.TotalTicks = totalTicks;
+                                handler(this, eventArgs);
+                                if (eventArgs.Cancel)
+                                    break;
+                            }
 #if PROFILE
                             execWatch.Stop();
                             execTiming.Put(execWatch.ElapsedTicks);
@@ -94,9 +110,29 @@ namespace Animatroller.Framework.Controller
 
                         System.Threading.Thread.Sleep(1);
                     }
+
+                    this.taskComplete.Set();
                 }, cancelSource.Token, TaskCreationOptions.LongRunning);
 
-            task.Start();
+            if (startRunning)
+                this.task.Start();
+        }
+
+        public void Start()
+        {
+            this.task.Start();
+        }
+
+        public void Stop()
+        {
+            this.cancelSource.Cancel();
+            this.task.Wait();
+        }
+
+        public void WaitUntilFinished(ISequenceInstance instance)
+        {
+            WaitHandle.WaitAny(new WaitHandle[] { this.taskComplete, instance.CancelToken.WaitHandle });
+            Stop();
         }
 
         public void Dispose()

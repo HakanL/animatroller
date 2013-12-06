@@ -15,7 +15,9 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class Xmas2013scene : BaseScene, ISceneRequiresAcnStream, ISceneSupportsSimulator, ISceneRequiresRaspExpander1
+    internal class Xmas2013scene : BaseScene, ISceneSupportsSimulator
+        //ISceneRequiresAcnStream,
+        //ISceneRequiresRaspExpander1
     {
         public enum States
         {
@@ -77,6 +79,7 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence offHours1Seq;
         private Controller.Sequence offHours2Seq;
         private Controller.Sequence starwarsCane;
+        private Controller.Sequence waveformSeq;
 
         private Effect.Pulsating pulsatingEffect1;
         private Effect.Pulsating pulsatingStar;
@@ -163,6 +166,7 @@ namespace Animatroller.SceneRunner
             fatherSeq = new Controller.Sequence("Father");
             offHours1Seq = new Controller.Sequence("Off hours 1");
             offHours2Seq = new Controller.Sequence("Off hours 2");
+            waveformSeq = new Controller.Sequence("Waveform");
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
             starwarsPixels = new VirtualPixel1D("Star wars", 50);
@@ -796,7 +800,8 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_Momentarily(buttonBlue);
             sim.AddDigitalInput_Momentarily(buttonRed);
 
-            sim.AutoWireUsingReflection_Simple(this);
+            //sim.AutoWireUsingReflection_Simple(this);
+            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.AcnStream port)
@@ -1179,6 +1184,60 @@ namespace Animatroller.SceneRunner
                     EverythingOff();
                 });
 
+
+            waveformSeq
+                .WhenExecuted
+                .Execute(i =>
+                {
+                    var timer = new Controller.HighPrecisionTimer(50, false);
+                    byte[] buffer;
+                    using (var fs = System.IO.File.OpenRead("Let It Go - Waveform 50ms.dat"))
+                    {
+                        buffer = new byte[fs.Length];
+                        fs.Read(buffer, 0, buffer.Length);
+                        fs.Close();
+                    }
+
+                    var cb = new ColorBrightness[allPixels.Pixels];
+                    for(int cb_pos = 0; cb_pos < cb.Length; cb_pos++)
+                        cb[cb_pos] = new ColorBrightness(Color.Turquoise, 0.0);
+
+                    double lastValue = 0;
+
+                    timer.Tick += (o, e) =>
+                        {
+                            int pos = (int)e.TotalTicks;
+                            if(pos >= buffer.Length)
+                            {
+                                e.Cancel = true;
+                                return;
+                            }
+                            
+                            double curValue = buffer[pos].GetDouble();
+                            double value = (curValue + lastValue) / 2;
+                            lastValue = curValue;
+
+                            lightHat1.Brightness = value.LimitAndScale(0.0, 0.1, 0.0, 1.0);
+                            lightHat2.Brightness = value.LimitAndScale(0.1, 0.2);
+                            lightHat3.Brightness = value.LimitAndScale(0.2, 0.3);
+                            lightHat4.Brightness = value.LimitAndScale(0.3, 0.4);
+
+                            int vuPos = (int)(cb.Length * value);
+                            for (int cb_pos = 0; cb_pos < cb.Length; cb_pos++)
+                                cb[cb_pos].Brightness = cb_pos < vuPos ? 1.0 : 0.2;
+
+                            allPixels.SetColors(0, cb);
+                        };
+
+                    timer.Start();
+
+                    timer.WaitUntilFinished(i);
+                })
+                .TearDown(() =>
+                {
+                    EverythingOff();
+                });
+
             buttonStartInflatables.ActiveChanged += (o, e) =>
                 {
                     if (e.NewState && hours.IsOpen)
@@ -1195,9 +1254,13 @@ namespace Animatroller.SceneRunner
             {
                 //                lightGarland4.Brightness = e.NewState ? 1.0 : 0.0;
 
+                if (e.NewState)
+                    Exec.Execute(waveformSeq);
+                else
+                    Exec.Cancel(waveformSeq);
+
                 if (!e.NewState)
                     return;
-
 
 
                 //Exec.Cancel(candyCane);

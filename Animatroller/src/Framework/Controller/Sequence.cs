@@ -14,6 +14,7 @@ namespace Animatroller.Framework.Controller
         public class SequenceJob : IRunnableState, ISequenceInstance
         {
             private object lockObject = new object();
+            private string id;
             protected string name;
             protected Action setUpAction;
             protected Action tearDownAction;
@@ -24,6 +25,7 @@ namespace Animatroller.Framework.Controller
             {
                 this.name = name;
                 this.actions = new List<Action<ISequenceInstance>>();
+                this.id = Guid.NewGuid().GetHashCode().ToString();
             }
 
             public System.Threading.CancellationToken CancelToken
@@ -127,6 +129,11 @@ namespace Animatroller.Framework.Controller
                     else
                         log.Info("SequenceJob {0} completed", this.name);
                 }
+            }
+
+            public string Id
+            {
+                get { return this.id; }
             }
         }
 

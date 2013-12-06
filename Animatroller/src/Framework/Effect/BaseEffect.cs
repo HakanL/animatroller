@@ -52,13 +52,16 @@ namespace Animatroller.Framework.Effect
                             }
                             totalWatch.Stop();
 
-                            double max = watches.Select(x => x.ElapsedMilliseconds).Max();
-                            double avg = watches.Select(x => x.ElapsedMilliseconds).Average();
-
-                            if (totalWatch.ElapsedMilliseconds > 25)
+                            if (watches.Any())
                             {
-                                log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
-                                    this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
+                                double max = watches.Select(x => x.ElapsedMilliseconds).Max();
+                                double avg = watches.Select(x => x.ElapsedMilliseconds).Average();
+
+                                if (totalWatch.ElapsedMilliseconds > 25)
+                                {
+                                    log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
+                                        this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
+                                }
                             }
                         }
                         catch

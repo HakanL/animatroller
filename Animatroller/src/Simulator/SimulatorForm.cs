@@ -64,6 +64,10 @@ namespace Animatroller.Simulator
                     // Skip
 //                    this.AddMotor((MotorWithFeedback)fieldValue);
                 }
+                else if (field.FieldType == typeof(Switch))
+                {
+                    // Skip
+                }
                 else if (field.FieldType == typeof(DigitalInput))
                 {
                     // Skip
@@ -93,6 +97,12 @@ namespace Animatroller.Simulator
                     // Skip
                 }
                 else if (field.FieldType == typeof(Animatroller.Framework.LogicalDevice.OperatingHours))
+                {
+                    // Skip
+                }
+                else if (field.FieldType.Name.StartsWith("EnumStateMachine") ||
+                    field.FieldType.Name.StartsWith("IntStateMachine") ||
+                    field.FieldType.Name.StartsWith("Timeline"))
                 {
                     // Skip
                 }
