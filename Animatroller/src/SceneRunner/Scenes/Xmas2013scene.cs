@@ -1195,7 +1195,6 @@ namespace Animatroller.SceneRunner
             {
                 //                lightGarland4.Brightness = e.NewState ? 1.0 : 0.0;
 
-
                 if (!e.NewState)
                     return;
 

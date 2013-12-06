@@ -387,6 +387,10 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetBrightness(double value, IOwner owner)
         {
+            if (value == 0)
+                // Reset owner
+                owner = null;
+
             if (this.owner != null && owner != this.owner)
             {
                 if (owner != null)
