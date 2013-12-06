@@ -497,8 +497,8 @@ namespace Animatroller.SceneRunner
             sim.AddDigitalInput_Momentarily(buttonBlue);
             sim.AddDigitalInput_Momentarily(buttonRed);
 
-            //sim.AutoWireUsingReflection_Simple(this);
-            sim.AutoWireUsingReflection(this);
+            sim.AutoWireUsingReflection_Simple(this);
+            //sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.AcnStream port)
@@ -818,7 +818,7 @@ namespace Animatroller.SceneRunner
                     pulsatingStar.Stop();
                     elJesus.TurnOff();
 
-                    audioPlayer.PlayEffect("darkside");
+                    audioPlayer.PlayEffect("force1");
                     instance.WaitFor(S(4));
 
                     lightVader.TurnOff();
@@ -882,8 +882,10 @@ namespace Animatroller.SceneRunner
                             }
                             
                             double curValue = buffer[pos].GetDouble();
-                            double value = (curValue + lastValue) / 2;
-                            lastValue = curValue;
+                            if (curValue > lastValue)
+                                lastValue = curValue;
+                            double value = lastValue;
+                            lastValue = (lastValue - 0.02).Limit(0.0, 1.0);
 
                             const double d1 = 0.00;
                             const double d2 = 0.15;
