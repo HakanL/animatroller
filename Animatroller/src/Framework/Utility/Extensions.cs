@@ -50,9 +50,9 @@ namespace Animatroller.Framework.Extensions
             return ((double)b) / 255.0;
         }
 
-        public static double LimitAndScale(this double d, double start, double end, double min = 0.0, double max = 1.0)
+        public static double LimitAndScale(this double d, double start, double length, double min = 0.0, double max = 1.0)
         {
-            return ((d.Limit(start, end) - start) / (end - start)).ScaleToMinMax(min, max);
+            return ((d.Limit(start, start + length) - start) / length).ScaleToMinMax(min, max);
         }
     }
 }
