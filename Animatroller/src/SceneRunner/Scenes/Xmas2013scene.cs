@@ -87,6 +87,7 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence twinkleSeq;
         private bool inflatablesRunning;
         private int whichMusic;
+        private DateTime? mute;
 
         private Effect.PopOut popOut1Piano;
         private Effect.PopOut popOut1Drums;
@@ -99,6 +100,7 @@ namespace Animatroller.SceneRunner
         private Effect.PopOut popOut1Vocal2;
         private Effect.PopOut popOut1VocalLong;
         private Effect.PopOut popOut1End;
+        private Expander.OscServer oscServer;
 
         public Xmas2013scene(IEnumerable<string> args)
         {
@@ -178,6 +180,8 @@ namespace Animatroller.SceneRunner
             popOut1Vocal2 = new Effect.PopOut("Vocal 2", S(2.0));
             popOut1VocalLong = new Effect.PopOut("Vocal Long", S(5.0));
             popOut1End = new Effect.PopOut("End", S(5.0));
+
+            this.oscServer = new Expander.OscServer(10000);
         }
 
         private void ConfigureMusic1()
@@ -467,7 +471,7 @@ namespace Animatroller.SceneRunner
                         break;
 
                     case "End":
-                        EverythingOff();
+                        AllLightsOff();
                         popOut1End.Pop(1.0);
                         break;
 
@@ -569,6 +573,11 @@ namespace Animatroller.SceneRunner
             faderIn.Stop();
             flickerEffect.Stop();
 
+            AllLightsOff();
+        }
+
+        private void AllLightsOff()
+        {
             lightGarland1.TurnOff();
             lightGarland2.TurnOff();
             lightGarland3.TurnOff();
@@ -588,6 +597,10 @@ namespace Animatroller.SceneRunner
             lightSnow2.TurnOff();
             lightTreeUp.TurnOff();
             lightStar.TurnOff();
+            light3wise.TurnOff();
+            lightVader.TurnOff();
+            elJesus.TurnOff();
+            lightJesus.TurnOff();
             allPixels.TurnOff();
             starwarsPixels.TurnOff();
             saberPixels.TurnOff();
@@ -906,10 +919,10 @@ namespace Animatroller.SceneRunner
                             lightSnow2.Brightness = value.LimitAndScale(d3, 0.2);
                             lightStairs1.Brightness = value.LimitAndScale(d1, 0.2);
                             lightStairs2.Brightness = value.LimitAndScale(d1, 0.2);
-                            lightDeerSmall.Brightness = value.LimitAndScale(d4, 0.2);
-                            lightTopperLarge.Brightness = value.LimitAndScale(d1, 0.2);
-                            lightDeerLarge.Brightness = value.LimitAndScale(d1, 0.2);
-                            lightTopperSmall.Brightness = value.LimitAndScale(d2, 0.2);
+                            lightDeerSmall.Brightness = curValue;
+                            lightTopperLarge.Brightness = curValue;
+                            lightDeerLarge.Brightness = curValue;
+                            lightTopperSmall.Brightness = curValue;
                             lightString1.Brightness = value.LimitAndScale(d4, 0.2);
                             lightString2.Brightness = value.LimitAndScale(d4, 0.2);
                             lightXmasTree.Brightness = value.LimitAndScale(d4, 0.2);
@@ -943,7 +956,55 @@ namespace Animatroller.SceneRunner
                     }
                 };
 
-            // Test Button
+                this.oscServer.RegisterAction<int>("/osc/button1", (msg, data) =>
+                {
+                    if (data.Any() && data.First() == 1)
+                    {
+                        stateMachine.SetState(States.Vader);
+                    }
+                });
+
+                this.oscServer.RegisterAction<int>("/osc/button2", (msg, data) =>
+                {
+                    if (data.Any() && data.First() == 1)
+                    {
+                        stateMachine.SetState(States.Music1);
+                    }
+                });
+
+                this.oscServer.RegisterAction<int>("/osc/button3", (msg, data) =>
+                {
+                    if (data.Any() && data.First() == 1)
+                    {
+                        stateMachine.SetState(States.Music2);
+                    }
+                });
+
+                this.oscServer.RegisterAction<int>("/osc/button4", (msg, data) =>
+                {
+                    if (data.Any() && data.First() == 1)
+                    {
+                        stateMachine.SetState(States.Background);
+                    }
+                });
+
+                this.oscServer.RegisterAction<int>("/osc/button5", (msg, data) =>
+                {
+                    if (data.Any() && data.First() == 1)
+                    {
+                        audioPlayer.PlayEffect("darkside");
+                    }
+                });
+
+                this.oscServer.RegisterAction<int>("/osc/button6", (msg, data) =>
+                {
+                    if (data.Any() && data.First() == 1)
+                    {
+                        audioPlayer.PlayEffect("Darth Breathing");
+                    }
+                });
+
+                // Test Button
             buttonTest.ActiveChanged += (sender, e) =>
             {
                 //                lightGarland4.Brightness = e.NewState ? 1.0 : 0.0;
@@ -977,13 +1038,16 @@ namespace Animatroller.SceneRunner
                     if (!e.NewState)
                         return;
 
+                    if (mute.HasValue && (DateTime.Now - mute.Value).TotalSeconds < 30)
+                        return;
+
                     if (hours.IsOpen)
                     {
                         if (stateMachine.CurrentState == States.Music1 ||
                             stateMachine.CurrentState == States.Music2)
                         {
                             // Stop
-                            stateMachine.SetState(States.Background);
+                            //stateMachine.SetState(States.Background);
                             return;
                         }
 
@@ -1000,6 +1064,8 @@ namespace Animatroller.SceneRunner
                     }
                     else
                         Exec.Execute(offHours1Seq);
+
+                    mute = DateTime.Now;
                 };
 
             buttonRed.ActiveChanged += (o, e) =>
@@ -1007,15 +1073,21 @@ namespace Animatroller.SceneRunner
                 if (!e.NewState)
                     return;
 
+                if (mute.HasValue && (DateTime.Now - mute.Value).TotalSeconds < 30)
+                    return;
+
                 if (hours.IsOpen)
                 {
                     if (stateMachine.CurrentState == States.Vader)
-                        stateMachine.SetState(States.Background);
+                        return;
+                        //stateMachine.SetState(States.Background);
                     else
                         stateMachine.SetState(States.Vader);
                 }
                 else
                     Exec.Execute(offHours2Seq);
+
+                mute = DateTime.Now;
             };
 
             audioPlayer.AudioTrackDone += (o, e) =>
