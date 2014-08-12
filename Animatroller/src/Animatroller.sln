@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SceneRunner", "SceneRunner\SceneRunner.csproj", "{B456587A-C3B4-4654-A1D1-3029E9BFDBCA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5CA4EE12-DD7F-49D0-9079-41EE3B067FCE} = {5CA4EE12-DD7F-49D0-9079-41EE3B067FCE}
@@ -9,13 +11,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simulator", "Simulator\Simulator.csproj", "{5CA4EE12-DD7F-49D0-9079-41EE3B067FCE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{97C48505-A92A-4FBD-B39C-BBB014AEF34B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9984F600-5DA6-463D-95AA-29676020A07C}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
