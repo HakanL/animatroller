@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using Animatroller.Simulator.Extensions;
+using Animatroller.Framework.Extensions;
 using NLog;
 
 namespace Animatroller.Simulator
@@ -59,10 +60,12 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel1D))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D)fieldValue));
+                else if (field.FieldType == typeof(AnalogInput))
+                    this.AddAnalogInput((AnalogInput)fieldValue);
                 else if (field.FieldType == typeof(MotorWithFeedback))
                 {
                     // Skip
-//                    this.AddMotor((MotorWithFeedback)fieldValue);
+                    //                    this.AddMotor((MotorWithFeedback)fieldValue);
                 }
                 else if (field.FieldType == typeof(Switch))
                 {
@@ -283,6 +286,29 @@ namespace Animatroller.Simulator
             device.Connect(logicalDevice);
 
             control.Checked = logicalDevice.Active;
+
+            return device;
+        }
+
+        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput(AnalogInput logicalDevice)
+        {
+            var control = new TrackBar();
+            control.Text = logicalDevice.Name;
+            control.Size = new System.Drawing.Size(80, 80);
+            control.Maximum = 255;
+
+            flowLayoutPanelLights.Controls.Add(control);
+
+            var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
+
+            control.ValueChanged += (sender, e) =>
+            {
+                device.Trigger((sender as TrackBar).Value / 255.0);
+            };
+
+            device.Connect(logicalDevice);
+
+            control.Value = logicalDevice.Value.GetByteScale();
 
             return device;
         }

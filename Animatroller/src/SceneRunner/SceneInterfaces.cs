@@ -32,6 +32,11 @@ namespace Animatroller.SceneRunner
         void WireUp(Expander.IOExpander port);
     }
 
+    public interface ISceneRequiresMidiInput
+    {
+        void WireUp(Expander.MidiInput port);
+    }
+
     public interface ISceneRequiresDMXPro
     {
         void WireUp(Expander.DMXPro port);

@@ -24,6 +24,7 @@ namespace Animatroller.SceneRunner
             Animatroller.Framework.Expander.Raspberry raspberry2 = null;
             Animatroller.Framework.Expander.Raspberry raspberry3 = null;
             Animatroller.Framework.Expander.Raspberry raspberry4 = null;
+            Animatroller.Framework.Expander.MidiInput midiInput = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
@@ -59,6 +60,11 @@ namespace Animatroller.SceneRunner
                     case "IOEXP":
                         // Propeller-based expansion board for input/output/dmx/GECE-pixels/motor, etc
                         ioExpander = new Animatroller.Framework.Expander.IOExpander(parts[1]);
+                        break;
+
+                    case "MIDI":
+                        // Midi input (like Akai LPD-8)
+                        midiInput = new Animatroller.Framework.Expander.MidiInput();
                         break;
 
                     case "ACN":
@@ -183,6 +189,10 @@ namespace Animatroller.SceneRunner
                     scene = new DemoScene1(sceneArgs);
                     break;
 
+                case "TESTMIDI1":
+                    scene = new TestMidi1(sceneArgs);
+                    break;
+
                 default:
                     throw new ArgumentException("Missing start scene");
             }
@@ -217,6 +227,13 @@ namespace Animatroller.SceneRunner
                 if (ioExpander == null)
                     throw new ArgumentNullException("IOExpander not configured");
                 ((ISceneRequiresIOExpander)scene).WireUp(ioExpander);
+            }
+
+            if (scene is ISceneRequiresMidiInput)
+            {
+                if (midiInput == null)
+                    throw new ArgumentNullException("MidiInput not configured");
+                ((ISceneRequiresMidiInput)scene).WireUp(midiInput);
             }
 
             if (scene is ISceneRequiresAcnStream)

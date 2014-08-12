@@ -256,7 +256,7 @@ namespace Animatroller.Framework.Effect
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorException("Exception in MasterSweeper job", ex);
+                    log.Error("Exception in MasterSweeper job", ex);
                 }
                 finally
                 {
