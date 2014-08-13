@@ -11,7 +11,7 @@ namespace Animatroller.SceneRunner
     public class Program
     {
         private static Logger log = LogManager.GetCurrentClassLogger();
-        
+
         public static void Main(string[] args)
         {
             // Variables for al types of IO expanders, etc
@@ -105,99 +105,19 @@ namespace Animatroller.SceneRunner
             }
 
 
+            var sceneInterfaceType = typeof(IScene);
+            var sceneTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => sceneInterfaceType.IsAssignableFrom(p) &&
+                    !p.IsInterface &&
+                    !p.IsAbstract);
 
+            var sceneType = sceneTypes.SingleOrDefault(x => x.Name.Equals(sceneName, StringComparison.OrdinalIgnoreCase));
+            if(sceneType == null)
+                throw new ArgumentException("Missing start scene");
 
-            // Uncomment which scene you want to execute. Can be improved later, but currently I
-            // use Visual Studio on my scene-running PC to improve things on the fly
-
-            BaseScene scene = null;
-            switch (sceneName)
-            {
-                case "TEST1":
-                    scene = new TestScene1(sceneArgs);
-                    break;
-
-                case "TEST2":
-                    scene = new TestScene2(sceneArgs);
-                    break;
-
-                case "TEST3":
-                    scene = new TestScene3(sceneArgs);
-                    break;
-
-                case "RENARD1":
-                    scene = new TestRenard1(sceneArgs);
-                    break;
-
-                case "TESTPIFACE":
-                    scene = new TestPiFace(sceneArgs);
-                    break;
-
-                case "TESTOSC":
-                    scene = new TestOSC(sceneArgs);
-                    break;
-
-                case "ITALIAN1":
-                    scene = new ItalianScene1(sceneArgs);
-                    break;
-
-                case "LOR":
-                    scene = new LORScene(sceneArgs);
-                    break;
-
-                case "PIXEL1":
-                    scene = new PixelScene1(sceneArgs);
-                    break;
-
-                case "XMAS2013":
-                    scene = new Xmas2013scene(sceneArgs);
-                    break;
-
-                case "NUTCRACKER1":
-                    scene = new Nutcracker1Scene(sceneArgs);
-                    break;
-
-                case "NUTCRACKER2":
-                    scene = new Nutcracker2Scene(sceneArgs);
-                    break;
-
-                case "NUTCRACKER3":
-                    scene = new Nutcracker3Scene(sceneArgs);
-                    break;
-
-                case "HALLOWEEN1":
-                    scene = new HalloweenScene1(sceneArgs);
-                    break;
-
-                case "HALLOWEENSCENE2013":
-                    scene = new HalloweenScene2013(sceneArgs);
-                    break;
-
-                case "HALLOWEENSCENE2013B":
-                    scene = new HalloweenScene2013B(sceneArgs);
-                    break;
-
-                case "XMAS1":
-                    scene = new XmasScene1(sceneArgs);
-                    break;
-
-                case "XMAS2":
-                    scene = new XmasScene2(sceneArgs);
-                    break;
-
-                case "DEMO1":
-                    scene = new DemoScene1(sceneArgs);
-                    break;
-
-                case "TESTMIDI1":
-                    scene = new TestMidi1(sceneArgs);
-                    break;
-
-                default:
-                    throw new ArgumentException("Missing start scene");
-            }
-
-
+            IScene scene = (IScene)Activator.CreateInstance(sceneType, sceneArgs);
+ 
 
             // Register the scene (so it can be properly stopped)
             Executor.Current.Register(scene);
