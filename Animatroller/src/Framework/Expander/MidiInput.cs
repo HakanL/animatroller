@@ -13,14 +13,14 @@ namespace Animatroller.Framework.Expander
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private InputDevice inputDevice;
-        private Dictionary<Tuple<ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
+        private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
 
         public MidiInput()
         {
             if (InputDevice.DeviceCount == 0)
                 throw new ArgumentException("No Midi device detected");
 
-            this.messageMapper = new Dictionary<Tuple<ChannelCommand, int>, Action<ChannelMessage>>();
+            this.messageMapper = new Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>>();
 
             this.inputDevice = new InputDevice(0);
             this.inputDevice.ChannelMessageReceived += inputDevice_ChannelMessageReceived;
@@ -30,14 +30,15 @@ namespace Animatroller.Framework.Expander
 
         private void inputDevice_ChannelMessageReceived(object sender, ChannelMessageEventArgs e)
         {
-            log.Trace("Received midi command {0}, data1: {1}   data2: {2}",
+            log.Trace("Recv midi cmd {0}, chn: {1}   data1: {2}   data2: {3}",
                 e.Message.Command,
+                e.Message.MidiChannel,
                 e.Message.Data1,
                 e.Message.Data2);
 
             try
             {
-                var key = Tuple.Create(e.Message.Command, e.Message.Data1);
+                var key = Tuple.Create(e.Message.MidiChannel, e.Message.Command, e.Message.Data1);
 
                 Action<ChannelMessage> action;
                 if (this.messageMapper.TryGetValue(key, out action))
@@ -62,40 +63,40 @@ namespace Animatroller.Framework.Expander
             this.inputDevice.Close();
         }
 
-        private void WireUpDevice_Note(Animatroller.Framework.PhysicalDevice.DigitalInput device, int note)
+        private void WireUpDevice_Note(Animatroller.Framework.PhysicalDevice.DigitalInput device, int midiChannel, int note)
         {
-            this.messageMapper.Add(Tuple.Create(ChannelCommand.NoteOn, note), m =>
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOn, note), m =>
                 {
                     device.Trigger(true);
                 });
 
-            this.messageMapper.Add(Tuple.Create(ChannelCommand.NoteOff, note), m =>
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOff, note), m =>
                 {
                     device.Trigger(false);
                 });
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Note(DigitalInput logicalDevice, int note)
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Note(DigitalInput logicalDevice, int midiChannel, int note)
         {
             var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
 
-            WireUpDevice_Note(device, note);
+            WireUpDevice_Note(device, midiChannel, note);
 
             device.Connect(logicalDevice);
 
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput_Note(AnalogInput logicalDevice, int note)
+        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput_Note(AnalogInput logicalDevice, int midiChannel, int note)
         {
             var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
 
-            this.messageMapper.Add(Tuple.Create(ChannelCommand.NoteOn, note), m =>
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOn, note), m =>
             {
                 device.Trigger(m.Data2 / 127.0);
             });
 
-            this.messageMapper.Add(Tuple.Create(ChannelCommand.NoteOff, note), m =>
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOff, note), m =>
             {
                 device.Trigger(0);
             });
@@ -105,11 +106,11 @@ namespace Animatroller.Framework.Expander
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput_Controller(AnalogInput logicalDevice, int controller)
+        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput_Controller(AnalogInput logicalDevice, int midiChannel, int controller)
         {
             var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
 
-            this.messageMapper.Add(Tuple.Create(ChannelCommand.Controller, controller), m =>
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.Controller, controller), m =>
             {
                 device.Trigger(m.Data2 / 127.0);
             });
