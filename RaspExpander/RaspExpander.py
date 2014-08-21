@@ -33,7 +33,7 @@ except pif.NoPiFaceDigitalDetectedError:
     print ('No PiFace card detected')
     pass
 
-soundPath = 'christmassounds'
+soundPath = 'halloweensounds'
 soundFXdict = {}
 client = udp_client
 last_fx_chn = None
