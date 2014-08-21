@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="SceneInterfaces.cs" />
     <Compile Include="Scenes\TestMidi1.cs" />
+    <Compile Include="Scenes\IceBucket.cs" />
     <Compile Include="Scenes\Xmas2013scene.cs" />
     <Compile Include="Scenes\TestOSC.cs" />
     <Compile Include="Scenes\TestPiFace.cs" />

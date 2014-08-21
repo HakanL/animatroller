@@ -115,7 +115,9 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState)
                 {
-                    Executor.Current.Execute(popSeq);
+                    audioPlayer.PlayTrack("01. Star Wars - Main Title");
+//                    audioPlayer.PlayEffect("Scream");
+//                    Executor.Current.Execute(popSeq);
                 }
             };
 
