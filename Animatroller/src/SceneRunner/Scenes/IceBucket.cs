@@ -63,7 +63,7 @@ namespace Animatroller.SceneRunner
                 .SetUp(() =>
                 {
                     pulsatingEffect1.Start();
-                    audioPlayer.PlayBackground();
+                    audioPlayer.PlayEffect("Nuclear-alarm");
                 })
                 .Execute(instance =>
                 {
@@ -74,7 +74,7 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                 {
-                    audioPlayer.PauseBackground();
+                    audioPlayer.PauseFX();
                     pulsatingEffect1.Stop();
                 });
 
@@ -119,16 +119,17 @@ namespace Animatroller.SceneRunner
 
         public override void Start()
         {
-            var popSeq = new Controller.Sequence("Pop Sequence");
-            popSeq.WhenExecuted
+            var dumpSeq = new Controller.Sequence("Pop Sequence");
+            dumpSeq.WhenExecuted
                 .Execute(instance =>
                     {
-                        //                        audioPlayer.PlayEffect("laugh");
-                        //                        instance.WaitFor(TimeSpan.FromSeconds(1));
                         relayDirA.SetPower(true);
                         relayDirB.SetPower(false);
+
+                        audioPlayer.PlayEffect("Countdown-sequence-5");
+                        instance.WaitFor(TimeSpan.FromSeconds(7));
                         relayStart.SetPower(true);
-                        instance.WaitFor(TimeSpan.FromSeconds(0.9));
+                        instance.WaitFor(TimeSpan.FromSeconds(1.0));
                         relayStart.SetPower(false);
                         relayDirA.SetPower(false);
                         relayDirB.SetPower(false);
@@ -225,7 +226,7 @@ namespace Animatroller.SceneRunner
                 stateMachine.SetState(States.Reset);
             };
 
-            stateMachine.ForFromSequence(States.Dump, popSeq);
+            stateMachine.ForFromSequence(States.Dump, dumpSeq);
             stateMachine.ForFromSequence(States.Reset, resetSeq);
 
             lightSpot.SetColor(Color.Red, 0);

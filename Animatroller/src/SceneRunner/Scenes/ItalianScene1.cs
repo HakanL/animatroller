@@ -15,7 +15,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class ItalianScene1 : BaseScene
+    internal class ItalianScene1 : BaseScene, ISceneSupportsSimulator, ISceneRequiresAcnStream
     {
         private VirtualPixel1D allPixels;
 
@@ -29,7 +29,7 @@ namespace Animatroller.SceneRunner
             candyCane = new Controller.Sequence("Candy Cane");
             //            laserSeq = new Controller.Sequence("Laser");
 
-            allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
+            allPixels = new VirtualPixel1D("All Pixels", 28);
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -58,9 +58,9 @@ namespace Animatroller.SceneRunner
         public void WireUp(Expander.AcnStream port)
         {
             // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 0, 28), 1, 1);
-            // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 28, 50), 1, 151);
+            port.Connect(new Physical.PixelRope(allPixels, 0, 28), 4, 1);
+            //// WS2811
+            //port.Connect(new Physical.PixelRope(allPixels, 28, 50), 1, 151);
         }
 
         public override void Start()
@@ -107,7 +107,7 @@ namespace Animatroller.SceneRunner
                     cbList.Add(new ColorBrightness(c4, 0.0));
                     cbList.Add(new ColorBrightness(c4, 0.0));
 
-                    b1 = 1.00;
+/*                    b1 = 1.00;
                     b2 = 0.70;
                     b3 = 0.40;
                     c1 = Color.White;
@@ -150,7 +150,7 @@ namespace Animatroller.SceneRunner
                     cbList.Add(new ColorBrightness(c4, 0.0));
                     cbList.Add(new ColorBrightness(c4, 0.0));
                     cbList.Add(new ColorBrightness(c4, 0.0));
-
+*/
                     while (true)
                     {
                         foreach(var cb in cbList)
