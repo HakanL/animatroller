@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using System.Reactive;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
@@ -14,8 +15,9 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestMidi1 : BaseScene, ISceneRequiresMidiInput, ISceneSupportsSimulator
+    internal class TestMidi1 : BaseScene, ISceneSupportsSimulator
     {
+        private Animatroller.Framework.Expander.MidiInput midiInput;
         private ColorDimmer testLight1;
         private DigitalInput buttonTest1;
         private AnalogInput testInput1;
@@ -26,12 +28,20 @@ namespace Animatroller.SceneRunner
 
         public TestMidi1(IEnumerable<string> args)
         {
+            midiInput = new Expander.MidiInput();
+
             buttonTest1 = new DigitalInput("Test 1");
             testLight1 = new ColorDimmer("Test 1");
             testInput1 = new AnalogInput("Test 1");
             inputH = new AnalogInput("Hue", true);
             inputS = new AnalogInput("Saturation", true);
             inputV = new AnalogInput("Value", true);
+
+            midiInput.SubscribeToController(0, 1)
+                .Subscribe(x =>
+                {
+                    testInput1.Value = x.Value;
+                });
         }
 
         public void WireUp(Animatroller.Simulator.SimulatorForm sim)
@@ -43,13 +53,13 @@ namespace Animatroller.SceneRunner
 
         public void WireUp(Expander.MidiInput port)
         {
-            port.AddDigitalInput_Note(buttonTest1, 0, 36);
-            port.AddAnalogInput_Note(testInput1, 0, 37);
-            port.AddAnalogInput_Note(testInput1, 1, 37);
-            port.AddAnalogInput_Controller(testInput1, 0, 1);
-            port.AddAnalogInput_Controller(inputH, 0, 2);
-            port.AddAnalogInput_Controller(inputS, 0, 3);
-            port.AddAnalogInput_Controller(inputV, 0, 4);
+            //port.AddDigitalInput_Note(buttonTest1, 0, 36);
+            //port.AddAnalogInput_Note(testInput1, 0, 37);
+            //port.AddAnalogInput_Note(testInput1, 1, 37);
+            //port.AddAnalogInput_Controller(testInput1, 0, 1);
+            //port.AddAnalogInput_Controller(inputH, 0, 2);
+            //port.AddAnalogInput_Controller(inputS, 0, 3);
+            //port.AddAnalogInput_Controller(inputV, 0, 4);
         }
 
         public override void Start()
