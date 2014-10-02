@@ -47,12 +47,17 @@ namespace Animatroller.Simulator
                 if (field.GetCustomAttributes(typeof(Animatroller.Framework.SimulatorSkipAttribute), false).Any())
                     continue;
 
+                if (typeof(IPort).IsInstanceOfType(fieldValue))
+                    continue;
+
                 if (field.FieldType == typeof(Dimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((Dimmer)fieldValue));
                 else if (field.FieldType == typeof(Dimmer2))
                     this.Connect(new Animatroller.Simulator.TestLight((Dimmer2)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)fieldValue));
+                else if (field.FieldType == typeof(ColorDimmer2))
+                    this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer2)fieldValue));
                 else if (field.FieldType == typeof(StrobeDimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer)fieldValue));
                 else if (field.FieldType == typeof(StrobeColorDimmer))
@@ -67,6 +72,8 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D)fieldValue));
                 else if (field.FieldType == typeof(AnalogInput))
                     this.AddAnalogInput((AnalogInput)fieldValue);
+                else if (field.FieldType == typeof(AnalogInput2))
+                    this.AddAnalogInput((AnalogInput2)fieldValue);
                 else if (field.FieldType == typeof(MotorWithFeedback))
                 {
                     // Skip
@@ -374,6 +381,34 @@ namespace Animatroller.Simulator
             device.Connect(logicalDevice);
 
             control.Value = logicalDevice.Value.GetByteScale();
+
+            return device;
+        }
+
+        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput(AnalogInput2 logicalDevice)
+        {
+            var control = new TrackBar();
+            control.Text = logicalDevice.Name;
+            control.Size = new System.Drawing.Size(80, 80);
+            control.Maximum = 255;
+
+            flowLayoutPanelLights.Controls.Add(control);
+
+            var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
+
+            control.ValueChanged += (sender, e) =>
+            {
+                device.Trigger((sender as TrackBar).Value / 255.0);
+            };
+
+            device.Connect(logicalDevice);
+
+            control.Value = logicalDevice.Value.GetByteScale();
+
+            logicalDevice.Output.Subscribe(x =>
+                {
+                    control.Value = x.Value.GetByteScale();
+                });
 
             return device;
         }

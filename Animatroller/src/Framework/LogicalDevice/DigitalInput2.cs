@@ -8,25 +8,16 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class DigitalInput2 : BaseDevice
+    public class DigitalInput2 : BaseDevice, ISupportsPersistence
     {
         protected bool currentValue;
-        protected string instanceKey;
         protected ISubject<bool> control;
-        protected ISubject<bool> value;
+        protected ISubject<bool> outputValue;
 
         public DigitalInput2(string name, bool persistState = false)
-            : base(name)
+            : base(name, persistState)
         {
-            if (persistState)
-                instanceKey = name.GetHashCode().ToString() + "_";
-            else
-                instanceKey = null;
-
-            if (instanceKey != null)
-                bool.TryParse(Executor.Current.GetKey(instanceKey + "input", false.ToString()), out this.currentValue);
-
-            this.value = new Subject<bool>();
+            this.outputValue = new Subject<bool>();
             this.control = new Subject<bool>();
 
             this.control.Subscribe(x =>
@@ -35,15 +26,10 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.currentValue = x;
 
-                    this.value.OnNext(x);
+                    this.outputValue.OnNext(x);
                 }
             });
         }
-
-        //public void Trigger(bool value)
-        //{
-        //    this.Active = value;
-        //}
 
         public ISubject<bool> Control
         {
@@ -57,13 +43,13 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get
             {
-                return this.value;
+                return this.outputValue;
             }
         }
 
         public void ConnectTo(ISubject<bool> component)
         {
-            this.value.Subscribe(component);
+            this.outputValue.Subscribe(component);
         }
 
         public bool Value
@@ -77,7 +63,22 @@ namespace Animatroller.Framework.LogicalDevice
 
         public override void StartDevice()
         {
-            this.value.OnNext(this.currentValue);
+            this.outputValue.OnNext(this.currentValue);
+        }
+
+        public void SetValueFromPersistence(Func<string, string, string> getKeyFunc)
+        {
+            bool.TryParse(getKeyFunc("input", false.ToString()), out this.currentValue);
+        }
+
+        public void SaveValueToPersistence(Action<string, string> setKeyFunc)
+        {
+            setKeyFunc("input", this.currentValue.ToString());
+        }
+
+        public bool PersistState
+        {
+            get { return this.persistState; }
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Animatroller.SceneRunner
 
         public SimpleTest1(IEnumerable<string> args)
         {
-            inputBrightness.ConnectTo(testLight2.Brightness);
+            inputBrightness.ConnectTo(testLight2.InputBrightness);
             //testInput1.Subscribe()
             //    .Subscribe(x =>
             //    {

@@ -48,7 +48,7 @@ namespace Animatroller.Simulator
         {
             this.logicalDevice = logicalDevice;
 
-            logicalDevice.Brightness.Subscribe(x =>
+            logicalDevice.InputBrightness.Subscribe(x =>
                 {
                     this.control.Color = Color.FromArgb(x.Value.GetByteScale(), x.Value.GetByteScale(), x.Value.GetByteScale());
                     this.control.Text = string.Format("{0:0%}", x.Value);
@@ -69,6 +69,32 @@ namespace Animatroller.Simulator
             };
 
             WireUpStrobe(logicalDevice as StrobeColorDimmer);
+        }
+
+        private void DisplayBrightnessColor(Color color, double brightness)
+        {
+            var hsv = new HSV(color);
+            hsv.Value = hsv.Value * brightness;
+
+            this.control.Color = hsv.Color;
+            this.control.Text = string.Format("{0:0%}", brightness);
+        }
+
+        public TestLight(ColorDimmer2 logicalDevice)
+        {
+            this.logicalDevice = logicalDevice;
+
+            logicalDevice.InputColor.Subscribe(x =>
+            {
+                DisplayBrightnessColor(x, logicalDevice.Brightness);
+            });
+
+            logicalDevice.InputBrightness.Subscribe(x =>
+                {
+                    DisplayBrightnessColor(logicalDevice.Color, x.Value);
+                });
+
+            //FIXME            WireUpStrobe(logicalDevice as StrobeColorDimmer);
         }
 
         public ILogicalDevice ConnectedDevice

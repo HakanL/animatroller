@@ -18,7 +18,7 @@ namespace Animatroller.SceneRunner
     internal class TestMidi1 : BaseScene
     {
         private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
-        private ColorDimmer testLight1 = new ColorDimmer("Test 1");
+        private ColorDimmer2 testLight1 = new ColorDimmer2("Test 1");
         private Dimmer2 testLight2 = new Dimmer2("Test 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonTest1 = new DigitalInput2("Test 1");
@@ -30,24 +30,8 @@ namespace Animatroller.SceneRunner
 
         public TestMidi1(IEnumerable<string> args)
         {
-            midiInput.Controller(1, 1).Controls(inputBrightness.Control);
-
-            midiInput.Note(1, 36).Controls(buttonTest1.Control);
-
-            inputBrightness.ConnectTo(testLight2.Brightness);
-
-            buttonTest1.Output.Subscribe(x =>
-            {
-                if (x)
-                {
-                    testLight1.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
-                }
-                else
-                {
-                    if (testLight1.Brightness > 0)
-                        testLight1.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
-                }
-            });
+            inputBrightness.ConnectTo(testLight1.InputBrightness);
+            inputBrightness.ConnectTo(testLight2.InputBrightness);
 
             inputH.Output.Subscribe(x =>
             {
@@ -63,16 +47,30 @@ namespace Animatroller.SceneRunner
             {
                 testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), inputS.Value, x.Value));
             });
+
+            midiInput.Controller(1, 1).Controls(inputBrightness.Control);
+            midiInput.Controller(1, 2).Controls(inputH.Control);
+            midiInput.Controller(1, 3).Controls(inputS.Control);
+            midiInput.Controller(1, 4).Controls(inputV.Control);
+
+            midiInput.Note(1, 36).Controls(buttonTest1.Control);
+
+            buttonTest1.Output.Subscribe(x =>
+            {
+                if (x)
+                {
+                    testLight1.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
+                }
+                else
+                {
+                    if (testLight1.Brightness > 0)
+                        testLight1.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
+                }
+            });
         }
 
         public override void Start()
         {
-
-            //inputBrightness.ValueChanged += (sender, e) =>
-            //    {
-            //        testLight1.SetBrightness(e.NewBrightness);
-            //    };
-
         }
 
         public override void Run()

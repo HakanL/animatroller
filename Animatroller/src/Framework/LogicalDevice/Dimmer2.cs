@@ -18,14 +18,14 @@ namespace Animatroller.Framework.LogicalDevice
         protected object lockObject = new object();
         protected double currentBrightness;
         protected Effect.MasterSweeper.Job effectJob;
-        protected ISubject<DoubleZeroToOne> brightness;
+        protected ISubject<DoubleZeroToOne> inputBrightness;
 
         public Dimmer2(string name)
             : base(name)
         {
-            this.brightness = new Subject<DoubleZeroToOne>();
+            this.inputBrightness = new Subject<DoubleZeroToOne>();
 
-            this.brightness.Subscribe(x =>
+            this.inputBrightness.Subscribe(x =>
                 {
                     if (this.currentBrightness != x.Value)
                     {
@@ -42,19 +42,21 @@ namespace Animatroller.Framework.LogicalDevice
                 });
         }
 
-        public ISubject<DoubleZeroToOne> Brightness
+        public ISubject<DoubleZeroToOne> InputBrightness
         {
             get
             {
-                return this.brightness;
+                return this.inputBrightness;
             }
         }
 
-        public virtual Dimmer2 SetBrightness(double value)
+        public double Brightness
         {
-            this.Brightness.OnNext(new DoubleZeroToOne(value));
-
-            return this;
+            get { return this.currentBrightness; }
+            set
+            {
+                this.inputBrightness.OnNext(new DoubleZeroToOne(value));
+            }
         }
 
         public virtual void SetBrightness(double value, IOwner owner)
@@ -75,12 +77,12 @@ namespace Animatroller.Framework.LogicalDevice
             }
 
             this.owner = owner;
-            this.Brightness.OnNext(new DoubleZeroToOne { Value = value });
+            this.InputBrightness.OnNext(new DoubleZeroToOne { Value = value });
         }
 
         public virtual void TurnOff()
         {
-            this.Brightness.OnNext(DoubleZeroToOne.Zero);
+            this.InputBrightness.OnNext(DoubleZeroToOne.Zero);
         }
 
         public virtual Effect.MasterSweeper.Job RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
@@ -115,7 +117,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public override void StartDevice()
         {
-            Brightness.OnNext(DoubleZeroToOne.Zero);
+            InputBrightness.OnNext(new DoubleZeroToOne(this.currentBrightness));
         }
     }
 }

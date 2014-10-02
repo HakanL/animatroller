@@ -12,26 +12,13 @@ namespace Animatroller.Framework.LogicalDevice
     public class AnalogInput2 : BaseDevice, ISupportsPersistence
     {
         protected double currentValue;
-        protected string instanceKey;
         protected ISubject<DoubleZeroToOne> control;
-        protected ISubject<DoubleZeroToOne> value;
+        protected ISubject<DoubleZeroToOne> outputValue;
 
         public AnalogInput2(string name, bool persistState = false)
             : base(name, persistState)
         {
-            if (persistState)
-                instanceKey = name.GetHashCode().ToString() + "_";
-            else
-                instanceKey = null;
-
-            if (instanceKey != null)
-            {
-                double doubleValue;
-                double.TryParse(Executor.Current.GetKey(instanceKey + "input", "0.0"), out doubleValue);
-                this.currentValue = doubleValue;
-            }
-
-            this.value = new Subject<DoubleZeroToOne>();
+            this.outputValue = new Subject<DoubleZeroToOne>();
             this.control = new Subject<DoubleZeroToOne>();
 
             this.control.Subscribe(x =>
@@ -45,7 +32,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                         this.currentValue = x.Value;
 
-                        this.value.OnNext(x);
+                        this.outputValue.OnNext(x);
                     }
                 });
         }
@@ -77,13 +64,13 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get
             {
-                return this.value;
+                return this.outputValue;
             }
         }
 
         public void ConnectTo(ISubject<DoubleZeroToOne> component)
         {
-            this.value.Subscribe(component);
+            this.outputValue.Subscribe(component);
         }
 
         public double Value
@@ -97,7 +84,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public override void StartDevice()
         {
-            this.value.OnNext(new DoubleZeroToOne(this.currentValue));
+            this.outputValue.OnNext(new DoubleZeroToOne(this.currentValue));
         }
     }
 }
