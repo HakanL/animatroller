@@ -15,7 +15,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class Xmas2013scene : BaseScene, ISceneSupportsSimulator,
+    internal class Xmas2013scene : BaseScene,
         ISceneRequiresAcnStream,
         ISceneRequiresRaspExpander1
     {
@@ -34,8 +34,10 @@ namespace Animatroller.SceneRunner
         private VirtualPixel1D allPixels;
         private VirtualPixel1D starwarsPixels;
         private VirtualPixel1D saberPixels;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTest;
         private DigitalInput buttonStartInflatables;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonOverrideHours;
         private DigitalInput buttonBlue;
         private DigitalInput buttonRed;
@@ -490,19 +492,6 @@ namespace Animatroller.SceneRunner
                 this.inflatablesRunning = value;
                 Exec.SetKey("InflatablesRunning", inflatablesRunning.ToString());
             }
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_FlipFlop(buttonTest);
-            sim.AddDigitalInput_FlipFlop(buttonOverrideHours);
-            sim.AddDigitalInput_Momentarily(buttonStartInflatables);
-
-            sim.AddDigitalInput_Momentarily(buttonBlue);
-            sim.AddDigitalInput_Momentarily(buttonRed);
-
-            sim.AutoWireUsingReflection_Simple(this);
-            //sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.AcnStream port)

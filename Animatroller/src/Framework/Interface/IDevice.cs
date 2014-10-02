@@ -17,6 +17,11 @@ namespace Animatroller.Framework
         void StartDevice();
     }
 
+    public interface IHasAnalogInput
+    {
+
+    }
+
     public interface ILogicalDevice : IDevice
     {
         string Name { get; }

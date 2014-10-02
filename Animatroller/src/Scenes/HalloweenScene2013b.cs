@@ -20,9 +20,8 @@ namespace Animatroller.SceneRunner
         ISceneRequiresRaspExpander3,
         ISceneRequiresRaspExpander4,
         ISceneRequiresDMXPro,
-        ISceneRequiresAcnStream,
+        ISceneRequiresAcnStream
         //, ISceneRequiresIOExpander
-        ISceneSupportsSimulator
     {
         public enum States
         {
@@ -43,9 +42,11 @@ namespace Animatroller.SceneRunner
         private DigitalInput buttonMotionBeauty;
         private DigitalInput buttonTriggerStairs;
         private DigitalInput buttonTriggerPopup;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestC;
         private DigitalInput buttonTestA;
         private DigitalInput buttonTestB;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestSpider;
         private Switch switchDeadendDrive;
         private Switch catLights;
@@ -135,21 +136,6 @@ namespace Animatroller.SceneRunner
             switchFog = new Switch("Fog");
 
             allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(buttonMotionCat);
-            sim.AddDigitalInput_Momentarily(buttonMotionBeauty);
-            sim.AddDigitalInput_Momentarily(buttonTriggerStairs);
-            sim.AddDigitalInput_Momentarily(buttonTriggerPopup);
-            sim.AddDigitalInput_FlipFlop(buttonTestC);
-
-            sim.AddDigitalInput_Momentarily(buttonTestA);
-            sim.AddDigitalInput_Momentarily(buttonTestB);
-            sim.AddDigitalInput_FlipFlop(buttonTestSpider);
-
-            sim.AutoWireUsingReflection(this);
         }
 
         // Cat

@@ -1,6 +1,6 @@
 ﻿using Expander = Animatroller.Framework.Expander;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Framework
 {
     public interface ISceneRequiresRaspExpander1
     {
@@ -20,11 +20,6 @@ namespace Animatroller.SceneRunner
     public interface ISceneRequiresRaspExpander4
     {
         void WireUp4(Expander.Raspberry port);
-    }
-
-    public interface ISceneSupportsSimulator
-    {
-        void WireUp(Animatroller.Simulator.SimulatorForm sim);
     }
 
     public interface ISceneRequiresIOExpander

@@ -12,7 +12,7 @@ using Effect2 = Animatroller.Framework.Effect2;
 
 namespace Animatroller.SceneRunner
 {
-    internal class Nutcracker3Scene : BaseScene, ISceneSupportsSimulator, ISceneRequiresAcnStream
+    internal class Nutcracker3Scene : BaseScene,  ISceneRequiresAcnStream
     {
         private VirtualPixel1D allPixels1;
         private VirtualPixel1D allPixels2;
@@ -74,13 +74,6 @@ namespace Animatroller.SceneRunner
             }
 
             lorTimeline = lorImport.CreateTimeline(1);
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(testButton);
-
-            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.AcnStream port)

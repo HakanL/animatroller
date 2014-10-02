@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
@@ -10,13 +12,16 @@ namespace Animatroller.Framework.LogicalDevice
     public class AnalogInput : ILogicalDevice
     {
         protected string name;
-        protected double value;
+        protected DoubleZeroToOne value;
         protected string instanceKey;
+        protected ISubject<DoubleZeroToOne> value2;
 
         public event EventHandler<BrightnessChangedEventArgs> ValueChanged;
 
         public AnalogInput(string name, bool persistState = false)
         {
+            this.value = new DoubleZeroToOne();
+
             this.name = name;
             Executor.Current.Register(this);
 
@@ -25,8 +30,24 @@ namespace Animatroller.Framework.LogicalDevice
             else
                 instanceKey = null;
 
-            if(instanceKey != null)
-                double.TryParse(Executor.Current.GetKey(instanceKey + "input", "0.0"), out value);
+            if (instanceKey != null)
+            {
+                double doubleValue;
+                double.TryParse(Executor.Current.GetKey(instanceKey + "input", "0.0"), out doubleValue);
+                this.value.Value = doubleValue;
+            }
+
+            this.value2 = new Subject<DoubleZeroToOne>();
+        }
+
+        public IObservable<DoubleZeroToOne> Subscribe()
+        {
+            return this.value2;
+        }
+
+        public void ConnectTo(ISubject<DoubleZeroToOne> component)
+        {
+            this.value2.Subscribe(x => component.OnNext(x));
         }
 
         protected virtual void RaiseValueChanged()
@@ -44,17 +65,19 @@ namespace Animatroller.Framework.LogicalDevice
 
         public double Value
         {
-            get { return this.value; }
+            get { return this.value.Value; }
             set
             {
-                if (this.value != value)
+                if (this.value.Value != value)
                 {
-                    this.value = value;
+                    this.value.Value = value;
 
                     RaiseValueChanged();
 
+                    this.value2.OnNext(this.value);
+
                     if (instanceKey != null)
-                        Executor.Current.SetKey(this.instanceKey + "input", this.value.ToString());
+                        Executor.Current.SetKey(this.instanceKey + "input", this.value.Value.ToString());
                 }
             }
         }

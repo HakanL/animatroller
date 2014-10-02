@@ -14,9 +14,10 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestRenard1 : BaseScene, ISceneRequiresRenard, ISceneSupportsSimulator
+    internal class TestRenard1 : BaseScene, ISceneRequiresRenard
     {
         private Dimmer testLight1;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTest1;
 
 
@@ -24,13 +25,6 @@ namespace Animatroller.SceneRunner
         {
             buttonTest1 = new DigitalInput("Test 1");
             testLight1 = new Dimmer("Test 1");
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_FlipFlop(buttonTest1);
-
-            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.Renard port)

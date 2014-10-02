@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reactive.Subjects;
 
 namespace Animatroller.Framework.Extensions
 {
@@ -53,6 +54,13 @@ namespace Animatroller.Framework.Extensions
         public static double LimitAndScale(this double d, double start, double length, double min = 0.0, double max = 1.0)
         {
             return ((d.Limit(start, start + length) - start) / length).ScaleToMinMax(min, max);
+        }
+
+        public static IObservable<T> Controls<T>(this IObservable<T> input, ISubject<T> control)
+        {
+            input.Subscribe(control);
+
+            return control;
         }
     }
 }

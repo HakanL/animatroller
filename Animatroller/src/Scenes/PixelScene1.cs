@@ -15,7 +15,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class PixelScene1 : BaseScene, ISceneRequiresAcnStream, ISceneSupportsSimulator
+    internal class PixelScene1 : BaseScene, ISceneRequiresAcnStream
     {
         private VirtualPixel1D allPixels;
         private DigitalInput buttonTest;
@@ -33,13 +33,6 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 150);
 
             buttonTest = new DigitalInput("Test");
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(buttonTest);
-
-            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.AcnStream port)

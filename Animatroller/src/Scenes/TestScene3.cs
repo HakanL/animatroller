@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestScene3 : BaseScene, ISceneRequiresRaspExpander1, ISceneSupportsSimulator
+    internal class TestScene3 : BaseScene, ISceneRequiresRaspExpander1
     {
         private Expander.OscServer oscServer;
         private AudioPlayer audioPlayer;
@@ -48,22 +48,6 @@ namespace Animatroller.SceneRunner
             audioPlayer = new AudioPlayer("Audio Player");
 
             this.oscServer = new Expander.OscServer(9999);
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(buttonPlayFX);
-            sim.AddDigitalInput_Momentarily(buttonPauseFX);
-            sim.AddDigitalInput_Momentarily(buttonCueFX);
-            sim.AddDigitalInput_Momentarily(buttonResumeFX);
-            sim.AddDigitalInput_Momentarily(buttonPlayBackground);
-            sim.AddDigitalInput_Momentarily(buttonPauseBackground);
-            sim.AddDigitalInput_Momentarily(buttonBackgroundLowVolume);
-            sim.AddDigitalInput_Momentarily(buttonBackgroundHighVolume);
-            sim.AddDigitalInput_Momentarily(buttonBackgroundNext);
-            sim.AddDigitalInput_Momentarily(buttonTrigger1);
-
-            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp1(Expander.Raspberry port)

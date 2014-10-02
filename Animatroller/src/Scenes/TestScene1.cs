@@ -48,13 +48,6 @@ namespace Animatroller.SceneRunner
             flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6);
         }
 
-        public void WireUp(Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(pressureMat);
-
-            sim.AutoWireUsingReflection(this);
-        }
-
         public void WireUp(Expander.IOExpander port)
         {
             port.Connect(new Physical.AmericanDJStrobe(georgeStrobeLight, 5));

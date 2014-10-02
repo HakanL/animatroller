@@ -51,7 +51,7 @@
     </Reference>
     <Reference Include="NLog, Version=3.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NLog.3.1.0.0\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Rug.Osc, Version=1.2.5.17694, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -89,10 +89,6 @@
     <Reference Include="System.Reactive.PlatformServices">
       <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
     </Reference>
-    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.20.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.20\lib\portable-net45+win8+wpa81\System.Threading.Tasks.Dataflow.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -104,6 +100,7 @@
     <Compile Include="DoubleZeroToOne.cs" />
     <Compile Include="Effect\EffectAction.cs" />
     <Compile Include="Effect\Effects2.cs" />
+    <Compile Include="Expander\MidiInput2.cs" />
     <Compile Include="Expander\MidiInput.cs" />
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
@@ -118,9 +115,17 @@
     <Compile Include="Interface\ICanExecute.cs" />
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="Controller\ChannelIdentity.cs" />
+    <Compile Include="Interface\ISupportsPersistence.cs" />
+    <Compile Include="Interface\SceneInterfaces.cs" />
+    <Compile Include="LogicalDevice\AnalogInput2.cs" />
+    <Compile Include="LogicalDevice\DigitalInput2.cs" />
+    <Compile Include="LogicalDevice\SingleOwnerDevice.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
     <Compile Include="LogicalDevice\AnalogInput.cs" />
+    <Compile Include="LogicalDevice\BaseDevice.cs" />
+    <Compile Include="LogicalDevice\Dimmer2.cs" />
     <Compile Include="LogicalDevice\Event\AudioChanged.cs" />
+    <Compile Include="LogicalDevice\Interface\IControlData.cs" />
     <Compile Include="LogicalDevice\SinglePixel.cs" />
     <Compile Include="LogicalDevice\Interface\IPixel.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
@@ -137,6 +142,9 @@
     <Compile Include="PhysicalDevice\SmallRGBStrobe.cs" />
     <Compile Include="Interface\BaseScene.cs" />
     <Compile Include="Controller\Sequence.cs" />
+    <Compile Include="Simulator\SimulatorSkipAttribute.cs" />
+    <Compile Include="Simulator\SimulatorButtonTypeAttribute.cs" />
+    <Compile Include="Simulator\SimulatorButtonTypes.cs" />
     <Compile Include="Utility\ColorSpace.cs" />
     <Compile Include="Effect\BaseEffect.cs" />
     <Compile Include="Effect\Effects.cs" />

@@ -108,7 +108,72 @@ namespace Animatroller.Framework
 
             this.scenes.Add(scene);
 
+            // Set field names
+            SetFieldNamesForPersistence(scene);
+
             return this;
+        }
+
+        private void SetFieldNamesForPersistence(object scene)
+        {
+            string sceneName = scene.GetType().Name;
+
+            var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            var persistenceFields = new Dictionary<string, ISupportsPersistence>();
+
+            foreach (var field in fields)
+            {
+                object fieldValue = field.GetValue(scene);
+                if (fieldValue == null)
+                    continue;
+
+                ISupportsPersistence supportsPersistence = fieldValue as ISupportsPersistence;
+                if (supportsPersistence != null && supportsPersistence.PersistState)
+                {
+                    string baseKey = string.Format("{0}.{1}.", sceneName, field.Name);
+
+                    var getKeyFunc = new Func<string, string, string>((subKey, defaultValue) =>
+                        {
+                            return GetKey(baseKey + subKey, defaultValue);
+                        });
+
+                    supportsPersistence.SetValueFromPersistence(getKeyFunc);
+
+                    persistenceFields.Add(baseKey, supportsPersistence);
+                }
+            }
+
+            if (persistenceFields.Any())
+            {
+                // Start task
+                Task persistenceTask;
+                Execute(x =>
+                    {
+                        while (!x.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                foreach (var kvp in persistenceFields)
+                                {
+                                    var setKeyFunc = new Action<string, string>((subKey, value) =>
+                                        {
+                                            SetKey(kvp.Key + subKey, value);
+                                        });
+
+                                    kvp.Value.SaveValueToPersistence(setKeyFunc);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Error in persistence task", ex);
+                            }
+
+                            // Execute every second
+                            x.WaitHandle.WaitOne(1000);
+                        }
+                    }, "PersistenceTask", out persistenceTask);
+            }
         }
 
         public Executor Start()
@@ -274,7 +339,7 @@ namespace Animatroller.Framework
         public CancellationTokenSource Execute(ICanExecute value)
         {
             CleanupCompletedTasks();
-            
+
             CancellationTokenSource cancelSource;
             Task task;
 

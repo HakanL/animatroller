@@ -32,13 +32,6 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
         }
 
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            //            sim.AddDigitalInput_Momentarily(buttonTest);
-
-            sim.AutoWireUsingReflection(this);
-        }
-
         public void WireUp(Expander.IOExpander port)
         {
             //            port.Connect(new Physical.PixelRope(allPixels, 0, 50));

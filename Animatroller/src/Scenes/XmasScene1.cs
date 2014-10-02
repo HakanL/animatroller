@@ -23,11 +23,12 @@ namespace Animatroller.SceneRunner
         private Dimmer explosion2;
         private Dimmer explosion3;
         private Dimmer explosion4;
+        [SimulatorButtonType(SimulatorButtonTypes.Momentarily)]
         private DigitalInput testButton;
         private Physical.NetworkAudioPlayer audioPlayer;
 
 
-        public XmasScene1(IEnumerable<string> args)
+        public XmasScene1(IEnumerable<string> args, System.Collections.Specialized.NameValueCollection settings)
         {
             testPixels = new Pixel1D("G35", 50);
             explosion1 = new Dimmer("Explosion 1");
@@ -37,15 +38,8 @@ namespace Animatroller.SceneRunner
             testButton = new DigitalInput("Test");
 
             audioPlayer = new Physical.NetworkAudioPlayer(
-                Properties.Settings.Default.NetworkAudioPlayerIP,
-                Properties.Settings.Default.NetworkAudioPlayerPort);
-        }
-
-        public void WireUp(Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(testButton);
-
-            sim.AutoWireUsingReflection(this);
+                settings["NetworkAudioPlayerIP"],
+                int.Parse(settings["NetworkAudioPlayerPort"]));
         }
 
         public void WireUp(Expander.IOExpander port)

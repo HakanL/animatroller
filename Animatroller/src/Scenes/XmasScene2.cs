@@ -79,7 +79,7 @@ namespace Animatroller.SceneRunner
         private VirtualPixel1D allPixels;
 
 
-        public XmasScene2(IEnumerable<string> args)
+        public XmasScene2(IEnumerable<string> args, System.Collections.Specialized.NameValueCollection settings)
         {
             hours = new OperatingHours("Hours");
             if (!args.Contains("TEST"))
@@ -392,17 +392,8 @@ namespace Animatroller.SceneRunner
                 };
 
             audioPlayer = new Physical.NetworkAudioPlayer(
-                Properties.Settings.Default.NetworkAudioPlayerIP,
-                Properties.Settings.Default.NetworkAudioPlayerPort);
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(buttonBlue);
-            sim.AddDigitalInput_Momentarily(buttonRed);
-            sim.AddDigitalInput_Momentarily(buttonStartReindeer);
-
-            sim.AutoWireUsingReflection(this);
+                settings["NetworkAudioPlayerIP"],
+                int.Parse(settings["NetworkAudioPlayerPort"]));
         }
 
         public void WireUp(Expander.IOExpander port)

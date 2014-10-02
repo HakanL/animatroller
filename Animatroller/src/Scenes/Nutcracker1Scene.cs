@@ -64,13 +64,6 @@ namespace Animatroller.SceneRunner
             lorTimeline = lorImport.CreateTimeline(null);
         }
 
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(testButton);
-
-            sim.AutoWireUsingReflection(this);
-        }
-
         public void WireUp(Expander.IOExpander port)
         {
             port.DigitalInputs[0].Connect(testButton);

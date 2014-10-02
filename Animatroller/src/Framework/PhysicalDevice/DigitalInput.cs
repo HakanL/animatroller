@@ -35,6 +35,19 @@ namespace Animatroller.Framework.PhysicalDevice
             return this;
         }
 
+        public DigitalInput Connect(LogicalDevice.DigitalInput2 logicalDevice, bool reverse = false)
+        {
+            StateChanged += (sender, e) =>
+            {
+                if (reverse)
+                    logicalDevice.Control.OnNext(!e.NewState);
+                else
+                    logicalDevice.Control.OnNext(e.NewState);
+            };
+
+            return this;
+        }
+
         public void StartDevice()
         {
         }

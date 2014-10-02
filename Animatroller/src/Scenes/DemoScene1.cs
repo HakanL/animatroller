@@ -14,15 +14,28 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class DemoScene1 : BaseScene, ISceneRequiresRaspExpander1, ISceneSupportsSimulator, ISceneRequiresDMXPro
+    internal class DemoScene1 : BaseScene, ISceneRequiresRaspExpander1, ISceneRequiresDMXPro
     {
         private AudioPlayer audioPlayer;
+
+        [SimulatorButtonType(SimulatorButtonTypes.Momentarily)]
         private DigitalInput buttonTestSound;
+        
+        [SimulatorButtonType(SimulatorButtonTypes.Momentarily)]
         private DigitalInput buttonPlayBackground;
+        
+        [SimulatorButtonType(SimulatorButtonTypes.Momentarily)]
         private DigitalInput buttonPauseBackground;
+        
+        [SimulatorButtonType(SimulatorButtonTypes.Momentarily)]
         private DigitalInput buttonTrigger1;
+        
+        [SimulatorButtonType(SimulatorButtonTypes.Momentarily)]
         private DigitalInput buttonTestLight1;
+        
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestLight2;
+        
         private Switch switchTest1;
         private StrobeColorDimmer light1;
         private Effect.Pulsating pulsatingEffect1;
@@ -41,18 +54,6 @@ namespace Animatroller.SceneRunner
             switchTest1 = new Switch("Switch test 1");
 
             audioPlayer = new AudioPlayer("Audio Player");
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(buttonTestSound);
-            sim.AddDigitalInput_Momentarily(buttonPlayBackground);
-            sim.AddDigitalInput_Momentarily(buttonPauseBackground);
-            sim.AddDigitalInput_Momentarily(buttonTrigger1);
-            sim.AddDigitalInput_Momentarily(buttonTestLight1);
-            sim.AddDigitalInput_FlipFlop(buttonTestLight2);
-
-            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp1(Expander.Raspberry port)

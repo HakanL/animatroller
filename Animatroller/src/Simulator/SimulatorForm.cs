@@ -44,8 +44,13 @@ namespace Animatroller.Simulator
                         continue;
                 }
 
+                if (field.GetCustomAttributes(typeof(Animatroller.Framework.SimulatorSkipAttribute), false).Any())
+                    continue;
+
                 if (field.FieldType == typeof(Dimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((Dimmer)fieldValue));
+                else if (field.FieldType == typeof(Dimmer2))
+                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer2)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)fieldValue));
                 else if (field.FieldType == typeof(StrobeDimmer))
@@ -73,7 +78,45 @@ namespace Animatroller.Simulator
                 }
                 else if (field.FieldType == typeof(DigitalInput))
                 {
-                    // Skip
+                    var buttonType = (Animatroller.Framework.SimulatorButtonTypeAttribute)
+                        field.GetCustomAttributes(typeof(Animatroller.Framework.SimulatorButtonTypeAttribute), false).FirstOrDefault();
+
+                    if (buttonType != null)
+                    {
+                        switch (buttonType.Type)
+                        {
+                            case Framework.SimulatorButtonTypes.FlipFlop:
+                                AddDigitalInput_FlipFlop((DigitalInput)fieldValue);
+                                break;
+
+                            case Framework.SimulatorButtonTypes.Momentarily:
+                                AddDigitalInput_Momentarily((DigitalInput)fieldValue);
+                                break;
+                        }
+                    }
+                    else
+                        AddDigitalInput_Momentarily((DigitalInput)fieldValue);
+                }
+                else if (field.FieldType == typeof(DigitalInput2))
+                {
+                    var buttonType = (Animatroller.Framework.SimulatorButtonTypeAttribute)
+                        field.GetCustomAttributes(typeof(Animatroller.Framework.SimulatorButtonTypeAttribute), false).FirstOrDefault();
+
+                    if (buttonType != null)
+                    {
+                        switch (buttonType.Type)
+                        {
+                            case Framework.SimulatorButtonTypes.FlipFlop:
+                                AddDigitalInput_FlipFlop((DigitalInput2)fieldValue);
+                                break;
+
+                            case Framework.SimulatorButtonTypes.Momentarily:
+                                AddDigitalInput_Momentarily((DigitalInput2)fieldValue);
+                                break;
+                        }
+                    }
+                    else
+                        AddDigitalInput_Momentarily((DigitalInput2)fieldValue);
                 }
                 else if (field.FieldType == typeof(AudioPlayer))
                 {
@@ -290,6 +333,28 @@ namespace Animatroller.Simulator
             return device;
         }
 
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_FlipFlop(DigitalInput2 logicalDevice)
+        {
+            var control = new CheckBox();
+            control.Text = logicalDevice.Name;
+            control.Size = new System.Drawing.Size(80, 80);
+
+            flowLayoutPanelLights.Controls.Add(control);
+
+            var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
+
+            control.CheckedChanged += (sender, e) =>
+            {
+                device.Trigger((sender as CheckBox).Checked);
+            };
+
+            device.Connect(logicalDevice);
+
+            control.Checked = logicalDevice.Value;
+
+            return device;
+        }
+
         public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput(AnalogInput logicalDevice)
         {
             var control = new TrackBar();
@@ -328,6 +393,32 @@ namespace Animatroller.Simulator
                 {
                     device.Trigger(true);
                 };
+
+            control.MouseUp += (sender, e) =>
+            {
+                device.Trigger(false);
+            };
+
+            device.Connect(logicalDevice);
+
+            return device;
+        }
+
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Momentarily(DigitalInput2 logicalDevice)
+        {
+            var control = new Button();
+            control.Text = logicalDevice.Name;
+            control.UseMnemonic = false;
+            control.Size = new System.Drawing.Size(80, 80);
+
+            flowLayoutPanelLights.Controls.Add(control);
+
+            var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
+
+            control.MouseDown += (sender, e) =>
+            {
+                device.Trigger(true);
+            };
 
             control.MouseUp += (sender, e) =>
             {

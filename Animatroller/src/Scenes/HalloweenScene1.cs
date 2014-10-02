@@ -40,7 +40,7 @@ namespace Animatroller.SceneRunner
         private Effect.Flicker flickerEffect;
 
 
-        public HalloweenScene1(IEnumerable<string> args)
+        public HalloweenScene1(IEnumerable<string> args, System.Collections.Specialized.NameValueCollection settings)
         {
             hours = new OperatingHours("Hours");
             georgeStrobeLight = new StrobeDimmer("George Strobe");
@@ -65,16 +65,8 @@ namespace Animatroller.SceneRunner
             flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6);
 
             audioPlayer = new Physical.NetworkAudioPlayer(
-                Properties.Settings.Default.NetworkAudioPlayerIP,
-                Properties.Settings.Default.NetworkAudioPlayerPort);
-        }
-
-        public void WireUp(Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(pressureMat);
-            sim.AddDigitalInput_Momentarily(testButton);
-
-            sim.AutoWireUsingReflection(this);
+                settings["NetworkAudioPlayerIP"],
+                int.Parse(settings["NetworkAudioPlayerPort"]));
         }
 
         public void WireUp(Expander.IOExpander port)

@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestOSC : BaseScene, ISceneSupportsSimulator, ISceneRequiresAcnStream
+    internal class TestOSC : BaseScene, ISceneRequiresAcnStream
     {
         public struct Finger
         {
@@ -41,11 +41,6 @@ namespace Animatroller.SceneRunner
             testDimmer = new Dimmer("Test");
 
             this.oscServer = new Expander.OscServer(5555);
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp(Expander.AcnStream port)

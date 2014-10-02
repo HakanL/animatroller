@@ -15,40 +15,26 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestMidi1 : BaseScene, ISceneSupportsSimulator
+    internal class SimpleTest1 : BaseScene
     {
-        private Animatroller.Framework.Expander.MidiInput midiInput;
-        private ColorDimmer testLight1;
-        private DigitalInput buttonTest1;
-        private AnalogInput testInput1;
-        private AnalogInput inputH;
-        private AnalogInput inputS;
-        private AnalogInput inputV;
+        private ColorDimmer testLight1 = new ColorDimmer("Test 1");
+        private Dimmer2 testLight2 = new Dimmer2("Test 2");
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        private DigitalInput buttonTest1 = new DigitalInput("Test 1");
+        private AnalogInput inputBrightness = new AnalogInput("Brightness");
+        private AnalogInput inputH = new AnalogInput("Hue", true);
+        private AnalogInput inputS = new AnalogInput("Saturation", true);
+        private AnalogInput inputV = new AnalogInput("Value", true);
 
 
-        public TestMidi1(IEnumerable<string> args)
+        public SimpleTest1(IEnumerable<string> args)
         {
-            midiInput = new Expander.MidiInput();
-
-            buttonTest1 = new DigitalInput("Test 1");
-            testLight1 = new ColorDimmer("Test 1");
-            testInput1 = new AnalogInput("Test 1");
-            inputH = new AnalogInput("Hue", true);
-            inputS = new AnalogInput("Saturation", true);
-            inputV = new AnalogInput("Value", true);
-
-            midiInput.SubscribeToController(0, 1)
-                .Subscribe(x =>
-                {
-                    testInput1.Value = x.Value;
-                });
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_FlipFlop(buttonTest1);
-
-            sim.AutoWireUsingReflection(this);
+            inputBrightness.ConnectTo(testLight2.Brightness);
+            //testInput1.Subscribe()
+            //    .Subscribe(x =>
+            //    {
+            //        testLight1.SetBrightness(x.Value);
+            //    });
         }
 
         public void WireUp(Expander.MidiInput port)
@@ -77,9 +63,9 @@ namespace Animatroller.SceneRunner
                 }
             };
 
-            testInput1.ValueChanged += (sender, e) =>
+            inputBrightness.ValueChanged += (sender, e) =>
                 {
-                    testLight1.SetBrightness(e.NewBrightness);
+//                    testLight1.SetBrightness(e.NewBrightness);
                 };
 
             inputH.ValueChanged += (sender, e) =>

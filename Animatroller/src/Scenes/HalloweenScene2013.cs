@@ -14,14 +14,20 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class HalloweenScene2013 : BaseScene, ISceneRequiresRaspExpander1, ISceneSupportsSimulator
+    internal class HalloweenScene2013 : BaseScene, ISceneRequiresRaspExpander1
     {
         private AudioPlayer audioPlayer;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestHand;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestHead;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestDrawer1;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestDrawer2;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestPopEyes;
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput buttonTestPopUp;
         private DigitalInput buttonRunSequence;
         private DigitalInput buttonTestSound;
@@ -52,21 +58,6 @@ namespace Animatroller.SceneRunner
             switchPopUp = new Switch("Pop Up");
             
             audioPlayer = new AudioPlayer("Audio Player");
-        }
-
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_FlipFlop(buttonTestHand);
-            sim.AddDigitalInput_FlipFlop(buttonTestHead);
-            sim.AddDigitalInput_FlipFlop(buttonTestDrawer1);
-            sim.AddDigitalInput_FlipFlop(buttonTestDrawer2);
-            sim.AddDigitalInput_FlipFlop(buttonTestPopEyes);
-            sim.AddDigitalInput_FlipFlop(buttonTestPopUp);
-            
-            sim.AddDigitalInput_Momentarily(buttonRunSequence);
-            sim.AddDigitalInput_Momentarily(buttonTestSound);
-
-            sim.AutoWireUsingReflection(this);
         }
 
         public void WireUp1(Expander.Raspberry port)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -105,9 +106,12 @@ namespace Animatroller.SceneRunner
             }
 
 
+            // Load scene
             var sceneInterfaceType = typeof(IScene);
-            var sceneTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
+
+            var scenesAssembly = System.Reflection.Assembly.LoadFile(Path.Combine(Path.GetDirectoryName(sceneInterfaceType.Assembly.Location), "Scenes.dll"));
+
+            var sceneTypes = scenesAssembly.GetTypes()
                 .Where(p => sceneInterfaceType.IsAssignableFrom(p) &&
                     !p.IsInterface &&
                     !p.IsAbstract);
@@ -123,9 +127,9 @@ namespace Animatroller.SceneRunner
             Executor.Current.Register(scene);
 
             // Wire up the instantiated expanders
-            if (scene is ISceneSupportsSimulator && simForm != null)
+            if (simForm != null)
             {
-                ((ISceneSupportsSimulator)scene).WireUp(simForm);
+                simForm.AutoWireUsingReflection(scene);
             }
 
             if (scene is ISceneRequiresDMXPro)

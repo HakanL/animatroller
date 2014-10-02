@@ -29,13 +29,6 @@ namespace Animatroller.SceneRunner
             pulsatingEffect = new Effect.Pulsating("Pulse FX", S(2), 0, 1.0, false);
         }
 
-        public void WireUp(Animatroller.Simulator.SimulatorForm sim)
-        {
-            sim.AddDigitalInput_Momentarily(pressureMat);
-
-            sim.AutoWireUsingReflection(this);
-        }
-
         public void WireUp(Expander.IOExpander port)
         {
             port.Connect(new Physical.SmallRGBStrobe(candyLight, 16));

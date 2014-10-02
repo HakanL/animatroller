@@ -11,14 +11,14 @@ using System.Reactive.Subjects;
 
 namespace Animatroller.Framework.Expander
 {
-    public class MidiInput : IPort, IRunnable
+    public class MidiInput2 : IPort, IRunnable
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private InputDevice inputDevice;
-        private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
+        private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;        
         private ISubject<ChannelMessage> midiMessages;
 
-        public MidiInput(int deviceId = 0)
+        public MidiInput2(int deviceId = 0)
         {
             if (InputDevice.DeviceCount == 0)
                 throw new ArgumentException("No Midi device detected");
@@ -31,15 +31,6 @@ namespace Animatroller.Framework.Expander
             this.inputDevice.ChannelMessageReceived += inputDevice_ChannelMessageReceived;
 
             Executor.Current.Register(this);
-
-            this.midiMessages.Subscribe(x =>
-                {
-                    log.Trace("Recv midi cmd {0}, chn: {1}   data1: {2}   data2: {3}",
-                        x.Command,
-                        x.MidiChannel,
-                        x.Data1,
-                        x.Data2);
-                });
         }
 
         public IObservable<ChannelMessage> MidiMessages
@@ -87,24 +78,33 @@ namespace Animatroller.Framework.Expander
             this.inputDevice.Close();
         }
 
-        public IObservable<DoubleZeroToOne> SubscribeToController(int midiChannel, int controller)
-        {
-            return this.midiMessages
-                .Where(x =>
-                    x.MidiChannel == midiChannel &&
-                    x.Command == ChannelCommand.Controller &&
-                    x.Data1 == controller)
-                .Select(x => new DoubleZeroToOne(x.Data2 / 127.0));
-        }
-
         public IObservable<DoubleZeroToOne> Controller(int midiChannel, int controller)
         {
-            return this.midiMessages
-                .Where(x =>
-                    x.MidiChannel == midiChannel &&
-                    x.Command == ChannelCommand.Controller &&
-                    x.Data1 == controller)
-                .Select(x => new DoubleZeroToOne(x.Data2 / 127.0));
+            var result = new Subject<DoubleZeroToOne>();
+
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.Controller, controller), m =>
+            {
+                result.OnNext(new DoubleZeroToOne(m.Data2 / 127.0));
+            });
+
+            return result;
+        }
+
+        public IObservable<bool> Note(int midiChannel, int note)
+        {
+            var result = new Subject<bool>();
+
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOn, note), m =>
+            {
+                result.OnNext(true);
+            });
+
+            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOff, note), m =>
+            {
+                result.OnNext(false);
+            });
+
+            return result;
         }
 
         private void WireUpDevice_Note(Animatroller.Framework.PhysicalDevice.DigitalInput device, int midiChannel, int note)

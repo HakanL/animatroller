@@ -44,6 +44,17 @@ namespace Animatroller.Simulator
             WireUpStrobe(logicalDevice as StrobeDimmer);
         }
 
+        public TestLight(Dimmer2 logicalDevice)
+        {
+            this.logicalDevice = logicalDevice;
+
+            logicalDevice.Brightness.Subscribe(x =>
+                {
+                    this.control.Color = Color.FromArgb(x.Value.GetByteScale(), x.Value.GetByteScale(), x.Value.GetByteScale());
+                    this.control.Text = string.Format("{0:0%}", x.Value);
+                });
+        }
+
         public TestLight(ColorDimmer logicalDevice)
         {
             this.logicalDevice = logicalDevice;
