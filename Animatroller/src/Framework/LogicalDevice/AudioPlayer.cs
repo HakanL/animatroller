@@ -7,28 +7,17 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class AudioPlayer : ILogicalDevice
+    public class AudioPlayer : BaseDevice
     {
-        protected string name;
         private bool silent;
 
         public event EventHandler<AudioChangedEventArgs> AudioChanged;
         public event EventHandler<AudioCommandEventArgs> ExecuteCommand;
         public event EventHandler<EventArgs> AudioTrackDone;
 
-        public AudioPlayer(string name)
+        public AudioPlayer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(name)
         {
-            this.name = name;
-            Executor.Current.Register(this);
-        }
-
-        public void StartDevice()
-        {
-        }
-
-        public string Name
-        {
-            get { return this.name; }
         }
 
         internal void RaiseAudioTrackDone()

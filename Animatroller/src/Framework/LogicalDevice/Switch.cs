@@ -10,17 +10,15 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Switch : IOutput, ILogicalDevice
+    public class Switch : BaseDevice, IOutput
     {
-        protected string name;
         protected bool power;
 
         public event EventHandler<StateChangedEventArgs> PowerChanged;
 
-        public Switch(string name)
+        public Switch([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(name)
         {
-            this.name = name;
-            Executor.Current.Register(this);
         }
 
         protected virtual void RaisePowerChanged()
@@ -67,18 +65,13 @@ namespace Animatroller.Framework.LogicalDevice
         public virtual Switch TurnOff()
         {
             this.Power = false;
-            
+
             return this;
         }
 
-        public virtual void StartDevice()
+        public override void StartDevice()
         {
             RaisePowerChanged();
-        }
-
-        public string Name
-        {
-            get { return this.name; }
         }
     }
 }

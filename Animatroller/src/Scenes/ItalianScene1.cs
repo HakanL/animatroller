@@ -40,14 +40,6 @@ namespace Animatroller.SceneRunner
             //            port.DigitalInputs[1].Connect(buttonTest);
         }
 
-        public void WireUp(Expander.DMXPro port)
-        {
-        }
-
-        public void WireUp(Expander.Raspberry port)
-        {
-        }
-
         public void WireUp(Expander.AcnStream port)
         {
             // WS2811

@@ -15,13 +15,15 @@ namespace Animatroller.Framework.Expander
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private InputDevice inputDevice;
-        private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;        
+        private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
         private ISubject<ChannelMessage> midiMessages;
 
-        public MidiInput2(int deviceId = 0)
+        public MidiInput2([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            if (InputDevice.DeviceCount == 0)
-                throw new ArgumentException("No Midi device detected");
+            int deviceId = Executor.Current.GetSetKey(this, name + ".DeviceId", 0);
+
+            if (InputDevice.DeviceCount <= deviceId)
+                throw new ArgumentException("Midi device not detected");
 
             this.messageMapper = new Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>>();
 

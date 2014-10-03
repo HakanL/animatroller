@@ -28,9 +28,17 @@ namespace Animatroller.Framework
             return TimeSpan.FromMilliseconds(seconds);
         }
 
-        public abstract void Start();
-        public abstract void Run();
-        public abstract void Stop();
+        public virtual void Start()
+        {
+        }
+
+        public virtual void Run()
+        {
+        }
+
+        public virtual void Stop()
+        {
+        }
 
         protected Executor Exec
         {

@@ -16,8 +16,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 namespace Animatroller.SceneRunner
 {
     internal class Xmas2013scene : BaseScene,
-        ISceneRequiresAcnStream,
-        ISceneRequiresRaspExpander1
+        ISceneRequiresAcnStream
     {
         public enum States
         {
@@ -103,6 +102,7 @@ namespace Animatroller.SceneRunner
         private Effect.PopOut popOut1VocalLong;
         private Effect.PopOut popOut1End;
         private Expander.OscServer oscServer;
+        private Expander.Raspberry raspberry = new Expander.Raspberry();
 
         public Xmas2013scene(IEnumerable<string> args)
         {
@@ -184,6 +184,14 @@ namespace Animatroller.SceneRunner
             popOut1End = new Effect.PopOut("End", S(5.0));
 
             this.oscServer = new Expander.OscServer(10000);
+
+            raspberry.DigitalInputs[4].Connect(buttonRed);
+            raspberry.DigitalInputs[5].Connect(buttonBlue);
+            raspberry.DigitalOutputs[0].Connect(switchButtonBlue);
+            raspberry.DigitalOutputs[1].Connect(switchButtonRed);
+            raspberry.DigitalOutputs[2].Connect(elJesus);
+
+            raspberry.Connect(audioPlayer);
         }
 
         private void ConfigureMusic1()
@@ -533,17 +541,6 @@ namespace Animatroller.SceneRunner
             port.Connect(new Physical.GenericDimmer(lightDeerLarge, 100), 20);
             port.Connect(new Physical.GenericDimmer(lightDeerSmall, 101), 20);
             port.Connect(new Physical.SmallRGBStrobe(lightJesus, 48), 20);
-        }
-
-        public void WireUp1(Expander.Raspberry port)
-        {
-            port.DigitalInputs[4].Connect(buttonRed);
-            port.DigitalInputs[5].Connect(buttonBlue);
-            port.DigitalOutputs[0].Connect(switchButtonBlue);
-            port.DigitalOutputs[1].Connect(switchButtonRed);
-            port.DigitalOutputs[2].Connect(elJesus);
-
-            port.Connect(audioPlayer);
         }
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)

@@ -34,7 +34,7 @@ namespace Animatroller.Framework
         private Effect.MasterSweeper masterSweeper;
         private string keyStoragePath;
 
-        public Executor()
+        private Executor()
         {
             this.singleInstanceTasks = new Dictionary<ICanExecute, Task>();
             this.devices = new List<IDevice>();
@@ -46,24 +46,47 @@ namespace Animatroller.Framework
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
             this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
-            this.keyStoragePath = System.IO.Path.GetTempPath();
+            this.keyStoragePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Animatroller");
+            if (!System.IO.Directory.Exists(this.keyStoragePath))
+                System.IO.Directory.CreateDirectory(this.keyStoragePath);
         }
 
-        public string GetKey(string key, string defaultValue)
+        public string KeyStoragePrefix { get; set; }
+
+        public void SetKey(string key, string value)
+        {
+            BinaryRage.DB<string>.Insert(KeyStoragePrefix + "." + key, value, this.keyStoragePath);
+        }
+
+        public string GetKey(string key, string defaultValue, bool storeDefaultIfMissing = false)
         {
             try
             {
-                return BinaryRage.DB<string>.Get(key, this.keyStoragePath);
+                return BinaryRage.DB<string>.Get(KeyStoragePrefix + "." + key, this.keyStoragePath);
             }
             catch (System.IO.DirectoryNotFoundException)
             {
+                if (storeDefaultIfMissing)
+                    SetKey(key, defaultValue);
                 return defaultValue;
             }
         }
 
-        public void SetKey(string key, string value)
+        internal string GetKey(object typeObject, string subKey, string defaultValue)
         {
-            BinaryRage.DB<string>.Insert(key, value, this.keyStoragePath);
+            return GetKey(string.Format("{0}.{1}", typeObject.GetType().Name, subKey), defaultValue);
+        }
+
+        internal T GetSetKey<T>(object typeObject, string subKey, T defaultValue)
+        {
+            return GetSetKey(string.Format("{0}.{1}", typeObject.GetType().Name, subKey), defaultValue);
+        }
+
+        public T GetSetKey<T>(string key, T defaultValue)
+        {
+            string value = GetKey(key, defaultValue.ToString(), true);
+
+            return (T)Convert.ChangeType(value, typeof(T));
         }
 
         public Executor Register(IDevice device)
@@ -116,8 +139,6 @@ namespace Animatroller.Framework
 
         private void SetFieldNamesForPersistence(object scene)
         {
-            string sceneName = scene.GetType().Name;
-
             var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
             var persistenceFields = new Dictionary<string, ISupportsPersistence>();
@@ -131,7 +152,7 @@ namespace Animatroller.Framework
                 ISupportsPersistence supportsPersistence = fieldValue as ISupportsPersistence;
                 if (supportsPersistence != null && supportsPersistence.PersistState)
                 {
-                    string baseKey = string.Format("{0}.{1}.", sceneName, field.Name);
+                    string baseKey = field.Name;
 
                     var getKeyFunc = new Func<string, string, string>((subKey, defaultValue) =>
                         {

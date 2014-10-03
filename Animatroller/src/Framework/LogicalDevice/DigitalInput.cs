@@ -7,25 +7,22 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class DigitalInput : ILogicalDevice
+    public class DigitalInput : BaseDevice
     {
-        protected string name;
         protected bool active;
         protected string instanceKey;
 
         public event EventHandler<StateChangedEventArgs> ActiveChanged;
 
-        public DigitalInput(string name, bool persistState = false)
+        public DigitalInput([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool persistState = false)
+            : base(name)
         {
-            this.name = name;
-            Executor.Current.Register(this);
-
             if (persistState)
                 instanceKey = name.GetHashCode().ToString() + "_";
             else
                 instanceKey = null;
 
-            if(instanceKey != null)
+            if (instanceKey != null)
                 bool.TryParse(Executor.Current.GetKey(instanceKey + "input", false.ToString()), out active);
         }
 
@@ -64,14 +61,9 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void StartDevice()
+        public override void StartDevice()
         {
             RaiseActiveChanged();
-        }
-
-        public string Name
-        {
-            get { return this.name; }
         }
     }
 }

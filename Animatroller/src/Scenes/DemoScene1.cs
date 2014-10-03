@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class DemoScene1 : BaseScene, ISceneRequiresRaspExpander1, ISceneRequiresDMXPro
+    internal class DemoScene1 : BaseScene, ISceneRequiresDMXPro
     {
         private AudioPlayer audioPlayer;
 
@@ -39,7 +39,7 @@ namespace Animatroller.SceneRunner
         private Switch switchTest1;
         private StrobeColorDimmer light1;
         private Effect.Pulsating pulsatingEffect1;
-
+        private Expander.Raspberry raspberry = new Expander.Raspberry();
 
         public DemoScene1(IEnumerable<string> args)
         {
@@ -54,14 +54,11 @@ namespace Animatroller.SceneRunner
             switchTest1 = new Switch("Switch test 1");
 
             audioPlayer = new AudioPlayer("Audio Player");
-        }
 
-        public void WireUp1(Expander.Raspberry port)
-        {
-            port.DigitalInputs[4].Connect(buttonTrigger1, true);
-            port.DigitalOutputs[7].Connect(switchTest1);
+            raspberry.DigitalInputs[4].Connect(buttonTrigger1, true);
+            raspberry.DigitalOutputs[7].Connect(switchTest1);
 
-            port.Connect(audioPlayer);
+            raspberry.Connect(audioPlayer);
         }
 
         public void WireUp(Expander.DMXPro port)

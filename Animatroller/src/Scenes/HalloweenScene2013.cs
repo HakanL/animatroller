@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class HalloweenScene2013 : BaseScene, ISceneRequiresRaspExpander1
+    internal class HalloweenScene2013 : BaseScene
     {
         private AudioPlayer audioPlayer;
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -37,7 +37,7 @@ namespace Animatroller.SceneRunner
         private Switch switchDrawer2;
         private Switch switchPopEyes;
         private Switch switchPopUp;
-
+        private Expander.Raspberry raspberry = new Expander.Raspberry();
 
         public HalloweenScene2013(IEnumerable<string> args)
         {
@@ -58,23 +58,20 @@ namespace Animatroller.SceneRunner
             switchPopUp = new Switch("Pop Up");
             
             audioPlayer = new AudioPlayer("Audio Player");
-        }
 
-        public void WireUp1(Expander.Raspberry port)
-        {
-            port.DigitalInputs[0].Connect(buttonTestHand);
-            port.DigitalInputs[1].Connect(buttonTestHead);
-            port.DigitalInputs[2].Connect(buttonTestDrawer1);
-            port.DigitalInputs[3].Connect(buttonTestDrawer2);
-            port.DigitalInputs[7].Connect(buttonRunSequence);
-            port.DigitalOutputs[7].Connect(switchHand);
-            port.DigitalOutputs[2].Connect(switchHead);
-            port.DigitalOutputs[5].Connect(switchDrawer1);
-            port.DigitalOutputs[6].Connect(switchDrawer2);
-            port.DigitalOutputs[3].Connect(switchPopEyes);
-            port.DigitalOutputs[4].Connect(switchPopUp);
+            raspberry.DigitalInputs[0].Connect(buttonTestHand);
+            raspberry.DigitalInputs[1].Connect(buttonTestHead);
+            raspberry.DigitalInputs[2].Connect(buttonTestDrawer1);
+            raspberry.DigitalInputs[3].Connect(buttonTestDrawer2);
+            raspberry.DigitalInputs[7].Connect(buttonRunSequence);
+            raspberry.DigitalOutputs[7].Connect(switchHand);
+            raspberry.DigitalOutputs[2].Connect(switchHead);
+            raspberry.DigitalOutputs[5].Connect(switchDrawer1);
+            raspberry.DigitalOutputs[6].Connect(switchDrawer2);
+            raspberry.DigitalOutputs[3].Connect(switchPopEyes);
+            raspberry.DigitalOutputs[4].Connect(switchPopUp);
 
-            port.Connect(audioPlayer);
+            raspberry.Connect(audioPlayer);
         }
 
         public override void Start()

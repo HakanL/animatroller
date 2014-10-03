@@ -17,7 +17,20 @@ namespace Animatroller.Framework.Expander
         private int hostPort;
         private event EventHandler<EventArgs> AudioTrackDone;
 
+        public Raspberry([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            Initialize(
+                hostEntry: Executor.Current.GetSetKey(this, name + ".hostEntry", "127.0.0.1:5005"),
+                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 3333));
+        }
+
         public Raspberry(string hostEntry, int listenPort)
+        {
+            Initialize(hostEntry, listenPort);
+        }
+
+
+        private void Initialize(string hostEntry, int listenPort)
         {
             var hostParts = hostEntry.Split(':');
             if (hostParts.Length != 2)
@@ -177,7 +190,7 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueTrack:
                             this.oscClient.Send("/audio/trk/cue", e.AudioFile);
                             break;
-                    
+
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayTrack:
                             this.oscClient.Send("/audio/trk/play", e.AudioFile);
                             break;

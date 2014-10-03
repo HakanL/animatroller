@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestScene3 : BaseScene, ISceneRequiresRaspExpander1
+    internal class TestScene3 : BaseScene
     {
         private Expander.OscServer oscServer;
         private AudioPlayer audioPlayer;
@@ -29,7 +29,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput buttonBackgroundNext;
         private DigitalInput buttonTrigger1;
         private Switch switchTest1;
-
+        private Expander.Raspberry raspberry = new Expander.Raspberry();
 
         public TestScene3(IEnumerable<string> args)
         {
@@ -47,15 +47,12 @@ namespace Animatroller.SceneRunner
             
             audioPlayer = new AudioPlayer("Audio Player");
 
-            this.oscServer = new Expander.OscServer(9999);
-        }
+            oscServer = new Expander.OscServer(9999);
 
-        public void WireUp1(Expander.Raspberry port)
-        {
-            port.DigitalInputs[7].Connect(buttonTrigger1);
-            port.DigitalOutputs[7].Connect(switchTest1);
+            raspberry.DigitalInputs[7].Connect(buttonTrigger1);
+            raspberry.DigitalOutputs[7].Connect(switchTest1);
 
-            port.Connect(audioPlayer);
+            raspberry.Connect(audioPlayer);
         }
 
         public override void Start()

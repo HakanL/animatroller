@@ -14,83 +14,57 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class TestPiFace : BaseScene, ISceneRequiresRaspExpander1
+    internal class TestPiFace : BaseScene
     {
-        private Expander.OscServer oscServer;
-        private AudioPlayer audioPlayer;
-        private DigitalInput buttonPlayFX;
-        private DigitalInput buttonPauseFX;
-        private DigitalInput buttonCueFX;
-        private DigitalInput buttonResumeFX;
-        private DigitalInput buttonPlayBackground;
-        private DigitalInput buttonPauseBackground;
-        private DigitalInput buttonBackgroundLowVolume;
-        private DigitalInput buttonBackgroundHighVolume;
-        private DigitalInput buttonBackgroundNext;
-        private DigitalInput buttonTrigger1;
-        private DigitalInput buttonTriggerRelay1;
-        private DigitalInput buttonTriggerRelay2;
-        private Switch switchTest1;
-        private Switch switchRelay1;
-        private Switch switchRelay2;
-
+        private Expander.OscServer oscServer = new Expander.OscServer();
+        private AudioPlayer audioPlayer = new AudioPlayer();
+        private DigitalInput buttonPlayFX = new DigitalInput("Play FX");
+        private DigitalInput buttonPauseFX = new DigitalInput();
+        private DigitalInput buttonCueFX = new DigitalInput();
+        private DigitalInput buttonResumeFX = new DigitalInput();
+        private DigitalInput buttonPlayBackground = new DigitalInput();
+        private DigitalInput buttonPauseBackground = new DigitalInput();
+        private DigitalInput buttonBackgroundLowVolume = new DigitalInput();
+        private DigitalInput buttonBackgroundHighVolume = new DigitalInput();
+        private DigitalInput buttonBackgroundNext = new DigitalInput();
+        private DigitalInput buttonTrigger1 = new DigitalInput();
+        private DigitalInput buttonTriggerRelay1 = new DigitalInput();
+        private DigitalInput buttonTriggerRelay2 = new DigitalInput();
+        private Switch switchTest1 = new Switch();
+        private Switch switchRelay1 = new Switch();
+        private Switch switchRelay2 = new Switch();
+        private Expander.Raspberry raspberry = new Expander.Raspberry();
 
         public TestPiFace(IEnumerable<string> args)
         {
-            buttonPlayFX = new DigitalInput("Play FX");
-            buttonPauseFX = new DigitalInput("Pause FX");
-            buttonCueFX = new DigitalInput("Cue FX");
-            buttonResumeFX = new DigitalInput("Resume FX");
-            buttonPlayBackground = new DigitalInput("Play Background");
-            buttonPauseBackground = new DigitalInput("Pause Background");
-            buttonBackgroundLowVolume = new DigitalInput("Background Low");
-            buttonBackgroundHighVolume = new DigitalInput("Background High");
-            buttonBackgroundNext = new DigitalInput("BG next");
-            buttonTrigger1 = new DigitalInput("Pop!");
-            buttonTriggerRelay1 = new DigitalInput("Relay 1");
-            buttonTriggerRelay2 = new DigitalInput("Relay 2");
-            switchTest1 = new Switch("Switch test 1");
-            switchRelay1 = new Switch("Relay 1");
-            switchRelay2 = new Switch("Relay 2");
-            
-            audioPlayer = new AudioPlayer("Audio Player");
+            raspberry.DigitalInputs[7].Connect(buttonTrigger1);
+            raspberry.DigitalOutputs[7].Connect(switchTest1);
 
-            this.oscServer = new Expander.OscServer(9999);
-        }
+            raspberry.DigitalOutputs[0].Connect(switchRelay1);
+            raspberry.DigitalOutputs[1].Connect(switchRelay2);
 
-        public void WireUp1(Expander.Raspberry port)
-        {
-            port.DigitalInputs[7].Connect(buttonTrigger1);
-            port.DigitalOutputs[7].Connect(switchTest1);
+            raspberry.Connect(audioPlayer);
 
-            port.DigitalOutputs[0].Connect(switchRelay1);
-            port.DigitalOutputs[1].Connect(switchRelay2);
-
-            port.Connect(audioPlayer);
-        }
-
-        public override void Start()
-        {
             var popSeq = new Controller.Sequence("Pop Sequence");
             popSeq.WhenExecuted
                 .Execute(instance =>
-                    {
-//                        audioPlayer.PlayEffect("laugh");
-                        instance.WaitFor(TimeSpan.FromSeconds(1));
-                        switchTest1.SetPower(true);
-                        instance.WaitFor(TimeSpan.FromSeconds(5));
-                        switchTest1.SetPower(false);
-                        instance.WaitFor(TimeSpan.FromSeconds(1));
-                    });
+                {
+                    //                        audioPlayer.PlayEffect("laugh");
+                    instance.WaitFor(TimeSpan.FromSeconds(1));
+                    switchTest1.SetPower(true);
+                    instance.WaitFor(TimeSpan.FromSeconds(5));
+                    switchTest1.SetPower(false);
+                    instance.WaitFor(TimeSpan.FromSeconds(1));
+                });
 
             this.oscServer.RegisterAction<int>("/OnOff", (msg, data) =>
+            {
+                if (data.Any())
                 {
-                    if (data.Any())
-                    {
-                        if (data.First() != 0)
-                            audioPlayer.PlayEffect("Scream");
-                    }
-                });
+                    if (data.First() != 0)
+                        audioPlayer.PlayEffect("Scream");
+                }
+            });
 
             buttonPlayFX.ActiveChanged += (sender, e) =>
             {
@@ -101,10 +75,10 @@ namespace Animatroller.SceneRunner
             };
 
             buttonPauseFX.ActiveChanged += (sender, e) =>
-                {
-                    if (e.NewState)
-                        audioPlayer.PauseFX();
-                };
+            {
+                if (e.NewState)
+                    audioPlayer.PauseFX();
+            };
 
             buttonCueFX.ActiveChanged += (sender, e) =>
             {
@@ -124,7 +98,7 @@ namespace Animatroller.SceneRunner
                 {
                     audioPlayer.PlayBackground();
 
-//                    switchTest1.SetPower(true);
+                    //                    switchTest1.SetPower(true);
                 }
             };
 
@@ -134,7 +108,7 @@ namespace Animatroller.SceneRunner
                 {
                     audioPlayer.PauseBackground();
 
-//                    switchTest1.SetPower(false);
+                    //                    switchTest1.SetPower(false);
                 }
             };
 
@@ -165,23 +139,14 @@ namespace Animatroller.SceneRunner
             };
 
             buttonTriggerRelay1.ActiveChanged += (sender, e) =>
-                {
-                    switchRelay1.SetPower(e.NewState);
-                };
+            {
+                switchRelay1.SetPower(e.NewState);
+            };
 
             buttonTriggerRelay2.ActiveChanged += (sender, e) =>
             {
                 switchRelay2.SetPower(e.NewState);
             };
-        }
-
-        public override void Run()
-        {
-            //            audioPlayer.PlayEffect("Laugh");
-        }
-
-        public override void Stop()
-        {
         }
     }
 }

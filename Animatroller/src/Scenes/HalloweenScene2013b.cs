@@ -15,13 +15,9 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 namespace Animatroller.SceneRunner
 {
     internal class HalloweenScene2013B : BaseScene,
-        ISceneRequiresRaspExpander1,
-        ISceneRequiresRaspExpander2,
-        ISceneRequiresRaspExpander3,
-        ISceneRequiresRaspExpander4,
         ISceneRequiresDMXPro,
         ISceneRequiresAcnStream
-        //, ISceneRequiresIOExpander
+    //, ISceneRequiresIOExpander
     {
         public enum States
         {
@@ -79,7 +75,14 @@ namespace Animatroller.SceneRunner
         private Effect.PopOut popOutEffect;
         private DateTime? lastFogRun;
         private VirtualPixel1D allPixels;
-
+        // Cat
+        private Expander.Raspberry raspberry1 = new Expander.Raspberry();
+        // Beauty
+        private Expander.Raspberry raspberry2 = new Expander.Raspberry();
+        // Background/George
+        private Expander.Raspberry raspberry3 = new Expander.Raspberry();
+        // Spider
+        private Expander.Raspberry raspberry4 = new Expander.Raspberry();
 
         public HalloweenScene2013B(IEnumerable<string> args)
         {
@@ -136,49 +139,37 @@ namespace Animatroller.SceneRunner
             switchFog = new Switch("Fog");
 
             allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
-        }
 
-        // Cat
-        public void WireUp1(Expander.Raspberry port)
-        {
-            port.DigitalInputs[0].Connect(buttonMotionCat);
-            port.DigitalInputs[4].Connect(buttonTriggerStairs, true);
-            port.DigitalOutputs[0].Connect(switchDeadendDrive);
-            port.DigitalOutputs[1].Connect(switchFog);
-            port.Motor.Connect(georgeMotor);
+            // Cat
+            raspberry1.DigitalInputs[0].Connect(buttonMotionCat);
+            raspberry1.DigitalInputs[4].Connect(buttonTriggerStairs, true);
+            raspberry1.DigitalOutputs[0].Connect(switchDeadendDrive);
+            raspberry1.DigitalOutputs[1].Connect(switchFog);
+            raspberry1.Motor.Connect(georgeMotor);
 
-            port.Connect(audioCat);
-        }
+            raspberry1.Connect(audioCat);
 
-        // Beauty
-        public void WireUp2(Expander.Raspberry port)
-        {
-            port.Connect(audioBeauty);
-            port.DigitalOutputs[7].Connect(switchHand);
-            port.DigitalOutputs[2].Connect(switchHead);
-            port.DigitalOutputs[5].Connect(switchDrawer1);
-            port.DigitalOutputs[6].Connect(switchDrawer2);
-            port.DigitalOutputs[3].Connect(switchPopEyes);
-            port.DigitalOutputs[4].Connect(switchPopUp);
+            // Beauty
+            raspberry2.Connect(audioBeauty);
+            raspberry2.DigitalOutputs[7].Connect(switchHand);
+            raspberry2.DigitalOutputs[2].Connect(switchHead);
+            raspberry2.DigitalOutputs[5].Connect(switchDrawer1);
+            raspberry2.DigitalOutputs[6].Connect(switchDrawer2);
+            raspberry2.DigitalOutputs[3].Connect(switchPopEyes);
+            raspberry2.DigitalOutputs[4].Connect(switchPopUp);
 
-            port.DigitalInputs[5].Connect(buttonMotionBeauty, true);
-            port.DigitalInputs[6].Connect(buttonTriggerPopup, true);
-        }
+            raspberry2.DigitalInputs[5].Connect(buttonMotionBeauty, true);
+            raspberry2.DigitalInputs[6].Connect(buttonTriggerPopup, true);
 
-        // Background/George
-        public void WireUp3(Expander.Raspberry port)
-        {
-            port.Connect(audioGeorge);
-        }
+            // Background/George
+            raspberry3.Connect(audioGeorge);
 
-        // Spider
-        public void WireUp4(Expander.Raspberry port)
-        {
-            port.Connect(audioSpider);
+            // Spider
+            raspberry4.Connect(audioSpider);
 
-            port.DigitalOutputs[0].Connect(switchSpider);
-            port.DigitalOutputs[2].Connect(switchSpiderEyes1);
-            port.DigitalOutputs[3].Connect(switchSpiderEyes2);
+            raspberry4.DigitalOutputs[0].Connect(switchSpider);
+            raspberry4.DigitalOutputs[2].Connect(switchSpiderEyes1);
+            raspberry4.DigitalOutputs[3].Connect(switchSpiderEyes2);
         }
 
         public void WireUp(Expander.DMXPro port)
@@ -309,7 +300,7 @@ namespace Animatroller.SceneRunner
                 .Execute(instance =>
                 {
                     //Exec.WaitUntilFinished(georgeReturnSeq);
-                        
+
                     audioGeorge.PlayEffect("laugh");
                     georgeMotor.SetVector(1.0, 350, S(10));
                     instance.WaitFor(TimeSpan.FromSeconds(0.8));

@@ -33,6 +33,11 @@ namespace Animatroller.Framework.Expander
         private Dictionary<string, Action<Message>> dispatch;
         private Dictionary<string, Action<Message>> dispatchPartial;
 
+        public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : this(Executor.Current.GetSetKey<int>(name, 9999))
+        {
+        }
+
         public OscServer(int listenPort)
         {
             this.receiver = new Rug.Osc.OscReceiver(listenPort);
@@ -71,7 +76,7 @@ namespace Animatroller.Framework.Expander
                                     }
                                 }
 
-                                if(packet is Rug.Osc.OscMessage)
+                                if (packet is Rug.Osc.OscMessage)
                                 {
                                     var msg = (Rug.Osc.OscMessage)packet;
                                     Invoke(msg);
