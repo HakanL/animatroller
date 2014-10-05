@@ -19,7 +19,7 @@ namespace Animatroller.Framework.PhysicalDevice
             this.logicalDevices = logicalDevice;
         }
 
-        public void StartDevice()
+        public virtual void StartDevice()
         {
         }
     }

@@ -64,10 +64,17 @@ namespace Animatroller.Framework
             {
                 return BinaryRage.DB<string>.Get(KeyStoragePrefix + "." + key, this.keyStoragePath);
             }
+            catch (System.Runtime.Serialization.SerializationException)
+            {
+                SetKey(key, defaultValue);
+
+                return defaultValue;
+            }
             catch (System.IO.DirectoryNotFoundException)
             {
                 if (storeDefaultIfMissing)
                     SetKey(key, defaultValue);
+
                 return defaultValue;
             }
         }

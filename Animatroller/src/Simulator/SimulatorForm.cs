@@ -188,6 +188,8 @@ namespace Animatroller.Simulator
 
                 if (field.FieldType == typeof(Switch))
                     this.AddDigitalOutput((Switch)fieldValue);
+                else if (field.FieldType == typeof(DigitalOutput2))
+                    this.AddDigitalOutput((DigitalOutput2)fieldValue);
                 else if (field.FieldType.Name.StartsWith("EnumStateMachine") ||
                     field.FieldType.Name.StartsWith("IntStateMachine"))
                 {
@@ -290,6 +292,35 @@ namespace Animatroller.Simulator
         }
 
         public Animatroller.Framework.PhysicalDevice.DigitalOutput AddDigitalOutput(Switch logicalDevice)
+        {
+            var moduleControl = new Control.ModuleControl();
+            moduleControl.Text = logicalDevice.Name;
+            moduleControl.Size = new System.Drawing.Size(80, 80);
+
+            var centerControl = new Control.CenterControl();
+            moduleControl.ChildControl = centerControl;
+
+            var control = new Animatroller.Simulator.Control.Bulb.LedBulb();
+            control.On = false;
+            control.Size = new System.Drawing.Size(20, 20);
+            centerControl.ChildControl = control;
+
+            flowLayoutPanelLights.Controls.Add(moduleControl);
+
+            var device = new Animatroller.Framework.PhysicalDevice.DigitalOutput(x =>
+            {
+                this.UIThread(delegate
+                {
+                    control.On = x;
+                });
+            });
+
+            device.Connect(logicalDevice);
+
+            return device;
+        }
+
+        public Animatroller.Framework.PhysicalDevice.DigitalOutput AddDigitalOutput(DigitalOutput2 logicalDevice)
         {
             var moduleControl = new Control.ModuleControl();
             moduleControl.Text = logicalDevice.Name;

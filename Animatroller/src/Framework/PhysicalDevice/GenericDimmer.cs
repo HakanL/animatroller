@@ -1,4 +1,5 @@
-﻿using Animatroller.Framework.Extensions;
+﻿using System;
+using Animatroller.Framework.Extensions;
 using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
@@ -23,6 +24,15 @@ namespace Animatroller.Framework.PhysicalDevice
                 {
                     DmxOutputPort.SendDimmerValue(dmxChannel, (byte)(e.NewState ? 255 : 0));
                 };
+        }
+
+        public GenericDimmer(DigitalOutput2 logicalDevice, int dmxChannel)
+            : base(logicalDevice)
+        {
+            logicalDevice.InputPower.Subscribe(x =>
+            {
+                DmxOutputPort.SendDimmerValue(dmxChannel, (byte)(x ? 255 : 0));
+            });
         }
     }
 }

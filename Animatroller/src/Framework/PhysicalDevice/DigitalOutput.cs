@@ -25,6 +25,16 @@ namespace Animatroller.Framework.PhysicalDevice
             return this;
         }
 
+        public DigitalOutput Connect(LogicalDevice.DigitalOutput2 logicalDevice)
+        {
+            logicalDevice.InputPower.Subscribe(x =>
+                {
+                    this.physicalTrigger(x);
+                });
+
+            return this;
+        }
+
         public void StartDevice()
         {
         }

@@ -13,14 +13,14 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Dimmer2 : SingleOwnerDevice, IOutput, ILogicalDevice//, /*IHasBrightnessControl, *///, IHasAnalogInput
+    public class Dimmer2 : SingleOwnerDevice, IOutput//, /*IHasBrightnessControl, *///, IHasAnalogInput
     {
         protected object lockObject = new object();
         protected double currentBrightness;
         protected Effect.MasterSweeper.Job effectJob;
         protected ISubject<DoubleZeroToOne> inputBrightness;
 
-        public Dimmer2(string name)
+        public Dimmer2([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.inputBrightness = new Subject<DoubleZeroToOne>();
