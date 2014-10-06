@@ -263,11 +263,11 @@ def input_callback(event):
     input_lock.release()
 
 
-def osc_init(args = None):
+def osc_init(unused_addr, args = None):
     print ('Animatroller running')
 
 
-def osc_motor(chn, target, speed, timeout):
+def osc_motor(unused_addr, chn, target, speed, timeout):
     print('Motor command: chn:', chn, '  target:', target, '  speed:', speed, '  timeout:', timeout)
     output = '!M,{0},{1},{2},{3}\r'.format(chn, target, speed, timeout)
 
@@ -275,7 +275,7 @@ def osc_motor(chn, target, speed, timeout):
     ser.write(output.encode('utf-8'))
 
 
-def osc_playFx(file, leftvol = -1, rightvol = -1):
+def osc_playFx(unused_addr, file, leftvol = -1, rightvol = -1):
     global last_fx_snd, last_fx_chn
 
     print ('Play FX', file)
@@ -295,7 +295,7 @@ def osc_playFx(file, leftvol = -1, rightvol = -1):
             last_fx_chn.set_volume(leftvol)
 
 
-def osc_playNewFx(file, leftvol = -1, rightvol = -1):
+def osc_playNewFx(unused_addr, file, leftvol = -1, rightvol = -1):
     global last_fx_snd, last_fx_chn
 
     print ('Play New FX', file)
@@ -313,7 +313,7 @@ def osc_playNewFx(file, leftvol = -1, rightvol = -1):
             last_fx_chn.set_volume(leftvol)
 
 
-def osc_cueFx(args):
+def osc_cueFx(unused_addr, args):
     global last_fx_snd, last_fx_chn
 
     print ('Cue FX', args)
@@ -324,13 +324,13 @@ def osc_cueFx(args):
         last_fx_chn = None
 
 
-def osc_pauseFx():
+def osc_pauseFx(unused_addr):
     print ('Pause FX')
     if last_fx_chn is not None:
         last_fx_chn.pause()
 
 
-def osc_resumeFx():
+def osc_resumeFx(unused_addr):
     global last_fx_chn
     print ('Resume FX')
     if last_fx_chn is not None:
@@ -339,14 +339,14 @@ def osc_resumeFx():
         last_fx_chn = last_fx_snd.play()
 
         
-def osc_bgVolume(volume):
+def osc_bgVolume(unused_addr, volume):
     global bg_volume
     print ('Background volume', volume)
     bg_volume = float(volume)
     pygame.mixer.music.set_volume(bg_volume)
 
 
-def osc_bgPlay():
+def osc_bgPlay(unused_addr):
     global bg_playing
     if pygame.mixer.music.get_busy():
         print ('Background resume')
@@ -357,34 +357,34 @@ def osc_bgPlay():
     bg_playing = 1
 
     
-def osc_trkPlay(file):
+def osc_trkPlay(unused_addr, file):
     global bg_playing
     cue_track(file + '.wav')
     pygame.mixer.music.play()
     bg_playing = 0
     
 
-def osc_trkCue(file):
+def osc_trkCue(unused_addr, file):
     global bg_playing
     cue_track(file + '.wav')
     bg_playing = 0
 
 
-def osc_trkResume():
+def osc_trkResume(unused_addr):
     pygame.mixer.music.play()
 
 
-def osc_bgPause():
+def osc_bgPause(unused_addr):
     print ('Background pause')
     pygame.mixer.music.pause()
 
 
-def osc_bgNext():
+def osc_bgNext(unused_addr):
     print ('Background next')
     play_next_bg_track()
 
 
-def osc_output(channel, value):
+def osc_output(unused_addr, channel, value):
     if pfd is not None:
         print ('Output', channel, 'set to', value)
         pfd.output_pins[channel].value = value
