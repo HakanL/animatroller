@@ -43,8 +43,9 @@
     <Reference Include="Acn">
       <HintPath>..\..\lib\Acn.dll</HintPath>
     </Reference>
-    <Reference Include="BinaryRage">
-      <HintPath>..\packages\BinaryRage.0.1.2\lib\net40\BinaryRage.dll</HintPath>
+    <Reference Include="BinaryRage, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BinaryRage.0.1.3\lib\net40\BinaryRage.dll</HintPath>
     </Reference>
     <Reference Include="CircularBuffer">
       <HintPath>..\..\lib\CircularBuffer.dll</HintPath>

@@ -55,14 +55,14 @@ namespace Animatroller.Framework
 
         public void SetKey(string key, string value)
         {
-            BinaryRage.DB<string>.Insert(KeyStoragePrefix + "." + key, value, this.keyStoragePath);
+            BinaryRage.DB.Insert<string>(KeyStoragePrefix + "." + key, value, this.keyStoragePath);
         }
 
         public string GetKey(string key, string defaultValue, bool storeDefaultIfMissing = false)
         {
             try
             {
-                return BinaryRage.DB<string>.Get(KeyStoragePrefix + "." + key, this.keyStoragePath);
+                return BinaryRage.DB.Get<string>(KeyStoragePrefix + "." + key, this.keyStoragePath);
             }
             catch (System.Runtime.Serialization.SerializationException)
             {
