@@ -14,7 +14,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected ISubject<bool> control;
         protected ISubject<bool> outputValue;
 
-        public DigitalInput2(string name, bool persistState = false)
+        public DigitalInput2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool persistState = false)
             : base(name, persistState)
         {
             this.outputValue = new Subject<bool>();

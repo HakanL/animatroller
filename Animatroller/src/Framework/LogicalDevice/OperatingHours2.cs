@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class OperatingHours : BaseDevice
+    public class OperatingHours2 : BaseDevice
     {
         protected class TimeRange
         {
@@ -20,24 +21,28 @@ namespace Animatroller.Framework.LogicalDevice
         private bool? isOpen;
         private bool? forced;
 
-        public event EventHandler<Event.OpenHoursEventArgs> OpenHoursChanged;
+        private ISubject<bool> outputValue;
 
-        public OperatingHours([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public OperatingHours2([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.isOpen = null;
             this.ranges = new List<TimeRange>();
+
+            this.outputValue = new Subject<bool>();
+
             this.timer = new Timer(x =>
                 {
                     EvaluateOpenHours();
                 }, null, Timeout.Infinite, Timeout.Infinite);
         }
 
-        protected void RaiseOpenHoursChanged()
+        public IObservable<bool> Output
         {
-            var handler = OpenHoursChanged;
-            if (handler != null)
-                handler(this, new Event.OpenHoursEventArgs(IsOpen));
+            get
+            {
+                return this.outputValue;
+            }
         }
 
         private void EvaluateOpenHours()
@@ -100,12 +105,12 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.isOpen = value;
 
-                    RaiseOpenHoursChanged();
+                    this.outputValue.OnNext(value);
                 }
             }
         }
 
-        public OperatingHours AddRange(string from, string to)
+        public OperatingHours2 AddRange(string from, string to)
         {
             var range = new TimeRange
             {

@@ -70,6 +70,7 @@
     <Compile Include="PixelScene1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SimpleTest1.cs" />
+    <Compile Include="Halloween2014.cs" />
     <Compile Include="TestMidi1.cs" />
     <Compile Include="TestOSC.cs" />
     <Compile Include="TestPiFace.cs" />
