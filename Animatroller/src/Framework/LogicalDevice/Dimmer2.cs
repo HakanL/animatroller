@@ -61,10 +61,6 @@ namespace Animatroller.Framework.LogicalDevice
 
         public virtual void SetBrightness(double value, IOwner owner)
         {
-            if (value == 0)
-                // Reset owner
-                owner = null;
-
             if (this.owner != null && owner != this.owner)
             {
                 if (owner != null)
@@ -75,6 +71,10 @@ namespace Animatroller.Framework.LogicalDevice
                 else
                     return;
             }
+
+            if (value == 0)
+                // Reset owner
+                owner = null;
 
             this.owner = owner;
             this.InputBrightness.OnNext(new DoubleZeroToOne { Value = value });

@@ -34,5 +34,14 @@ namespace Animatroller.Framework.PhysicalDevice
                 DmxOutputPort.SendDimmerValue(dmxChannel, (byte)(x ? 255 : 0));
             });
         }
+
+        public GenericDimmer(Dimmer2 logicalDevice, int dmxChannel)
+            : base(logicalDevice)
+        {
+            logicalDevice.InputBrightness.Subscribe(x =>
+            {
+                DmxOutputPort.SendDimmerValue(dmxChannel, x.Value.GetByteScale());
+            });
+        }
     }
 }

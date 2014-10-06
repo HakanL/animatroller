@@ -17,24 +17,27 @@ namespace Animatroller.SceneRunner
 {
     internal class Halloween2014 : BaseScene
     {
-        public class PhysicalDevices
-        {
-            public Physical.SmallRGBStrobe SmallLED;
-            public Physical.GenericDimmer CatAir;
-            public Physical.GenericDimmer CatLight;
-        }
-
-        private PhysicalDevices p;
+        private const int midiChannel = 0;
 
         private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audioCat = new AudioPlayer();
+        private AudioPlayer audioSpider = new AudioPlayer();
+        private AudioPlayer audioOla = new AudioPlayer();
         private Expander.Raspberry raspberryCat = new Expander.Raspberry("192.168.240.115:5005", 3333);
+        private Expander.Raspberry raspberrySpider = new Expander.Raspberry("192.168.240.123:5005", 3334);
+        private Expander.Raspberry raspberryOla = new Expander.Raspberry("192.168.240.147:5005", 3335);
 
         private ColorDimmer2 testLight1 = new ColorDimmer2("Test 1");
-        private Dimmer2 testLight2 = new Dimmer2("Test 2");
+        private Dimmer2 lightning1 = new Dimmer2("Lightning 1");
+        private Dimmer2 lightning2 = new Dimmer2("Lightning 2");
+        private Dimmer2 testLight3 = new Dimmer2("Test 3");
+        private Dimmer2 lightStairs1 = new Dimmer2("Stairs 1");
+        private Dimmer2 lightStairs2 = new Dimmer2("Stairs 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonTest1 = new DigitalInput2("Test 1");
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        private DigitalInput2 forceOpen = new DigitalInput2("Force Open");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonTest2 = new DigitalInput2("Test 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -47,38 +50,68 @@ namespace Animatroller.SceneRunner
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2();
         private DigitalOutput2 catLights = new DigitalOutput2();
+        private DigitalOutput2 spiderPopUp = new DigitalOutput2();
 
         private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
         private OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
 
-        private Controller.Sequence catSeq = new Controller.Sequence("Cat Sequence");
+        // Effects
+        private Effect.Flicker flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6, false);
+        private Effect.PopOut2 popOut1 = new Effect.PopOut2("PopOut 1", S(0.3));
+        private Effect.PopOut2 popOut2 = new Effect.PopOut2("PopOut 2", S(0.3));
+
+        private Controller.Sequence catSeq = new Controller.Sequence();
+        private Controller.Sequence thunderSeq = new Controller.Sequence();
+        private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
+        private Controller.Sequence spiderSeq = new Controller.Sequence("Spider");
 
         public Halloween2014(IEnumerable<string> args)
         {
-            p = new PhysicalDevices
-            {
-                SmallLED = new Physical.SmallRGBStrobe(testLight1, 1),
-                CatLight = new Physical.GenericDimmer(catLights, 10),
-                CatAir = new Physical.GenericDimmer(catAir, 11)
-            };
-
             hoursSmall.AddRange("5:00 pm", "9:00 pm");
             hoursFull.AddRange("5:00 pm", "9:00 pm");
 
+            flickerEffect.ConnectTo(lightStairs1.InputBrightness);
+            flickerEffect.ConnectTo(lightStairs2.InputBrightness);
+
+            popOut1.AddDevice(lightning1.InputBrightness);
+            popOut2.AddDevice(lightning2.InputBrightness);
+
             raspberryCat.DigitalInputs[4].Connect(catMotion, true);
             raspberryCat.Connect(audioCat);
+            raspberrySpider.Connect(audioSpider);
+            raspberryOla.Connect(audioOla);
 
             inputBrightness.ConnectTo(testLight1.InputBrightness);
-            inputBrightness.ConnectTo(testLight2.InputBrightness);
 
-            acnOutput.Connect(p.SmallLED, 20);
-            acnOutput.Connect(p.CatAir, 20);
-            acnOutput.Connect(p.CatLight, 20);
+            // Map Physical lights
+            acnOutput.Connect(new Physical.SmallRGBStrobe(testLight1, 1), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(catAir, 11), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(catLights, 10), 20);
+            //BROKEN            acnOutput.Connect(new Physical.GenericDimmer(testLight3, 103), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(lightning2, 100), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 101), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 102), 20);
+            acnOutput.Connect(new Physical.AmericanDJStrobe(lightning1, 5), 20);
 
             buttonTest3.Control.Subscribe(x =>
                 {
                     if (x)
-                        audioCat.PlayEffect("348 Spider Hiss");
+                        Exec.Execute(spiderSeq);
+//                    lightning2.Brightness = x ? 1.0 : 0.0;
+//                    if (x)
+//                        popOut1.Pop(1.0);
+                    //                    if (x)
+                    //                    lightStairs1.Brightness = x ? 1.0 : 0.0;
+//                    testLight3.Brightness = x ? 1.0 : 0.0;
+                    //                        audioSpider.PlayEffect("348 Spider Hiss");
+//                    Exec.Execute(thunderSeq);
+                });
+
+            raspberrySpider.DigitalOutputs[7].Connect(spiderPopUp);
+
+            forceOpen.Output.Subscribe(x =>
+                {
+                    hoursSmall.SetForced(x);
                 });
 
             inputH.Output.Subscribe(x =>
@@ -96,15 +129,15 @@ namespace Animatroller.SceneRunner
                 testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), inputS.Value, x.Value));
             });
 
-            midiInput.Controller(1, 1).Controls(inputBrightness.Control);
-            midiInput.Controller(1, 2).Controls(inputH.Control);
-            midiInput.Controller(1, 3).Controls(inputS.Control);
-            midiInput.Controller(1, 4).Controls(inputV.Control);
+            midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
+            midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
+            midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
+            midiInput.Controller(midiChannel, 4).Controls(inputV.Control);
 
-            midiInput.Note(1, 36).Controls(buttonTest1.Control);
-            midiInput.Note(1, 37).Controls(buttonTest2.Control);
-            midiInput.Note(1, 38).Controls(buttonTest3.Control);
-            midiInput.Note(1, 39).Controls(catMotion.Control);
+            midiInput.Note(midiChannel, 36).Controls(buttonTest1.Control);
+            midiInput.Note(midiChannel, 37).Controls(buttonTest2.Control);
+            midiInput.Note(midiChannel, 38).Controls(buttonTest3.Control);
+            midiInput.Note(midiChannel, 39).Controls(catMotion.Control);
 
 
             buttonTest2.Output.Subscribe(catAir.InputPower);
@@ -129,11 +162,81 @@ namespace Animatroller.SceneRunner
                 }
             });
 
-            hoursSmall.Output.Subscribe(catAir.InputPower);
+//FIXME            hoursSmall.Output.Subscribe(catAir.InputPower);
+            hoursSmall.Output.Subscribe(flickerEffect.InputRun);
+
+            timelineThunder1.AddMs(500, "A");
+            timelineThunder1.AddMs(1500, "B");
+            timelineThunder1.AddMs(1600, "C");
+
+            timelineThunder1.TimelineTrigger += (sender, e) =>
+                {
+                    switch (e.Code)
+                    {
+                        case "A":
+                            popOut2.Pop(0.5);
+                            break;
+
+                        case "B":
+                            popOut2.Pop(1.0);
+                            break;
+
+                        case "C":
+                            popOut1.Pop(1.0);
+                            break;
+                    }
+                };
         }
 
         public override void Start()
         {
+            spiderSeq.WhenExecuted
+                .Execute(instance =>
+                {
+//                    switchFog.SetPower(true);
+//                    this.lastFogRun = DateTime.Now;
+//                    Executor.Current.Execute(deadendSeq);
+//                    audioGeorge.PlayEffect("ghostly");
+//                    instance.WaitFor(S(0.5));
+//                    popOutEffect.Pop(1.0);
+
+//                    instance.WaitFor(S(1.0));
+                    audioSpider.PlayNewEffect("348 Spider Hiss");
+                    spiderPopUp.Power = true;
+                    instance.WaitFor(S(0.5));
+//                    switchSpiderEyes1.SetPower(true);
+                    instance.WaitFor(S(2));
+                    spiderPopUp.Power = false;
+//                    switchSpiderEyes1.SetPower(false);
+                    instance.WaitFor(S(4));
+//                    stateMachine.NextState();
+                })
+                .TearDown(() =>
+                {
+//                    switchFog.SetPower(false);
+//                    audioGeorge.PauseFX();
+                });
+
+            thunderSeq.WhenExecuted
+                .SetUp(() =>
+                    {
+                        audioOla.CueTrack("56 Lightning Strike Thunder");
+                        System.Threading.Thread.Sleep(800);
+                    })
+                .Execute(i =>
+                    {
+                        var task = timelineThunder1.Start();
+                        audioOla.ResumeTrack();
+                        task.Wait(i.CancelToken);
+
+                        i.WaitFor(S(4));
+                    })
+                .TearDown(() =>
+                    {
+                        timelineThunder1.Stop();
+                        audioOla.PauseTrack();
+                    });
+
             catSeq.WhenExecuted
                 .Execute(instance =>
                 {
@@ -182,7 +285,7 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
-            hoursSmall.SetForced(false);
+//            hoursSmall.SetForced(false);
         }
 
         public override void Stop()

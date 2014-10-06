@@ -143,7 +143,7 @@ namespace Animatroller.Framework.Controller
         public bool IsMultiInstance { get; private set; }
         public bool IsLoop { get; private set; }
 
-        public Sequence(string name)
+        public Sequence([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Reactive.Subjects;
 using Animatroller.Framework.Extensions;
 using NLog;
 
@@ -135,6 +136,46 @@ namespace Animatroller.Framework.Effect
         }
     }
 
+    public class PopOut2 : BaseSweeperEffect<ISubject<DoubleZeroToOne>>
+    {
+        private double startBrightness;
+
+        public PopOut2(string name, TimeSpan sweepDuration)
+            : base(name, sweepDuration, false)
+        {
+            base.sweeper.OneShot();
+        }
+
+        public PopOut2(string name, TimeSpan sweepDuration, int dataPoints)
+            : base(name, sweepDuration, dataPoints, false)
+        {
+            base.sweeper.OneShot();
+        }
+
+        public PopOut2 Pop(double startBrightness)
+        {
+            this.startBrightness = startBrightness;
+
+            base.sweeper.Reset();
+
+            return this;
+        }
+
+        protected override void ExecutePerDevice(ISubject<DoubleZeroToOne> device,
+            double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            double brightness = this.startBrightness * (1 - zeroToOne);
+
+            if (brightness < 0.1)
+                brightness = 0;
+
+            device.OnNext(new DoubleZeroToOne(brightness));
+
+            if (final)
+                device.OnNext(DoubleZeroToOne.Zero);
+        }
+    }
+
     public class Flicker : IEffect
     {
         protected bool isRunning;
@@ -145,10 +186,12 @@ namespace Animatroller.Framework.Effect
         protected object lockObject = new object();
         protected Timer timer;
         protected List<LogicalDevice.IHasBrightnessControl> devices;
+        protected List<ISubject<DoubleZeroToOne>> devices2;
+        protected ISubject<bool> inputRun;
         private double minBrightness;
         private double maxBrightness;
 
-        public Flicker(string name, double minBrightness, double maxBrightness, bool startRunning = true)
+        public Flicker([System.Runtime.CompilerServices.CallerMemberName] string name = "", double minBrightness = 0.0, double maxBrightness = 1.0, bool startRunning = true)
         {
             this.name = name;
             Executor.Current.Register(this);
@@ -157,9 +200,23 @@ namespace Animatroller.Framework.Effect
             this.maxBrightness = maxBrightness;
 
             this.devices = new List<LogicalDevice.IHasBrightnessControl>();
+            this.devices2 = new List<ISubject<DoubleZeroToOne>>();
             this.timer = new Timer(new TimerCallback(TimerCallback));
 
-            if(startRunning)
+            this.inputRun = new Subject<bool>();
+
+            this.inputRun.Subscribe(x =>
+            {
+                if (this.isRunning != x)
+                {
+                    if (x)
+                        Start();
+                    else
+                        Stop();
+                }
+            });
+
+            if (startRunning)
                 Start();
         }
 
@@ -172,6 +229,10 @@ namespace Animatroller.Framework.Effect
                     foreach (var device in this.devices)
                         device.Brightness = this.random.NextDouble()
                             .ScaleToMinMax(this.minBrightness, this.maxBrightness);
+
+                    foreach (var device in this.devices2)
+                        device.OnNext(new DoubleZeroToOne(this.random.NextDouble()
+                            .ScaleToMinMax(this.minBrightness, this.maxBrightness)));
                 }
                 catch
                 {
@@ -184,8 +245,16 @@ namespace Animatroller.Framework.Effect
             else
                 log.Warn("Missed execute in Flicker");
 
-            if(isRunning)
+            if (isRunning)
                 this.timer.Change(random.Next(90) + 10, Timeout.Infinite);
+        }
+
+        public ISubject<bool> InputRun
+        {
+            get
+            {
+                return this.inputRun;
+            }
         }
 
         public IEffect Start()
@@ -205,6 +274,9 @@ namespace Animatroller.Framework.Effect
             {
                 foreach (var device in this.devices)
                     device.Brightness = 0;
+
+                foreach (var device in this.devices2)
+                    device.OnNext(DoubleZeroToOne.Zero);
             }
 
             return this;
@@ -225,6 +297,16 @@ namespace Animatroller.Framework.Effect
             lock (lockObject)
             {
                 this.devices.Add(device);
+            }
+
+            return this;
+        }
+
+        public Flicker ConnectTo(ISubject<DoubleZeroToOne> device)
+        {
+            lock (lockObject)
+            {
+                this.devices2.Add(device);
             }
 
             return this;

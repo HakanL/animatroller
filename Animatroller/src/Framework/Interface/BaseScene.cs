@@ -18,12 +18,12 @@ namespace Animatroller.Framework
             //this.hashFile.Initialize(this.GetType().Name, 50, 100);
         }
 
-        protected TimeSpan S(double seconds)
+        protected static TimeSpan S(double seconds)
         {
             return TimeSpan.FromSeconds(seconds);
         }
 
-        protected TimeSpan MS(double seconds)
+        protected static TimeSpan MS(double seconds)
         {
             return TimeSpan.FromMilliseconds(seconds);
         }
