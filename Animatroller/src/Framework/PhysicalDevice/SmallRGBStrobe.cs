@@ -10,79 +10,71 @@ namespace Animatroller.Framework.PhysicalDevice
 {
     public class SmallRGBStrobe : BaseDevice, INeedsDmxOutput
     {
-        private int baseDmxChannel;
-
         public IDmxOutput DmxOutputPort { protected get; set; }
 
         public SmallRGBStrobe(ColorDimmer logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
-            baseDmxChannel = dmxChannel;
-
             logicalDevice.ColorChanged += (sender, e) =>
                 {
                     // Handles brightness as well
 
                     var hsv = new HSV(e.NewColor);
                     hsv.Value = hsv.Value * e.NewBrightness;
-                    var color = hsv.Color;
 
-                    DmxOutputPort.SendDimmerValues(dmxChannel + 1, new byte[] { color.R, color.B, color.G });
+                    Output(dmxChannel, hsv.Color, 0);
                 };
         }
 
         public SmallRGBStrobe(ColorDimmer2 logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
-            baseDmxChannel = dmxChannel;
-
             logicalDevice.InputColor.Subscribe(x =>
                 {
                     var hsv = new HSV(x);
                     hsv.Value = hsv.Value * logicalDevice.Brightness;
-                    var color = hsv.Color;
 
-                    SetColor(color);
+                    Output(dmxChannel, hsv.Color, 0);
                 });
 
             logicalDevice.InputBrightness.Subscribe(x =>
             {
                 var hsv = new HSV(logicalDevice.Color);
                 hsv.Value = hsv.Value * x.Value;
-                var color = hsv.Color;
 
-                SetColor(color);
+                Output(dmxChannel, hsv.Color, 0);
             });
         }
 
         public SmallRGBStrobe(StrobeColorDimmer logicalDevice, int dmxChannel)
             : this((ColorDimmer)logicalDevice, dmxChannel)
         {
-            baseDmxChannel = dmxChannel;
-
             logicalDevice.StrobeSpeedChanged += (sender, e) =>
                 {
-                    SetStrobeSpeed(e.NewSpeed);
+                    var hsv = new HSV(logicalDevice.Color);
+                    hsv.Value = hsv.Value * logicalDevice.Brightness;
+
+                    Output(dmxChannel, hsv.Color, e.NewSpeed);
                 };
         }
 
-        private void SetStrobeSpeed(double speed)
+        public SmallRGBStrobe(StrobeColorDimmer2 logicalDevice, int dmxChannel)
+            : this((ColorDimmer2)logicalDevice, dmxChannel)
         {
-            var val = (byte)(speed == 0 ? 127 : speed.GetByteScale(121) + 128);
+            logicalDevice.InputStrobeSpeed.Subscribe(x =>
+            {
+                var hsv = new HSV(logicalDevice.Color);
+                hsv.Value = hsv.Value * logicalDevice.Brightness;
 
-            DmxOutputPort.SendDimmerValue(baseDmxChannel, val);
+                Output(dmxChannel, hsv.Color, x.Value);
+            });
         }
 
-        private void SetColor(System.Drawing.Color color)
+        private void Output(int baseDmxChannel, System.Drawing.Color color, double strobeSpeed)
         {
-            DmxOutputPort.SendDimmerValues(baseDmxChannel + 1, new byte[] { color.R, color.B, color.G });
-        }
+            var strobe = (byte)(strobeSpeed == 0 ? 127 : strobeSpeed.GetByteScale(121) + 128);
 
-        public override void StartDevice()
-        {
-            base.StartDevice();
-
-            SetStrobeSpeed(0);
+            DmxOutputPort.SendDimmerValues(baseDmxChannel, new byte[] { strobe, color.R, color.B, color.G });
         }
     }
 }

@@ -16,7 +16,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected Color currentColor;
         protected ISubject<Color> inputColor;
 
-        public ColorDimmer2(string name)
+        public ColorDimmer2([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.currentColor = Color.White;

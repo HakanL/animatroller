@@ -22,18 +22,20 @@ namespace Animatroller.SceneRunner
         private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audioCat = new AudioPlayer();
-        private AudioPlayer audioSpider = new AudioPlayer();
+        private AudioPlayer audioReaper = new AudioPlayer();
         private AudioPlayer audioOla = new AudioPlayer();
         private Expander.Raspberry raspberryCat = new Expander.Raspberry("192.168.240.115:5005", 3333);
-        private Expander.Raspberry raspberrySpider = new Expander.Raspberry("192.168.240.123:5005", 3334);
+        private Expander.Raspberry raspberryReaper = new Expander.Raspberry("192.168.240.123:5005", 3334);
         private Expander.Raspberry raspberryOla = new Expander.Raspberry("192.168.240.147:5005", 3335);
 
         private ColorDimmer2 testLight1 = new ColorDimmer2("Test 1");
+        private StrobeColorDimmer2 reaperLight = new StrobeColorDimmer2("Reaper");
         private Dimmer2 lightning1 = new Dimmer2("Lightning 1");
         private Dimmer2 lightning2 = new Dimmer2("Lightning 2");
         private Dimmer2 testLight3 = new Dimmer2("Test 3");
         private Dimmer2 lightStairs1 = new Dimmer2("Stairs 1");
         private Dimmer2 lightStairs2 = new Dimmer2("Stairs 2");
+        private DigitalInput2 buttonCatTrigger = new DigitalInput2();
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonTest1 = new DigitalInput2("Test 1");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -50,7 +52,8 @@ namespace Animatroller.SceneRunner
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2();
         private DigitalOutput2 catLights = new DigitalOutput2();
-        private DigitalOutput2 spiderPopUp = new DigitalOutput2();
+        private DigitalOutput2 reaperPopUp = new DigitalOutput2();
+        private DigitalOutput2 reaperEyes = new DigitalOutput2();
 
         private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
         private OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
@@ -63,7 +66,7 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence thunderSeq = new Controller.Sequence();
         private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
-        private Controller.Sequence spiderSeq = new Controller.Sequence("Spider");
+        private Controller.Sequence reaperSeq = new Controller.Sequence("Reaper");
 
         public Halloween2014(IEnumerable<string> args)
         {
@@ -78,13 +81,13 @@ namespace Animatroller.SceneRunner
 
             raspberryCat.DigitalInputs[4].Connect(catMotion, true);
             raspberryCat.Connect(audioCat);
-            raspberrySpider.Connect(audioSpider);
+            raspberryReaper.Connect(audioReaper);
             raspberryOla.Connect(audioOla);
 
             inputBrightness.ConnectTo(testLight1.InputBrightness);
 
             // Map Physical lights
-            acnOutput.Connect(new Physical.SmallRGBStrobe(testLight1, 1), 20);
+            acnOutput.Connect(new Physical.SmallRGBStrobe(reaperLight, 1), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 11), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 10), 20);
             //BROKEN            acnOutput.Connect(new Physical.GenericDimmer(testLight3, 103), 20);
@@ -93,10 +96,18 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 102), 20);
             acnOutput.Connect(new Physical.AmericanDJStrobe(lightning1, 5), 20);
 
+            buttonTest2.Control.Subscribe(x =>
+                {
+                    if(x)
+                    {
+                        Exec.Execute(thunderSeq);
+                    }
+                });
+
             buttonTest3.Control.Subscribe(x =>
                 {
                     if (x)
-                        Exec.Execute(spiderSeq);
+                        Exec.Execute(reaperSeq);
 //                    lightning2.Brightness = x ? 1.0 : 0.0;
 //                    if (x)
 //                        popOut1.Pop(1.0);
@@ -107,11 +118,15 @@ namespace Animatroller.SceneRunner
 //                    Exec.Execute(thunderSeq);
                 });
 
-            raspberrySpider.DigitalOutputs[7].Connect(spiderPopUp);
+            raspberryReaper.DigitalOutputs[7].Connect(reaperPopUp);
+            raspberryReaper.DigitalOutputs[6].Connect(reaperEyes);
 
             forceOpen.Output.Subscribe(x =>
                 {
-                    hoursSmall.SetForced(x);
+                    if (x)
+                        hoursSmall.SetForced(true);
+                    else
+                        hoursSmall.SetForced(null);
                 });
 
             inputH.Output.Subscribe(x =>
@@ -139,14 +154,41 @@ namespace Animatroller.SceneRunner
             midiInput.Note(midiChannel, 38).Controls(buttonTest3.Control);
             midiInput.Note(midiChannel, 39).Controls(catMotion.Control);
 
+            midiInput.Note(midiChannel, 40).Controls(buttonCatTrigger.Control);
 
-            buttonTest2.Output.Subscribe(catAir.InputPower);
+
+//            buttonTest2.Output.Subscribe(reaperPopUp.InputPower);
             catMotion.Output.Subscribe(catLights.InputPower);
+
+            buttonTest1.Output.Subscribe(x =>
+                {
+                    if(x)
+                    {
+                        reaperLight.Brightness = 1;
+                        reaperLight.Color = Color.Red;
+                        reaperLight.StrobeSpeed = 1;
+                    }
+                    else
+                    {
+                        reaperLight.TurnOff();
+                    }
+                });
 
             catMotion.Output.Subscribe(x =>
                 {
                     if (x && hoursSmall.IsOpen)
                         Executor.Current.Execute(catSeq);
+                });
+
+            buttonCatTrigger.Output.Subscribe(x =>
+                {
+                    if (x)
+                    {
+                        catLights.Power = true;
+                        audioCat.PlayNewEffect("386 Demon Creature Growls");
+                        Thread.Sleep(2000);
+                        catLights.Power = false;
+                    }
                 });
 
             buttonTest1.Output.Subscribe(x =>
@@ -162,7 +204,7 @@ namespace Animatroller.SceneRunner
                 }
             });
 
-//FIXME            hoursSmall.Output.Subscribe(catAir.InputPower);
+            hoursSmall.Output.Subscribe(catAir.InputPower);
             hoursSmall.Output.Subscribe(flickerEffect.InputRun);
 
             timelineThunder1.AddMs(500, "A");
@@ -190,7 +232,7 @@ namespace Animatroller.SceneRunner
 
         public override void Start()
         {
-            spiderSeq.WhenExecuted
+            reaperSeq.WhenExecuted
                 .Execute(instance =>
                 {
 //                    switchFog.SetPower(true);
@@ -201,13 +243,18 @@ namespace Animatroller.SceneRunner
 //                    popOutEffect.Pop(1.0);
 
 //                    instance.WaitFor(S(1.0));
-                    audioSpider.PlayNewEffect("348 Spider Hiss");
-                    spiderPopUp.Power = true;
+                    audioReaper.PlayEffect("laugh");
+                    instance.WaitFor(S(0.1));
+                    reaperPopUp.Power = true;
+                    reaperLight.Color = Color.Red;
+                    reaperLight.Brightness = 1;
+                    reaperLight.StrobeSpeed = 1;
                     instance.WaitFor(S(0.5));
-//                    switchSpiderEyes1.SetPower(true);
+                    reaperEyes.Power = true;
                     instance.WaitFor(S(2));
-                    spiderPopUp.Power = false;
-//                    switchSpiderEyes1.SetPower(false);
+                    reaperPopUp.Power = false;
+                    reaperEyes.Power = false;
+                    reaperLight.TurnOff();
                     instance.WaitFor(S(4));
 //                    stateMachine.NextState();
                 })
