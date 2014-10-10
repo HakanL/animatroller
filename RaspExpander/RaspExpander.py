@@ -19,12 +19,15 @@ import pifacecommon
 import pifacedigitalio as pif
 from serial import Serial
 from serial import serialutil
+import logging
 
 if not pygame.mixer: print ('Warning, sound disabled')
 
 ser = None
         
-
+logging.basicConfig(filename='animatroller.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
+logging.info('Started')
+  
 pfd = None
 try:
     pif.init()
