@@ -34,6 +34,7 @@ except pif.NoPiFaceDigitalDetectedError:
     pass
 
 soundPath = 'halloweensounds'
+bgPath = os.path.join(soundPath, 'bg')
 soundFXdict = {}
 client = udp_client
 last_fx_chn = None
@@ -73,10 +74,14 @@ def play_next_bg_track():
     index = random.randint(0, len(bg_files) - 1)
     print ('File =', bg_files[index])
 
-    pygame.mixer.music.load(os.path.join(soundPath + '/bg', bg_files[index]))
+    pygame.mixer.music.load(os.path.join(bgPath, bg_files[index]))
     pygame.mixer.music.set_volume(bg_volume)
     pygame.mixer.music.play()
     bg_playing = 1
+
+    msg = osc_message_builder.OscMessageBuilder(address = "/audio/bg/" + bg_files[index])
+    msg = msg.build()
+    client.send(msg)
 
 def cue_track(file):
     print ('Cue track', file)
@@ -136,7 +141,7 @@ def main():
     pygame.mixer.music.set_endevent(pygame.constants.USEREVENT)
 
     # Find all background tracks
-    bg_files = [ f for f in listdir(soundPath + '/bg') if isfile(join(soundPath + '/bg', f)) ]
+    bg_files = [ f for f in listdir(bgPath) if isfile(join(bgPath, f)) ]
 
     print('BG files =', len(bg_files))
 
@@ -441,6 +446,8 @@ if __name__ == '__main__':
     parser.add_argument("--serverport",
         type=int, default=3333, help="The server port to send messages to")
     parser.add_argument("--serialport", default="", help="Serial port to connect to")
+    parser.add_argument("--bgpath",
+        default="bg", help="The background sound sub folder")
     args = parser.parse_args()
 
     dispatcher = dispatcher.Dispatcher()
@@ -467,6 +474,9 @@ if __name__ == '__main__':
         sys.stdout.write("Serial port /dev/" + args.serialport + "\n")
         ser = EnhancedSerial("/dev/" + args.serialport, 38400, timeout=0.5)
 
+	bgPath = os.path.join(soundPath, args.bgpath)
+	print("bgPath {}".format(bgPath))
+	
     server = osc_server.ThreadingOSCUDPServer(
         (args.ip, args.port), dispatcher)
     print("Serving on {}".format(server.server_address))
