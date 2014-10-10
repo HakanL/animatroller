@@ -474,8 +474,8 @@ if __name__ == '__main__':
         sys.stdout.write("Serial port /dev/" + args.serialport + "\n")
         ser = EnhancedSerial("/dev/" + args.serialport, 38400, timeout=0.5)
 
-	bgPath = os.path.join(soundPath, args.bgpath)
-	print("bgPath {}".format(bgPath))
+    bgPath = os.path.join(soundPath, args.bgpath)
+    print("bgPath {}".format(bgPath))
 	
     server = osc_server.ThreadingOSCUDPServer(
         (args.ip, args.port), dispatcher)
