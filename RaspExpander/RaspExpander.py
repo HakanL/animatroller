@@ -31,7 +31,7 @@ formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(messag
 # tell the handler to use this format
 console.setFormatter(formatter)
 # add the handler to the root logger
-logging.addHandler(console)
+logging.getLogger('').addHandler(console)
 
 logging.info('Starting')
 
