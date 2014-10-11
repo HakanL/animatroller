@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
@@ -16,6 +17,7 @@ namespace Animatroller.Framework.Expander
         private string hostName;
         private int hostPort;
         private event EventHandler<EventArgs> AudioTrackDone;
+        private ISubject<string> audioTrackStart;
 
         public Raspberry([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -28,7 +30,6 @@ namespace Animatroller.Framework.Expander
         {
             Initialize(hostEntry, listenPort);
         }
-
 
         private void Initialize(string hostEntry, int listenPort)
         {
@@ -49,6 +50,8 @@ namespace Animatroller.Framework.Expander
             this.DigitalOutputs = new PhysicalDevice.DigitalOutput[8];
             for (int index = 0; index < this.DigitalOutputs.Length; index++)
                 WireupOutput(index);
+
+            this.audioTrackStart = new Subject<string>();
 
             this.Motor = new PhysicalDevice.MotorWithFeedback((target, speed, timeout) =>
             {
@@ -72,7 +75,7 @@ namespace Animatroller.Framework.Expander
                 if (data.Count() >= 1)
                 {
                     log.Debug("Playing background track {0}", data.First());
-//                    RaiseAudioTrackDone();
+                    this.audioTrackStart.OnNext(data.First());
                 }
             });
 
@@ -133,6 +136,14 @@ namespace Animatroller.Framework.Expander
                 this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
 
             Executor.Current.Register(this);
+        }
+
+        public IObservable<string> AudioTrackStart
+        {
+            get
+            {
+                return this.audioTrackStart;
+            }
         }
 
         public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }

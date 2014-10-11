@@ -107,6 +107,11 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
+            raspberryOla.AudioTrackStart.Subscribe(x =>
+                {
+                    // Next track
+                });
+
             buttonTest3.Control.Subscribe(x =>
                 {
                     if (x)
