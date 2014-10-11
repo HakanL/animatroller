@@ -59,6 +59,7 @@ bg_playing = 0
 last_input_values = [0] * 8
 input_mute = [None] * 8
 input_lock = threading.Lock()
+last_bg_index = -1
 
 #functions to create our resources
 def load_fx(name):
@@ -84,8 +85,14 @@ def load_fx(name):
 def play_next_bg_track():
     global bg_playing
     logging.info('Next background track')
-    
-    index = random.randint(0, len(bg_files) - 1)
+
+    while True:	
+		index = random.randint(0, len(bg_files) - 1)
+		if len(bg_files) > 1 and last_bg_index == index:
+			continue
+		break
+	last_bg_index = index
+
     logging.info('File = ' + bg_files[index])
 
     pygame.mixer.music.load(os.path.join(bgPath, bg_files[index]))
