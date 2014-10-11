@@ -67,6 +67,15 @@ namespace Animatroller.Framework.Expander
                     RaiseAudioTrackDone();
                 });
 
+            this.oscServer.RegisterAction<string>("/audio/bg/start", (msg, data) =>
+            {
+                if (data.Count() >= 1)
+                {
+                    log.Debug("Playing background track {0}", data.First());
+//                    RaiseAudioTrackDone();
+                }
+            });
+
             this.oscServer.RegisterAction<int>("/input", (msg, data) =>
                 {
                     if (data.Count() >= 2)

@@ -40,7 +40,7 @@ namespace Animatroller.Framework.Utility
 
         private static byte GetWhite(Color rgb)
         {
-            return (byte)((255 - GetSaturation(rgb)) / 255 * (rgb.R + rgb.G + rgb.B) / 3);
+            return (byte)((255.0 - GetSaturation(rgb)) / 255.0 * (rgb.R + rgb.G + rgb.B) / 3.0);
         }
 
         /*colorRgbw rgbToRgbw(unsigned int red, unsigned int redMax,

@@ -28,6 +28,8 @@ namespace Animatroller.Framework.PhysicalDevice
         public BaseRGBStrobeLight(ColorDimmer logicalDevice)
             : base(logicalDevice)
         {
+            this.colorBrightness = new ColorBrightness();
+
             logicalDevice.ColorChanged += (sender, e) =>
                 {
                     this.colorBrightness.Color = e.NewColor;
@@ -40,6 +42,8 @@ namespace Animatroller.Framework.PhysicalDevice
         public BaseRGBStrobeLight(ColorDimmer2 logicalDevice)
             : base(logicalDevice)
         {
+            this.colorBrightness = new ColorBrightness();
+
             logicalDevice.InputColor.Subscribe(x =>
                 {
                     this.colorBrightness.Color = x;
