@@ -28,12 +28,13 @@ namespace Animatroller.SceneRunner
         private Expander.Raspberry raspberryReaper = new Expander.Raspberry("192.168.240.123:5005", 3334);
         private Expander.Raspberry raspberryOla = new Expander.Raspberry("192.168.240.147:5005", 3335);
 
-        private ColorDimmer2 testLight1 = new ColorDimmer2("Test 1");
+        private StrobeColorDimmer2 testLight1 = new StrobeColorDimmer2("Test 1");
         private StrobeColorDimmer2 reaperLight = new StrobeColorDimmer2("Reaper");
         private StrobeColorDimmer2 testLight2 = new StrobeColorDimmer2("Test Light 2");
+        private Dimmer2 testLight3 = new Dimmer2("Test 3");
+        private StrobeColorDimmer2 testLight4 = new StrobeColorDimmer2("Moving Head");
         private Dimmer2 lightning1 = new Dimmer2("Lightning 1");
         private Dimmer2 lightning2 = new Dimmer2("Lightning 2");
-        private Dimmer2 testLight3 = new Dimmer2("Test 3");
         private Dimmer2 lightStairs1 = new Dimmer2("Stairs 1");
         private Dimmer2 lightStairs2 = new Dimmer2("Stairs 2");
         private DigitalInput2 buttonCatTrigger = new DigitalInput2();
@@ -49,7 +50,7 @@ namespace Animatroller.SceneRunner
         private AnalogInput2 inputBrightness = new AnalogInput2("Brightness");
         private AnalogInput2 inputH = new AnalogInput2("Hue", true);
         private AnalogInput2 inputS = new AnalogInput2("Saturation", true);
-        private AnalogInput2 inputV = new AnalogInput2("Value", true);
+        private AnalogInput2 inputStrobe = new AnalogInput2("Strobe", true);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2();
         private DigitalOutput2 catLights = new DigitalOutput2();
@@ -133,23 +134,20 @@ namespace Animatroller.SceneRunner
 
             inputH.Output.Subscribe(x =>
             {
-                testLight1.SetOnlyColor(HSV.ColorFromHSV(x.Value.GetByteScale(), inputS.Value, inputV.Value));
+                testLight1.SetOnlyColor(HSV.ColorFromHSV(x.Value.GetByteScale(), inputS.Value, 1.0));
             });
 
             inputS.Output.Subscribe(x =>
             {
-                testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x.Value, inputV.Value));
+                testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x.Value, 1.0));
             });
 
-            inputV.Output.Subscribe(x =>
-            {
-                testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), inputS.Value, x.Value));
-            });
+            inputStrobe.Output.Controls(testLight1.InputStrobeSpeed);
 
             midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
             midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
             midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
-            midiInput.Controller(midiChannel, 4).Controls(inputV.Control);
+            midiInput.Controller(midiChannel, 4).Controls(inputStrobe.Control);
 
             midiInput.Note(midiChannel, 36).Controls(buttonTest1.Control);
             midiInput.Note(midiChannel, 37).Controls(buttonTest2.Control);
@@ -168,7 +166,7 @@ namespace Animatroller.SceneRunner
                     {
                         testLight2.Brightness = 1;
                         testLight2.Color = Color.Red;
-                        //                        testLight2.StrobeSpeed = 1;
+                        testLight2.StrobeSpeed = 0.1;
                     }
                     else
                     {

@@ -25,17 +25,5 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             this.baseDmxChannel = dmxChannel;
         }
-
-        public BaseDMXRGBStrobeLight(StrobeColorDimmer logicalDevice, int dmxChannel)
-            : this((ColorDimmer)logicalDevice, dmxChannel)
-        {
-            this.baseDmxChannel = dmxChannel;
-        }
-
-        public BaseDMXRGBStrobeLight(StrobeColorDimmer2 logicalDevice, int dmxChannel)
-            : this((ColorDimmer2)logicalDevice, dmxChannel)
-        {
-            this.baseDmxChannel = dmxChannel;
-        }
     }
 }

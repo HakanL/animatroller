@@ -9,31 +9,31 @@ using Animatroller.Framework.Utility;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class MonopriceRGBWPinSpot : BaseDMXRGBStrobeLight
+    public class MonopriceMovingHeadLight : BaseDMXRGBStrobeLight
     {
-        public MonopriceRGBWPinSpot(ColorDimmer logicalDevice, int dmxChannel)
+        public MonopriceMovingHeadLight(ColorDimmer logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {
         }
 
-        public MonopriceRGBWPinSpot(ColorDimmer2 logicalDevice, int dmxChannel)
+        public MonopriceMovingHeadLight(ColorDimmer2 logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {
         }
 
-        public MonopriceRGBWPinSpot(StrobeColorDimmer logicalDevice, int dmxChannel)
+        public MonopriceMovingHeadLight(StrobeColorDimmer logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {
         }
 
-        public MonopriceRGBWPinSpot(StrobeColorDimmer2 logicalDevice, int dmxChannel)
+        public MonopriceMovingHeadLight(StrobeColorDimmer2 logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {
         }
 
         protected override void Output()
         {
-            byte function = (byte)(this.strobeSpeed == 0 ? 255 : this.strobeSpeed.GetByteScale(104) + 135);
+            byte function = (byte)(this.strobeSpeed == 0 ? 255 : this.strobeSpeed.GetByteScale(105) + 135);
 
             var color = GetColorFromColorBrightness();
 

@@ -62,6 +62,8 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer)fieldValue));
                 else if (field.FieldType == typeof(StrobeColorDimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer)fieldValue));
+                else if (field.FieldType == typeof(StrobeColorDimmer2))
+                    this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer2)fieldValue));
                 else if (field.FieldType == typeof(Pixel1D))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer))

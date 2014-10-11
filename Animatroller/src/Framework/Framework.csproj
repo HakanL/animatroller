@@ -143,6 +143,7 @@
     <Compile Include="PhysicalDevice\AnalogInput.cs" />
     <Compile Include="PhysicalDevice\Base\BaseRGBStrobeLight.cs" />
     <Compile Include="PhysicalDevice\Base\BaseDMXRGBStrobeLight.cs" />
+    <Compile Include="PhysicalDevice\MonopriceMovingHeadLight.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />
     <Compile Include="PhysicalDevice\PixelRGB.cs" />

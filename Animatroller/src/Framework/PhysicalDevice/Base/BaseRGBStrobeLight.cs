@@ -37,6 +37,17 @@ namespace Animatroller.Framework.PhysicalDevice
 
                     Output();
                 };
+
+            var strobe = logicalDevice as StrobeColorDimmer;
+            if (strobe != null)
+            {
+                strobe.StrobeSpeedChanged += (sender, e) =>
+                {
+                    this.strobeSpeed = e.NewSpeed;
+
+                    Output();
+                };
+            }
         }
 
         public BaseRGBStrobeLight(ColorDimmer2 logicalDevice)
@@ -57,28 +68,17 @@ namespace Animatroller.Framework.PhysicalDevice
 
                 Output();
             });
-        }
 
-        public BaseRGBStrobeLight(StrobeColorDimmer logicalDevice)
-            : this((ColorDimmer)logicalDevice)
-        {
-            logicalDevice.StrobeSpeedChanged += (sender, e) =>
+            var strobe = logicalDevice as StrobeColorDimmer2;
+            if (strobe != null)
+            {
+                strobe.InputStrobeSpeed.Subscribe(x =>
                 {
-                    this.strobeSpeed = e.NewSpeed;
+                    this.strobeSpeed = x.Value;
 
                     Output();
-                };
-        }
-
-        public BaseRGBStrobeLight(StrobeColorDimmer2 logicalDevice)
-            : this((ColorDimmer2)logicalDevice)
-        {
-            logicalDevice.InputStrobeSpeed.Subscribe(x =>
-            {
-                this.strobeSpeed = x.Value;
-
-                Output();
-            });
+                });
+            }
         }
     }
 }
