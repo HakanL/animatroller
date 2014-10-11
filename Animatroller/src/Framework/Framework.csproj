@@ -141,9 +141,12 @@
     <Compile Include="LogicalDevice\OperatingHours.cs" />
     <Compile Include="Import\BaseImporter.cs" />
     <Compile Include="PhysicalDevice\AnalogInput.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseRGBStrobeLight.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseDMXRGBStrobeLight.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />
     <Compile Include="PhysicalDevice\PixelRGB.cs" />
+    <Compile Include="PhysicalDevice\MonopriceRGBWPinSpot.cs" />
     <Compile Include="PhysicalDevice\SmallRGBStrobe.cs" />
     <Compile Include="Interface\BaseScene.cs" />
     <Compile Include="Controller\Sequence.cs" />
@@ -204,6 +207,8 @@
     <Compile Include="Import\FileFormat\LightORamaLMS.cs" />
     <Compile Include="Import\LorImport.cs" />
     <Compile Include="Import\FileFormat\VixenVIX.cs" />
+    <Compile Include="Utility\Rgbw.cs" />
+    <Compile Include="Utility\RgbwConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
