@@ -87,11 +87,11 @@ def play_next_bg_track():
     logging.info('Next background track')
 
     while True:	
-		index = random.randint(0, len(bg_files) - 1)
-		if len(bg_files) > 1 and last_bg_index == index:
-			continue
-		break
-	last_bg_index = index
+        index = random.randint(0, len(bg_files) - 1)
+        if len(bg_files) > 1 and last_bg_index == index:
+            continue
+        break
+    last_bg_index = index
 
     logging.info('File = ' + bg_files[index])
 
