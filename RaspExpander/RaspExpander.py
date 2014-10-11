@@ -94,7 +94,7 @@ def play_next_bg_track():
     bg_playing = 1
 
     msg = osc_message_builder.OscMessageBuilder(address = "/audio/bg/start")
-    msg.add_arg(os.path.splitext(bg_files[index]))
+    msg.add_arg(os.path.splitext(bg_files[index])[0])
     msg = msg.build()
     client.send(msg)
 
