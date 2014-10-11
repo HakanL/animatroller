@@ -156,7 +156,7 @@ def main():
     # Find all background tracks
     bg_files = [ f for f in listdir(bgPath) if isfile(join(bgPath, f)) ]
 
-    logging.info('BG files = {0}'.foramt(len(bg_files)))
+    logging.info('BG files = {0}'.format(len(bg_files)))
 
     pfd_listener = None
     if pfd is not None:
