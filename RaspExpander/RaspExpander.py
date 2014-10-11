@@ -93,7 +93,8 @@ def play_next_bg_track():
     pygame.mixer.music.play()
     bg_playing = 1
 
-    msg = osc_message_builder.OscMessageBuilder(address = "/audio/bg/" + bg_files[index])
+    msg = osc_message_builder.OscMessageBuilder(address = "/audio/bg/start")
+	msg.add_arg(bg_files[index])
     msg = msg.build()
     client.send(msg)
 
