@@ -132,6 +132,7 @@
     <Compile Include="LogicalDevice\SinglePixel.cs" />
     <Compile Include="LogicalDevice\Interface\IPixel.cs" />
     <Compile Include="LogicalDevice\DigitalOutput2.cs" />
+    <Compile Include="LogicalDevice\MovingHead.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer2.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
@@ -143,7 +144,7 @@
     <Compile Include="PhysicalDevice\AnalogInput.cs" />
     <Compile Include="PhysicalDevice\Base\BaseRGBStrobeLight.cs" />
     <Compile Include="PhysicalDevice\Base\BaseDMXRGBStrobeLight.cs" />
-    <Compile Include="PhysicalDevice\MonopriceMovingHeadLight.cs" />
+    <Compile Include="PhysicalDevice\MonopriceMovingHeadLight12chn.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />
     <Compile Include="PhysicalDevice\PixelRGB.cs" />

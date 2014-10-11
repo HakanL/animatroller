@@ -28,11 +28,11 @@ namespace Animatroller.SceneRunner
         private Expander.Raspberry raspberryReaper = new Expander.Raspberry("192.168.240.123:5005", 3334);
         private Expander.Raspberry raspberryOla = new Expander.Raspberry("192.168.240.147:5005", 3335);
 
-        private StrobeColorDimmer2 testLight1 = new StrobeColorDimmer2("Test 1");
+        private MovingHead testLight1 = new MovingHead("Test 1");
         private StrobeColorDimmer2 reaperLight = new StrobeColorDimmer2("Reaper");
         private StrobeColorDimmer2 testLight2 = new StrobeColorDimmer2("Test Light 2");
         private Dimmer2 testLight3 = new Dimmer2("Test 3");
-        private StrobeColorDimmer2 testLight4 = new StrobeColorDimmer2("Moving Head");
+//        private MovingHead testLight4 = new MovingHead("Moving Head");
         private Dimmer2 lightning1 = new Dimmer2("Lightning 1");
         private Dimmer2 lightning2 = new Dimmer2("Lightning 2");
         private Dimmer2 lightStairs1 = new Dimmer2("Stairs 1");
@@ -51,6 +51,8 @@ namespace Animatroller.SceneRunner
         private AnalogInput2 inputH = new AnalogInput2("Hue", true);
         private AnalogInput2 inputS = new AnalogInput2("Saturation", true);
         private AnalogInput2 inputStrobe = new AnalogInput2("Strobe", true);
+        private AnalogInput2 inputPan = new AnalogInput2("Pan", true);
+        private AnalogInput2 inputTilt = new AnalogInput2("Tilt", true);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2();
         private DigitalOutput2 catLights = new DigitalOutput2();
@@ -90,7 +92,8 @@ namespace Animatroller.SceneRunner
 
             // Map Physical lights
             acnOutput.Connect(new Physical.SmallRGBStrobe(reaperLight, 1), 20);
-            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(testLight1, 20), 20);
+            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(testLight2, 20), 20);
+            acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(testLight1, 30), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 11), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 10), 20);
             //BROKEN            acnOutput.Connect(new Physical.GenericDimmer(testLight3, 103), 20);
@@ -154,6 +157,9 @@ namespace Animatroller.SceneRunner
             midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
             midiInput.Controller(midiChannel, 4).Controls(inputStrobe.Control);
 
+            midiInput.Controller(midiChannel, 5).Controls(inputPan.Control);
+            midiInput.Controller(midiChannel, 6).Controls(inputTilt.Control);
+
             midiInput.Note(midiChannel, 36).Controls(buttonTest1.Control);
             midiInput.Note(midiChannel, 37).Controls(buttonTest2.Control);
             midiInput.Note(midiChannel, 38).Controls(buttonTest3.Control);
@@ -162,6 +168,9 @@ namespace Animatroller.SceneRunner
             midiInput.Note(midiChannel, 40).Controls(buttonCatTrigger.Control);
 
 
+            inputPan.Output.Controls(testLight1.InputPan);
+            inputTilt.Output.Controls(testLight1.InputTilt);
+
             //            buttonTest2.Output.Subscribe(reaperPopUp.InputPower);
             catMotion.Output.Subscribe(catLights.InputPower);
 
@@ -169,13 +178,13 @@ namespace Animatroller.SceneRunner
                 {
                     if (x)
                     {
-                        testLight2.Brightness = 1;
-                        testLight2.Color = Color.Red;
-                        testLight2.StrobeSpeed = 0.1;
+                        testLight1.Brightness = 1;
+                        testLight1.Color = Color.Red;
+//                        testLight4.StrobeSpeed = 1.0;
                     }
                     else
                     {
-                        testLight2.TurnOff();
+                        testLight1.TurnOff();
                     }
                 });
 

@@ -80,5 +80,12 @@ namespace Animatroller.Framework.PhysicalDevice
                 });
             }
         }
+
+        public override void StartDevice()
+        {
+            base.StartDevice();
+
+            Output();
+        }
     }
 }
