@@ -83,7 +83,7 @@ def load_fx(name):
 
 
 def play_next_bg_track():
-    global bg_playing
+    global bg_playing, last_bg_index
     logging.info('Next background track')
 
     while True:	
