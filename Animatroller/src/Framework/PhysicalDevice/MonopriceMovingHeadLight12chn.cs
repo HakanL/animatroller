@@ -38,6 +38,8 @@ namespace Animatroller.Framework.PhysicalDevice
 
             var color = GetColorFromColorBrightness();
 
+            log.Debug("Pan: {0:N6}   Tilt: {1:N6}", this.pan, this.tilt);
+
             uint panValue = (uint)this.pan.ScaleToMinMax(0, 65535);
             uint tiltValue = (uint)this.tilt.ScaleToMinMax(0, 65535);
 
@@ -49,8 +51,8 @@ namespace Animatroller.Framework.PhysicalDevice
                 0,      // Vector speed (Pan/Tilt)
                 function,   // Dimmer/Strobe
                 color.R,
-                color.B,
                 color.G,
+                color.B,
                 0,      // Color Macros
                 0,      // Vector speed (Color)
                 0});    // Movement Macros

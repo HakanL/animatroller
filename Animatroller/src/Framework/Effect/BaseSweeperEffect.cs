@@ -196,5 +196,15 @@ namespace Animatroller.Framework.Effect
             }
             return this;
         }
+
+        public BaseSweeperEffect<T> Disconnect(ISubject<DoubleZeroToOne> device)
+        {
+            lock (lockObject)
+            {
+                if (this.devices2.Contains(device))
+                    this.devices2.Remove(device);
+            }
+            return this;
+        }
     }
 }

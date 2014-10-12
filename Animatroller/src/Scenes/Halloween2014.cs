@@ -30,7 +30,7 @@ namespace Animatroller.SceneRunner
 
         private MovingHead testLight1 = new MovingHead("Test 1");
         private StrobeColorDimmer2 reaperLight = new StrobeColorDimmer2("Reaper");
-        private StrobeColorDimmer2 testLight2 = new StrobeColorDimmer2("Test Light 2");
+        private StrobeColorDimmer2 candySpot = new StrobeColorDimmer2("Test Light 2");
         private Dimmer2 testLight3 = new Dimmer2("Test 3");
         //        private MovingHead testLight4 = new MovingHead("Moving Head");
         private Dimmer2 lightning1 = new Dimmer2("Lightning 1");
@@ -38,6 +38,7 @@ namespace Animatroller.SceneRunner
         private Dimmer2 lightStairs1 = new Dimmer2("Stairs 1");
         private Dimmer2 lightStairs2 = new Dimmer2("Stairs 2");
         private DigitalOutput2 lightTree = new DigitalOutput2("Tree");
+        private DigitalOutput2 deadEnd = new DigitalOutput2("Dead End");
         private StrobeColorDimmer2 lightBehindHeads = new StrobeColorDimmer2("Behind heads");
         private StrobeColorDimmer2 lightBehindSheet = new StrobeColorDimmer2("Behind sheet");
         private DigitalInput2 buttonCatTrigger = new DigitalInput2();
@@ -52,6 +53,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 buttonTest4 = new DigitalInput2("Next BG");
         private DigitalInput2 catMotion = new DigitalInput2();
         private DigitalInput2 finalBeam = new DigitalInput2();
+        private DigitalInput2 firstBeam = new DigitalInput2();
         private AnalogInput2 inputBrightness = new AnalogInput2("Brightness");
         private AnalogInput2 inputH = new AnalogInput2("Hue", true);
         private AnalogInput2 inputS = new AnalogInput2("Saturation", true);
@@ -79,9 +81,9 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence thunderSeq = new Controller.Sequence();
         private Controller.Sequence finalSeq = new Controller.Sequence();
+        private Controller.Sequence reaperSeq = new Controller.Sequence("Reaper");
         private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
         private Controller.Timeline<string> timelineThunder2 = new Controller.Timeline<string>(1);
-        private Controller.Sequence reaperSeq = new Controller.Sequence("Reaper");
 
         public Halloween2014(IEnumerable<string> args)
         {
@@ -92,9 +94,10 @@ namespace Animatroller.SceneRunner
             flickerEffect.ConnectTo(lightStairs2.InputBrightness);
 //            pulsatingEffect1.ConnectTo(lightBehindHeads.InputBrightness);
 //            pulsatingEffect1.ConnectTo(lightBehindSheet.InputBrightness);
-            pulsatingEffect1.ConnectTo(testLight2.InputBrightness);
+            pulsatingEffect1.ConnectTo(candySpot.InputBrightness);
+            pulsatingEffect1.ConnectTo(testLight1.InputBrightness);
 
-            popOut1.AddDevice(lightning1.InputBrightness);
+//            popOut1.AddDevice(lightning1.InputBrightness);
             popOut2.AddDevice(lightning2.InputBrightness);
             popOut1.AddDevice(lightBehindHeads.InputBrightness);
             popOut1.AddDevice(lightBehindSheet.InputBrightness);
@@ -103,6 +106,8 @@ namespace Animatroller.SceneRunner
             raspberryReaper.DigitalInputs[7].Connect(finalBeam, false);
 
             raspberryCat.DigitalInputs[4].Connect(catMotion, true);
+            raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
+            raspberryCat.DigitalOutputs[7].Connect(deadEnd);
             raspberryCat.Connect(audioCat);
             raspberryReaper.Connect(audioReaper);
             raspberryOla.Connect(audioOla);
@@ -111,7 +116,7 @@ namespace Animatroller.SceneRunner
 
             // Map Physical lights
             acnOutput.Connect(new Physical.SmallRGBStrobe(reaperLight, 1), 20);
-            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(testLight2, 20), 20);
+            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(candySpot, 20), 20);
             acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(testLight1, 200), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 11), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 10), 20);
@@ -124,21 +129,33 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.RGBStrobe(lightBehindSheet, 60), 20);
             acnOutput.Connect(new Physical.GenericDimmer(lightTree, 50), 20);
 
-            testLight2.SetOnlyColor(Color.Green);
+            candySpot.SetOnlyColor(Color.Green);
 
             finalBeam.Control.Subscribe(x =>
                 {
-                    if (x)
-                    {
-                        Exec.Execute(thunderSeq);
-                    }
+                    lightning1.Brightness = x ? 1.0 : 0.0;
+                    //if (x)
+                    //{
+                    //    Exec.Execute(thunderSeq);
+                    //}
                 });
+
+            firstBeam.Control.Subscribe(x =>
+            {
+                if (x)
+                {
+                    Exec.Execute(reaperSeq);
+                }
+            });
 
             buttonTest2.Control.Subscribe(x =>
                 {
                     if (x)
                     {
-                        Exec.Execute(thunderSeq);
+                        deadEnd.Power = true;
+                        Thread.Sleep(500);
+                        deadEnd.Power = false;
+//                        Exec.Execute(thunderSeq);
                     }
                 });
 
@@ -354,6 +371,10 @@ namespace Animatroller.SceneRunner
                     //                    popOutEffect.Pop(1.0);
 
                     //                    instance.WaitFor(S(1.0));
+
+                    testLight1.Pan = 0.118110;
+                    testLight1.Tilt = 0.196078;
+
                     audioReaper.PlayEffect("laugh");
                     instance.WaitFor(S(0.1));
                     reaperPopUp.Power = true;
@@ -366,7 +387,21 @@ namespace Animatroller.SceneRunner
                     reaperPopUp.Power = false;
                     reaperEyes.Power = false;
                     reaperLight.TurnOff();
-                    instance.WaitFor(S(4));
+                    instance.WaitFor(S(1));
+
+                    testLight1.Pan = 0.047058823529411764;
+                    testLight1.Tilt = 0.15686274509803921;
+                    testLight1.SetColor(Color.Purple, 1.0);
+                    deadEnd.Power = true;
+                    instance.WaitFor(S(0.3));
+                    deadEnd.Power = false;
+;
+                    instance.WaitFor(S(3));
+                    testLight1.Brightness = 0;
+
+                    testLight1.Pan = 0.118110;
+                    testLight1.Tilt = 0.196078;
+
                     //                    stateMachine.NextState();
                 })
                 .TearDown(() =>
@@ -380,7 +415,7 @@ namespace Animatroller.SceneRunner
                 {
                     audioOla.PauseBackground();
                     skullEyes.Power = true;
-                    testLight2.SetColor(Color.Red);
+                    candySpot.SetColor(Color.Red);
 
                     audioOla.PlayEffect("sixthsense-deadpeople");
                     i.WaitFor(S(3));
@@ -388,7 +423,7 @@ namespace Animatroller.SceneRunner
                 .TearDown(() =>
                     {
                         skullEyes.Power = false;
-                        testLight2.SetColor(Color.Green);
+                        candySpot.SetColor(Color.Green);
 
                         audioOla.PlayBackground();
                     });

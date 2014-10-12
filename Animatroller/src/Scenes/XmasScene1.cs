@@ -16,8 +16,6 @@ namespace Animatroller.SceneRunner
 {
     internal class XmasScene1 : BaseScene
     {
-        private Random random = new Random();
-
         private Pixel1D testPixels;
         private Dimmer explosion1;
         private Dimmer explosion2;
