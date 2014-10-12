@@ -50,6 +50,17 @@ namespace Animatroller.Framework.Effect
             get { return this.maxBrightness; }
             set { this.maxBrightness = value.Limit(0, 1); }
         }
+
+        protected override void ExecutePerDevice2(ISubject<DoubleZeroToOne> device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            double brightness = easeTransform.Transform(oneToZeroToOne)
+                .ScaleToMinMax(this.minBrightness, this.maxBrightness);
+
+            device.OnNext(new DoubleZeroToOne(brightness));
+
+            if (final)
+                device.OnNext(DoubleZeroToOne.Zero);
+        }
     }
 
     public class Fader : BaseSweeperEffect<LogicalDevice.IHasBrightnessControl>
@@ -94,6 +105,11 @@ namespace Animatroller.Framework.Effect
             get { return this.maxBrightness; }
             set { this.maxBrightness = value.Limit(0, 1); }
         }
+
+        protected override void ExecutePerDevice2(ISubject<DoubleZeroToOne> device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class PopOut : BaseSweeperEffect<LogicalDevice.IHasBrightnessControl>
@@ -134,6 +150,11 @@ namespace Animatroller.Framework.Effect
             if (final)
                 device.Brightness = 0;
         }
+
+        protected override void ExecutePerDevice2(ISubject<DoubleZeroToOne> device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class PopOut2 : BaseSweeperEffect<ISubject<DoubleZeroToOne>>
@@ -173,6 +194,11 @@ namespace Animatroller.Framework.Effect
 
             if (final)
                 device.OnNext(DoubleZeroToOne.Zero);
+        }
+
+        protected override void ExecutePerDevice2(ISubject<DoubleZeroToOne> device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            throw new NotImplementedException();
         }
     }
 

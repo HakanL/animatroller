@@ -10,6 +10,8 @@ namespace Animatroller.Framework
     public abstract class BaseScene : IScene
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected static Random random = new Random();
+
         //protected HashFile.HashFile hashFile;
 
         public BaseScene()

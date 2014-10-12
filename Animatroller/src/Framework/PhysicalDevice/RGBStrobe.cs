@@ -3,33 +3,39 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class RGBStrobe : BaseDevice, INeedsDmxOutput
+    public class RGBStrobe : BaseDMXRGBStrobeLight
     {
-        public IDmxOutput DmxOutputPort { protected get; set; }
-
         public RGBStrobe(ColorDimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice)
+            : base(logicalDevice, dmxChannel)
         {
-            logicalDevice.ColorChanged += (sender, e) =>
-                {
-                    // Handles brightness as well
+        }
 
-                    var hsv = new HSV(e.NewColor);
-                    hsv.Value = hsv.Value * e.NewBrightness;
-                    var color = hsv.Color;
-
-                    DmxOutputPort.SendDimmerValues(dmxChannel, new byte[] { color.R, color.G, color.B });
-                };
+        public RGBStrobe(ColorDimmer2 logicalDevice, int dmxChannel)
+            : base(logicalDevice, dmxChannel)
+        {
         }
 
         public RGBStrobe(StrobeColorDimmer logicalDevice, int dmxChannel)
-            : this((ColorDimmer)logicalDevice, dmxChannel)
+            : base(logicalDevice, dmxChannel)
         {
-            logicalDevice.StrobeSpeedChanged += (sender, e) =>
-                {
-                    DmxOutputPort.SendDimmerValue(dmxChannel + 3, (byte)(e.NewSpeed == 0 ? 0 : 28));
-                    DmxOutputPort.SendDimmerValue(dmxChannel + 5, e.NewSpeed.GetByteScale());
-                };
+        }
+
+        public RGBStrobe(StrobeColorDimmer2 logicalDevice, int dmxChannel)
+            : base(logicalDevice, dmxChannel)
+        {
+        }
+
+        protected override void Output()
+        {
+            var color = GetColorFromColorBrightness();
+
+            DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] {
+                color.R,
+                color.G,
+                color.B,
+                (byte)(this.strobeSpeed == 0 ? 0 : 28),
+                0,
+                this.strobeSpeed.GetByteScale() });
         }
     }
 }

@@ -99,6 +99,7 @@
   <ItemGroup>
     <Compile Include="Controller\IntStateMachine.cs" />
     <Compile Include="DoubleZeroToOne.cs" />
+    <Compile Include="Effect\BaseSweeperEffect.cs" />
     <Compile Include="Effect\EffectAction.cs" />
     <Compile Include="Effect\Effects2.cs" />
     <Compile Include="Expander\MidiInput2.cs" />
