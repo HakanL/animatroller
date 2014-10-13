@@ -69,7 +69,7 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        public override void StartDevice()
+        protected override void UpdateOutput()
         {
             RaisePowerChanged();
         }

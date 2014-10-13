@@ -180,8 +180,12 @@ PRI InputReader | lastValue, lastButton1, lastButton2, lastButton3
 
 
 PRI MotorController | x
+  ' Motor pins: 2 = Enable (EN), 1 = IN1, 0 = IN2 
   pwm.Start(2, 1, 0, 15000)
+  
+  ' Encoder pins (LEGO): Red = +5V, Black = GND, Green = 12, Yellow = 13 (or reverse?)  
   Encoder.Start(12, 1, 1, @Pos)           'Start continuous two-encoder reader (encoders connected to pins 8 - 11)
+
   timerMotor.Init
 
   repeat

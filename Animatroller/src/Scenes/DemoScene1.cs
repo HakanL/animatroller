@@ -43,7 +43,7 @@ namespace Animatroller.SceneRunner
 
         public DemoScene1(IEnumerable<string> args)
         {
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 1.0, false);
+            pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false, "Pulse FX 1");
             light1 = new StrobeColorDimmer("Small RGB");
             buttonTestSound = new DigitalInput("Test sound");
             buttonPlayBackground = new DigitalInput("Play Background");

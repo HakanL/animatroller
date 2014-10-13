@@ -89,11 +89,11 @@ namespace Animatroller.SceneRunner
             this.lastFogRun = DateTime.Now;
             stateMachine = new Controller.EnumStateMachine<States>("Main");
 
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 0.5, false);
-            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", S(2), 0.2, 0.8, false);
-            flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6, false);
-            flickerEffect2 = new Effect.Flicker("Flicker 2", 0.4, 0.6, false);
-            popOutEffect = new Effect.PopOut("PopOut", S(1));
+            pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 0.5, false);
+            pulsatingEffect2 = new Effect.Pulsating(S(2), 0.2, 0.8, false);
+            flickerEffect = new Effect.Flicker(0.4, 0.6, false);
+            flickerEffect2 = new Effect.Flicker(0.4, 0.6, false);
+            popOutEffect = new Effect.PopOut(S(1));
 
             hoursSmall = new OperatingHours("Hours Small");
             hoursFull = new OperatingHours("Hours Full");

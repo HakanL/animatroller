@@ -44,8 +44,8 @@ namespace Animatroller.SceneRunner
             georgeMotor = new MotorWithFeedback("George Motor");
             spiderLift = new Switch("Spider Lift");
             pressureMat = new DigitalInput("Pressure Mat");
-            pulsatingEffect = new Effect.Pulsating("Pulse FX", S(1), 0.2, 0.7);
-            flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6);
+            pulsatingEffect = new Effect.Pulsating(S(1), 0.2, 0.7);
+            flickerEffect = new Effect.Flicker(0.4, 0.6);
         }
 
         public void WireUp(Expander.IOExpander port)

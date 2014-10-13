@@ -8,19 +8,22 @@ using NLog;
 
 namespace Animatroller.Framework.Effect
 {
-    public abstract class BaseSweeperEffect<T> : IEffect
+    public abstract class BaseSweeperEffect : IEffect
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected int priority;
         protected string name;
         protected object lockObject = new object();
         protected Sweeper sweeper;
-        protected List<T> devices;
-        protected List<ISubject<DoubleZeroToOne>> devices2;
+        protected List<IObserver<double>> devices;
         protected bool isRunning;
         protected ISubject<bool> inputRun;
 
-        public BaseSweeperEffect(string name, TimeSpan sweepDuration, int dataPoints, bool startRunning)
+        public BaseSweeperEffect(
+            TimeSpan sweepDuration,
+            int dataPoints,
+            bool startRunning,
+            [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
             Executor.Current.Register(this);
@@ -38,8 +41,7 @@ namespace Animatroller.Framework.Effect
                 }
             });
 
-            this.devices = new List<T>();
-            this.devices2 = new List<ISubject<DoubleZeroToOne>>();
+            this.devices = new List<IObserver<double>>();
             this.sweeper = new Sweeper(sweepDuration, dataPoints, startRunning);
 
             this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
@@ -57,40 +59,9 @@ namespace Animatroller.Framework.Effect
                     {
                         try
                         {
-                            var totalWatch = System.Diagnostics.Stopwatch.StartNew();
+                            double value = GetValue(zeroToOne, negativeOneToOne, oneToZeroToOne, final);
 
-                            var watches = new System.Diagnostics.Stopwatch[this.devices.Count];
-                            for (int i = 0; i < this.devices.Count; i++)
-                            {
-                                watches[i] = System.Diagnostics.Stopwatch.StartNew();
-
-                                ExecutePerDevice(this.devices[i], zeroToOne, negativeOneToOne, oneToZeroToOne, final);
-
-                                watches[i].Stop();
-                            }
-                            totalWatch.Stop();
-
-                            for (int i = 0; i < this.devices2.Count; i++)
-                            {
-                                ExecutePerDevice2(
-                                    this.devices2[i],
-                                    zeroToOne,
-                                    negativeOneToOne,
-                                    oneToZeroToOne,
-                                    final);
-                            }
-
-                            if (watches.Any())
-                            {
-                                double max = watches.Select(x => x.ElapsedMilliseconds).Max();
-                                double avg = watches.Select(x => x.ElapsedMilliseconds).Average();
-
-                                if (totalWatch.ElapsedMilliseconds > 25)
-                                {
-                                    log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
-                                        this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
-                                }
-                            }
+                            SendOutput(value);
                         }
                         catch
                         {
@@ -106,14 +77,26 @@ namespace Animatroller.Framework.Effect
         }
 
         // Generate sweeper with 50 ms interval
-        public BaseSweeperEffect(string name, TimeSpan sweepDuration, bool startRunning)
-            : this(name, sweepDuration, (int)(
-            sweepDuration.TotalMilliseconds > 500 ? sweepDuration.TotalMilliseconds / 50 : sweepDuration.TotalMilliseconds / 25
-            ), startRunning)
+        public BaseSweeperEffect(TimeSpan sweepDuration, bool startRunning, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : this(
+            sweepDuration,
+            (int)(sweepDuration.TotalMilliseconds > 500 ? sweepDuration.TotalMilliseconds / 50 : sweepDuration.TotalMilliseconds / 25),
+            startRunning,
+            name)
         {
         }
 
-        public ISubject<bool> InputRun
+        public BaseSweeperEffect AddDevice(Animatroller.Framework.LogicalDevice.IHasBrightnessControl device)
+        {
+            ConnectTo(System.Reactive.Observer.Create<double>(x =>
+            {
+                device.Brightness = x;
+            }));
+
+            return this;
+        }
+
+        public IObserver<bool> InputRun
         {
             get
             {
@@ -121,11 +104,37 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        protected abstract void ExecutePerDevice(T device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final);
+        protected abstract double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final);
 
-        protected abstract void ExecutePerDevice2(ISubject<DoubleZeroToOne> device, double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final);
+        protected void SendOutput(double value)
+        {
+            var totalWatch = System.Diagnostics.Stopwatch.StartNew();
 
-        public BaseSweeperEffect<T> SetPriority(int priority)
+            var watches = new System.Diagnostics.Stopwatch[this.devices.Count];
+            for (int i = 0; i < this.devices.Count; i++)
+            {
+                watches[i] = System.Diagnostics.Stopwatch.StartNew();
+
+                this.devices[i].OnNext(value);
+
+                watches[i].Stop();
+            }
+            totalWatch.Stop();
+
+            if (watches.Any())
+            {
+                double max = watches.Select(x => x.ElapsedMilliseconds).Max();
+                double avg = watches.Select(x => x.ElapsedMilliseconds).Average();
+
+                if (totalWatch.ElapsedMilliseconds > 25)
+                {
+                    log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
+                        this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
+                }
+            }
+        }
+
+        public BaseSweeperEffect SetPriority(int priority)
         {
             this.priority = priority;
 
@@ -136,6 +145,13 @@ namespace Animatroller.Framework.Effect
         {
             this.sweeper.Resume();
             this.isRunning = true;
+
+            return this;
+        }
+
+        public IEffect Prime()
+        {
+            this.sweeper.Prime();
 
             return this;
         }
@@ -167,17 +183,7 @@ namespace Animatroller.Framework.Effect
             get { return this.priority; }
         }
 
-        public BaseSweeperEffect<T> ConnectTo(ISubject<DoubleZeroToOne> device)
-        {
-            lock (lockObject)
-            {
-                this.devices2.Add(device);
-            }
-
-            return this;
-        }
-
-        public BaseSweeperEffect<T> AddDevice(T device)
+        public BaseSweeperEffect ConnectTo(IObserver<double> device)
         {
             lock (lockObject)
             {
@@ -187,22 +193,25 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
-        public BaseSweeperEffect<T> RemoveDevice(T device)
+        public BaseSweeperEffect ConnectTo(IObserver<DoubleZeroToOne> device)
+        {
+            lock (lockObject)
+            {
+                this.devices.Add(System.Reactive.Observer.Create<double>(x =>
+                    {
+                        device.OnNext(new DoubleZeroToOne(x));
+                    }));
+            }
+
+            return this;
+        }
+
+        public BaseSweeperEffect Disconnect(ISubject<double> device)
         {
             lock (lockObject)
             {
                 if (this.devices.Contains(device))
                     this.devices.Remove(device);
-            }
-            return this;
-        }
-
-        public BaseSweeperEffect<T> Disconnect(ISubject<DoubleZeroToOne> device)
-        {
-            lock (lockObject)
-            {
-                if (this.devices2.Contains(device))
-                    this.devices2.Remove(device);
             }
             return this;
         }

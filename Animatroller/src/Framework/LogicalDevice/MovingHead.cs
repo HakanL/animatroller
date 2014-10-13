@@ -15,38 +15,28 @@ namespace Animatroller.Framework.LogicalDevice
     {
         protected double currentPan;
         protected double currentTilt;
-        protected ISubject<DoubleZeroToOne> inputPan;
-        protected ISubject<DoubleZeroToOne> inputTilt;
+        protected ISubject<double> inputPan;
+        protected ISubject<double> inputTilt;
 
         public MovingHead([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.inputPan = new Subject<DoubleZeroToOne>();
-            this.inputTilt = new Subject<DoubleZeroToOne>();
+            this.inputPan = new Subject<double>();
+            this.inputTilt = new Subject<double>();
 
             this.inputPan.Subscribe(x =>
                 {
-                    if (this.currentPan != x.Value)
+                    if (this.currentPan != x)
                     {
-#if DEBUG
-                        if (!x.IsValid())
-                            throw new ArgumentOutOfRangeException("Value is out of range");
-#endif
-
-                        this.currentPan = x.Value.Limit(0, 1);
+                        this.currentPan = x;
                     }
                 });
 
             this.inputTilt.Subscribe(x =>
             {
-                if (this.currentTilt != x.Value)
+                if (this.currentTilt != x)
                 {
-#if DEBUG
-                    if (!x.IsValid())
-                        throw new ArgumentOutOfRangeException("Value is out of range");
-#endif
-
-                    this.currentTilt = x.Value.Limit(0, 1);
+                    this.currentTilt = x;
                 }
             });
         }
@@ -55,11 +45,11 @@ namespace Animatroller.Framework.LogicalDevice
         {
             base.StartDevice();
 
-            inputPan.OnNext(DoubleZeroToOne.Zero);
-            inputTilt.OnNext(DoubleZeroToOne.Zero);
+            inputPan.OnNext(0);
+            inputTilt.OnNext(0);
         }
 
-        public ISubject<DoubleZeroToOne> InputPan
+        public ISubject<double> InputPan
         {
             get
             {
@@ -67,7 +57,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public ISubject<DoubleZeroToOne> InputTilt
+        public ISubject<double> InputTilt
         {
             get
             {
@@ -80,7 +70,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.currentPan; }
             set
             {
-                this.inputPan.OnNext(new DoubleZeroToOne(value));
+                this.inputPan.OnNext(value);
             }
         }
 
@@ -89,7 +79,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.currentTilt; }
             set
             {
-                this.inputTilt.OnNext(new DoubleZeroToOne(value));
+                this.inputTilt.OnNext(value);
             }
         }
 

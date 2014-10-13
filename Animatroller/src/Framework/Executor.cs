@@ -106,6 +106,16 @@ namespace Animatroller.Framework
             return this;
         }
 
+        internal void LogInfo(string text)
+        {
+            log.Info(text);
+        }
+
+        internal void LogDebug(string text)
+        {
+            log.Debug(text);
+        }
+
         public Effect.MasterSweeper.Job RegisterSweeperJob(Effect.EffectAction.Action action, TimeSpan oneSweepDuration, int? iterations)
         {
             return this.masterSweeper.RegisterJob(action, oneSweepDuration, iterations);

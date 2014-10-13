@@ -84,8 +84,8 @@ namespace Animatroller.SceneRunner
             midiInput.Note(1, 38).Controls(buttonTest3.Control);
 
 
-            buttonTest2.Output.Subscribe(catAir.InputPower);
-            buttonTest3.Output.Subscribe(catLight.InputPower);
+            buttonTest2.Output.Subscribe(catAir.ControlValue);
+            buttonTest3.Output.Subscribe(catLight.ControlValue);
 
             buttonTest1.Output.Subscribe(x =>
             {

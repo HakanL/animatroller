@@ -75,8 +75,21 @@ namespace Animatroller.Framework.Effect
             this.ended = false;
         }
 
+        public Sweeper Prime()
+        {
+            Pause();
+
+            InternalReset();
+
+            UpdateOutput();
+
+            return this;
+        }
+
         public Sweeper Reset()
         {
+            Pause();
+
             InternalReset();
 
             Resume();
@@ -117,6 +130,28 @@ namespace Animatroller.Framework.Effect
                 return;
             }
 
+            UpdateOutput();
+
+            lock (lockObject)
+            {
+                if (++this.index1 >= this.positions)
+                    this.index1 = 0;
+                if (++this.index2 >= this.positions)
+                    this.index2 = 0;
+                if (++this.index3 >= this.positions)
+                    this.index3 = 0;
+
+                this.ticks++;
+
+                if (++this.hitCounter >= this.positions && this.oneShot)
+                {
+                    this.ended = true;
+                }
+            }
+        }
+
+        private void UpdateOutput()
+        {
             double value1;
             double value2;
             double value3;
@@ -124,24 +159,11 @@ namespace Animatroller.Framework.Effect
 
             lock (lockObject)
             {
-                value1 = SweeperTables.DataValues1[SweeperTables.GetScaledIndex(index1, positions + 1)];
-                value2 = SweeperTables.DataValues2[SweeperTables.GetScaledIndex(index2, positions + 1)];
-                value3 = SweeperTables.DataValues3[SweeperTables.GetScaledIndex(index3, positions + 1)];
-                valueTicks = ticks;
+                value1 = SweeperTables.DataValues1[SweeperTables.GetScaledIndex(this.index1, this.positions + 1)];
+                value2 = SweeperTables.DataValues2[SweeperTables.GetScaledIndex(this.index2, this.positions + 1)];
+                value3 = SweeperTables.DataValues3[SweeperTables.GetScaledIndex(this.index3, this.positions + 1)];
 
-                if (++index1 >= positions)
-                    index1 = 0;
-                if (++index2 >= positions)
-                    index2 = 0;
-                if (++index3 >= positions)
-                    index3 = 0;
-
-                ticks++;
-
-                if (++hitCounter >= positions && this.oneShot)
-                {
-                    this.ended = true;
-                }
+                valueTicks = this.ticks;
             }
 
             if (Monitor.TryEnter(lockJobs))

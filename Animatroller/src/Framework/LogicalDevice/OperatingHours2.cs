@@ -105,7 +105,7 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.isOpen = value;
 
-                    this.outputValue.OnNext(value);
+                    UpdateOutput();
                 }
             }
         }
@@ -121,6 +121,18 @@ namespace Animatroller.Framework.LogicalDevice
             this.ranges.Add(range);
 
             return this;
+        }
+
+        public OperatingHours2 ControlsMasterPower(IHasMasterPower device)
+        {
+            this.Output.Subscribe(device.InputMasterPower);
+
+            return this;
+        }
+
+        protected override void UpdateOutput()
+        {
+            this.outputValue.OnNext(this.isOpen.GetValueOrDefault());
         }
     }
 }

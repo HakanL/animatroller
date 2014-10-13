@@ -100,7 +100,7 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.isOpen = value;
 
-                    RaiseOpenHoursChanged();
+                    UpdateOutput();
                 }
             }
         }
@@ -116,6 +116,11 @@ namespace Animatroller.Framework.LogicalDevice
             this.ranges.Add(range);
 
             return this;
+        }
+
+        protected override void UpdateOutput()
+        {
+            RaiseOpenHoursChanged();
         }
     }
 }

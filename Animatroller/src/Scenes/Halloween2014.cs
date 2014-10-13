@@ -28,7 +28,8 @@ namespace Animatroller.SceneRunner
         private Expander.Raspberry raspberryReaper = new Expander.Raspberry("192.168.240.123:5005", 3334);
         private Expander.Raspberry raspberryOla = new Expander.Raspberry("192.168.240.147:5005", 3335);
 
-        private MovingHead testLight1 = new MovingHead("Test 1");
+        private MotorWithFeedback georgeMotor = new MotorWithFeedback("George");
+        private MovingHead movingHead = new MovingHead("Test 1");
         private StrobeColorDimmer2 reaperLight = new StrobeColorDimmer2("Reaper");
         private StrobeColorDimmer2 candySpot = new StrobeColorDimmer2("Test Light 2");
         private Dimmer2 testLight3 = new Dimmer2("Test 3");
@@ -61,7 +62,7 @@ namespace Animatroller.SceneRunner
         private AnalogInput2 inputPan = new AnalogInput2("Pan", true);
         private AnalogInput2 inputTilt = new AnalogInput2("Tilt", true);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
-        private DigitalOutput2 catAir = new DigitalOutput2();
+        private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
         private DigitalOutput2 catLights = new DigitalOutput2();
         private DigitalOutput2 skullEyes = new DigitalOutput2();
         private DigitalOutput2 reaperPopUp = new DigitalOutput2();
@@ -71,12 +72,12 @@ namespace Animatroller.SceneRunner
         private OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
 
         // Effects
-        private Effect.Flicker flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6, false);
-        private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 1.0, false);
+        private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
+        private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
-        private Effect.PopOut2 popOut1 = new Effect.PopOut2("PopOut 1", S(0.3));
-        private Effect.PopOut2 popOut2 = new Effect.PopOut2("PopOut 2", S(0.3));
-        private Effect.PopOut2 popOut3 = new Effect.PopOut2("PopOut 3", S(0.5));
+        private Effect.PopOut popOut1 = new Effect.PopOut(S(0.3));
+        private Effect.PopOut popOut2 = new Effect.PopOut(S(0.3));
+        private Effect.PopOut popOut3 = new Effect.PopOut(S(0.5));
 
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence thunderSeq = new Controller.Sequence();
@@ -90,18 +91,30 @@ namespace Animatroller.SceneRunner
             hoursSmall.AddRange("5:00 pm", "9:00 pm");
             hoursFull.AddRange("5:00 pm", "9:00 pm");
 
+            // Logging
+            hoursSmall.Output.Log("Hours small");
+            movingHead.InputPan.Log("Pan");
+            movingHead.InputTilt.Log("Tilt");
+
+
+            hoursSmall
+                .ControlsMasterPower(catAir)
+                .ControlsMasterPower(catLights);
+
             flickerEffect.ConnectTo(lightStairs1.InputBrightness);
             flickerEffect.ConnectTo(lightStairs2.InputBrightness);
 //            pulsatingEffect1.ConnectTo(lightBehindHeads.InputBrightness);
 //            pulsatingEffect1.ConnectTo(lightBehindSheet.InputBrightness);
             pulsatingEffect1.ConnectTo(candySpot.InputBrightness);
-            pulsatingEffect1.ConnectTo(testLight1.InputBrightness);
+//            pulsatingEffect1.ConnectTo(movingHead.InputBrightness);
+
+//            movingHead.InputBrightness.Log("Moving Head Brightness");
 
 //            popOut1.AddDevice(lightning1.InputBrightness);
-            popOut2.AddDevice(lightning2.InputBrightness);
-            popOut1.AddDevice(lightBehindHeads.InputBrightness);
-            popOut1.AddDevice(lightBehindSheet.InputBrightness);
-            popOut3.AddDevice(testLight1.InputBrightness);
+            popOut2.ConnectTo(lightning2.InputBrightness);
+            popOut1.ConnectTo(lightBehindHeads.InputBrightness);
+            popOut1.ConnectTo(lightBehindSheet.InputBrightness);
+            popOut3.ConnectTo(movingHead.InputBrightness);
 
             raspberryReaper.DigitalInputs[7].Connect(finalBeam, false);
 
@@ -109,15 +122,17 @@ namespace Animatroller.SceneRunner
             raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
             raspberryCat.DigitalOutputs[7].Connect(deadEnd);
             raspberryCat.Connect(audioCat);
+            raspberryCat.Motor.Connect(georgeMotor);
+
             raspberryReaper.Connect(audioReaper);
             raspberryOla.Connect(audioOla);
 
-            inputBrightness.ConnectTo(testLight1.InputBrightness);
+            inputBrightness.ConnectTo(movingHead.InputBrightness);
 
             // Map Physical lights
             acnOutput.Connect(new Physical.SmallRGBStrobe(reaperLight, 1), 20);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(candySpot, 20), 20);
-            acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(testLight1, 200), 20);
+            acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(movingHead, 200), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 11), 20);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 10), 20);
             //BROKEN            acnOutput.Connect(new Physical.GenericDimmer(testLight3, 103), 20);
@@ -131,16 +146,16 @@ namespace Animatroller.SceneRunner
 
             candySpot.SetOnlyColor(Color.Green);
 
-            finalBeam.Control.Subscribe(x =>
+            finalBeam.WhenOutputChanges(x =>
                 {
-                    lightning1.Brightness = x ? 1.0 : 0.0;
+//                    lightning1.Brightness = x ? 1.0 : 0.0;
                     //if (x)
                     //{
                     //    Exec.Execute(thunderSeq);
                     //}
                 });
 
-            firstBeam.Control.Subscribe(x =>
+            firstBeam.WhenOutputChanges(x =>
             {
                 if (x)
                 {
@@ -148,13 +163,39 @@ namespace Animatroller.SceneRunner
                 }
             });
 
-            buttonTest2.Control.Subscribe(x =>
+            buttonTest2.WhenOutputChanges(x =>
                 {
                     if (x)
                     {
-                        deadEnd.Power = true;
+                        var controlPan = new Effect.Fader(S(4.8), 106, 150, false);
+//                        var controlTilt = new Effect.Fader("Tilt", S(4.8), 0.14117647, 0.37647059, false);
+                        var controlTilt = new Effect.Fader(S(4.8), 231.8823531, 168.3529407, false);
+
+                        controlPan.ConnectTo(movingHead.InputPan);
+                        controlTilt.ConnectTo(movingHead.InputTilt);
+
+                        controlPan.Prime();
+                        controlTilt.Prime();
+                        movingHead.Brightness = 0;
+
+                        Thread.Sleep(2000);
+
+                        movingHead.SetColor(Color.Red, 0.1);
+                        controlPan.Start();
+                        controlTilt.Start();
+
+                        //georgeMotor.SetVector(1.0, 400, S(10));
+                        //georgeMotor.WaitForVectorReached();
+
+                        Thread.Sleep(5000);
+                        movingHead.Brightness = 0;
+
+                        //georgeMotor.SetVector(0.9, 0, S(15));
+                        //georgeMotor.WaitForVectorReached();
+
+                        //                        deadEnd.Power = true;
                         Thread.Sleep(500);
-                        deadEnd.Power = false;
+//                        deadEnd.Power = false;
 //                        Exec.Execute(thunderSeq);
                     }
                 });
@@ -174,7 +215,7 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
-            buttonTest3.Control.Subscribe(x =>
+            buttonTest3.WhenOutputChanges(x =>
                 {
                     if (x)
                         Exec.Execute(reaperSeq);
@@ -192,7 +233,7 @@ namespace Animatroller.SceneRunner
             raspberryReaper.DigitalOutputs[6].Connect(reaperEyes);
             raspberryReaper.DigitalOutputs[5].Connect(skullEyes);
 
-            forceOpen.Output.Subscribe(x =>
+            forceOpen.WhenOutputChanges(x =>
                 {
                     if (x)
                         hoursSmall.SetForced(true);
@@ -200,25 +241,31 @@ namespace Animatroller.SceneRunner
                         hoursSmall.SetForced(null);
                 });
 
-            inputH.Output.Subscribe(x =>
+            inputH.WhenOutputChanges(x =>
             {
-                testLight1.SetOnlyColor(HSV.ColorFromHSV(x.Value.GetByteScale(), inputS.Value, 1.0));
+                movingHead.SetOnlyColor(HSV.ColorFromHSV(x.Value.GetByteScale(), inputS.Value, 1.0));
             });
 
             inputS.Output.Subscribe(x =>
             {
-                testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x.Value, 1.0));
+                movingHead.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x.Value, 1.0));
             });
 
-            inputStrobe.Output.Controls(testLight1.InputStrobeSpeed);
+            inputStrobe.Output.Controls(movingHead.InputStrobeSpeed);
 
             midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
             midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
             midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
             midiInput.Controller(midiChannel, 4).Controls(inputStrobe.Control);
 
-            midiInput.Controller(midiChannel, 5).Controls(inputPan.Control);
-            midiInput.Controller(midiChannel, 6).Controls(inputTilt.Control);
+            midiInput.Controller(midiChannel, 5).Controls(Observer.Create<double>(x =>
+                {
+                    inputPan.Control.OnNext(new DoubleZeroToOne(x * 540));
+                }));
+            midiInput.Controller(midiChannel, 6).Controls(Observer.Create<double>(x =>
+            {
+                inputTilt.Control.OnNext(new DoubleZeroToOne(x * 270));
+            }));
 
             midiInput.Note(midiChannel, 36).Controls(buttonTest1.Control);
             midiInput.Note(midiChannel, 37).Controls(buttonTest2.Control);
@@ -236,11 +283,12 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
-            inputPan.Output.Controls(testLight1.InputPan);
-            inputTilt.Output.Controls(testLight1.InputTilt);
+            inputPan.Output.Controls(movingHead.InputPan);
+            inputTilt.Output.Controls(movingHead.InputTilt);
 
-            //            buttonTest2.Output.Subscribe(reaperPopUp.InputPower);
-            catMotion.Output.Subscribe(catLights.InputPower);
+            //            buttonTest2.Output.Subscribe(reaperPopUp.PowerControl);
+            catMotion.Output.Subscribe(catLights.ControlValue);
+
 /*
             finalBeam.Output.Subscribe(x =>
                 {
@@ -251,13 +299,13 @@ namespace Animatroller.SceneRunner
                 {
                     if (x)
                     {
-                        testLight1.Brightness = 1;
-                        testLight1.Color = Color.Red;
+                        movingHead.Brightness = 1;
+                        movingHead.Color = Color.Red;
                         //                        testLight4.StrobeSpeed = 1.0;
                     }
                     else
                     {
-                        testLight1.TurnOff();
+                        movingHead.TurnOff();
                     }
                 });
 
@@ -293,19 +341,19 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                 {
-                    testLight1.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
+                    movingHead.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
                 }
                 else
                 {
-                    if (testLight1.Brightness > 0)
-                        testLight1.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
+                    if (movingHead.Brightness > 0)
+                        movingHead.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
                 }
             });
 
-            hoursSmall.Output.Subscribe(catAir.InputPower);
+//            hoursSmall.Output.Subscribe(catAir.InputPower);
             hoursSmall.Output.Subscribe(flickerEffect.InputRun);
             hoursSmall.Output.Subscribe(pulsatingEffect1.InputRun);
-            hoursSmall.Output.Subscribe(lightTree.InputPower);
+            hoursSmall.Output.Subscribe(lightTree.ControlValue);
 
             hoursSmall.Output.Subscribe(x =>
                 {
@@ -372,8 +420,8 @@ namespace Animatroller.SceneRunner
 
                     //                    instance.WaitFor(S(1.0));
 
-                    testLight1.Pan = 0.118110;
-                    testLight1.Tilt = 0.196078;
+                    movingHead.Pan = 0.118110;
+                    movingHead.Tilt = 0.196078;
 
                     audioReaper.PlayEffect("laugh");
                     instance.WaitFor(S(0.1));
@@ -389,18 +437,18 @@ namespace Animatroller.SceneRunner
                     reaperLight.TurnOff();
                     instance.WaitFor(S(1));
 
-                    testLight1.Pan = 0.047058823529411764;
-                    testLight1.Tilt = 0.15686274509803921;
-                    testLight1.SetColor(Color.Purple, 1.0);
+                    movingHead.Pan = 0.047058823529411764;
+                    movingHead.Tilt = 0.15686274509803921;
+                    movingHead.SetColor(Color.Purple, 1.0);
                     deadEnd.Power = true;
                     instance.WaitFor(S(0.3));
                     deadEnd.Power = false;
-;
+                    ;
                     instance.WaitFor(S(3));
-                    testLight1.Brightness = 0;
+                    movingHead.Brightness = 0;
 
-                    testLight1.Pan = 0.118110;
-                    testLight1.Tilt = 0.196078;
+                    movingHead.Pan = 0.118110;
+                    movingHead.Tilt = 0.196078;
 
                     //                    stateMachine.NextState();
                 })
@@ -432,14 +480,14 @@ namespace Animatroller.SceneRunner
                 .SetUp(() =>
                     {
                         audioOla.PauseBackground();
-                        testLight1.Pan = 0.25;
-                        testLight1.Tilt = 0.5;
+                        movingHead.Pan = 0.25;
+                        movingHead.Tilt = 0.5;
                         Thread.Sleep(200);
                     })
                 .Execute(i =>
                     {
                         audioOla.PlayTrack("08 Weather-lightning-strike2");
-                        testLight1.SetOnlyColor(Color.White);
+                        movingHead.SetOnlyColor(Color.White);
                         popOut1.Pop(1.0);
                         popOut2.Pop(1.0);
                         popOut3.Pop(1.0);

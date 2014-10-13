@@ -25,14 +25,9 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     if (this.currentValue != x.Value)
                     {
-#if DEBUG
-                        if (!x.IsValid())
-                            throw new ArgumentOutOfRangeException();
-#endif
-
                         this.currentValue = x.Value;
 
-                        this.outputValue.OnNext(x);
+                        UpdateOutput();
                     }
                 });
         }
@@ -78,13 +73,20 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.currentValue; }
             set
             {
-                this.control.OnNext(new DoubleZeroToOne(value));
+                this.currentValue = value;
+
+                UpdateOutput();
             }
         }
 
-        public override void StartDevice()
+        protected override void UpdateOutput()
         {
             this.outputValue.OnNext(new DoubleZeroToOne(this.currentValue));
+        }
+
+        public void WhenOutputChanges(Action<DoubleZeroToOne> action)
+        {
+            Output.Subscribe(action);
         }
     }
 }

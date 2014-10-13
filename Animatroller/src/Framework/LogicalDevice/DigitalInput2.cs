@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Animatroller.Framework.LogicalDevice.Event;
 
@@ -11,31 +13,30 @@ namespace Animatroller.Framework.LogicalDevice
     public class DigitalInput2 : BaseDevice, ISupportsPersistence
     {
         protected bool currentValue;
-        protected ISubject<bool> control;
+        protected IObserver<bool> controlValue;
         protected ISubject<bool> outputValue;
 
         public DigitalInput2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool persistState = false)
             : base(name, persistState)
         {
             this.outputValue = new Subject<bool>();
-            this.control = new Subject<bool>();
 
-            this.control.Subscribe(x =>
+            this.controlValue = Observer.Create<bool>(x =>
             {
                 if (this.currentValue != x)
                 {
                     this.currentValue = x;
 
-                    this.outputValue.OnNext(x);
+                    UpdateOutput();
                 }
             });
         }
 
-        public ISubject<bool> Control
+        public IObserver<bool> Control
         {
             get
             {
-                return this.control;
+                return this.controlValue;
             }
         }
 
@@ -57,13 +58,13 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.currentValue; }
             set
             {
-                this.control.OnNext(value);
-            }
-        }
+                if (this.currentValue != value)
+                {
+                    this.currentValue = value;
 
-        public override void StartDevice()
-        {
-            this.outputValue.OnNext(this.currentValue);
+                    UpdateOutput();
+                }
+            }
         }
 
         public void SetValueFromPersistence(Func<string, string, string> getKeyFunc)
@@ -79,6 +80,16 @@ namespace Animatroller.Framework.LogicalDevice
         public bool PersistState
         {
             get { return this.persistState; }
+        }
+
+        protected override void UpdateOutput()
+        {
+            this.outputValue.OnNext(this.currentValue);
+        }
+
+        public void WhenOutputChanges(Action<bool> action)
+        {
+            Output.Subscribe(action);
         }
     }
 }

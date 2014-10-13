@@ -115,7 +115,7 @@ namespace Animatroller.Framework.LogicalDevice
                 this.effectJob.Stop();
         }
 
-        public override void StartDevice()
+        protected override void UpdateOutput()
         {
             InputBrightness.OnNext(new DoubleZeroToOne(this.currentBrightness));
         }

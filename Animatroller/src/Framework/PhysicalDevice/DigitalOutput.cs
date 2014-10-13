@@ -27,7 +27,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
         public DigitalOutput Connect(LogicalDevice.DigitalOutput2 logicalDevice)
         {
-            logicalDevice.InputPower.Subscribe(x =>
+            logicalDevice.Output.Subscribe(x =>
                 {
                     this.physicalTrigger(x);
                 });

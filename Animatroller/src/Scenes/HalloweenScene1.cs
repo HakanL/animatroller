@@ -59,10 +59,10 @@ namespace Animatroller.SceneRunner
             pressureMat = new DigitalInput("Pressure Mat");
             testButton = new DigitalInput("Test");
 
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.1, 0.4);
-            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", S(2), 0.3, 0.5);
-            candyPulse = new Effect.Pulsating("Candy Pulse", S(3), 0.01, 0.1);
-            flickerEffect = new Effect.Flicker("Flicker", 0.4, 0.6);
+            pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 0.4);
+            pulsatingEffect2 = new Effect.Pulsating(S(2), 0.3, 0.5);
+            candyPulse = new Effect.Pulsating(S(3), 0.01, 0.1);
+            flickerEffect = new Effect.Flicker(0.4, 0.6);
 
             audioPlayer = new Physical.NetworkAudioPlayer(
                 settings["NetworkAudioPlayerIP"],

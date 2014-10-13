@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Drawing;
 using Animatroller.Framework.Extensions;
@@ -11,23 +13,28 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class DigitalOutput2 : SingleOwnerDevice, IOutput
+    public class DigitalOutput2 : SingleOwnerOutputDevice
     {
-        protected bool currentPower;
-        protected ISubject<bool> inputPower;
+        private bool currentValue;
+        protected IObserver<bool> controlValue;
+        protected ISubject<bool> outputValue;
 
-        public DigitalOutput2([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public DigitalOutput2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool initial = false)
             : base(name)
         {
-            this.inputPower = new Subject<bool>();
+            this.currentValue = initial;
 
-            this.inputPower.Subscribe(x =>
-            {
-                if (this.currentPower != x)
+            this.controlValue = Observer.Create<bool>(x =>
                 {
-                    this.currentPower = x;
-                }
-            });
+                    if (this.currentValue != x)
+                    {
+                        this.currentValue = x;
+
+                        UpdateOutput();
+                    }
+                });
+
+            this.outputValue = new Subject<bool>();
         }
 
         //public Switch Follow(OperatingHours source)
@@ -43,21 +50,39 @@ namespace Animatroller.Framework.LogicalDevice
         //    return this;
         //}
 
-        public ISubject<bool> InputPower
+        public IObserver<bool> ControlValue
         {
             get
             {
-                return this.inputPower;
+                return this.controlValue;
+            }
+        }
+
+        public IObservable<bool> Output
+        {
+            get
+            {
+                return this.outputValue;
             }
         }
 
         public bool Power
         {
-            get { return this.currentPower; }
+            get { return this.currentValue; }
             set
             {
-                this.inputPower.OnNext(value);
+                if (this.currentValue != value)
+                {
+                    this.currentValue = value;
+
+                    UpdateOutput();
+                }
             }
+        }
+
+        protected override void UpdateOutput()
+        {
+            this.outputValue.OnNext(this.currentValue && this.MasterPower);
         }
 
         //public virtual Switch SetPower(bool value)
@@ -73,12 +98,5 @@ namespace Animatroller.Framework.LogicalDevice
 
         //    return this;
         //}
-
-        public override void StartDevice()
-        {
-            base.StartDevice();
-
-            InputPower.OnNext(false);
-        }
     }
 }

@@ -141,10 +141,10 @@ namespace Animatroller.SceneRunner
             lightVader = new StrobeColorDimmer("Vader");
             light3wise = new StrobeColorDimmer("3wise");
 
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(4), 0.4, 1.0, false);
-            pulsatingStar = new Effect.Pulsating("Pulse Star", S(2), 0.2, 0.4, false);
-            flickerEffect = new Effect.Flicker("Flicker", 0.5, 0.6, false);
-            faderIn = new Effect.Fader("FaderIn", S(2), 0.0, 1.0, false);
+            pulsatingEffect1 = new Effect.Pulsating(S(4), 0.4, 1.0, false);
+            pulsatingStar = new Effect.Pulsating(S(2), 0.2, 0.4, false);
+            flickerEffect = new Effect.Flicker(0.5, 0.6, false);
+            faderIn = new Effect.Fader(S(2), 0.0, 1.0, false);
 
             candyCane = new Controller.Sequence("Candy Cane");
             twinkleSeq = new Controller.Sequence("Twinkle");
@@ -171,17 +171,17 @@ namespace Animatroller.SceneRunner
             elJesus = new Switch("Jesus Halo");
             audioPlayer = new AudioPlayer("Audio");
 
-            popOut1Piano = new Effect.PopOut("Piano", S(0.4));
-            popOut1Drums = new Effect.PopOut("Drums", S(0.4));
-            popOut1DrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
-            popOut1Chord = new Effect.PopOut("Chord", S(0.4));
-            popOut1Solo = new Effect.PopOut("Solo", S(0.3));
-            popOut1Solo2 = new Effect.PopOut("Solo 2", S(0.2));
-            popOut1Choir = new Effect.PopOut("Choir", S(1.0));
-            popOut1Voice = new Effect.PopOut("Voice", S(1.0));
-            popOut1Vocal2 = new Effect.PopOut("Vocal 2", S(2.0));
-            popOut1VocalLong = new Effect.PopOut("Vocal Long", S(5.0));
-            popOut1End = new Effect.PopOut("End", S(5.0));
+            popOut1Piano = new Effect.PopOut(S(0.4));
+            popOut1Drums = new Effect.PopOut(S(0.4));
+            popOut1DrumsFast = new Effect.PopOut(S(0.3));
+            popOut1Chord = new Effect.PopOut(S(0.4));
+            popOut1Solo = new Effect.PopOut(S(0.3));
+            popOut1Solo2 = new Effect.PopOut(S(0.2));
+            popOut1Choir = new Effect.PopOut(S(1.0));
+            popOut1Voice = new Effect.PopOut(S(1.0));
+            popOut1Vocal2 = new Effect.PopOut(S(2.0));
+            popOut1VocalLong = new Effect.PopOut(S(5.0));
+            popOut1End = new Effect.PopOut(S(5.0));
 
             this.oscServer = new Expander.OscServer(10000);
 
@@ -196,17 +196,17 @@ namespace Animatroller.SceneRunner
 
         private void ConfigureMusic1()
         {
-            popOut1Piano = new Effect.PopOut("Piano", S(0.4));
-            popOut1Drums = new Effect.PopOut("Drums", S(0.4));
-            popOut1DrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
-            popOut1Chord = new Effect.PopOut("Chord", S(0.4));
-            popOut1Solo = new Effect.PopOut("Solo", S(0.3));
-            popOut1Solo2 = new Effect.PopOut("Solo 2", S(0.2));
-            popOut1Choir = new Effect.PopOut("Choir", S(1.0));
-            popOut1Voice = new Effect.PopOut("Voice", S(1.0));
-            popOut1Vocal2 = new Effect.PopOut("Vocal 2", S(2.0));
-            popOut1VocalLong = new Effect.PopOut("Vocal Long", S(5.0));
-            popOut1End = new Effect.PopOut("End", S(5.0));
+            popOut1Piano = new Effect.PopOut(S(0.4));
+            popOut1Drums = new Effect.PopOut(S(0.4));
+            popOut1DrumsFast = new Effect.PopOut(S(0.3));
+            popOut1Chord = new Effect.PopOut(S(0.4));
+            popOut1Solo = new Effect.PopOut(S(0.3));
+            popOut1Solo2 = new Effect.PopOut(S(0.2));
+            popOut1Choir = new Effect.PopOut(S(1.0));
+            popOut1Voice = new Effect.PopOut(S(1.0));
+            popOut1Vocal2 = new Effect.PopOut(S(2.0));
+            popOut1VocalLong = new Effect.PopOut(S(5.0));
+            popOut1End = new Effect.PopOut(S(5.0));
 
             popOut1Piano
                 .AddDevice(lightString1)

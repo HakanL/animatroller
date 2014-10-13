@@ -56,11 +56,45 @@ namespace Animatroller.Framework.Extensions
             return ((d.Limit(start, start + length) - start) / length).ScaleToMinMax(min, max);
         }
 
-        public static IObservable<T> Controls<T>(this IObservable<T> input, ISubject<T> control)
+        public static IObservable<T> Controls<T>(this IObservable<T> input, IObserver<T> control)
         {
             input.Subscribe(control);
 
-            return control;
+            return input;
+        }
+
+        public static IObservable<DoubleZeroToOne> Controls(this IObservable<DoubleZeroToOne> input, IObserver<double> control)
+        {
+            input.Subscribe(x =>
+                {
+                    control.OnNext(x.Value);
+                });
+
+            return input;
+        }
+
+        public static void Log(this IObservable<bool> input, string propertyName)
+        {
+            input.Subscribe(x =>
+                {
+                    Executor.Current.LogDebug(string.Format("Property [{0}]   Value: {1}", propertyName, x));
+                });
+        }
+
+        public static void Log(this IObservable<DoubleZeroToOne> input, string propertyName)
+        {
+            input.Subscribe(x =>
+            {
+                Executor.Current.LogDebug(string.Format("Property [{0}]   Value: {1:N8}", propertyName, x.Value));
+            });
+        }
+
+        public static void Log(this IObservable<double> input, string propertyName)
+        {
+            input.Subscribe(x =>
+            {
+                Executor.Current.LogDebug(string.Format("Property [{0}]   Value: {1:N8}", propertyName, x));
+            });
         }
     }
 }

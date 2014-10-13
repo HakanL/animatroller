@@ -127,20 +127,20 @@ namespace Animatroller.SceneRunner
 
             allPixels = new VirtualPixel1D("All Pixels", 100);
 
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.3, 1.0, false);
-            pulsatingEffect2 = new Effect.Pulsating("Pulse FX 2", S(2), 0.3, 1.0, false);
+            pulsatingEffect1 = new Effect.Pulsating(S(2), 0.3, 1.0, false);
+            pulsatingEffect2 = new Effect.Pulsating(S(2), 0.3, 1.0, false);
 
-            popOutPiano = new Effect.PopOut("Piano", S(0.4));
-            popOutDrums = new Effect.PopOut("Drums", S(0.4));
-            popOutDrumsFast = new Effect.PopOut("Drums Fast", S(0.3));
-            popOutChord = new Effect.PopOut("Chord", S(0.4));
-            popOutSolo = new Effect.PopOut("Solo", S(0.3));
-            popOutSolo2 = new Effect.PopOut("Solo 2", S(0.2));
-            popOutChoir = new Effect.PopOut("Choir", S(1.0));
-            popOutVoice = new Effect.PopOut("Voice", S(1.0));
-            popOutVocal2 = new Effect.PopOut("Vocal 2", S(2.0));
-            popOutVocalLong = new Effect.PopOut("Vocal Long", S(5.0));
-            popOutEnd = new Effect.PopOut("End", S(5.0));
+            popOutPiano = new Effect.PopOut(S(0.4));
+            popOutDrums = new Effect.PopOut(S(0.4));
+            popOutDrumsFast = new Effect.PopOut(S(0.3));
+            popOutChord = new Effect.PopOut(S(0.4));
+            popOutSolo = new Effect.PopOut(S(0.3));
+            popOutSolo2 = new Effect.PopOut(S(0.2));
+            popOutChoir = new Effect.PopOut(S(1.0));
+            popOutVoice = new Effect.PopOut(S(1.0));
+            popOutVocal2 = new Effect.PopOut(S(2.0));
+            popOutVocalLong = new Effect.PopOut(S(5.0));
+            popOutEnd = new Effect.PopOut(S(5.0));
 
             popOutPiano
                 .AddDevice(lightIcicles);

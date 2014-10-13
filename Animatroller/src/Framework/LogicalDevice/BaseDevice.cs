@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Subjects;
 
 namespace Animatroller.Framework.LogicalDevice
 {
@@ -18,10 +19,13 @@ namespace Animatroller.Framework.LogicalDevice
         public string Name
         {
             get { return this.name; }
-        }
+        }        
 
         public virtual void StartDevice()
         {
+            UpdateOutput();
         }
+
+        protected abstract void UpdateOutput();
     }
 }

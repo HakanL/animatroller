@@ -188,5 +188,9 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        protected override void UpdateOutput()
+        {
+            // Nothing to do here
+        }
     }
 }

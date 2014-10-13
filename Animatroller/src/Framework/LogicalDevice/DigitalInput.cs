@@ -53,7 +53,7 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.active = value;
 
-                    RaiseActiveChanged();
+                    UpdateOutput();
 
                     if (instanceKey != null)
                         Executor.Current.SetKey(this.instanceKey + "input", this.active.ToString());
@@ -61,7 +61,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public override void StartDevice()
+        protected override void UpdateOutput()
         {
             RaiseActiveChanged();
         }

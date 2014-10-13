@@ -19,14 +19,14 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             logicalDevice.InputPan.Subscribe(x =>
                 {
-                    this.pan = x.Value;
+                    this.pan = x.Limit(0, 540);
 
                     Output();
                 });
 
             logicalDevice.InputTilt.Subscribe(x =>
             {
-                this.tilt = x.Value;
+                this.tilt = x.Limit(0, 270);
 
                 Output();
             });
@@ -38,10 +38,8 @@ namespace Animatroller.Framework.PhysicalDevice
 
             var color = GetColorFromColorBrightness();
 
-            log.Debug("Pan: {0:N6}   Tilt: {1:N6}", this.pan, this.tilt);
-
-            uint panValue = (uint)this.pan.ScaleToMinMax(0, 65535);
-            uint tiltValue = (uint)this.tilt.ScaleToMinMax(0, 65535);
+            uint panValue = (uint)this.pan.LimitAndScale(0, 540).ScaleToMinMax(0, 65535);
+            uint tiltValue = (uint)this.tilt.LimitAndScale(0, 270).ScaleToMinMax(0, 65535);
 
             DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] {
                 (byte)(panValue >> 8),      // Pan
