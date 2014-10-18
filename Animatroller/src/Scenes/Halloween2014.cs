@@ -24,9 +24,11 @@ namespace Animatroller.SceneRunner
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioReaper = new AudioPlayer();
         private AudioPlayer audioOla = new AudioPlayer();
+        private AudioPlayer audioGeorge = new AudioPlayer();
         private Expander.Raspberry raspberryCat = new Expander.Raspberry("192.168.240.115:5005", 3333);
         private Expander.Raspberry raspberryReaper = new Expander.Raspberry("192.168.240.123:5005", 3334);
         private Expander.Raspberry raspberryOla = new Expander.Raspberry("192.168.240.147:5005", 3335);
+        private Expander.Raspberry raspberryGeorge = new Expander.Raspberry("192.168.240.131:5005", 3336);
 
         private MotorWithFeedback georgeMotor = new MotorWithFeedback("George");
         private MovingHead movingHead = new MovingHead("Test 1");
@@ -38,8 +40,10 @@ namespace Animatroller.SceneRunner
         private Dimmer2 lightning2 = new Dimmer2("Lightning 2");
         private Dimmer2 lightStairs1 = new Dimmer2("Stairs 1");
         private Dimmer2 lightStairs2 = new Dimmer2("Stairs 2");
+        private DigitalOutput2 lightFlash1 = new DigitalOutput2("Flash 1");
         private DigitalOutput2 lightTree = new DigitalOutput2("Tree");
         private DigitalOutput2 deadEnd = new DigitalOutput2("Dead End");
+        private DigitalOutput2 fog = new DigitalOutput2("Fog");
         private StrobeColorDimmer2 lightBehindHeads = new StrobeColorDimmer2("Behind heads");
         private StrobeColorDimmer2 lightBehindSheet = new StrobeColorDimmer2("Behind sheet");
         private DigitalInput2 buttonCatTrigger = new DigitalInput2();
@@ -83,6 +87,7 @@ namespace Animatroller.SceneRunner
         private Controller.Sequence thunderSeq = new Controller.Sequence();
         private Controller.Sequence finalSeq = new Controller.Sequence();
         private Controller.Sequence reaperSeq = new Controller.Sequence("Reaper");
+        private Controller.Sequence georgeSeq = new Controller.Sequence();
         private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
         private Controller.Timeline<string> timelineThunder2 = new Controller.Timeline<string>(1);
 
@@ -103,14 +108,14 @@ namespace Animatroller.SceneRunner
 
             flickerEffect.ConnectTo(lightStairs1.InputBrightness);
             flickerEffect.ConnectTo(lightStairs2.InputBrightness);
-//            pulsatingEffect1.ConnectTo(lightBehindHeads.InputBrightness);
-//            pulsatingEffect1.ConnectTo(lightBehindSheet.InputBrightness);
+            //            pulsatingEffect1.ConnectTo(lightBehindHeads.InputBrightness);
+            //            pulsatingEffect1.ConnectTo(lightBehindSheet.InputBrightness);
             pulsatingEffect1.ConnectTo(candySpot.InputBrightness);
-//            pulsatingEffect1.ConnectTo(movingHead.InputBrightness);
+            //            pulsatingEffect1.ConnectTo(movingHead.InputBrightness);
 
-//            movingHead.InputBrightness.Log("Moving Head Brightness");
+            //            movingHead.InputBrightness.Log("Moving Head Brightness");
 
-//            popOut1.AddDevice(lightning1.InputBrightness);
+            //            popOut1.AddDevice(lightning1.InputBrightness);
             popOut2.ConnectTo(lightning2.InputBrightness);
             popOut1.ConnectTo(lightBehindHeads.InputBrightness);
             popOut1.ConnectTo(lightBehindSheet.InputBrightness);
@@ -126,6 +131,9 @@ namespace Animatroller.SceneRunner
 
             raspberryReaper.Connect(audioReaper);
             raspberryOla.Connect(audioOla);
+
+            raspberryGeorge.DigitalOutputs[7].Connect(fog);
+            raspberryGeorge.Connect(audioGeorge);
 
             inputBrightness.ConnectTo(movingHead.InputBrightness);
 
@@ -143,12 +151,32 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.RGBStrobe(lightBehindHeads, 40), 20);
             acnOutput.Connect(new Physical.RGBStrobe(lightBehindSheet, 60), 20);
             acnOutput.Connect(new Physical.GenericDimmer(lightTree, 50), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(lightFlash1, 1), 21);
 
             candySpot.SetOnlyColor(Color.Green);
 
+            oscServer.RegisterAction<int>("/mrmr/pushbutton/0/jedermann", (msg, data) =>
+            {
+                if (data.Any() && data.First() != 0)
+                {
+                    //                    audioCat.PlayEffect("laugh");
+                    lightFlash1.Power = true;
+                    Thread.Sleep(600);
+                    lightFlash1.Power = false;
+                }
+            });
+
+            oscServer.RegisterAction<int>("/mrmr/pushbutton/1/jedermann", (msg, data) =>
+            {
+                if (data.Any() && data.First() != 0)
+                {
+                    Exec.Execute(georgeSeq);
+                }
+            });
+
             finalBeam.WhenOutputChanges(x =>
                 {
-//                    lightning1.Brightness = x ? 1.0 : 0.0;
+                    //                    lightning1.Brightness = x ? 1.0 : 0.0;
                     //if (x)
                     //{
                     //    Exec.Execute(thunderSeq);
@@ -157,7 +185,7 @@ namespace Animatroller.SceneRunner
 
             firstBeam.WhenOutputChanges(x =>
             {
-                if (x)
+                if (x && hoursSmall.IsOpen)
                 {
                     Exec.Execute(reaperSeq);
                 }
@@ -167,36 +195,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (x)
                     {
-                        var controlPan = new Effect.Fader(S(4.8), 106, 150, false);
-//                        var controlTilt = new Effect.Fader("Tilt", S(4.8), 0.14117647, 0.37647059, false);
-                        var controlTilt = new Effect.Fader(S(4.8), 231.8823531, 168.3529407, false);
-
-                        controlPan.ConnectTo(movingHead.InputPan);
-                        controlTilt.ConnectTo(movingHead.InputTilt);
-
-                        controlPan.Prime();
-                        controlTilt.Prime();
-                        movingHead.Brightness = 0;
-
-                        Thread.Sleep(2000);
-
-                        movingHead.SetColor(Color.Red, 0.1);
-                        controlPan.Start();
-                        controlTilt.Start();
-
-                        //georgeMotor.SetVector(1.0, 400, S(10));
-                        //georgeMotor.WaitForVectorReached();
-
-                        Thread.Sleep(5000);
-                        movingHead.Brightness = 0;
-
-                        //georgeMotor.SetVector(0.9, 0, S(15));
-                        //georgeMotor.WaitForVectorReached();
-
-                        //                        deadEnd.Power = true;
-                        Thread.Sleep(500);
-//                        deadEnd.Power = false;
-//                        Exec.Execute(thunderSeq);
+                        Exec.Execute(georgeSeq);
                     }
                 });
 
@@ -228,6 +227,13 @@ namespace Animatroller.SceneRunner
                     //                        audioSpider.PlayEffect("348 Spider Hiss");
                     //                    Exec.Execute(thunderSeq);
                 });
+
+            buttonTest4.WhenOutputChanges(x =>
+            {
+                fog.Power = x;
+                if(x)
+                    audioGeorge.PlayEffect("laugh");
+            });
 
             raspberryReaper.DigitalOutputs[7].Connect(reaperPopUp);
             raspberryReaper.DigitalOutputs[6].Connect(reaperEyes);
@@ -275,13 +281,13 @@ namespace Animatroller.SceneRunner
             midiInput.Note(midiChannel, 40).Controls(buttonCatTrigger.Control);
 
 
-            buttonTest4.Output.Subscribe(x =>
-                {
-                    if (x)
-                    {
-                        audioOla.NextBackgroundTrack();
-                    }
-                });
+            //buttonTest4.Output.Subscribe(x =>
+            //    {
+            //        if (x)
+            //        {
+            //            audioOla.NextBackgroundTrack();
+            //        }
+            //    });
 
             inputPan.Output.Controls(movingHead.InputPan);
             inputTilt.Output.Controls(movingHead.InputTilt);
@@ -289,12 +295,12 @@ namespace Animatroller.SceneRunner
             //            buttonTest2.Output.Subscribe(reaperPopUp.PowerControl);
             catMotion.Output.Subscribe(catLights.ControlValue);
 
-/*
-            finalBeam.Output.Subscribe(x =>
-                {
-                    lightning1.Brightness = x ? 1.0 : 0.0;
-                });
-*/
+            /*
+                        finalBeam.Output.Subscribe(x =>
+                            {
+                                lightning1.Brightness = x ? 1.0 : 0.0;
+                            });
+            */
             buttonTest1.Output.Subscribe(x =>
                 {
                     if (x)
@@ -350,7 +356,7 @@ namespace Animatroller.SceneRunner
                 }
             });
 
-//            hoursSmall.Output.Subscribe(catAir.InputPower);
+            //            hoursSmall.Output.Subscribe(catAir.InputPower);
             hoursSmall.Output.Subscribe(flickerEffect.InputRun);
             hoursSmall.Output.Subscribe(pulsatingEffect1.InputRun);
             hoursSmall.Output.Subscribe(lightTree.ControlValue);
@@ -408,6 +414,42 @@ namespace Animatroller.SceneRunner
 
         public override void Start()
         {
+            georgeSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    var controlPan = new Effect.Fader(S(4.8), 106, 150, false);
+                    //                        var controlTilt = new Effect.Fader("Tilt", S(4.8), 0.14117647, 0.37647059, false);
+                    var controlTilt = new Effect.Fader(S(4.8), 231.8823531, 168.3529407, false);
+
+                    controlPan.ConnectTo(movingHead.InputPan);
+                    controlTilt.ConnectTo(movingHead.InputTilt);
+
+                    controlPan.Prime();
+                    controlTilt.Prime();
+                    movingHead.Brightness = 0;
+
+                    instance.WaitFor(S(2));
+
+                    movingHead.SetColor(Color.Red, 0.1);
+                    controlPan.Start();
+                    controlTilt.Start();
+                    audioReaper.PlayEffect("laugh");
+
+                    georgeMotor.SetVector(1.0, 400, S(10));
+                    georgeMotor.WaitForVectorReached();
+
+                    instance.WaitFor(S(5));
+                    movingHead.Brightness = 0;
+
+                    georgeMotor.SetVector(0.9, 0, S(15));
+                    georgeMotor.WaitForVectorReached();
+
+                    //                        deadEnd.Power = true;
+                    instance.WaitFor(S(0.5));
+                    //                        deadEnd.Power = false;
+                    //                        Exec.Execute(thunderSeq);
+                });
+
             reaperSeq.WhenExecuted
                 .Execute(instance =>
                 {
