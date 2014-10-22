@@ -248,7 +248,7 @@ namespace Animatroller.SceneRunner
 
             finalBeam.WhenOutputChanges(x =>
                 {
-                    if (x)
+                    if (x && hoursSmall.IsOpen)
                     {
                         Exec.Execute(finalSeq);
                     }

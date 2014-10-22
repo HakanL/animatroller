@@ -48,6 +48,8 @@ namespace Animatroller.Framework.Expander
 
         public OscClient Send(string address, params object[] data)
         {
+            this.sender.WaitForAllMessagesToComplete();
+
             log.Info("Sending to {0}", address);
 
             if (data == null || data.Length == 0)
