@@ -351,6 +351,10 @@ def osc_cueFx(unused_addr, args):
         last_fx_chn = None
 
 
+def osc_test(unused_addr, num):
+    logging.info('Test {0}'.format(num))
+
+
 def osc_pauseFx(unused_addr):
     logging.info('Pause FX')
     if last_fx_chn is not None:
@@ -474,6 +478,8 @@ if __name__ == '__main__':
 
     dispatcher = dispatcher.Dispatcher()
     dispatcher.map("/init", osc_init)
+    dispatcher.map("/test", osc_test)
+
     dispatcher.map("/audio/fx/play", osc_playFx)
     dispatcher.map("/audio/fx/playnew", osc_playNewFx)
     dispatcher.map("/audio/fx/cue", osc_cueFx)
