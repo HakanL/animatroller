@@ -174,6 +174,11 @@ namespace Animatroller.Framework.Expander
             });
         }
 
+        public void Test(int value)
+        {
+            this.oscClient.Send("/test", value.ToString());
+        }
+
         public Raspberry Connect(LogicalDevice.AudioPlayer logicalDevice)
         {
             this.AudioTrackDone += (o, e) =>

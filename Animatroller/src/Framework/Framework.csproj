@@ -120,6 +120,7 @@
     <Compile Include="Interface\ISupportsPersistence.cs" />
     <Compile Include="Interface\SceneInterfaces.cs" />
     <Compile Include="LogicalDevice\AnalogInput2.cs" />
+    <Compile Include="LogicalDevice\BrightnessPowerAdapter.cs" />
     <Compile Include="LogicalDevice\ColorDimmer2.cs" />
     <Compile Include="LogicalDevice\DigitalInput2.cs" />
     <Compile Include="LogicalDevice\Interface\IHasMasterPower.cs" />

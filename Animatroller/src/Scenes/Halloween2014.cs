@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Subjects;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Expander = Animatroller.Framework.Expander;
@@ -28,7 +29,7 @@ namespace Animatroller.SceneRunner
         private const int midiChannel = 0;
 
         private Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
-        private DateTime? lastFogRun;
+        private DateTime? lastFogRun = DateTime.Now;
         private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audioCat = new AudioPlayer();
@@ -55,6 +56,7 @@ namespace Animatroller.SceneRunner
         private Dimmer2 lightWindow = new Dimmer2("Window");
         private Dimmer2 lightInside = new Dimmer2("Inside");
         private DigitalOutput2 lightFlash1 = new DigitalOutput2("Flash 1");
+        private DigitalOutput2 lightFlash2 = new DigitalOutput2("Flash 2");
         private DigitalOutput2 lightTree = new DigitalOutput2("Tree");
         private DigitalOutput2 deadEnd = new DigitalOutput2("Dead End");
         private DigitalOutput2 fog = new DigitalOutput2("Fog");
@@ -104,16 +106,17 @@ namespace Animatroller.SceneRunner
         private Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
 
         private Effect.PopOut popOut1 = new Effect.PopOut(S(0.3));
-        private Effect.PopOut popOutBehindHeads = new Effect.PopOut(S(0.3));
+        private Effect.PopOut popOutBehindHeads = new Effect.PopOut(S(0.4));
         private Effect.PopOut popOut2 = new Effect.PopOut(S(0.3));
         private Effect.PopOut popOut3 = new Effect.PopOut(S(0.5));
-        private Effect.PopOut popOut4 = new Effect.PopOut(S(0.5));
+        private Effect.PopOut popOut4 = new Effect.PopOut(S(0.8));
 
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence thunderSeq = new Controller.Sequence();
         private Controller.Sequence stepForwardSeq = new Controller.Sequence();
         private Controller.Sequence backgroundSeq = new Controller.Sequence();
         private Controller.Sequence finalSeq = new Controller.Sequence();
+        private Controller.Sequence testSeq = new Controller.Sequence("Test");
         private Controller.Sequence reaperSeq = new Controller.Sequence("Reaper");
         private Controller.Sequence georgeSeq = new Controller.Sequence();
         private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
@@ -161,9 +164,20 @@ namespace Animatroller.SceneRunner
             //            popOut2.ConnectTo(light.InputBrightness);
             popOut1.ConnectTo(lightBehindHeads.InputBrightness);
             popOut1.ConnectTo(lightBehindSheet.InputBrightness);
+//            popOut1 ConnectTo(lightFlash1.InputBrightness);
+//            popOut2.ConnectTo(lightFlash1.InputBrightness);
+            popOut2.ConnectTo(lightBehindSheet.InputBrightness);
+            popOut2.ConnectTo(lightning1.InputBrightness);
+            popOut3.ConnectTo(lightBehindHeads.InputBrightness);
+            popOut3.ConnectTo(lightBehindSheet.InputBrightness);
             popOut3.ConnectTo(lightEntranceR.InputBrightness);
             popOut3.ConnectTo(lightEntranceL.InputBrightness);
+            popOut3.ConnectTo(new BrightnessPowerAdapter(lightFlash1).InputBrightness);
+//            popOut3.ConnectTo(lightFlash1.InputBrightness);
             popOut4.ConnectTo(lightEntranceL.InputBrightness);
+            popOut4.ConnectTo(new BrightnessPowerAdapter(lightFlash1).InputBrightness);
+            popOut4.ConnectTo(new BrightnessPowerAdapter(lightFlash2).InputBrightness);
+
             popOutBehindHeads.ConnectTo(lightBehindHeads.InputBrightness);
             //popOut3.ConnectTo(movingHead.InputBrightness);
 
@@ -206,7 +220,8 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightMirrorSkeleton, 1), 22);
             acnOutput.Connect(new Physical.GenericDimmer(lightInside, 2), 22);
             acnOutput.Connect(new Physical.GenericDimmer(lightWindow, 3), 22);
-            //            acnOutput.Connect(new Physical.GenericDimmer(lightFlash1, 1), 21);
+            acnOutput.Connect(new Physical.GenericDimmer(lightFlash1, 1), 21);
+            acnOutput.Connect(new Physical.GenericDimmer(lightFlash2, 4), 22);
 
             candySpot.SetOnlyColor(Color.Green);
 
@@ -214,7 +229,9 @@ namespace Animatroller.SceneRunner
             {
                 if (data.First() != 0)
                 {
-                    stateMachine.SetState(States.Stair);
+                    popOut4.Pop(1.0);
+//                    stateMachine.SetState(States.Stair);
+//                    Exec.Execute(testSeq);
                     //                    Exec.Execute(reaperSeq);
                     //                    popOut4.Pop(1.0);
                     //                    pulsatingEffect2.Start();
@@ -229,7 +246,8 @@ namespace Animatroller.SceneRunner
             {
                 if (data.Any() && data.First() != 0)
                 {
-                    Exec.Execute(georgeSeq);
+                    stateMachine.SetState(States.George);
+                    //                    Exec.Execute(georgeSeq);
                 }
             });
 
@@ -238,10 +256,6 @@ namespace Animatroller.SceneRunner
                 if (data.First() != 0)
                 {
                     stateMachine.SetState(States.StepForward);
-                }
-                else
-                {
-                    stateMachine.Hold();
                 }
             });
 
@@ -263,7 +277,10 @@ namespace Animatroller.SceneRunner
             {
                 if (x && hoursSmall.IsOpen)
                 {
-                    Exec.Execute(reaperSeq);
+                    //                    Exec.Execute(reaperSeq);
+                    if (stateMachine.CurrentState == States.Background ||
+                        stateMachine.CurrentState == States.StepForward)
+                        stateMachine.SetState(States.Stair);
                 }
             });
 
@@ -287,6 +304,10 @@ namespace Animatroller.SceneRunner
                         case "05 Thunder Clap":
                             timelineThunder2.Start();
                             break;
+
+                        default:
+                            timelineThunder1.Start();
+                            break;
                     }
                 });
 
@@ -306,9 +327,15 @@ namespace Animatroller.SceneRunner
 
             buttonTest4.WhenOutputChanges(x =>
             {
-                fog.Power = x;
+                //                fog.Power = x;
                 if (x)
-                    audioGeorge.PlayEffect("laugh");
+                {
+                    for (int i = 0; i < 100; i++)
+                    {
+                        raspberryReaper.Test(i);
+                    }
+                }
+                //                    audioGeorge.PlayEffect("242004__junkfood2121__fart-01");
             });
 
             raspberryReaper.DigitalOutputs[7].Connect(reaperPopUp);
@@ -388,7 +415,7 @@ namespace Animatroller.SceneRunner
                             });
             */
 
-            buttonTest1.Output.Subscribe(pulsatingEffect2.InputRun);
+//            buttonTest1.Output.Subscribe(pulsatingEffect2.InputRun);
 
             //buttonTest1.Output.Subscribe(x =>
             //    {
@@ -449,9 +476,9 @@ namespace Animatroller.SceneRunner
             //});
 
             //            hoursSmall.Output.Subscribe(catAir.InputPower);
-            hoursSmall.Output.Subscribe(flickerEffect.InputRun);
-            hoursSmall.Output.Subscribe(pulsatingEffect1.InputRun);
-            hoursSmall.Output.Subscribe(pulsatingEffect2.InputRun);
+//            hoursSmall.Output.Subscribe(flickerEffect.InputRun);
+            //hoursSmall.Output.Subscribe(pulsatingEffect1.InputRun);
+            //hoursSmall.Output.Subscribe(pulsatingEffect2.InputRun);
             hoursSmall.Output.Subscribe(lightTree.ControlValue);
 
             hoursSmall.Output.Subscribe(x =>
@@ -475,8 +502,9 @@ namespace Animatroller.SceneRunner
                 switch (e.Code)
                 {
                     case "A":
-                        popOut2.Pop(1.0);
-                        popOut1.Pop(1.0);
+                        popOut3.Pop(1.0);
+                        popOut1.Pop(1.0);                        
+                        popOut4.Pop(1.0);                        
                         break;
 
                     case "B":
@@ -497,7 +525,8 @@ namespace Animatroller.SceneRunner
                             break;
 
                         case "B":
-                            popOut2.Pop(1.0);
+                            popOut3.Pop(1.0);
+                            popOut4.Pop(1.0);                        
                             break;
 
                         case "C":
@@ -531,11 +560,12 @@ namespace Animatroller.SceneRunner
 
                     instance.WaitFor(S(1.5));
 
-                    movingHead.SetColor(Color.Red, 0.1);
                     controlPan.Start();
                     controlTilt.Start();
 
-                    georgeMotor.SetVector(1.0, 400, S(10));
+                    georgeMotor.SetVector(1.0, 450, S(10));
+                    instance.WaitFor(S(1.2));
+                    movingHead.SetColor(Color.Red, 0.1);
                     instance.WaitFor(S(1.0));
                     audioGeorge.PlayEffect("162 Blood Curdling Scream of Terror");
                     georgeMotor.WaitForVectorReached();
@@ -563,7 +593,7 @@ namespace Animatroller.SceneRunner
                 })
                 .Execute(i =>
                 {
-                    i.WaitUntilCancel();
+                    i.WaitFor(S(5.0));
                 })
                 .TearDown(() =>
                 {
@@ -572,7 +602,46 @@ namespace Animatroller.SceneRunner
                     pulsatingEffect2.Stop();
                 });
 
+            testSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    //                    switchFog.SetPower(true);
+                    //                    this.lastFogRun = DateTime.Now;
+                    //                    Executor.Current.Execute(deadendSeq);
+                    //                    audioGeorge.PlayEffect("ghostly");
+                    //                    instance.WaitFor(S(0.5));
+                    //                    popOutEffect.Pop(1.0);
+
+                    //                    instance.WaitFor(S(1.0));
+
+
+
+                    deadEnd.Power = true;
+                    instance.WaitFor(S(0.3));
+                    deadEnd.Power = false;
+/*
+                    movingHead.Pan = 106;
+                    movingHead.Tilt = 31;
+                    fog.Power = true;
+                    this.lastFogRun = DateTime.Now;
+                    audioReaper.PlayEffect("348 Spider Hiss", 1.0, 0.0);
+                    spiderEyes1.Power = true;
+                    instance.WaitFor(S(0.5));
+                    movingHead.SetColor(Color.Turquoise, 0.2);
+                    movingHead.StrobeSpeed = 0.8;
+                    instance.WaitFor(S(2.5));
+                    movingHead.StrobeSpeed = 0;
+                    movingHead.Brightness = 0;
+                    spiderEyes1.Power = false;
+                    fog.Power = false;*/
+                });
+
             reaperSeq.WhenExecuted
+            .SetUp(() =>
+                {
+                    flickerEffect.Stop();
+                    pulsatingEffect2.Stop();
+                })
                 .Execute(instance =>
                 {
                     //                    switchFog.SetPower(true);
@@ -594,7 +663,9 @@ namespace Animatroller.SceneRunner
                     movingHead.Tilt = 31;
                     fog.Power = true;
                     this.lastFogRun = DateTime.Now;
+                    instance.WaitFor(S(0.05));
                     audioReaper.PlayEffect("348 Spider Hiss", 1.0, 0.0);
+                    instance.WaitFor(S(0.05));
                     spiderEyes1.Power = true;
                     instance.WaitFor(S(0.5));
                     movingHead.SetColor(Color.Turquoise, 0.2);
@@ -628,7 +699,6 @@ namespace Animatroller.SceneRunner
                     spiderEyes2.Power = true;
                     popOut4.Pop(0.4);
                     audioGeorge.PlayEffect("348 Spider Hiss");
-                    fog.Power = false;
 
                     movingHead.Brightness = 0.7;
                     movingHead.Color = Color.Red;
@@ -648,6 +718,9 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                 {
+                    flickerEffect.Start();
+                    pulsatingEffect2.Start();
+                    fog.Power = false;
                 });
 
             finalSeq.WhenExecuted
@@ -707,14 +780,30 @@ namespace Animatroller.SceneRunner
             backgroundSeq.WhenExecuted
                 .SetUp(() =>
                 {
-                    audioOla.PlayBackground();
+                    audioOla.NextBackgroundTrack();
+                    flickerEffect.Start();
+                    pulsatingEffect1.Start();
+                    pulsatingEffect2.Start();
                 })
                 .Execute(i =>
                 {
-                    i.WaitUntilCancel();
+                    while (!i.IsCancellationRequested)
+                    {
+                        i.WaitFor(S(1));
+                        if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 10)
+                        {
+                            // Run the fog for a little while
+                            fog.Power = true;
+                            i.WaitFor(S(4));
+                            fog.Power = false;
+                            this.lastFogRun = DateTime.Now;
+                        }
+                    }
                 })
                 .TearDown(() =>
                 {
+                    pulsatingEffect1.Stop();
+                    pulsatingEffect2.Stop();
                     audioOla.PauseBackground();
                 });
 
@@ -756,10 +845,10 @@ namespace Animatroller.SceneRunner
                             break;
                     }
                 })
-                    .TearDown(() =>
-                    {
-                        catLights.Power = false;
-                    });
+                .TearDown(() =>
+                {
+                    catLights.Power = false;
+                });
         }
 
         public override void Run()
