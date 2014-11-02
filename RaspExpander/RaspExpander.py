@@ -20,6 +20,7 @@ import pifacedigitalio as pif
 from serial import Serial
 from serial import serialutil
 import logging
+import uuid
 
 logging.basicConfig(filename='/var/log/animatroller.log', filemode='w', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s')
 
@@ -101,6 +102,7 @@ def play_next_bg_track():
     bg_playing = 1
 
     msg = osc_message_builder.OscMessageBuilder(address = "/audio/bg/start")
+    msg.add_arg(uuid.uuid1().hex)
     msg.add_arg(os.path.splitext(bg_files[index])[0])
     msg = msg.build()
     client.send(msg)
@@ -141,6 +143,7 @@ def decode_motor_command(cmd):
 
     if motor_pos is not None:
         motormsg = osc_message_builder.OscMessageBuilder(address = "/motor/feedback")
+        motormsg.add_arg(uuid.uuid1().hex)
         motormsg.add_arg(motor_chn)
         motormsg.add_arg(motor_pos)
         motormsg = motormsg.build()
@@ -183,6 +186,7 @@ def main():
 
     logging.info('Ready!')
     initmsg = osc_message_builder.OscMessageBuilder(address = "/init")
+    initmsg.add_arg(uuid.uuid1().hex)
     initmsg = initmsg.build()
     client.send(initmsg)
 
@@ -250,6 +254,7 @@ def main():
 
 def send_track_done():
     msg = osc_message_builder.OscMessageBuilder(address = "/audio/trk/done")
+    msg.add_arg(uuid.uuid1().hex)
     msg = msg.build()
     client.send(msg)
 
@@ -257,6 +262,7 @@ def send_track_done():
 def send_input_msg(channel, button_value):
     logging.info('Input value {0} on channel {1}'.format(button_value, channel))
     buttonmsg = osc_message_builder.OscMessageBuilder(address = "/input")
+    buttonmsg.add_arg(uuid.uuid1().hex)
     buttonmsg.add_arg(channel)
     buttonmsg.add_arg(button_value)
     buttonmsg = buttonmsg.build()
