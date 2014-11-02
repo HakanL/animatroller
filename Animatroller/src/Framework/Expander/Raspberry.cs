@@ -18,6 +18,7 @@ namespace Animatroller.Framework.Expander
         private int hostPort;
         private event EventHandler<EventArgs> AudioTrackDone;
         private ISubject<string> audioTrackStart;
+        private List<string> lastMessageIds = new List<string>();
 
         public Raspberry([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -29,6 +30,24 @@ namespace Animatroller.Framework.Expander
         public Raspberry(string hostEntry, int listenPort)
         {
             Initialize(hostEntry, listenPort);
+        }
+
+        private bool CheckIdempotence(OscServer.Message msg)
+        {
+            if (!msg.Data.Any())
+                return true;
+
+            string messageId = (string)msg.Data.First();
+            log.Trace("Received message id {0}", messageId);
+
+            if (this.lastMessageIds.Contains(messageId))
+                return false;
+
+            this.lastMessageIds.Add(messageId);
+            if (this.lastMessageIds.Count > 5)
+                this.lastMessageIds.RemoveAt(0);
+
+            return true;
         }
 
         private void Initialize(string hostEntry, int listenPort)
@@ -61,17 +80,26 @@ namespace Animatroller.Framework.Expander
             this.oscServer = new OscServer(listenPort);
             this.oscServer.RegisterAction("/init", msg =>
                 {
+                    if (!CheckIdempotence(msg))
+                        return;
+
                     log.Info("Raspberry is up");
                 });
 
             this.oscServer.RegisterAction("/audio/trk/done", msg =>
                 {
+                    if (!CheckIdempotence(msg))
+                        return;
+
                     log.Debug("Audio track done");
                     RaiseAudioTrackDone();
                 });
 
             this.oscServer.RegisterAction<string>("/audio/bg/start", (msg, data) =>
             {
+                if (!CheckIdempotence(msg))
+                    return;
+
                 if (data.Count() >= 1)
                 {
                     log.Debug("Playing background track {0}", data.First());
@@ -81,6 +109,9 @@ namespace Animatroller.Framework.Expander
 
             this.oscServer.RegisterAction<int>("/input", (msg, data) =>
                 {
+                    if (!CheckIdempotence(msg))
+                        return;
+
                     if (data.Count() >= 2)
                     {
                         var values = data.ToArray();
@@ -93,6 +124,9 @@ namespace Animatroller.Framework.Expander
 
             this.oscServer.RegisterAction("/motor/feedback", msg =>
                 {
+                    if (!CheckIdempotence(msg))
+                        return;
+
                     if (msg.Data.Count() >= 2)
                     {
                         var values = msg.Data.ToArray();
