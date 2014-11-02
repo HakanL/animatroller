@@ -62,6 +62,7 @@
     <Compile Include="HalloweenScene1.cs" />
     <Compile Include="HalloweenScene2013.cs" />
     <Compile Include="HalloweenScene2013b.cs" />
+    <Compile Include="IceBucket.cs" />
     <Compile Include="ItalianScene1.cs" />
     <Compile Include="LORScene.cs" />
     <Compile Include="Nutcracker1Scene.cs" />

@@ -15,7 +15,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class ItalianScene1 : BaseScene, ISceneSupportsSimulator, ISceneRequiresAcnStream
+    internal class ItalianScene1 : BaseScene, ISceneRequiresAcnStream
     {
         private VirtualPixel1D allPixels;
 

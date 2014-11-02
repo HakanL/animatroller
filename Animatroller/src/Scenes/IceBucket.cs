@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class IceBucket : BaseScene, ISceneRequiresRaspExpander1, ISceneSupportsSimulator, ISceneRequiresDMXPro
+    internal class IceBucket : BaseScene, ISceneRequiresDMXPro
     {
         public enum States
         {
@@ -43,7 +43,7 @@ namespace Animatroller.SceneRunner
         public IceBucket(IEnumerable<string> args)
         {
             stateMachine = new Controller.EnumStateMachine<States>("Main");
-            pulsatingEffect1 = new Effect.Pulsating("Pulse FX 1", S(2), 0.05, 1.0, false);
+            pulsatingEffect1 = new Effect.Pulsating(S(2), 0.05, 1.0, false);
             lightSpot = new StrobeColorDimmer("Spotlight");
 
             inputArm = new DigitalInput("Arm");
