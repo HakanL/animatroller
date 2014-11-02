@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,10 +21,6 @@ namespace Animatroller.SceneRunner
             Animatroller.Framework.Expander.Renard renard = null;
             Animatroller.Framework.Expander.IOExpander ioExpander = null;
             Animatroller.Framework.Expander.AcnStream acnOutput = null;
-            Animatroller.Framework.Expander.Raspberry raspberry1 = null;
-            Animatroller.Framework.Expander.Raspberry raspberry2 = null;
-            Animatroller.Framework.Expander.Raspberry raspberry3 = null;
-            Animatroller.Framework.Expander.Raspberry raspberry4 = null;
             Animatroller.Framework.Expander.MidiInput midiInput = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
@@ -31,8 +28,6 @@ namespace Animatroller.SceneRunner
             string sceneName = string.Empty;
             foreach (var arg in args)
             {
-                string[] parts2;
-
                 var parts = arg.Split('=');
                 parts[0] = parts[0].ToUpper();
 
@@ -72,31 +67,6 @@ namespace Animatroller.SceneRunner
                         acnOutput = new Framework.Expander.AcnStream();
                         break;
 
-                    case "RASP":
-                    case "RASP1":
-                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
-                        parts2 = parts[1].Split(',');
-                        raspberry1 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
-                        break;
-
-                    case "RASP2":
-                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
-                        parts2 = parts[1].Split(',');
-                        raspberry2 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
-                        break;
-
-                    case "RASP3":
-                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
-                        parts2 = parts[1].Split(',');
-                        raspberry3 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
-                        break;
-
-                    case "RASP4":
-                        // Example: RASP=192.168.240.123:5005,3333 to listen on 3333
-                        parts2 = parts[1].Split(',');
-                        raspberry4 = new Framework.Expander.Raspberry(parts2[0], int.Parse(parts2[1]));
-                        break;
-
                     default:
                         // Pass other parameters to the scene. Can be used to load test data to operating hours, etc
                         sceneArgs.Add(arg);
@@ -105,9 +75,12 @@ namespace Animatroller.SceneRunner
             }
 
 
+            // Load scene
             var sceneInterfaceType = typeof(IScene);
-            var sceneTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
+
+            var scenesAssembly = System.Reflection.Assembly.LoadFile(Path.Combine(Path.GetDirectoryName(sceneInterfaceType.Assembly.Location), "Scenes.dll"));
+
+            var sceneTypes = scenesAssembly.GetTypes()
                 .Where(p => sceneInterfaceType.IsAssignableFrom(p) &&
                     !p.IsInterface &&
                     !p.IsAbstract);
@@ -116,6 +89,8 @@ namespace Animatroller.SceneRunner
             if(sceneType == null)
                 throw new ArgumentException("Missing start scene");
 
+            Executor.Current.KeyStoragePrefix = sceneType.Name;
+
             IScene scene = (IScene)Activator.CreateInstance(sceneType, sceneArgs);
  
 
@@ -123,9 +98,9 @@ namespace Animatroller.SceneRunner
             Executor.Current.Register(scene);
 
             // Wire up the instantiated expanders
-            if (scene is ISceneSupportsSimulator && simForm != null)
+            if (simForm != null)
             {
-                ((ISceneSupportsSimulator)scene).WireUp(simForm);
+                simForm.AutoWireUsingReflection(scene);
             }
 
             if (scene is ISceneRequiresDMXPro)
@@ -161,34 +136,6 @@ namespace Animatroller.SceneRunner
                 if (acnOutput == null)
                     throw new ArgumentNullException("AcnOutput not configured");
                 ((ISceneRequiresAcnStream)scene).WireUp(acnOutput);
-            }
-
-            if (scene is ISceneRequiresRaspExpander1)
-            {
-                if (raspberry1 == null)
-                    throw new ArgumentNullException("Raspberry1 not configured");
-                ((ISceneRequiresRaspExpander1)scene).WireUp1(raspberry1);
-            }
-
-            if (scene is ISceneRequiresRaspExpander2)
-            {
-                if (raspberry2 == null)
-                    throw new ArgumentNullException("Raspberry2 not configured");
-                ((ISceneRequiresRaspExpander2)scene).WireUp2(raspberry2);
-            }
-
-            if (scene is ISceneRequiresRaspExpander3)
-            {
-                if (raspberry3 == null)
-                    throw new ArgumentNullException("Raspberry3 not configured");
-                ((ISceneRequiresRaspExpander3)scene).WireUp3(raspberry3);
-            }
-
-            if (scene is ISceneRequiresRaspExpander4)
-            {
-                if (raspberry4 == null)
-                    throw new ArgumentNullException("Raspberry4 not configured");
-                ((ISceneRequiresRaspExpander4)scene).WireUp4(raspberry4);
             }
 
             // Initialize

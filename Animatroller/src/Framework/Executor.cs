@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using NLog;
+using System.IO;
 
 namespace Animatroller.Framework
 {
@@ -34,7 +35,7 @@ namespace Animatroller.Framework
         private Effect.MasterSweeper masterSweeper;
         private string keyStoragePath;
 
-        public Executor()
+        private Executor()
         {
             this.singleInstanceTasks = new Dictionary<ICanExecute, Task>();
             this.devices = new List<IDevice>();
@@ -46,24 +47,60 @@ namespace Animatroller.Framework
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
             this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
-            this.keyStoragePath = System.IO.Path.GetTempPath();
+            this.keyStoragePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Animatroller");
+            if (!System.IO.Directory.Exists(this.keyStoragePath))
+                System.IO.Directory.CreateDirectory(this.keyStoragePath);
         }
 
-        public string GetKey(string key, string defaultValue)
+        public string KeyStoragePrefix { get; set; }
+
+        public void SetKey(string key, string value)
+        {
+            BinaryRage.DB.Insert<string>(KeyStoragePrefix + "." + key, value, this.keyStoragePath);
+        }
+
+        public string GetKey(string key, string defaultValue, bool storeDefaultIfMissing = false)
         {
             try
             {
-                return BinaryRage.DB<string>.Get(key, this.keyStoragePath);
+                return BinaryRage.DB.Get<string>(KeyStoragePrefix + "." + key, this.keyStoragePath);
+            }
+            catch (System.Runtime.Serialization.SerializationException)
+            {
+                SetKey(key, defaultValue);
+
+                return defaultValue;
+            }
+            catch (InvalidDataException)
+            {
+                SetKey(key, defaultValue);
+
+                return defaultValue;
             }
             catch (System.IO.DirectoryNotFoundException)
             {
+                if (storeDefaultIfMissing)
+                    SetKey(key, defaultValue);
+
                 return defaultValue;
             }
         }
 
-        public void SetKey(string key, string value)
+        internal string GetKey(object typeObject, string subKey, string defaultValue)
         {
-            BinaryRage.DB<string>.Insert(key, value, this.keyStoragePath);
+            return GetKey(string.Format("{0}.{1}", typeObject.GetType().Name, subKey), defaultValue);
+        }
+
+        internal T GetSetKey<T>(object typeObject, string subKey, T defaultValue)
+        {
+            return GetSetKey(string.Format("{0}.{1}", typeObject.GetType().Name, subKey), defaultValue);
+        }
+
+        public T GetSetKey<T>(string key, T defaultValue)
+        {
+            string value = GetKey(key, defaultValue.ToString(), true);
+
+            return (T)Convert.ChangeType(value, typeof(T));
         }
 
         public Executor Register(IDevice device)
@@ -74,6 +111,16 @@ namespace Animatroller.Framework
             this.devices.Add(device);
 
             return this;
+        }
+
+        internal void LogInfo(string text)
+        {
+            log.Info(text);
+        }
+
+        internal void LogDebug(string text)
+        {
+            log.Debug(text);
         }
 
         public Effect.MasterSweeper.Job RegisterSweeperJob(Effect.EffectAction.Action action, TimeSpan oneSweepDuration, int? iterations)
@@ -108,7 +155,70 @@ namespace Animatroller.Framework
 
             this.scenes.Add(scene);
 
+            // Set field names
+            SetFieldNamesForPersistence(scene);
+
             return this;
+        }
+
+        private void SetFieldNamesForPersistence(object scene)
+        {
+            var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+            var persistenceFields = new Dictionary<string, ISupportsPersistence>();
+
+            foreach (var field in fields)
+            {
+                object fieldValue = field.GetValue(scene);
+                if (fieldValue == null)
+                    continue;
+
+                ISupportsPersistence supportsPersistence = fieldValue as ISupportsPersistence;
+                if (supportsPersistence != null && supportsPersistence.PersistState)
+                {
+                    string baseKey = field.Name;
+
+                    var getKeyFunc = new Func<string, string, string>((subKey, defaultValue) =>
+                        {
+                            return GetKey(baseKey + subKey, defaultValue);
+                        });
+
+                    supportsPersistence.SetValueFromPersistence(getKeyFunc);
+
+                    persistenceFields.Add(baseKey, supportsPersistence);
+                }
+            }
+
+            if (persistenceFields.Any())
+            {
+                // Start task
+                Task persistenceTask;
+                Execute(x =>
+                    {
+                        while (!x.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                foreach (var kvp in persistenceFields)
+                                {
+                                    var setKeyFunc = new Action<string, string>((subKey, value) =>
+                                        {
+                                            SetKey(kvp.Key + subKey, value);
+                                        });
+
+                                    kvp.Value.SaveValueToPersistence(setKeyFunc);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.Error("Error in persistence task", ex);
+                            }
+
+                            // Execute every second
+                            x.WaitHandle.WaitOne(1000);
+                        }
+                    }, "PersistenceTask", out persistenceTask);
+            }
         }
 
         public Executor Start()
@@ -274,7 +384,7 @@ namespace Animatroller.Framework
         public CancellationTokenSource Execute(ICanExecute value)
         {
             CleanupCompletedTasks();
-            
+
             CancellationTokenSource cancelSource;
             Task task;
 

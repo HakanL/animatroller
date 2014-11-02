@@ -49,7 +49,7 @@ namespace Animatroller.Framework.Controller
         private Stack<T> momentaryStates;
         private T? backgroundState;
 
-        public EnumStateMachine(string name)
+        public EnumStateMachine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             if (!typeof(T).IsEnum)
                 throw new ArgumentException("T must be an enumerated type");
@@ -69,7 +69,7 @@ namespace Animatroller.Framework.Controller
                 handler(this, new StateChangedEventArgs(this.CurrentState));
 
             var handlerString = StateChangedString;
-            if(handlerString != null)
+            if (handlerString != null)
                 handlerString(this, new StateChangedStringEventArgs(this.CurrentStateString));
         }
 
@@ -180,7 +180,7 @@ namespace Animatroller.Framework.Controller
             {
                 lock (lockObject)
                 {
-                    if(this.currentState.HasValue)
+                    if (this.currentState.HasValue)
                         this.momentaryStates.Push(this.currentState.Value);
                 }
 

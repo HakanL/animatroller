@@ -64,7 +64,7 @@ namespace Animatroller.Framework.Expander
 
                 // Max 510 RGB values per universe
                 int universe = (this.startDmxChannel + (channel * 3)) / 510;
-                int localStart = (this.startDmxChannel + (channel *3)) % 510;
+                int localStart = (this.startDmxChannel + (channel * 3)) % 510;
 
                 var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
 
@@ -225,11 +225,11 @@ namespace Animatroller.Framework.Expander
             return new AcnPixelUniverse(this, startUniverse, startDmxChannel);
         }
 
-        private IPAddress GetFirstBindAddress()
+        private IPAddress GetAddressFromInterfaceType(NetworkInterfaceType interfaceType)
         {
             foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
-                if (adapter.SupportsMulticast && adapter.NetworkInterfaceType == NetworkInterfaceType.Ethernet &&
+                if (adapter.SupportsMulticast && adapter.NetworkInterfaceType == interfaceType &&
                     adapter.OperationalStatus == OperationalStatus.Up)
                 {
                     IPInterfaceProperties ipProperties = adapter.GetIPProperties();
@@ -241,6 +241,20 @@ namespace Animatroller.Framework.Expander
                     }
                 }
             }
+
+            return null;
+        }
+
+        private IPAddress GetFirstBindAddress()
+        {
+            // Try Ethernet first
+            IPAddress ipAddress = GetAddressFromInterfaceType(NetworkInterfaceType.Ethernet);
+            if (ipAddress != null)
+                return ipAddress;
+
+            ipAddress = GetAddressFromInterfaceType(NetworkInterfaceType.Wireless80211);
+            if (ipAddress != null)
+                return ipAddress;
 
             throw new ArgumentException("No suitable NIC found");
         }
@@ -261,7 +275,7 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
-            if(this.sendingUniverses.Any())
+            if (this.sendingUniverses.Any())
                 this.dmxStreamer.Start();
 
             this.isRunning = true;

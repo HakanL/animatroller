@@ -3,39 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Reactive.Subjects;
 using Animatroller.Framework.Extensions;
 using NLog;
+using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Effect
 {
-    public class Pulsating : BaseSweeperEffect<LogicalDevice.IHasBrightnessControl>
+    public class Pulsating : BaseSweeperEffect
     {
         private Transformer.EaseInOut easeTransform = new Transformer.EaseInOut();
         private double minBrightness;
         private double maxBrightness;
 
-        public Pulsating(string name, TimeSpan sweepDuration, double minBrightness, double maxBrightness, bool startRunning = true)
-            : base(name, sweepDuration, startRunning)
+        public Pulsating(TimeSpan sweepDuration, double minBrightness, double maxBrightness, bool startRunning = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(sweepDuration, startRunning, name)
         {
             this.minBrightness = minBrightness;
             this.maxBrightness = maxBrightness;
         }
 
-        public Pulsating(string name, TimeSpan sweepDuration)
-            : this(name, sweepDuration, 0, 1)
+        public Pulsating(TimeSpan sweepDuration, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : this(sweepDuration, 0, 1, true, name)
         {
-        }
-
-        protected override void ExecutePerDevice(LogicalDevice.IHasBrightnessControl device,
-            double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
-        {
-            double brightness = easeTransform.Transform(oneToZeroToOne)
-                .ScaleToMinMax(this.minBrightness, this.maxBrightness);
-
-            device.SetBrightness(brightness, this);
-
-            if (final)
-                device.Brightness = 0;
         }
 
         public double MinBrightness
@@ -49,64 +39,66 @@ namespace Animatroller.Framework.Effect
             get { return this.maxBrightness; }
             set { this.maxBrightness = value.Limit(0, 1); }
         }
+
+        protected override double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            if (final)
+                return 0;
+
+            return easeTransform.Transform(oneToZeroToOne)
+                .ScaleToMinMax(this.minBrightness, this.maxBrightness);
+        }
     }
 
-    public class Fader : BaseSweeperEffect<LogicalDevice.IHasBrightnessControl>
+    public class Fader : BaseSweeperEffect
     {
         private Transformer.EaseInOut easeTransform = new Transformer.EaseInOut();
         private double minBrightness;
         private double maxBrightness;
 
-        public Fader(string name, TimeSpan sweepDuration, double minBrightness, double maxBrightness, bool startRunning = true)
-            : base(name, sweepDuration, startRunning)
+        public Fader(TimeSpan sweepDuration, double minBrightness, double maxBrightness, bool startRunning = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(sweepDuration, startRunning, name)
         {
             this.minBrightness = minBrightness;
             this.maxBrightness = maxBrightness;
             base.sweeper.OneShot();
         }
 
-        public Fader(string name, TimeSpan sweepDuration)
-            : this(name, sweepDuration, 0, 1)
+        public Fader(TimeSpan sweepDuration, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : this(sweepDuration, 0, 1, true, name)
         {
-        }
-
-        protected override void ExecutePerDevice(LogicalDevice.IHasBrightnessControl device,
-            double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
-        {
-            double brightness = zeroToOne
-                .ScaleToMinMax(this.minBrightness, this.maxBrightness);
-
-            device.SetBrightness(brightness, this);
-
-            if (final)
-                device.ReleaseOwner();
         }
 
         public double MinBrightness
         {
             get { return this.minBrightness; }
-            set { this.minBrightness = value.Limit(0, 1); }
+            set { this.minBrightness = value; }
         }
 
         public double MaxBrightness
         {
             get { return this.maxBrightness; }
-            set { this.maxBrightness = value.Limit(0, 1); }
+            set { this.maxBrightness = value; }
+        }
+
+        protected override double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        {
+            return zeroToOne.ScaleToMinMax(this.minBrightness, this.maxBrightness);
         }
     }
 
-    public class PopOut : BaseSweeperEffect<LogicalDevice.IHasBrightnessControl>
+    public class PopOut : BaseSweeperEffect
     {
         private double startBrightness;
 
-        public PopOut(string name, TimeSpan sweepDuration)
-            : base(name, sweepDuration, false)
+        public PopOut(TimeSpan sweepDuration, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(sweepDuration, false, name)
         {
             base.sweeper.OneShot();
         }
 
-        public PopOut(string name, TimeSpan sweepDuration, int dataPoints)
-            : base(name, sweepDuration, dataPoints, false)
+        public PopOut(TimeSpan sweepDuration, int dataPoints, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(sweepDuration, dataPoints, false, name)
         {
             base.sweeper.OneShot();
         }
@@ -120,18 +112,17 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
-        protected override void ExecutePerDevice(LogicalDevice.IHasBrightnessControl device,
-            double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        protected override double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
         {
+            if (final)
+                return 0;
+
             double brightness = this.startBrightness * (1 - zeroToOne);
 
             if (brightness < 0.1)
                 brightness = 0;
 
-            device.SetBrightness(brightness, this);
-
-            if (final)
-                device.Brightness = 0;
+            return brightness;
         }
     }
 
@@ -145,10 +136,12 @@ namespace Animatroller.Framework.Effect
         protected object lockObject = new object();
         protected Timer timer;
         protected List<LogicalDevice.IHasBrightnessControl> devices;
+        protected List<ISubject<DoubleZeroToOne>> devices2;
+        protected ISubject<bool> inputRun;
         private double minBrightness;
         private double maxBrightness;
 
-        public Flicker(string name, double minBrightness, double maxBrightness, bool startRunning = true)
+        public Flicker(double minBrightness = 0.0, double maxBrightness = 1.0, bool startRunning = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
             Executor.Current.Register(this);
@@ -157,9 +150,23 @@ namespace Animatroller.Framework.Effect
             this.maxBrightness = maxBrightness;
 
             this.devices = new List<LogicalDevice.IHasBrightnessControl>();
+            this.devices2 = new List<ISubject<DoubleZeroToOne>>();
             this.timer = new Timer(new TimerCallback(TimerCallback));
 
-            if(startRunning)
+            this.inputRun = new Subject<bool>();
+
+            this.inputRun.Subscribe(x =>
+            {
+                if (this.isRunning != x)
+                {
+                    if (x)
+                        Start();
+                    else
+                        Stop();
+                }
+            });
+
+            if (startRunning)
                 Start();
         }
 
@@ -172,6 +179,10 @@ namespace Animatroller.Framework.Effect
                     foreach (var device in this.devices)
                         device.Brightness = this.random.NextDouble()
                             .ScaleToMinMax(this.minBrightness, this.maxBrightness);
+
+                    foreach (var device in this.devices2)
+                        device.OnNext(new DoubleZeroToOne(this.random.NextDouble()
+                            .ScaleToMinMax(this.minBrightness, this.maxBrightness)));
                 }
                 catch
                 {
@@ -184,8 +195,16 @@ namespace Animatroller.Framework.Effect
             else
                 log.Warn("Missed execute in Flicker");
 
-            if(isRunning)
+            if (isRunning)
                 this.timer.Change(random.Next(90) + 10, Timeout.Infinite);
+        }
+
+        public ISubject<bool> InputRun
+        {
+            get
+            {
+                return this.inputRun;
+            }
         }
 
         public IEffect Start()
@@ -205,6 +224,9 @@ namespace Animatroller.Framework.Effect
             {
                 foreach (var device in this.devices)
                     device.Brightness = 0;
+
+                foreach (var device in this.devices2)
+                    device.OnNext(DoubleZeroToOne.Zero);
             }
 
             return this;
@@ -225,6 +247,16 @@ namespace Animatroller.Framework.Effect
             lock (lockObject)
             {
                 this.devices.Add(device);
+            }
+
+            return this;
+        }
+
+        public Flicker ConnectTo(ISubject<DoubleZeroToOne> device)
+        {
+            lock (lockObject)
+            {
+                this.devices2.Add(device);
             }
 
             return this;

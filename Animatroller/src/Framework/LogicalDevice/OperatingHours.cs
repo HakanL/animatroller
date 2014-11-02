@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class OperatingHours : ILogicalDevice
+    public class OperatingHours : BaseDevice
     {
         protected class TimeRange
         {
@@ -15,7 +15,6 @@ namespace Animatroller.Framework.LogicalDevice
             public DateTime To { get; set; }
         }
 
-        protected string name;
         private List<TimeRange> ranges;
         private Timer timer;
         private bool? isOpen;
@@ -23,11 +22,9 @@ namespace Animatroller.Framework.LogicalDevice
 
         public event EventHandler<Event.OpenHoursEventArgs> OpenHoursChanged;
 
-        public OperatingHours(string name)
+        public OperatingHours([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(name)
         {
-            this.name = name;
-            Executor.Current.Register(this);
-
             this.isOpen = null;
             this.ranges = new List<TimeRange>();
             this.timer = new Timer(x =>
@@ -82,14 +79,11 @@ namespace Animatroller.Framework.LogicalDevice
             IsOpen = isOpenNow;
         }
 
-        public void StartDevice()
+        public override void StartDevice()
         {
-            this.timer.Change(0, 1000);
-        }
+            base.StartDevice();
 
-        public string Name
-        {
-            get { return this.name; }
+            this.timer.Change(0, 1000);
         }
 
         public void SetForced(bool? forcedIsOpen)
@@ -106,7 +100,7 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.isOpen = value;
 
-                    RaiseOpenHoursChanged();
+                    UpdateOutput();
                 }
             }
         }
@@ -122,6 +116,11 @@ namespace Animatroller.Framework.LogicalDevice
             this.ranges.Add(range);
 
             return this;
+        }
+
+        protected override void UpdateOutput()
+        {
+            RaiseOpenHoursChanged();
         }
     }
 }

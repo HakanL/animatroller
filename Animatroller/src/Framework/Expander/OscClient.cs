@@ -16,6 +16,7 @@ namespace Animatroller.Framework.Expander
         private OscSender sender;
         private System.Net.IPAddress destination;
         private int destinationPort;
+        private object lockObject = new object();
 
         public OscClient(IPAddress destination, int destinationPort)
         {
@@ -47,6 +48,8 @@ namespace Animatroller.Framework.Expander
 
         public OscClient Send(string address, params object[] data)
         {
+//            this.sender.WaitForAllMessagesToComplete();
+
             log.Info("Sending to {0}", address);
 
             if (data == null || data.Length == 0)
@@ -54,7 +57,10 @@ namespace Animatroller.Framework.Expander
                 // Send empty message
                 var oscMessage = new OscMessage(address);
 
-                this.sender.Send(oscMessage);
+                lock (lockObject)
+                {
+                    this.sender.Send(oscMessage);
+                }
             }
             else
             {
@@ -63,7 +69,10 @@ namespace Animatroller.Framework.Expander
                 var oscMessage = new OscMessage(address, data);
                 var oscPacket = new OscBundle(0, oscMessage);
 
-                this.sender.Send(oscPacket);
+                lock (lockObject)
+                {
+                    this.sender.Send(oscPacket);
+                }
             }
 
             return this;

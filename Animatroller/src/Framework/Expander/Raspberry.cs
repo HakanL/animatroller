@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
@@ -16,8 +17,21 @@ namespace Animatroller.Framework.Expander
         private string hostName;
         private int hostPort;
         private event EventHandler<EventArgs> AudioTrackDone;
+        private ISubject<string> audioTrackStart;
+
+        public Raspberry([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            Initialize(
+                hostEntry: Executor.Current.GetSetKey(this, name + ".hostEntry", "127.0.0.1:5005"),
+                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 3333));
+        }
 
         public Raspberry(string hostEntry, int listenPort)
+        {
+            Initialize(hostEntry, listenPort);
+        }
+
+        private void Initialize(string hostEntry, int listenPort)
         {
             var hostParts = hostEntry.Split(':');
             if (hostParts.Length != 2)
@@ -37,6 +51,8 @@ namespace Animatroller.Framework.Expander
             for (int index = 0; index < this.DigitalOutputs.Length; index++)
                 WireupOutput(index);
 
+            this.audioTrackStart = new Subject<string>();
+
             this.Motor = new PhysicalDevice.MotorWithFeedback((target, speed, timeout) =>
             {
                 this.oscClient.Send("/motor/exec", 1, target, (int)(speed * 100), timeout.TotalSeconds.ToString("F0"));
@@ -53,6 +69,15 @@ namespace Animatroller.Framework.Expander
                     log.Debug("Audio track done");
                     RaiseAudioTrackDone();
                 });
+
+            this.oscServer.RegisterAction<string>("/audio/bg/start", (msg, data) =>
+            {
+                if (data.Count() >= 1)
+                {
+                    log.Debug("Playing background track {0}", data.First());
+                    this.audioTrackStart.OnNext(data.First());
+                }
+            });
 
             this.oscServer.RegisterAction<int>("/input", (msg, data) =>
                 {
@@ -113,6 +138,14 @@ namespace Animatroller.Framework.Expander
             Executor.Current.Register(this);
         }
 
+        public IObservable<string> AudioTrackStart
+        {
+            get
+            {
+                return this.audioTrackStart;
+            }
+        }
+
         public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }
         public PhysicalDevice.DigitalOutput[] DigitalOutputs { get; private set; }
         public PhysicalDevice.MotorWithFeedback Motor { get; private set; }
@@ -139,6 +172,11 @@ namespace Animatroller.Framework.Expander
             {
                 this.oscClient.Send("/output", index, x ? 1 : 0);
             });
+        }
+
+        public void Test(int value)
+        {
+            this.oscClient.Send("/test", value.ToString());
         }
 
         public Raspberry Connect(LogicalDevice.AudioPlayer logicalDevice)
@@ -177,7 +215,7 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueTrack:
                             this.oscClient.Send("/audio/trk/cue", e.AudioFile);
                             break;
-                    
+
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayTrack:
                             this.oscClient.Send("/audio/trk/play", e.AudioFile);
                             break;

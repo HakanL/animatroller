@@ -7,6 +7,11 @@ namespace Animatroller.Framework.LogicalDevice
         public Color Color;
         public double Brightness;
 
+        public ColorBrightness()
+        {
+            this.Color = Color.Black;
+        }
+
         public ColorBrightness(Color color, double brightness)
         {
             this.Color = color;

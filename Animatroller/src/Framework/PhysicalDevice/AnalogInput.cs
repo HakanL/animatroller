@@ -8,7 +8,7 @@ namespace Animatroller.Framework.PhysicalDevice
     {
         public Action<double> Trigger { get; private set; }
 
-        private event EventHandler<LogicalDevice.Event.BrightnessChangedEventArgs> BrightnessChanged;
+        private event EventHandler<LogicalDevice.Event.BrightnessChangedEventArgs> ValueChanged;
 
         public AnalogInput()
         {
@@ -16,7 +16,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
             this.Trigger = new Action<double>(x =>
                 {
-                    var handler = BrightnessChanged;
+                    var handler = ValueChanged;
                     if (handler != null)
                         handler(this, new LogicalDevice.Event.BrightnessChangedEventArgs(x));
                 });
@@ -24,10 +24,20 @@ namespace Animatroller.Framework.PhysicalDevice
 
         public AnalogInput Connect(LogicalDevice.AnalogInput logicalDevice)
         {
-            BrightnessChanged += (sender, e) =>
+            ValueChanged += (sender, e) =>
                 {
                     logicalDevice.Value = e.NewBrightness;
                 };
+
+            return this;
+        }
+
+        public AnalogInput Connect(LogicalDevice.AnalogInput2 logicalDevice)
+        {
+            ValueChanged += (sender, e) =>
+            {
+                logicalDevice.Value = e.NewBrightness;
+            };
 
             return this;
         }

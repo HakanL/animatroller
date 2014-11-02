@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Animatroller.Framework</RootNamespace>
     <AssemblyName>Animatroller</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -24,6 +24,7 @@
     <DefineConstants>TRACE;DEBUG;PROFILEx</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +34,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -41,15 +43,16 @@
     <Reference Include="Acn">
       <HintPath>..\..\lib\Acn.dll</HintPath>
     </Reference>
-    <Reference Include="BinaryRage">
-      <HintPath>..\packages\BinaryRage.0.1.2\lib\net40\BinaryRage.dll</HintPath>
+    <Reference Include="BinaryRage, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\BinaryRage.0.1.3\lib\net40\BinaryRage.dll</HintPath>
     </Reference>
     <Reference Include="CircularBuffer">
       <HintPath>..\..\lib\CircularBuffer.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=3.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NLog.3.1.0.0\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Rug.Osc, Version=1.2.5.17694, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -75,6 +78,18 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -83,8 +98,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller\IntStateMachine.cs" />
+    <Compile Include="DoubleZeroToOne.cs" />
+    <Compile Include="Effect\BaseSweeperEffect.cs" />
     <Compile Include="Effect\EffectAction.cs" />
     <Compile Include="Effect\Effects2.cs" />
+    <Compile Include="Expander\MidiInput2.cs" />
     <Compile Include="Expander\MidiInput.cs" />
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
@@ -99,11 +117,27 @@
     <Compile Include="Interface\ICanExecute.cs" />
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="Controller\ChannelIdentity.cs" />
+    <Compile Include="Interface\ISupportsPersistence.cs" />
+    <Compile Include="Interface\SceneInterfaces.cs" />
+    <Compile Include="LogicalDevice\AnalogInput2.cs" />
+    <Compile Include="LogicalDevice\BrightnessPowerAdapter.cs" />
+    <Compile Include="LogicalDevice\ColorDimmer2.cs" />
+    <Compile Include="LogicalDevice\DigitalInput2.cs" />
+    <Compile Include="LogicalDevice\Interface\IHasMasterPower.cs" />
+    <Compile Include="LogicalDevice\OperatingHours2.cs" />
+    <Compile Include="LogicalDevice\SingleOwnerOutputDevice.cs" />
+    <Compile Include="LogicalDevice\SingleOwnerDevice.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
     <Compile Include="LogicalDevice\AnalogInput.cs" />
+    <Compile Include="LogicalDevice\BaseDevice.cs" />
+    <Compile Include="LogicalDevice\Dimmer2.cs" />
     <Compile Include="LogicalDevice\Event\AudioChanged.cs" />
+    <Compile Include="LogicalDevice\Interface\IControlData.cs" />
     <Compile Include="LogicalDevice\SinglePixel.cs" />
     <Compile Include="LogicalDevice\Interface\IPixel.cs" />
+    <Compile Include="LogicalDevice\DigitalOutput2.cs" />
+    <Compile Include="LogicalDevice\MovingHead.cs" />
+    <Compile Include="LogicalDevice\StrobeColorDimmer2.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
     <Compile Include="LogicalDevice\Event\PixelChanged.cs" />
@@ -112,12 +146,19 @@
     <Compile Include="LogicalDevice\OperatingHours.cs" />
     <Compile Include="Import\BaseImporter.cs" />
     <Compile Include="PhysicalDevice\AnalogInput.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseRGBStrobeLight.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseDMXRGBStrobeLight.cs" />
+    <Compile Include="PhysicalDevice\MonopriceMovingHeadLight12chn.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />
     <Compile Include="PhysicalDevice\PixelRGB.cs" />
+    <Compile Include="PhysicalDevice\MonopriceRGBWPinSpot.cs" />
     <Compile Include="PhysicalDevice\SmallRGBStrobe.cs" />
     <Compile Include="Interface\BaseScene.cs" />
     <Compile Include="Controller\Sequence.cs" />
+    <Compile Include="Simulator\SimulatorSkipAttribute.cs" />
+    <Compile Include="Simulator\SimulatorButtonTypeAttribute.cs" />
+    <Compile Include="Simulator\SimulatorButtonTypes.cs" />
     <Compile Include="Utility\ColorSpace.cs" />
     <Compile Include="Effect\BaseEffect.cs" />
     <Compile Include="Effect\Effects.cs" />
@@ -172,6 +213,8 @@
     <Compile Include="Import\FileFormat\LightORamaLMS.cs" />
     <Compile Include="Import\LorImport.cs" />
     <Compile Include="Import\FileFormat\VixenVIX.cs" />
+    <Compile Include="Utility\Rgbw.cs" />
+    <Compile Include="Utility\RgbwConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

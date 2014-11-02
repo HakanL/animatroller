@@ -10,6 +10,8 @@ namespace Animatroller.Framework
     public abstract class BaseScene : IScene
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected static Random random = new Random();
+
         //protected HashFile.HashFile hashFile;
 
         public BaseScene()
@@ -18,19 +20,27 @@ namespace Animatroller.Framework
             //this.hashFile.Initialize(this.GetType().Name, 50, 100);
         }
 
-        protected TimeSpan S(double seconds)
+        protected static TimeSpan S(double seconds)
         {
             return TimeSpan.FromSeconds(seconds);
         }
 
-        protected TimeSpan MS(double seconds)
+        protected static TimeSpan MS(double seconds)
         {
             return TimeSpan.FromMilliseconds(seconds);
         }
 
-        public abstract void Start();
-        public abstract void Run();
-        public abstract void Stop();
+        public virtual void Start()
+        {
+        }
+
+        public virtual void Run()
+        {
+        }
+
+        public virtual void Stop()
+        {
+        }
 
         protected Executor Exec
         {
