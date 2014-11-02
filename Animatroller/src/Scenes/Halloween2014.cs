@@ -96,7 +96,6 @@ namespace Animatroller.SceneRunner
         private DigitalOutput2 reaperEyes = new DigitalOutput2();
 
         private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
-        private OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
         private OperatingHours2 hoursInside = new OperatingHours2("Inside");
 
         // Effects
@@ -106,27 +105,33 @@ namespace Animatroller.SceneRunner
         private Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
 
         private Effect.PopOut popOut1 = new Effect.PopOut(S(0.3));
-        private Effect.PopOut popOutBehindHeads = new Effect.PopOut(S(0.4));
+        private Effect.PopOut popOutBehindHeads = new Effect.PopOut(S(1.0));
         private Effect.PopOut popOut2 = new Effect.PopOut(S(0.3));
         private Effect.PopOut popOut3 = new Effect.PopOut(S(0.5));
-        private Effect.PopOut popOut4 = new Effect.PopOut(S(0.8));
+        private Effect.PopOut popOut4 = new Effect.PopOut(S(1.2));
 
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence thunderSeq = new Controller.Sequence();
         private Controller.Sequence stepForwardSeq = new Controller.Sequence();
         private Controller.Sequence backgroundSeq = new Controller.Sequence();
         private Controller.Sequence finalSeq = new Controller.Sequence();
-        private Controller.Sequence testSeq = new Controller.Sequence("Test");
         private Controller.Sequence reaperSeq = new Controller.Sequence("Reaper");
+        private Controller.Sequence reaperPopSeq = new Controller.Sequence("Reaper Pop");
         private Controller.Sequence georgeSeq = new Controller.Sequence();
         private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
         private Controller.Timeline<string> timelineThunder2 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder3 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder4 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder5 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder6 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
         public Halloween2014(IEnumerable<string> args)
         {
-            hoursSmall.AddRange("5:00 pm", "9:00 pm");
-            hoursFull.AddRange("5:00 pm", "9:00 pm");
+            hoursSmall.AddRange("4:00 pm", "10:00 pm");
             hoursInside.AddRange("6:00 pm", "11:00 pm");
+            hoursInside.SetForced(false);
 
             // Logging
             hoursSmall.Output.Log("Hours small");
@@ -164,8 +169,8 @@ namespace Animatroller.SceneRunner
             //            popOut2.ConnectTo(light.InputBrightness);
             popOut1.ConnectTo(lightBehindHeads.InputBrightness);
             popOut1.ConnectTo(lightBehindSheet.InputBrightness);
-//            popOut1 ConnectTo(lightFlash1.InputBrightness);
-//            popOut2.ConnectTo(lightFlash1.InputBrightness);
+            //            popOut1 ConnectTo(lightFlash1.InputBrightness);
+            //            popOut2.ConnectTo(lightFlash1.InputBrightness);
             popOut2.ConnectTo(lightBehindSheet.InputBrightness);
             popOut2.ConnectTo(lightning1.InputBrightness);
             popOut3.ConnectTo(lightBehindHeads.InputBrightness);
@@ -173,8 +178,8 @@ namespace Animatroller.SceneRunner
             popOut3.ConnectTo(lightEntranceR.InputBrightness);
             popOut3.ConnectTo(lightEntranceL.InputBrightness);
             popOut3.ConnectTo(new BrightnessPowerAdapter(lightFlash1).InputBrightness);
-//            popOut3.ConnectTo(lightFlash1.InputBrightness);
-            popOut4.ConnectTo(lightEntranceL.InputBrightness);
+            //            popOut3.ConnectTo(lightFlash1.InputBrightness);
+            //            popOut4.ConnectTo(lightEntranceL.InputBrightness);
             popOut4.ConnectTo(new BrightnessPowerAdapter(lightFlash1).InputBrightness);
             popOut4.ConnectTo(new BrightnessPowerAdapter(lightFlash2).InputBrightness);
 
@@ -229,16 +234,13 @@ namespace Animatroller.SceneRunner
             {
                 if (data.First() != 0)
                 {
-                    popOut4.Pop(1.0);
-//                    stateMachine.SetState(States.Stair);
-//                    Exec.Execute(testSeq);
+                    audioOla.PlayTrack("12 Fear of the Dark");
+                    //                    popOut4.Pop(1.0);
+                    //                    stateMachine.SetState(States.Stair);
+                    //                    Exec.Execute(testSeq);
                     //                    Exec.Execute(reaperSeq);
                     //                    popOut4.Pop(1.0);
                     //                    pulsatingEffect2.Start();
-                }
-                else
-                {
-                    //                    pulsatingEffect2.Stop();
                 }
             });
 
@@ -246,7 +248,8 @@ namespace Animatroller.SceneRunner
             {
                 if (data.Any() && data.First() != 0)
                 {
-                    stateMachine.SetState(States.George);
+                    audioOla.NextBackgroundTrack();
+                    //                    stateMachine.SetState(States.George);
                     //                    Exec.Execute(georgeSeq);
                 }
             });
@@ -255,7 +258,29 @@ namespace Animatroller.SceneRunner
             {
                 if (data.First() != 0)
                 {
-                    stateMachine.SetState(States.StepForward);
+                    Exec.Execute(reaperPopSeq);
+                }
+            });
+
+            oscServer.RegisterAction<int>("/mrmr/pushbutton/3/Hakan-iPhone-6", (msg, data) =>
+            {
+                if (data.First() != 0)
+                {
+                    catLights.Power = true;
+                    switch (random.Next(3))
+                    {
+                        case 0:
+                            audioCat.PlayEffect("386 Demon Creature Growls");
+                            break;
+                        case 1:
+                            audioCat.PlayEffect("348 Spider Hiss");
+                            break;
+                        case 2:
+                            audioCat.PlayEffect("death-scream");
+                            break;
+                    }
+                    Thread.Sleep(2000);
+                    catLights.Power = false;
                 }
             });
 
@@ -288,7 +313,8 @@ namespace Animatroller.SceneRunner
                 {
                     if (x)
                     {
-                        Exec.Execute(georgeSeq);
+                        audioOla.NextBackgroundTrack();
+                        //                        Exec.Execute(georgeSeq);
                     }
                 });
 
@@ -297,24 +323,49 @@ namespace Animatroller.SceneRunner
                     // Next track
                     switch (x)
                     {
-                        case "56 Lightning Strike Thunder":
+                        case "12 Fear of the Dark":
+                            // Do nothing
+                            break;
+
+                        case "Thunder1":
                             timelineThunder1.Start();
                             break;
 
-                        case "05 Thunder Clap":
+                        case "Thunder2":
                             timelineThunder2.Start();
                             break;
 
-                        default:
-                            timelineThunder1.Start();
+                        case "Thunder3":
+                            timelineThunder3.Start();
+                            break;
+
+                        case "Thunder4":
+                            timelineThunder4.Start();
+                            break;
+
+                        case "Thunder5":
+                            timelineThunder5.Start();
+                            break;
+
+                        case "Thunder6":
+                            timelineThunder6.Start();
+                            break;
+
+                        case "Thunder7":
+                            timelineThunder7.Start();
+                            break;
+
+                        case "Thunder8":
+                            timelineThunder8.Start();
                             break;
                     }
                 });
 
-            buttonTest3.WhenOutputChanges(x =>
+            buttonTest4.WhenOutputChanges(x =>
                 {
                     if (x)
-                        Exec.Execute(reaperSeq);
+                        audioOla.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral");
+                    //                        Exec.Execute(reaperSeq);
                     //                    lightning2.Brightness = x ? 1.0 : 0.0;
                     //                    if (x)
                     //                        popOut1.Pop(1.0);
@@ -325,15 +376,17 @@ namespace Animatroller.SceneRunner
                     //                    Exec.Execute(thunderSeq);
                 });
 
-            buttonTest4.WhenOutputChanges(x =>
+            buttonTest3.WhenOutputChanges(x =>
             {
                 //                fog.Power = x;
                 if (x)
                 {
-                    for (int i = 0; i < 100; i++)
-                    {
-                        raspberryReaper.Test(i);
-                    }
+                    Exec.Execute(reaperPopSeq);
+
+                    //for (int i = 0; i < 100; i++)
+                    //{
+                    //    raspberryReaper.Test(i);
+                    //}
                 }
                 //                    audioGeorge.PlayEffect("242004__junkfood2121__fart-01");
             });
@@ -415,7 +468,7 @@ namespace Animatroller.SceneRunner
                             });
             */
 
-//            buttonTest1.Output.Subscribe(pulsatingEffect2.InputRun);
+            //            buttonTest1.Output.Subscribe(pulsatingEffect2.InputRun);
 
             //buttonTest1.Output.Subscribe(x =>
             //    {
@@ -462,21 +515,19 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
-            //buttonTest1.Output.Subscribe(x =>
-            //{
-            //    if (x)
-            //    {
-            //        movingHead.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
-            //    }
-            //    else
-            //    {
-            //        if (movingHead.Brightness > 0)
-            //            movingHead.RunEffect(new Effect2.Fader(1.0, 0.0), S(1.0));
-            //    }
-            //});
+            buttonTest1.Output.Subscribe(x =>
+            {
+                if (x)
+                    audioOla.PlayTrack("12 Fear of the Dark");
+
+                //if(x)
+                //    georgeMotor.SetVector(0.9, 0, S(15));
+
+                //                deadEnd.Power = x;
+            });
 
             //            hoursSmall.Output.Subscribe(catAir.InputPower);
-//            hoursSmall.Output.Subscribe(flickerEffect.InputRun);
+            //            hoursSmall.Output.Subscribe(flickerEffect.InputRun);
             //hoursSmall.Output.Subscribe(pulsatingEffect1.InputRun);
             //hoursSmall.Output.Subscribe(pulsatingEffect2.InputRun);
             hoursSmall.Output.Subscribe(lightTree.ControlValue);
@@ -495,50 +546,70 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
-            timelineThunder2.AddMs(0, "A");
-            timelineThunder2.AddMs(3500, "B");
-            timelineThunder2.TimelineTrigger += (sender, e) =>
-            {
-                switch (e.Code)
-                {
-                    case "A":
-                        popOut3.Pop(1.0);
-                        popOut1.Pop(1.0);                        
-                        popOut4.Pop(1.0);                        
-                        break;
-
-                    case "B":
-                        popOut2.Pop(0.5);
-                        break;
-                }
-            };
-
             timelineThunder1.AddMs(500, "A");
-            timelineThunder1.AddMs(1500, "B");
-            timelineThunder1.AddMs(1600, "C");
-            timelineThunder1.TimelineTrigger += (sender, e) =>
-                {
-                    switch (e.Code)
-                    {
-                        case "A":
-                            popOut2.Pop(0.5);
-                            break;
+            timelineThunder1.AddMs(3500, "B");
+            timelineThunder1.AddMs(4500, "C");
+            timelineThunder1.TimelineTrigger += TriggerThunderTimeline;
 
-                        case "B":
-                            popOut3.Pop(1.0);
-                            popOut4.Pop(1.0);                        
-                            break;
+            timelineThunder2.AddMs(500, "A");
+            timelineThunder2.AddMs(1500, "B");
+            timelineThunder2.AddMs(1600, "C");
+            timelineThunder2.AddMs(3700, "C");
+            timelineThunder2.TimelineTrigger += TriggerThunderTimeline;
 
-                        case "C":
-                            popOut1.Pop(1.0);
-                            break;
-                    }
-                };
+            timelineThunder3.AddMs(100, "A");
+            timelineThunder3.AddMs(200, "B");
+            timelineThunder3.AddMs(300, "C");
+            timelineThunder3.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder4.AddMs(0, "A");
+            timelineThunder4.AddMs(3500, "B");
+            timelineThunder4.AddMs(4500, "C");
+            timelineThunder4.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder5.AddMs(1100, "A");
+            timelineThunder5.AddMs(3500, "B");
+            timelineThunder5.AddMs(4700, "C");
+            timelineThunder5.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder6.AddMs(1000, "A");
+            timelineThunder6.AddMs(1800, "B");
+            timelineThunder6.AddMs(6200, "C");
+            timelineThunder6.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder7.AddMs(0, "A");
+            timelineThunder7.AddMs(200, "B");
+            timelineThunder7.AddMs(300, "C");
+            timelineThunder7.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder8.AddMs(500, "A");
+            timelineThunder8.AddMs(4000, "B");
+            timelineThunder8.AddMs(4200, "C");
+            timelineThunder8.TimelineTrigger += TriggerThunderTimeline;
 
             stateMachine.ForFromSequence(States.Background, backgroundSeq);
             stateMachine.ForFromSequence(States.Stair, reaperSeq);
             stateMachine.ForFromSequence(States.George, georgeSeq);
             stateMachine.ForFromSequence(States.StepForward, stepForwardSeq);
+        }
+
+        private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
+        {
+            switch (e.Code)
+            {
+                case "A":
+                    popOut3.Pop(1.0);
+                    popOut4.Pop(1.0);
+                    break;
+
+                case "B":
+                    popOut2.Pop(0.5);
+                    break;
+
+                case "C":
+                    popOut1.Pop(1.0);
+                    break;
+            }
         }
 
         public override void Start()
@@ -574,7 +645,9 @@ namespace Animatroller.SceneRunner
                     movingHead.Brightness = 0;
 
                     georgeMotor.SetVector(0.9, 0, S(15));
-                    //                    georgeMotor.WaitForVectorReached();
+                    movingHead.Pan = 106;
+                    movingHead.Tilt = 31;
+                    //georgeMotor.WaitForVectorReached();
 
                     //                        deadEnd.Power = true;
                     instance.WaitFor(S(0.5));
@@ -593,47 +666,13 @@ namespace Animatroller.SceneRunner
                 })
                 .Execute(i =>
                 {
-                    i.WaitFor(S(5.0));
+                    i.WaitFor(S(30.0));
                 })
                 .TearDown(() =>
                 {
                     audioOla.PauseTrack();
                     pulsatingEffect1.Stop();
                     pulsatingEffect2.Stop();
-                });
-
-            testSeq.WhenExecuted
-                .Execute(instance =>
-                {
-                    //                    switchFog.SetPower(true);
-                    //                    this.lastFogRun = DateTime.Now;
-                    //                    Executor.Current.Execute(deadendSeq);
-                    //                    audioGeorge.PlayEffect("ghostly");
-                    //                    instance.WaitFor(S(0.5));
-                    //                    popOutEffect.Pop(1.0);
-
-                    //                    instance.WaitFor(S(1.0));
-
-
-
-                    deadEnd.Power = true;
-                    instance.WaitFor(S(0.3));
-                    deadEnd.Power = false;
-/*
-                    movingHead.Pan = 106;
-                    movingHead.Tilt = 31;
-                    fog.Power = true;
-                    this.lastFogRun = DateTime.Now;
-                    audioReaper.PlayEffect("348 Spider Hiss", 1.0, 0.0);
-                    spiderEyes1.Power = true;
-                    instance.WaitFor(S(0.5));
-                    movingHead.SetColor(Color.Turquoise, 0.2);
-                    movingHead.StrobeSpeed = 0.8;
-                    instance.WaitFor(S(2.5));
-                    movingHead.StrobeSpeed = 0;
-                    movingHead.Brightness = 0;
-                    spiderEyes1.Power = false;
-                    fog.Power = false;*/
                 });
 
             reaperSeq.WhenExecuted
@@ -655,10 +694,6 @@ namespace Animatroller.SceneRunner
 
 
 
-                    deadEnd.Power = true;
-                    instance.WaitFor(S(0.3));
-                    deadEnd.Power = false;
-
                     movingHead.Pan = 106;
                     movingHead.Tilt = 31;
                     fog.Power = true;
@@ -668,8 +703,14 @@ namespace Animatroller.SceneRunner
                     instance.WaitFor(S(0.05));
                     spiderEyes1.Power = true;
                     instance.WaitFor(S(0.5));
+
                     movingHead.SetColor(Color.Turquoise, 0.2);
                     movingHead.StrobeSpeed = 0.8;
+
+                    deadEnd.Power = true;
+                    instance.WaitFor(S(0.3));
+                    deadEnd.Power = false;
+
                     instance.WaitFor(S(2.5));
                     movingHead.StrobeSpeed = 0;
                     movingHead.Brightness = 0;
@@ -692,13 +733,14 @@ namespace Animatroller.SceneRunner
                     reaperEyes.Power = false;
                     reaperLight.TurnOff();
                     instance.WaitFor(S(2.0));
-                    audioOla.PlayEffect("424 Coyote Howling");
+                    audioOla.PlayEffect("424 Coyote Howling", 0.0, 1.0);
                     audioGeorge.PlayEffect("424 Coyote Howling");
                     movingHead.SetColor(Color.Orange, 0.2);
                     instance.WaitFor(S(2.0));
                     spiderEyes2.Power = true;
-                    popOut4.Pop(0.4);
+                    popOut2.Pop(0.4);
                     audioGeorge.PlayEffect("348 Spider Hiss");
+                    audioReaper.PlayEffect("348 Spider Hiss");
 
                     movingHead.Brightness = 0.7;
                     movingHead.Color = Color.Red;
@@ -723,6 +765,25 @@ namespace Animatroller.SceneRunner
                     fog.Power = false;
                 });
 
+            reaperPopSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    audioReaper.PlayNewEffect("laugh", 0.0, 1.0);
+                    instance.WaitFor(S(0.1));
+                    reaperPopUp.Power = true;
+                    reaperLight.Color = Color.Red;
+                    reaperLight.Brightness = 1;
+                    reaperLight.StrobeSpeed = 1;
+                    instance.WaitFor(S(0.5));
+                    reaperEyes.Power = true;
+                    instance.WaitFor(S(2.0));
+
+                    reaperPopUp.Power = false;
+                    reaperEyes.Power = false;
+                    reaperLight.TurnOff();
+                    instance.WaitFor(S(0.5));
+                });
+
             finalSeq.WhenExecuted
                 .SetUp(() =>
                 {
@@ -738,12 +799,12 @@ namespace Animatroller.SceneRunner
                     i.WaitFor(S(1.0));
                     lightBehindHeads.SetOnlyColor(Color.White);
                     popOutBehindHeads.Pop(1.0);
-                    audioOla.PlayEffect("sixthsense-deadpeople");
-                    i.WaitFor(S(5));
+                    audioOla.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral", 0.0, 0.7);
+                    i.WaitFor(S(10));
                 })
                 .TearDown(() =>
                 {
-                    audioOla.ResumeTrack();
+                    audioOla.PlayBackground();
                     skullEyes.Power = false;
                     candySpot.SetOnlyColor(Color.Green);
                     pulsatingEffect1.Start();
@@ -751,6 +812,9 @@ namespace Animatroller.SceneRunner
                     //                        candySpot.SetColor(Color.Green);
 
                     //                        audioOla.PlayBackground();
+
+                    if (stateMachine.CurrentState == States.StepForward)
+                        stateMachine.SetState(States.Background);
                 });
 
             thunderSeq.WhenExecuted
@@ -802,8 +866,10 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                 {
+                    flickerEffect.Stop();
                     pulsatingEffect1.Stop();
                     pulsatingEffect2.Stop();
+                    audioOla.PauseTrack();
                     audioOla.PauseBackground();
                 });
 
