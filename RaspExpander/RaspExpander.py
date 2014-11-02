@@ -19,21 +19,36 @@ import pifacecommon
 import pifacedigitalio as pif
 from serial import Serial
 from serial import serialutil
+import logging
 
-if not pygame.mixer: print ('Warning, sound disabled')
+logging.basicConfig(filename='/var/log/animatroller.log', filemode='w', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s')
+
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.DEBUG)
+# set a format which is simpler for console use
+formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
+
+logging.info('Starting')
+
+if not pygame.mixer: logging.warning('Warning, sound disabled')
 
 ser = None
-        
-
+  
 pfd = None
 try:
     pif.init()
     pfd = pif.PiFaceDigital()
 except pif.NoPiFaceDigitalDetectedError:
-    print ('No PiFace card detected')
+    logging.warning('No PiFace card detected')
     pass
 
-soundPath = 'christmassounds'
+soundPath = 'halloweensounds'
+bgPath = os.path.join(soundPath, 'bg')
 soundFXdict = {}
 client = udp_client
 last_fx_chn = None
@@ -44,6 +59,7 @@ bg_playing = 0
 last_input_values = [0] * 8
 input_mute = [None] * 8
 input_lock = threading.Lock()
+last_bg_index = -1
 
 #functions to create our resources
 def load_fx(name):
@@ -55,11 +71,11 @@ def load_fx(name):
 
     fullname = os.path.join(soundPath + '/fx', name)
     try:
-        print ('Loading ', fullname)
+        logging.info('Loading ' + fullname)
         sound = pygame.mixer.Sound(fullname)
     except:
         pass
-        print('Cannot load sound: ', name)
+        logging.warning('Cannot load sound: ' + name)
         return None
 
     soundFXdict[name.lower()] = sound
@@ -67,25 +83,36 @@ def load_fx(name):
 
 
 def play_next_bg_track():
-    global bg_playing
-    print ('Next background track')
-    
-    index = random.randint(0, len(bg_files) - 1)
-    print ('File =', bg_files[index])
+    global bg_playing, last_bg_index
+    logging.info('Next background track')
 
-    pygame.mixer.music.load(os.path.join(soundPath + '/bg', bg_files[index]))
+    while True:	
+        index = random.randint(0, len(bg_files) - 1)
+        if len(bg_files) > 1 and last_bg_index == index:
+            continue
+        break
+    last_bg_index = index
+
+    logging.info('File = ' + bg_files[index])
+
+    pygame.mixer.music.load(os.path.join(bgPath, bg_files[index]))
     pygame.mixer.music.set_volume(bg_volume)
     pygame.mixer.music.play()
     bg_playing = 1
 
+    msg = osc_message_builder.OscMessageBuilder(address = "/audio/bg/start")
+    msg.add_arg(os.path.splitext(bg_files[index])[0])
+    msg = msg.build()
+    client.send(msg)
+
 def cue_track(file):
-    print ('Cue track', file)
+    logging.info('Cue track ' + file)
     pygame.mixer.music.load(os.path.join(soundPath + '/trk', file))
     pygame.mixer.music.set_volume(1.0)
 
 
 def decode_motor_command(cmd):
-    print('Decode motor command:', cmd)
+    logging.info('Decode motor command: ' + cmd)
     cmds = cmd.split(',')
 
     motor_chn = 0
@@ -95,22 +122,22 @@ def decode_motor_command(cmd):
         motor_chn = int(cmds[0])
         
         if cmds[1] == 'X':
-            print('Motor', motor_chn, 'failed!')
+            logging.info('Motor {0} failed!'.format(motor_chn))
             motor_pos = 'FAIL'
             
         elif cmds[1].startswith('S'):
             motor_pos = cmds[1]
             pos = int(cmds[1][1:])
-            print('Motor', motor_chn, 'start moving, currently in position', pos)
+            logging.info('Motor {0} start moving, currently in position {1}'.format(motor_chn, pos))
 
         elif cmds[1].startswith('E'):
             motor_pos = cmds[1]
             pos = int(cmds[1][1:])
-            print('Motor', motor_chn, 'done moving, currently in position', pos)
+            logging.info('Motor {0} done moving, currently in position {1}'.format(motor_chn, pos))
             
         else:
             pos = int(cmds[1])
-            print('Motor', motor_chn, 'moving, currently in position', pos)
+            logging.info('Motor {0} moving, currently in position {1}'.format(motor_chn, pos))
 
     if motor_pos is not None:
         motormsg = osc_message_builder.OscMessageBuilder(address = "/motor/feedback")
@@ -136,9 +163,9 @@ def main():
     pygame.mixer.music.set_endevent(pygame.constants.USEREVENT)
 
     # Find all background tracks
-    bg_files = [ f for f in listdir(soundPath + '/bg') if isfile(join(soundPath + '/bg', f)) ]
+    bg_files = [ f for f in listdir(bgPath) if isfile(join(bgPath, f)) ]
 
-    print('BG files =', len(bg_files))
+    logging.info('BG files = {0}'.format(len(bg_files)))
 
     pfd_listener = None
     if pfd is not None:
@@ -154,7 +181,7 @@ def main():
             
         pfd_listener.activate()
 
-    print('Ready!')
+    logging.info('Ready!')
     initmsg = osc_message_builder.OscMessageBuilder(address = "/init")
     initmsg = initmsg.build()
     client.send(initmsg)
@@ -174,7 +201,7 @@ def main():
                     running = 0
                 if event.type == pygame.constants.USEREVENT:
                     # This event is triggered when the song stops playing
-                    print ('Music ended')
+                    logging.info ('Music ended')
                     if bg_playing:
                         play_next_bg_track()
                     else:
@@ -187,14 +214,14 @@ def main():
                     if len(serline) < 1:
                         continue
                     if serline[0] == '#':
-                        print ('Serial: ACK')
+                        logging.info ('Serial: ACK')
                     elif serline[0:2] == 'M,':
                         decode_motor_command(serline[2:].rstrip())
                     else:
-                        print ('Serial data:', serline)
+                        logging.debug('Serial data: ' + serline)
                 else:
                     if serline != '':
-                        print(serline)
+                        logging.debug(serline)
             else:
                 time.sleep(0.1)
 
@@ -206,19 +233,19 @@ def main():
                         input_mute[i] = None
                         inputValue = pif.digital_read(i)
                         if last_input_values[i] != inputValue:                        
-                            print ('input', i, 'reset in main to', inputValue)
+                            logging.info('input {0} reset in main to {1}'.format(i, inputValue))
                             update_input(i, inputValue)
                         input_lock.release()
 
 
     except KeyboardInterrupt:
-        print ('Aborting')
+        logging.info('Aborting')
         pass
 
     if pfd is not None:
         pfd_listener.deactivate()
         
-    print ('Done')
+    logging.info('Done')
 
 
 def send_track_done():
@@ -228,7 +255,7 @@ def send_track_done():
 
 
 def send_input_msg(channel, button_value):
-    print ('Input value', button_value, 'on channel', channel)
+    logging.info('Input value {0} on channel {1}'.format(button_value, channel))
     buttonmsg = osc_message_builder.OscMessageBuilder(address = "/input")
     buttonmsg.add_arg(channel)
     buttonmsg.add_arg(button_value)
@@ -247,10 +274,10 @@ def input_callback(event):
     global last_input_values, input_mute
 
     pin = event.pin_num
-    print ('Input_callback', pin, 'value', 1 - event.direction)
+    logging.info('Input_callback {0} value {1}'.format(pin, 1 - event.direction))
 
     if input_mute[pin] is not None and (time.time() - input_mute[pin]) < 0.1:
-        print ('muted')
+        logging.info('muted')
         return
 
     input_lock.acquire()
@@ -263,22 +290,22 @@ def input_callback(event):
     input_lock.release()
 
 
-def osc_init(args = None):
-    print ('Animatroller running')
+def osc_init(unused_addr, args = None):
+    logging.info('Animatroller running')
 
 
-def osc_motor(chn, target, speed, timeout):
-    print('Motor command: chn:', chn, '  target:', target, '  speed:', speed, '  timeout:', timeout)
+def osc_motor(unused_addr, chn, target, speed, timeout):
+    logging.info('Motor command: chn: {0}  target: {1}  speed: {2}  timeout: {3}'.format(chn, target, speed, timeout))
     output = '!M,{0},{1},{2},{3}\r'.format(chn, target, speed, timeout)
 
-    print('Output:', output)
+    logging.info('Output: ' + output)
     ser.write(output.encode('utf-8'))
 
 
-def osc_playFx(file, leftvol = -1, rightvol = -1):
+def osc_playFx(unused_addr, file, leftvol = -1, rightvol = -1):
     global last_fx_snd, last_fx_chn
 
-    print ('Play FX', file)
+    logging.info('Play FX ' + file)
     fx_sound = load_fx(file + '.wav')
     if fx_sound is not None:
         last_fx_snd = fx_sound
@@ -295,10 +322,10 @@ def osc_playFx(file, leftvol = -1, rightvol = -1):
             last_fx_chn.set_volume(leftvol)
 
 
-def osc_playNewFx(file, leftvol = -1, rightvol = -1):
+def osc_playNewFx(unused_addr, file, leftvol = -1, rightvol = -1):
     global last_fx_snd, last_fx_chn
 
-    print ('Play New FX', file)
+    logging.info('Play New FX ' + file)
     fx_sound = load_fx(file + '.wav')
     if fx_sound is not None:
         last_fx_snd = fx_sound
@@ -313,10 +340,10 @@ def osc_playNewFx(file, leftvol = -1, rightvol = -1):
             last_fx_chn.set_volume(leftvol)
 
 
-def osc_cueFx(args):
+def osc_cueFx(unused_addr, args):
     global last_fx_snd, last_fx_chn
 
-    print ('Cue FX', args)
+    logging.info('Cue FX ' + args)
     fx_sound = load_fx(args + '.wav')
     if fx_sound is not None:
         last_fx_snd = fx_sound
@@ -324,72 +351,76 @@ def osc_cueFx(args):
         last_fx_chn = None
 
 
-def osc_pauseFx():
-    print ('Pause FX')
+def osc_test(unused_addr, num):
+    logging.info('Test {0}'.format(num))
+
+
+def osc_pauseFx(unused_addr):
+    logging.info('Pause FX')
     if last_fx_chn is not None:
         last_fx_chn.pause()
 
 
-def osc_resumeFx():
+def osc_resumeFx(unused_addr):
     global last_fx_chn
-    print ('Resume FX')
+    logging.info('Resume FX')
     if last_fx_chn is not None:
         last_fx_chn.unpause()
     elif last_fx_snd is not None:
         last_fx_chn = last_fx_snd.play()
 
         
-def osc_bgVolume(volume):
+def osc_bgVolume(unused_addr, volume):
     global bg_volume
-    print ('Background volume', volume)
+    logging.info('Background volume {0}'.format(volume))
     bg_volume = float(volume)
     pygame.mixer.music.set_volume(bg_volume)
 
 
-def osc_bgPlay():
+def osc_bgPlay(unused_addr):
     global bg_playing
     if pygame.mixer.music.get_busy():
-        print ('Background resume')
+        logging.info('Background resume')
         pygame.mixer.music.unpause()
     else:
-        print ('Background play')
+        logging.info('Background play')
         play_next_bg_track()
     bg_playing = 1
 
     
-def osc_trkPlay(file):
+def osc_trkPlay(unused_addr, file):
     global bg_playing
     cue_track(file + '.wav')
     pygame.mixer.music.play()
     bg_playing = 0
     
 
-def osc_trkCue(file):
+def osc_trkCue(unused_addr, file):
     global bg_playing
     cue_track(file + '.wav')
     bg_playing = 0
 
 
-def osc_trkResume():
+def osc_trkResume(unused_addr):
     pygame.mixer.music.play()
 
 
-def osc_bgPause():
-    print ('Background pause')
+def osc_bgPause(unused_addr):
+    logging.info('Background pause')
     pygame.mixer.music.pause()
 
 
-def osc_bgNext():
-    print ('Background next')
+def osc_bgNext(unused_addr):
+    logging.info('Background next')
     play_next_bg_track()
 
 
-def osc_output(channel, value):
+def osc_output(unused_addr, channel, value):
     if pfd is not None:
-        print ('Output', channel, 'set to', value)
+        logging.info('Output {0} set to {1}'.format(channel, value))
         pfd.output_pins[channel].value = value
     else:
-        print ('No PiFace card')
+        logging.warning('No PiFace card')
 
 
 class EnhancedSerial(Serial):
@@ -441,10 +472,14 @@ if __name__ == '__main__':
     parser.add_argument("--serverport",
         type=int, default=3333, help="The server port to send messages to")
     parser.add_argument("--serialport", default="", help="Serial port to connect to")
+    parser.add_argument("--bgpath",
+        default="bg", help="The background sound sub folder")
     args = parser.parse_args()
 
     dispatcher = dispatcher.Dispatcher()
     dispatcher.map("/init", osc_init)
+    dispatcher.map("/test", osc_test)
+
     dispatcher.map("/audio/fx/play", osc_playFx)
     dispatcher.map("/audio/fx/playnew", osc_playNewFx)
     dispatcher.map("/audio/fx/cue", osc_cueFx)
@@ -467,9 +502,12 @@ if __name__ == '__main__':
         sys.stdout.write("Serial port /dev/" + args.serialport + "\n")
         ser = EnhancedSerial("/dev/" + args.serialport, 38400, timeout=0.5)
 
+    bgPath = os.path.join(soundPath, args.bgpath)
+    logging.info("bgPath {0}".format(bgPath))
+	
     server = osc_server.ThreadingOSCUDPServer(
         (args.ip, args.port), dispatcher)
-    print("Serving on {}".format(server.server_address))
+    logging.info("Serving on {}".format(server.server_address))
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.start()
 
@@ -481,4 +519,4 @@ if __name__ == '__main__':
     server.shutdown()
     if ser is not None:
         ser.close()
-    print ('Goodbye')
+    logging.info('Goodbye')
