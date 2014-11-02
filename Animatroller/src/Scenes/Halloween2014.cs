@@ -30,7 +30,7 @@ namespace Animatroller.SceneRunner
 
         private Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         private DateTime? lastFogRun = DateTime.Now;
-        private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
+        //private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioReaper = new AudioPlayer();
@@ -129,8 +129,8 @@ namespace Animatroller.SceneRunner
 
         public Halloween2014(IEnumerable<string> args)
         {
-            hoursSmall.AddRange("4:00 pm", "10:00 pm");
-            hoursInside.AddRange("6:00 pm", "11:00 pm");
+            hoursSmall.AddRange("5:00 pm", "9:00 pm");
+            hoursInside.AddRange("6:00 pm", "10:00 pm");
             hoursInside.SetForced(false);
 
             // Logging
@@ -415,26 +415,26 @@ namespace Animatroller.SceneRunner
 
             inputStrobe.Output.Controls(movingHead.InputStrobeSpeed);
 
-            midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
-            midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
-            midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
-            midiInput.Controller(midiChannel, 4).Controls(inputStrobe.Control);
+            //midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
+            //midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
+            //midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
+            //midiInput.Controller(midiChannel, 4).Controls(inputStrobe.Control);
 
-            midiInput.Controller(midiChannel, 5).Controls(Observer.Create<double>(x =>
-                {
-                    inputPan.Control.OnNext(new DoubleZeroToOne(x * 540));
-                }));
-            midiInput.Controller(midiChannel, 6).Controls(Observer.Create<double>(x =>
-            {
-                inputTilt.Control.OnNext(new DoubleZeroToOne(x * 270));
-            }));
+            //midiInput.Controller(midiChannel, 5).Controls(Observer.Create<double>(x =>
+            //    {
+            //        inputPan.Control.OnNext(new DoubleZeroToOne(x * 540));
+            //    }));
+            //midiInput.Controller(midiChannel, 6).Controls(Observer.Create<double>(x =>
+            //{
+            //    inputTilt.Control.OnNext(new DoubleZeroToOne(x * 270));
+            //}));
 
-            midiInput.Note(midiChannel, 36).Controls(buttonTest1.Control);
-            midiInput.Note(midiChannel, 37).Controls(buttonTest2.Control);
-            midiInput.Note(midiChannel, 38).Controls(buttonTest3.Control);
-            midiInput.Note(midiChannel, 39).Controls(buttonTest4.Control);
+            //midiInput.Note(midiChannel, 36).Controls(buttonTest1.Control);
+            //midiInput.Note(midiChannel, 37).Controls(buttonTest2.Control);
+            //midiInput.Note(midiChannel, 38).Controls(buttonTest3.Control);
+            //midiInput.Note(midiChannel, 39).Controls(buttonTest4.Control);
 
-            midiInput.Note(midiChannel, 40).Controls(buttonCatTrigger.Control);
+            //midiInput.Note(midiChannel, 40).Controls(buttonCatTrigger.Control);
 
 
             //buttonTest4.Output.Subscribe(x =>

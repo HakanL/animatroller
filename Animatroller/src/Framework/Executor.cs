@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using NLog;
+using System.IO;
 
 namespace Animatroller.Framework
 {
@@ -65,6 +66,12 @@ namespace Animatroller.Framework
                 return BinaryRage.DB.Get<string>(KeyStoragePrefix + "." + key, this.keyStoragePath);
             }
             catch (System.Runtime.Serialization.SerializationException)
+            {
+                SetKey(key, defaultValue);
+
+                return defaultValue;
+            }
+            catch (InvalidDataException)
             {
                 SetKey(key, defaultValue);
 
