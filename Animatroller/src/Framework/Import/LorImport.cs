@@ -31,7 +31,7 @@ namespace Animatroller.Framework.Import
 
             foreach (var channel in sequence.channels)
             {
-                if (channel.deviceType != "LOR")
+                if (channel.deviceType != null &&channel.deviceType != "LOR")
                 {
                     log.Warn("Not supporting device type {0} yet", channel.deviceType);
                     continue;

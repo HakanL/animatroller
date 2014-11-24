@@ -32,6 +32,7 @@ namespace Animatroller.Framework
         private List<ExecuteInstance> executingTasks;
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
         private Controller.HighPrecisionTimer masterTimer;
+        private Controller.HighPrecisionTimer2 masterTimer2;
         private Effect.MasterSweeper masterSweeper;
         private string keyStoragePath;
 
@@ -46,6 +47,7 @@ namespace Animatroller.Framework
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
+            this.masterTimer2 = new Controller.HighPrecisionTimer2((int)(1000 / 60));
             this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
             this.keyStoragePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Animatroller");
             if (!System.IO.Directory.Exists(this.keyStoragePath))

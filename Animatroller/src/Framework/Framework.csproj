@@ -97,6 +97,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\HighPrecisionTimer2.cs" />
     <Compile Include="Controller\IntStateMachine.cs" />
     <Compile Include="DoubleZeroToOne.cs" />
     <Compile Include="Effect\BaseSweeperEffect.cs" />

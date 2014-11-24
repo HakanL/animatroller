@@ -113,7 +113,7 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 80);
             allPixels.SetAll(Color.White, 0);
 
-            var lorImport = new Animatroller.Framework.Import.LorImport(@"..\..\..\Test Files\wonderful christmas time.lms");
+            var lorImport = new Animatroller.Framework.Import.LorImport(@"..\..\..\Test Files\Do You Want To Build A Snowman.lms");
 /*
             light1_1 = lorImport.MapDevice(1, 1, name => new StrobeColorDimmer(name));
             light1_2 = lorImport.MapDevice(1, 2, name => new StrobeColorDimmer(name));
@@ -219,23 +219,6 @@ namespace Animatroller.SceneRunner
             }
 
             lorTimeline = lorImport.CreateTimeline(1);
-        }
-
-        public void WireUp(Expander.IOExpander port)
-        {
-            port.Connect(new Physical.SmallRGBStrobe(light5_1, 16));
-            port.DigitalInputs[0].Connect(testButton);
-        }
-
-        public void WireUp(Expander.DMXPro port)
-        {
-            port.Connect(new Physical.SmallRGBStrobe(light5_1, 16));
-        }
-
-        public void WireUp(Expander.AcnStream port)
-        {
-            // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 0, 60), 3, 181);
         }
 
         public override void Start()
