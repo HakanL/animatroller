@@ -2,59 +2,49 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Reactive;
 using NLog;
 using Animatroller.Framework.Effect;
 using Animatroller.Framework.Extensions;
-using System.Threading.Tasks;
 
 namespace Animatroller.Framework.Effect2
 {
-    public class MasterFader
+    public class MasterShimmer
     {
         private TimerJobRunner timerJobRunner;
 
-        public MasterFader(TimerJobRunner timerJobRunner)
+        public MasterShimmer(TimerJobRunner timerJobRunner)
         {
             this.timerJobRunner = timerJobRunner;
         }
 
-        public MasterFader()
+        public MasterShimmer()
             : this(Executor.Current.TimerJobRunner)
         {
         }
 
-        public Task Fade(IReceivesBrightness device, double startBrightness, double endBrightness, int durationMs, int priority = 1)
+        public void Shimmer(IReceivesBrightness device, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
         {
-            var taskSource = new TaskCompletionSource<bool>();
-
             var control = device.TakeControl(priority);
 
             var deviceObserver = device.GetBrightnessObserver(control);
 
-            double brightnessRange = endBrightness - startBrightness;
+            bool state = false;
 
             var observer = Observer.Create<long>(
                 onNext: currentElapsedMs =>
                 {
-                    double pos = (double)currentElapsedMs / (double)durationMs;
+                    state = !state;
 
-                    double brightness = startBrightness + (pos * brightnessRange);
-
-                    deviceObserver.OnNext(brightness);
+                    deviceObserver.OnNext(state ? maxBrightness : minBrightness);
                 },
                 onCompleted: () =>
                 {
                     control.Dispose();
-
-                    taskSource.SetResult(true);
                 });
 
             this.timerJobRunner.AddTimerJob(observer, durationMs);
-
-            return taskSource.Task;
         }
     }
 }

@@ -81,6 +81,42 @@ namespace Animatroller.Framework.PhysicalDevice
             }
         }
 
+        public BaseRGBStrobeLight(ILogicalDevice logicalDevice)
+            : base(logicalDevice)
+        {
+            this.colorBrightness = new ColorBrightness();
+
+            if (logicalDevice is ISendsBrightness)
+            {
+                ((ISendsBrightness)logicalDevice).OutputBrightness.Subscribe(x =>
+                {
+                    this.colorBrightness.Brightness = x;
+
+                    Output();
+                });
+            }
+
+            if (logicalDevice is ISendsColor)
+            {
+                ((ISendsColor)logicalDevice).OutputColor.Subscribe(x =>
+                {
+                    this.colorBrightness.Color = x;
+
+                    Output();
+                });
+            }
+
+            if (logicalDevice is ISendsStrobeSpeed)
+            {
+                ((ISendsStrobeSpeed)logicalDevice).OutputStrobeSpeed.Subscribe(x =>
+                {
+                    this.strobeSpeed = x;
+
+                    Output();
+                });
+            }
+        }
+
         public override void StartDevice()
         {
             base.StartDevice();

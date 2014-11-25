@@ -15,11 +15,11 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Dimmer3 : SingleOwnerDevice, IReceivesBrightness, ISendsBrightness
+    public class GroupDimmer : Group<IReceivesBrightness>, IReceivesBrightness
     {
         protected ReplaySubject<double> brightness;
 
-        public Dimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public GroupDimmer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.brightness = new ReplaySubject<double>(1);
@@ -27,15 +27,27 @@ namespace Animatroller.Framework.LogicalDevice
 
         public ControlledObserver<double> GetBrightnessObserver(IControlToken controlToken)
         {
-            return new ControlledObserver<double>(controlToken, this, this.brightness);
-        }
-
-        public IObservable<double> OutputBrightness
-        {
-            get
+            var observers = new List<ControlledObserver<double>>();
+            lock (this.members)
             {
-                return this.brightness.DistinctUntilChanged();
+                foreach (var member in this.members)
+                {
+                    IControlToken memberControlToken;
+                    if (!this.memberControlTokens.TryGetValue(member, out memberControlToken))
+                        // No lock/control token
+                        continue;
+
+                    observers.Add(member.GetBrightnessObserver(memberControlToken));
+                }
             }
+
+            var groupObserver = Observer.Create<double>(
+                onNext: x =>
+                {
+                    foreach (var observer in observers)
+                        observer.OnNext(x);
+                });
+            return new ControlledObserver<double>(controlToken, this, groupObserver);
         }
 
         public double Brightness
@@ -46,15 +58,10 @@ namespace Animatroller.Framework.LogicalDevice
             }
             set
             {
-                if(HasControl(null))
+                if (HasControl(null))
                     // Only allow if nobody is controlling us
                     this.brightness.OnNext(value);
             }
-        }
-
-        protected override void UpdateOutput()
-        {
-            this.brightness.OnNext(this.brightness.GetLatestValue());
         }
     }
 }

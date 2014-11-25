@@ -40,7 +40,7 @@ namespace Animatroller.Framework.LogicalDevice
             this.currentPriority = -1;
         }
 
-        public IControlToken TakeControl(int priority, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this)
             {

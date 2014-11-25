@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Reactive;
@@ -10,12 +11,22 @@ namespace Animatroller.Framework
 {
     public interface IReceivesBrightness : IOwnedDevice
     {
-        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken owner);
+        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken controlToken);
     }
 
     public interface ISendsBrightness
     {
         IObservable<double> OutputBrightness { get; }
+    }
+
+    public interface ISendsColor
+    {
+        IObservable<Color> OutputColor { get; }
+    }
+
+    public interface ISendsStrobeSpeed
+    {
+        IObservable<double> OutputStrobeSpeed { get; }
     }
 
     public interface IControlToken : IDisposable

@@ -25,6 +25,11 @@ namespace Animatroller.Framework.PhysicalDevice
         {
         }
 
+        public RGBStrobe(ILogicalDevice logicalDevice, int dmxChannel)
+            : base(logicalDevice, dmxChannel)
+        {
+        }
+
         protected override void Output()
         {
             var color = GetColorFromColorBrightness();

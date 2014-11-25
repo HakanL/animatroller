@@ -106,7 +106,6 @@ namespace Animatroller.SceneRunner
 
         private DigitalInput2 testButton = new DigitalInput2();
         private Import.BaseImporter.Timeline lorTimeline;
-        private Effect2.MasterFader masterFader = new Effect2.MasterFader();
 
 
         public LORScene(IEnumerable<string> args)
@@ -116,6 +115,7 @@ namespace Animatroller.SceneRunner
 
             var lorImport = new Animatroller.Framework.Import.LorImport(@"..\..\..\Test Files\Do You Want To Build A Snowman.lms");
 
+//            light5_1 = lorImport.MapDevice(1, 1, name => new StrobeColorDimmer(name));
 
 
             /*
@@ -221,52 +221,22 @@ namespace Animatroller.SceneRunner
                                 log.Debug("Mapping unit {0}  circuit {1} to pixel {2} [{3}]", unit, circuit, pixelPos, pixel.Name);
                             }
                         }
-
-                        lorTimeline = lorImport.CreateTimeline(1);*/
+            */
+            lorTimeline = lorImport.CreateTimeline(1);
         }
 
         public override void Start()
         {
             // Set color
-            testButton.Output.Subscribe(x =>
+            testButton.Output.Subscribe(button =>
             {
-                if (x)
+                if (button)
                 {
                     log.Info("Button press!");
-
-                    // Test priority/control
-                    //light5_1.Brightness = 0.25;
-
-                    //using (var control1 = light5_1.TakeControl(1))
-                    //{
-                    //    light5_1.Brightness = 0.33;
-
-                    //    var observer1 = light5_1.GetBrightnessObserver(control1);
-
-                    //    observer1.OnNext(1.0);
-
-                    //    using (var control2 = light5_1.TakeControl(1))
-                    //    {
-                    //        var observer2 = light5_1.GetBrightnessObserver(control2);
-
-                    //        observer1.OnNext(0.5);
-                    //        observer2.OnNext(0.75);
-                    //    }
-                    //}
-
-                    light5_2.Brightness = 1.0;
-
-
-                    this.masterFader.Fade(light5_1, 0, 1.0, 1500);
-
-                    Task.Delay(500).ContinueWith(y =>
-                        {
-                            this.masterFader.Fade(light5_2, 1.0, 0.0, 1000);
-                        });
                 }
             });
 
-            //            lorTimeline.Start();
+            lorTimeline.Start();
         }
 
         public override void Run()
@@ -275,7 +245,6 @@ namespace Animatroller.SceneRunner
 
         public override void Stop()
         {
-            System.Threading.Thread.Sleep(200);
         }
     }
 }

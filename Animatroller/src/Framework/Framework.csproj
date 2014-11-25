@@ -102,6 +102,7 @@
     <Compile Include="DoubleZeroToOne.cs" />
     <Compile Include="Effect\BaseSweeperEffect.cs" />
     <Compile Include="Effect\EffectAction.cs" />
+    <Compile Include="Effect\MasterShimmer.cs" />
     <Compile Include="Effect\MasterFader.cs" />
     <Compile Include="Effect\TimerJobRunner.cs" />
     <Compile Include="Effect\Effects2.cs" />
@@ -128,6 +129,8 @@
     <Compile Include="LogicalDevice\ColorDimmer2.cs" />
     <Compile Include="LogicalDevice\DigitalInput2.cs" />
     <Compile Include="LogicalDevice\ControlledObserver.cs" />
+    <Compile Include="LogicalDevice\Group.cs" />
+    <Compile Include="LogicalDevice\GroupDimmer.cs" />
     <Compile Include="LogicalDevice\Dimmer3.cs" />
     <Compile Include="LogicalDevice\Interface\IHasMasterPower.cs" />
     <Compile Include="LogicalDevice\OperatingHours2.cs" />
@@ -143,6 +146,7 @@
     <Compile Include="LogicalDevice\Interface\IPixel.cs" />
     <Compile Include="LogicalDevice\DigitalOutput2.cs" />
     <Compile Include="LogicalDevice\MovingHead.cs" />
+    <Compile Include="LogicalDevice\StrobeColorDimmer3.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer2.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />

@@ -33,6 +33,9 @@ namespace Animatroller.Framework
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
         private Controller.HighPrecisionTimer masterTimer;
         private Controller.HighPrecisionTimer2 masterTimer2;
+        private Effect2.TimerJobRunner timerJobRunner;
+        private Effect2.MasterFader masterFader;
+        private Effect2.MasterShimmer masterShimmer;
         private Effect.MasterSweeper masterSweeper;
         private string keyStoragePath;
 
@@ -47,14 +50,23 @@ namespace Animatroller.Framework
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
-            this.masterTimer2 = new Controller.HighPrecisionTimer2((int)(1000 / 40));
+            this.masterTimer2 = new Controller.HighPrecisionTimer2(MasterTimerIntervalMs);
+            this.timerJobRunner = new Effect2.TimerJobRunner(this.masterTimer2);
+
+            this.masterFader = new Effect2.MasterFader(this.timerJobRunner);
+            this.masterShimmer = new Effect2.MasterShimmer(this.timerJobRunner);
+
             this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
             this.keyStoragePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Animatroller");
             if (!System.IO.Directory.Exists(this.keyStoragePath))
                 System.IO.Directory.CreateDirectory(this.keyStoragePath);
         }
 
-        internal Controller.HighPrecisionTimer2 MasterTimer { get { return this.masterTimer2; } }
+        public Effect2.TimerJobRunner TimerJobRunner { get { return this.timerJobRunner; } }
+
+        public Effect2.MasterFader MasterFader { get { return this.masterFader; } }
+        
+        public Effect2.MasterShimmer MasterShimmer { get { return this.masterShimmer; } }
 
         public string KeyStoragePrefix { get; set; }
 

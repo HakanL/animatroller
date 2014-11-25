@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Subjects;
+using System.Reactive.Linq;
 
 namespace Animatroller.Framework.Extensions
 {
@@ -95,6 +96,11 @@ namespace Animatroller.Framework.Extensions
             {
                 Executor.Current.LogDebug(string.Format("Property [{0}]   Value: {1:N8}", propertyName, x));
             });
+        }
+
+        public static T GetLatestValue<T>(this ReplaySubject<T> subject, T defaultValue = default(T))
+        {
+            return subject.MostRecent(defaultValue).First();
         }
     }
 }

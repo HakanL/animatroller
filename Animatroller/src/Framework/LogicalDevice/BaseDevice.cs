@@ -27,5 +27,10 @@ namespace Animatroller.Framework.LogicalDevice
         }
 
         protected abstract void UpdateOutput();
+
+        public override string ToString()
+        {
+            return string.Format("{0} ({1})", Name, GetType().Name);
+        }
     }
 }

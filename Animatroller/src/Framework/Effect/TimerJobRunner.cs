@@ -9,7 +9,7 @@ using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Framework.Effect2
 {
-    public abstract class TimerJobRunner
+    public class TimerJobRunner
     {
         protected class TimerJob
         {
@@ -81,7 +81,7 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        protected void AddTimerJob(IObserver<long> observer, long durationMs)
+        public void AddTimerJob(IObserver<long> observer, long durationMs)
         {
             lock (this.timerJobs)
             {
