@@ -25,7 +25,7 @@ namespace Animatroller.Framework
         private object lockObject = new object();
         public static readonly Executor Current = new Executor();
         private Dictionary<ICanExecute, Task> singleInstanceTasks;
-        private List<IDevice> devices;
+        private List<IRunningDevice> devices;
         private List<IRunnable> runnable;
         private List<IScene> scenes;
         private List<Animatroller.Framework.Effect.IEffect> effects;
@@ -39,7 +39,7 @@ namespace Animatroller.Framework
         private Executor()
         {
             this.singleInstanceTasks = new Dictionary<ICanExecute, Task>();
-            this.devices = new List<IDevice>();
+            this.devices = new List<IRunningDevice>();
             this.runnable = new List<IRunnable>();
             this.effects = new List<Effect.IEffect>();
             this.scenes = new List<IScene>();
@@ -47,12 +47,14 @@ namespace Animatroller.Framework
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
-            this.masterTimer2 = new Controller.HighPrecisionTimer2((int)(1000 / 60));
+            this.masterTimer2 = new Controller.HighPrecisionTimer2((int)(1000 / 40));
             this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
             this.keyStoragePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Animatroller");
             if (!System.IO.Directory.Exists(this.keyStoragePath))
                 System.IO.Directory.CreateDirectory(this.keyStoragePath);
         }
+
+        internal Controller.HighPrecisionTimer2 MasterTimer { get { return this.masterTimer2; } }
 
         public string KeyStoragePrefix { get; set; }
 
@@ -105,7 +107,7 @@ namespace Animatroller.Framework
             return (T)Convert.ChangeType(value, typeof(T));
         }
 
-        public Executor Register(IDevice device)
+        public Executor Register(IRunningDevice device)
         {
             if (this.devices.Contains(device))
                 throw new ArgumentException("Already registered");

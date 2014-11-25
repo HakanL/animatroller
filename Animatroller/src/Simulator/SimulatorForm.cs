@@ -17,6 +17,7 @@ namespace Animatroller.Simulator
 {
     public partial class SimulatorForm : Form, IPort
     {
+        private List<IUpdateableControl> updateableControls = new List<IUpdateableControl>();
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
         public SimulatorForm()
@@ -24,7 +25,7 @@ namespace Animatroller.Simulator
             InitializeComponent();
         }
 
-        public SimulatorForm AutoWireUsingReflection(IScene scene, params IDevice[] excludeDevices)
+        public SimulatorForm AutoWireUsingReflection(IScene scene, params IRunningDevice[] excludeDevices)
         {
             AutoWireUsingReflection_Simple(scene, excludeDevices);
 
@@ -37,9 +38,9 @@ namespace Animatroller.Simulator
                     continue;
 
                 // Auto-wire
-                if (typeof(IDevice).IsInstanceOfType(fieldValue))
+                if (typeof(IRunningDevice).IsInstanceOfType(fieldValue))
                 {
-                    if (excludeDevices.Contains((IDevice)fieldValue))
+                    if (excludeDevices.Contains((IRunningDevice)fieldValue))
                         // Excluded
                         continue;
                 }
@@ -54,10 +55,14 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestLight((Dimmer)fieldValue));
                 else if (field.FieldType == typeof(Dimmer2))
                     this.Connect(new Animatroller.Simulator.TestLight((Dimmer2)fieldValue));
+                else if (field.FieldType == typeof(Dimmer3))
+                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer3)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer2))
                     this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer2)fieldValue));
+                else if (field.FieldType == typeof(ColorDimmer3))
+                    this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer3)fieldValue));
                 else if (field.FieldType == typeof(StrobeDimmer))
                     this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer)fieldValue));
                 else if (field.FieldType == typeof(StrobeColorDimmer))
@@ -170,7 +175,7 @@ namespace Animatroller.Simulator
             return this;
         }
 
-        public SimulatorForm AutoWireUsingReflection_Simple(IScene scene, params IDevice[] excludeDevices)
+        public SimulatorForm AutoWireUsingReflection_Simple(IScene scene, params IRunningDevice[] excludeDevices)
         {
             var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
@@ -181,9 +186,9 @@ namespace Animatroller.Simulator
                     continue;
 
                 // Auto-wire
-                if (typeof(IDevice).IsInstanceOfType(fieldValue))
+                if (typeof(IRunningDevice).IsInstanceOfType(fieldValue))
                 {
-                    if (excludeDevices.Contains((IDevice)fieldValue))
+                    if (excludeDevices.Contains((IRunningDevice)fieldValue))
                         // Excluded
                         continue;
                 }
@@ -501,11 +506,30 @@ namespace Animatroller.Simulator
         public void Connect(INeedsLabelLight output)
         {
             output.LabelLightControl = AddNewLight(output.ConnectedDevice.Name);
+
+            if (output is IUpdateableControl)
+            {
+                lock (this.updateableControls)
+                {
+                    this.updateableControls.Add((IUpdateableControl)output);
+                }
+            }
         }
 
         public void Connect(INeedsRopeLight output)
         {
             output.RopeLightControl = AddNewRope(output.ConnectedDevice.Name, output.Pixels);
+        }
+
+        private void updateTimer_Tick(object sender, EventArgs e)
+        {
+            lock (this.updateableControls)
+            {
+                foreach (var control in this.updateableControls)
+                {
+                    control.Update();
+                }
+            }
         }
     }
 }

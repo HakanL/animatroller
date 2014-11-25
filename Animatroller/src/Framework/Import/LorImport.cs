@@ -14,6 +14,7 @@ namespace Animatroller.Framework.Import
     // Light-O-Rama Musical Sequence
     public class LorImport : BufferImporter
     {
+        private Effect2.Fader2 testFader;
         private Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
 
         public LorImport(string filename)
@@ -28,6 +29,9 @@ namespace Animatroller.Framework.Import
 
             this.eventPeriodInMilliseconds = 50;
             this.effectsPerChannel = (int)(sequence.channels.Max(x => x.centiseconds) * 10 / this.eventPeriodInMilliseconds);
+
+            //TEST
+            this.testFader = new Effect2.Fader2();
 
             foreach (var channel in sequence.channels)
             {

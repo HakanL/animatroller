@@ -2,19 +2,51 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reactive;
 using System.Threading.Tasks;
+using System.Reactive.Subjects;
 
 namespace Animatroller.Framework
 {
+    public interface IReceivesBrightness
+    {
+        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken owner);
+    }
+
+    public interface ISendsBrightness
+    {
+        IObservable<double> OutputBrightness { get; }
+    }
+
+
+    public interface IOwnedBrightnessControl : IBrightnessControl, IOwnedDevice
+    {
+    }
+
+    public interface IBrightnessControl
+    {
+        IObserver<DoubleZeroToOne> InputBrightness { get; }
+
+        IDisposable ControlBrightness(ISubject<DoubleZeroToOne> subject);
+    }
+
+    public interface IControlToken : IDisposable
+    {
+        bool HasControl { get; }
+    }
+
+    public interface IOwnedDevice : IDevice
+    {
+        IControlToken TakeControl(int priority, string name = "");
+
+        bool HasControl(IControlToken checkOwner);
+    }
+
     public interface IOwner
     {
         string Name { get; }
-        int Priority { get; }
-    }
 
-    public interface IDevice
-    {
-        void StartDevice();
+        int Priority { get; }
     }
 
     public interface IHasAnalogInput
@@ -22,12 +54,21 @@ namespace Animatroller.Framework
 
     }
 
-    public interface ILogicalDevice : IDevice
+    public interface IDevice
     {
         string Name { get; }
     }
 
-    public interface IPhysicalDevice : IDevice
+    public interface IRunningDevice : IDevice
+    {
+        void StartDevice();
+    }
+
+    public interface ILogicalDevice : IRunningDevice
+    {
+    }
+
+    public interface IPhysicalDevice : IRunningDevice
     {
     }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public interface IOutputDevice : IDevice
+    public interface IOutputDevice : IRunningDevice
     {
     }
 

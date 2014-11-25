@@ -8,16 +8,24 @@ using Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.Simulator
 {
+    public interface IUpdateableControl
+    {
+        void Update();
+    }
+
     public interface INeedsLabelLight : IOutputDevice
     {
         Control.StrobeBulb LabelLightControl { set; }
+
         ILogicalDevice ConnectedDevice { get; }
     }
 
     public interface INeedsRopeLight : IOutputDevice
     {
         Control.RopeLight RopeLightControl { set; }
+
         int Pixels { get; }
+
         ILogicalDevice ConnectedDevice { get; }
     }
 }

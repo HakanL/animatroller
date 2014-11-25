@@ -22,5 +22,10 @@ namespace Animatroller.Framework.PhysicalDevice
         public virtual void StartDevice()
         {
         }
+
+        public string Name
+        {
+            get { return string.Empty; }
+        }
     }
 }

@@ -43,5 +43,10 @@ namespace Animatroller.Framework.PhysicalDevice
         public void StartDevice()
         {
         }
+
+        public string Name
+        {
+            get { return string.Empty; }
+        }
     }
 }

@@ -28,7 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.flowLayoutPanelLights = new System.Windows.Forms.FlowLayoutPanel();
+            this.updateTimer = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // flowLayoutPanelLights
@@ -39,9 +41,14 @@
             this.flowLayoutPanelLights.Size = new System.Drawing.Size(788, 449);
             this.flowLayoutPanelLights.TabIndex = 4;
             // 
+            // updateTimer
+            // 
+            this.updateTimer.Enabled = true;
+            this.updateTimer.Tick += new System.EventHandler(this.updateTimer_Tick);
+            // 
             // SimulatorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(788, 449);
             this.Controls.Add(this.flowLayoutPanelLights);
@@ -55,5 +62,6 @@
         #endregion
 
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanelLights;
+        private System.Windows.Forms.Timer updateTimer;
     }
 }

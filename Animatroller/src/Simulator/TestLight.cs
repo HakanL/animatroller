@@ -10,13 +10,23 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Simulator
 {
-    public class TestLight : INeedsLabelLight, IPhysicalDevice
+    public class TestLight : INeedsLabelLight, IPhysicalDevice, IUpdateableControl
     {
+        private double currentBrightness;
+        private Color currentColor;
+
         private ILogicalDevice logicalDevice;
+
         private Control.StrobeBulb control;
+
         public Control.StrobeBulb LabelLightControl
         {
             set { this.control = value; }
+        }
+
+        public void Update()
+        {
+            DisplayBrightnessColor(this.currentColor, this.currentBrightness);
         }
 
         public TestLight(Switch logicalDevice)
@@ -27,7 +37,7 @@ namespace Animatroller.Simulator
 
             logicalDevice.PowerChanged += (sender, e) =>
             {
-                this.control.Color = e.NewState ? Color.Green : Color.Black;
+                this.currentColor = e.NewState ? Color.Green : Color.Black;
             };
         }
 
@@ -37,8 +47,7 @@ namespace Animatroller.Simulator
 
             logicalDevice.BrightnessChanged += (sender, e) =>
             {
-                this.control.Color = Color.FromArgb(e.NewBrightness.GetByteScale(), e.NewBrightness.GetByteScale(), e.NewBrightness.GetByteScale());
-                this.control.Text = string.Format("{0:0%}", e.NewBrightness);
+                this.currentBrightness = e.NewBrightness;
             };
 
             WireUpStrobe(logicalDevice as StrobeDimmer);
@@ -50,9 +59,18 @@ namespace Animatroller.Simulator
 
             logicalDevice.InputBrightness.Subscribe(x =>
                 {
-                    this.control.Color = Color.FromArgb(x.Value.GetByteScale(), x.Value.GetByteScale(), x.Value.GetByteScale());
-                    this.control.Text = string.Format("{0:0%}", x.Value);
+                    this.currentBrightness = x.Value;
                 });
+        }
+
+        public TestLight(Dimmer3 logicalDevice)
+        {
+            this.logicalDevice = logicalDevice;
+
+            logicalDevice.OutputBrightness.Subscribe(x =>
+            {
+                this.currentBrightness = x;
+            });
         }
 
         public TestLight(ColorDimmer logicalDevice)
@@ -61,11 +79,8 @@ namespace Animatroller.Simulator
 
             logicalDevice.ColorChanged += (sender, e) =>
             {
-                var hsv = new HSV(e.NewColor);
-                hsv.Value = hsv.Value * e.NewBrightness;
-
-                this.control.Color = hsv.Color;
-                this.control.Text = string.Format("{0:0%}", e.NewBrightness);
+                this.currentColor = e.NewColor;
+                this.currentBrightness = e.NewBrightness;
             };
 
             WireUpStrobe(logicalDevice as StrobeColorDimmer);
@@ -86,13 +101,30 @@ namespace Animatroller.Simulator
 
             logicalDevice.InputColor.Subscribe(x =>
             {
-                DisplayBrightnessColor(x, logicalDevice.Brightness);
+                this.currentColor = x;
             });
 
             logicalDevice.InputBrightness.Subscribe(x =>
                 {
-                    DisplayBrightnessColor(logicalDevice.Color, x.Value);
+                    this.currentBrightness = x.Value;
                 });
+
+            //FIXME            WireUpStrobe(logicalDevice as StrobeColorDimmer);
+        }
+
+        public TestLight(ColorDimmer3 logicalDevice)
+        {
+            this.logicalDevice = logicalDevice;
+
+            logicalDevice.OutputColor.Subscribe(x =>
+            {
+                this.currentColor = x;
+            });
+
+            logicalDevice.OutputBrightness.Subscribe(x =>
+            {
+                this.currentBrightness = x;
+            });
 
             //FIXME            WireUpStrobe(logicalDevice as StrobeColorDimmer);
         }
@@ -118,6 +150,11 @@ namespace Animatroller.Simulator
 
         public void StartDevice()
         {
+        }
+
+        public string Name
+        {
+            get { return string.Empty; }
         }
     }
 }

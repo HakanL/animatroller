@@ -1,25 +1,71 @@
 ﻿using System;
+using System.Reactive.Disposables;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public abstract class SingleOwnerDevice : BaseDevice, IOwner
+    public abstract class SingleOwnerDevice : BaseDevice, IOwnedDevice
     {
-        protected IOwner owner;
+        public class ControlledDevice : IControlToken
+        {
+            private bool hasControl;
+            private Action dispose;
+
+            public ControlledDevice(string name, bool hasControl, Action dispose)
+            {
+                this.Name = name;
+                this.hasControl = hasControl;
+                this.dispose = dispose;
+            }
+
+            public void Dispose()
+            {
+                if (this.dispose != null)
+                    this.dispose();
+            }
+
+            public string Name { get; private set; }
+
+            public bool HasControl
+            {
+                get { return this.hasControl; }
+            }
+        }
+
+        protected IControlToken currentOwner;
+        protected int currentPriority;
 
         public SingleOwnerDevice(string name)
             : base(name)
         {
+            this.currentPriority = -1;
         }
 
-        public void ReleaseOwner()
+        public IControlToken TakeControl(int priority, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            this.owner = null;
+            lock (this)
+            {
+                if (currentOwner != null && priority <= this.currentPriority)
+                    // Already owned
+                    return new ControlledDevice(name, false, null);
+
+                this.currentPriority = priority;
+
+                this.currentOwner = new ControlledDevice(name, true, () =>
+                {
+                    lock (this)
+                    {
+                        this.currentOwner = null;
+                        this.currentPriority = -1;
+                    }
+                });
+
+                return this.currentOwner;
+            }
         }
 
-        public virtual int Priority
+        public bool HasControl(IControlToken checkOwner)
         {
-            //FIXME: Do we need this one?
-            get { return 0; }
+            return this.currentOwner == null || checkOwner == this.currentOwner;
         }
     }
 }

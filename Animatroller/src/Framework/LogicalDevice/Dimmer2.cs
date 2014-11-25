@@ -37,7 +37,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                         if (x.Value == 0)
                             // Reset owner
-                            owner = null;
+                            currentOwner = null;
                     }
                 });
         }
@@ -61,11 +61,11 @@ namespace Animatroller.Framework.LogicalDevice
 
         public virtual void SetBrightness(double value, IOwner owner)
         {
-            if (this.owner != null && owner != this.owner)
+            if (this.currentOwner != null && owner != this.currentOwner)
             {
                 if (owner != null)
                 {
-                    if (owner.Priority <= this.owner.Priority)
+//FIXME                    if (owner.Priority <= this.currentOwner.Priority)
                         return;
                 }
                 else
@@ -76,7 +76,7 @@ namespace Animatroller.Framework.LogicalDevice
                 // Reset owner
                 owner = null;
 
-            this.owner = owner;
+//FIXME            this.currentOwner = owner;
             this.InputBrightness.OnNext(new DoubleZeroToOne { Value = value });
         }
 
@@ -89,7 +89,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             var effectAction = effect.GetEffectAction(brightness =>
                 {
-                    this.SetBrightness(brightness, this);
+//FIXME                    this.SetBrightness(brightness, this);
                 });
 
             lock (this.lockObject)

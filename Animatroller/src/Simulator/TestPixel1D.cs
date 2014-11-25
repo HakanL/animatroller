@@ -141,5 +141,10 @@ namespace Animatroller.Simulator
         public void StartDevice()
         {
         }
+
+        public string Name
+        {
+            get { return string.Empty; }
+        }
     }
 }
