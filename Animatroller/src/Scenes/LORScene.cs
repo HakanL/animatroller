@@ -85,7 +85,7 @@ namespace Animatroller.SceneRunner
         //private ColorDimmer light4_16;
 
         private ColorDimmer3 light5_1 = new ColorDimmer3();
-        private ColorDimmer2 light5_2 = new ColorDimmer2();
+        private ColorDimmer3 light5_2 = new ColorDimmer3();
         //private ColorDimmer light5_2;
         //private ColorDimmer light5_3;
         //private ColorDimmer light5_4;
@@ -106,7 +106,7 @@ namespace Animatroller.SceneRunner
 
         private DigitalInput2 testButton = new DigitalInput2();
         private Import.BaseImporter.Timeline lorTimeline;
-        private Effect2.Fader2 masterFader = new Effect2.Fader2();
+        private Effect2.MasterFader masterFader = new Effect2.MasterFader();
 
 
         public LORScene(IEnumerable<string> args)
@@ -234,35 +234,35 @@ namespace Animatroller.SceneRunner
                 {
                     log.Info("Button press!");
 
-                    light5_1.Brightness = 0.25;
+                    // Test priority/control
+                    //light5_1.Brightness = 0.25;
 
-                    using (var control1 = light5_1.TakeControl(1))
-                    {
-                        light5_1.Brightness = 0.33;
+                    //using (var control1 = light5_1.TakeControl(1))
+                    //{
+                    //    light5_1.Brightness = 0.33;
 
-                        var observer1 = light5_1.GetBrightnessObserver(control1);
+                    //    var observer1 = light5_1.GetBrightnessObserver(control1);
 
-                        observer1.OnNext(1.0);
+                    //    observer1.OnNext(1.0);
 
-                        using (var control2 = light5_1.TakeControl(1))
-                        {
-                            var observer2 = light5_1.GetBrightnessObserver(control2);
-
-                            observer1.OnNext(0.5);
-                            observer2.OnNext(0.75);
-                        }
-                    }
-
-                    //                    light5_1.Brightness = 1.0;
-
-
-                    //                    this.masterFader.Fade(light5_1, DoubleZeroToOne.Zero, DoubleZeroToOne.Full, 1000);
-                    //                    this.masterFader.Fade(light5_1.InputBrightness, DoubleZeroToOne.Zero, DoubleZeroToOne.Full, 1000);
-
-                    //Task.Delay(500).ContinueWith(y =>
+                    //    using (var control2 = light5_1.TakeControl(1))
                     //    {
-                    //        this.masterFader.Fade(light5_2.InputBrightness, DoubleZeroToOne.Full, DoubleZeroToOne.Zero, 1000);
-                    //    });
+                    //        var observer2 = light5_1.GetBrightnessObserver(control2);
+
+                    //        observer1.OnNext(0.5);
+                    //        observer2.OnNext(0.75);
+                    //    }
+                    //}
+
+                    light5_2.Brightness = 1.0;
+
+
+                    this.masterFader.Fade(light5_1, 0, 1.0, 1500);
+
+                    Task.Delay(500).ContinueWith(y =>
+                        {
+                            this.masterFader.Fade(light5_2, 1.0, 0.0, 1000);
+                        });
                 }
             });
 

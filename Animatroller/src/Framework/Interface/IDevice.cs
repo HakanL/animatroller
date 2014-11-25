@@ -8,7 +8,7 @@ using System.Reactive.Subjects;
 
 namespace Animatroller.Framework
 {
-    public interface IReceivesBrightness
+    public interface IReceivesBrightness : IOwnedDevice
     {
         Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken owner);
     }
@@ -16,18 +16,6 @@ namespace Animatroller.Framework
     public interface ISendsBrightness
     {
         IObservable<double> OutputBrightness { get; }
-    }
-
-
-    public interface IOwnedBrightnessControl : IBrightnessControl, IOwnedDevice
-    {
-    }
-
-    public interface IBrightnessControl
-    {
-        IObserver<DoubleZeroToOne> InputBrightness { get; }
-
-        IDisposable ControlBrightness(ISubject<DoubleZeroToOne> subject);
     }
 
     public interface IControlToken : IDisposable

@@ -102,8 +102,8 @@
     <Compile Include="DoubleZeroToOne.cs" />
     <Compile Include="Effect\BaseSweeperEffect.cs" />
     <Compile Include="Effect\EffectAction.cs" />
-    <Compile Include="Effect\Delayer.cs" />
-    <Compile Include="Effect\Fader2.cs" />
+    <Compile Include="Effect\MasterFader.cs" />
+    <Compile Include="Effect\TimerJobRunner.cs" />
     <Compile Include="Effect\Effects2.cs" />
     <Compile Include="Expander\MidiInput2.cs" />
     <Compile Include="Expander\MidiInput.cs" />
