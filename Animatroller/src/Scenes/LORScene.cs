@@ -105,7 +105,7 @@ namespace Animatroller.SceneRunner
         private VirtualPixel1D allPixels;
 
         private DigitalInput2 testButton = new DigitalInput2();
-        private Import.BaseImporter.Timeline lorTimeline;
+        private Import.BaseImporter2.Timeline lorTimeline;
 
 
         public LORScene(IEnumerable<string> args)
@@ -113,9 +113,11 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 80);
             allPixels.SetAll(Color.White, 0);
 
-            var lorImport = new Animatroller.Framework.Import.LorImport(@"..\..\..\Test Files\Do You Want To Build A Snowman.lms");
+            var lorImport = new Animatroller.Framework.Import.LorImport2(@"..\..\..\Test Files\Do You Want To Build A Snowman.lms");
 
-//            light5_1 = lorImport.MapDevice(1, 1, name => new StrobeColorDimmer(name));
+            lorImport.MapDevice(0, 0, light5_1);
+
+            //            light5_1 = lorImport.MapDevice(1, 1, name => new StrobeColorDimmer(name));
 
 
             /*

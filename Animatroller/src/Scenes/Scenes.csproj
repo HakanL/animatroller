@@ -59,6 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DemoScene1.cs" />
+    <Compile Include="LockDemo.cs" />
     <Compile Include="Halloween2014b.cs" />
     <Compile Include="HalloweenScene1.cs" />
     <Compile Include="HalloweenScene2013.cs" />

@@ -29,6 +29,8 @@ namespace Animatroller.SceneRunner
         {
             lightGroup.Add(lightA, lightB);
 
+            lightA.SetOutputFilter(new Effect.Blackout());
+
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 2), 20);
         }
@@ -63,6 +65,8 @@ namespace Animatroller.SceneRunner
                     //}
 
 
+                    lightA.Brightness = 0.2;
+
                     var control1 = lightA.TakeControl(1);
                     lightA.Brightness = 0.33;
 
@@ -70,13 +74,18 @@ namespace Animatroller.SceneRunner
 
                     observer1.OnNext(1.0);
 
-                    var faderTask = Exec.MasterFader.Fade(lightGroup, 0.0, 1.0, 5000);
+                    var faderTask = Exec.MasterFader.Fade(lightA, 0.0, 1.0, 5000);
+
+/*                    Task.Delay(3000).ContinueWith(_ =>
+                        {
+                            Exec.Blackout.OnNext(0.5);
+                        });*/
 
                     faderTask.ContinueWith(x =>
                         {
                             control1.Dispose();
 
-                            Exec.MasterFader.Fade(lightGroup, 1.0, 0.0, 5000);
+                            Exec.MasterFader.Fade(lightA, 1.0, 0.0, 5000);
                         });
 
 

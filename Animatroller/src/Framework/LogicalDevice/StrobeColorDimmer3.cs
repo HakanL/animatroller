@@ -24,7 +24,9 @@ namespace Animatroller.Framework.LogicalDevice
 
         public ControlledObserver<double> GetStrobeSpeedObserver(IControlToken controlToken)
         {
-            return new ControlledObserver<double>(controlToken, this, this.strobeSpeed);
+            throw new NotImplementedException();
+            //FIXME
+//            return new ControlledObserver<double>(controlToken, this, this.strobeSpeed);
         }
 
         public IObservable<double> OutputStrobeSpeed

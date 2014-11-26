@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Reactive.Subjects;
 using NLog;
 using System.IO;
 
@@ -11,6 +12,16 @@ namespace Animatroller.Framework
 {
     public class Executor
     {
+        public class ThreadLocalStorage
+        {
+            public Dictionary<IOwnedDevice, IControlToken> ControlTokens { get; private set; }
+
+            public ThreadLocalStorage()
+            {
+                this.ControlTokens = new Dictionary<IOwnedDevice, IControlToken>();
+            }
+        }
+
         internal const int MasterTimerIntervalMs = 25;
 
         protected static Logger log = LogManager.GetCurrentClassLogger();
@@ -38,6 +49,8 @@ namespace Animatroller.Framework
         private Effect2.MasterShimmer masterShimmer;
         private Effect.MasterSweeper masterSweeper;
         private string keyStoragePath;
+        private static ThreadLocal<ThreadLocalStorage> threadStorage;
+        private ControlSubject<double> blackout;
 
         private Executor()
         {
@@ -60,12 +73,45 @@ namespace Animatroller.Framework
             this.keyStoragePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Animatroller");
             if (!System.IO.Directory.Exists(this.keyStoragePath))
                 System.IO.Directory.CreateDirectory(this.keyStoragePath);
+
+            this.blackout = new ControlSubject<double>(0.0);
+
+            threadStorage = new ThreadLocal<ThreadLocalStorage>(() => new ThreadLocalStorage());
+        }
+
+        public ISubject<double> Blackout
+        {
+            get { return this.blackout; }
+        }
+
+        internal ThreadLocalStorage ThreadStorage { get { return threadStorage.Value; } }
+
+        public IControlToken GetControlToken(IOwnedDevice device)
+        {
+            IControlToken token;
+            ThreadStorage.ControlTokens.TryGetValue(device, out token);
+
+            return token;
+        }
+
+        public void SetControlToken(IOwnedDevice device, IControlToken token)
+        {
+            if (token != null)
+                ThreadStorage.ControlTokens[device] = token;
+            else
+                RemoveControlToken(device);
+        }
+
+        public void RemoveControlToken(IOwnedDevice device)
+        {
+            if (ThreadStorage.ControlTokens.ContainsKey(device))
+                ThreadStorage.ControlTokens.Remove(device);
         }
 
         public Effect2.TimerJobRunner TimerJobRunner { get { return this.timerJobRunner; } }
 
         public Effect2.MasterFader MasterFader { get { return this.masterFader; } }
-        
+
         public Effect2.MasterShimmer MasterShimmer { get { return this.masterShimmer; } }
 
         public string KeyStoragePrefix { get; set; }

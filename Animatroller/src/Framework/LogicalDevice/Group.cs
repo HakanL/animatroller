@@ -42,7 +42,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         public override IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            lock (this.members)
+            throw new NotImplementedException();
+/*            lock (this.members)
             {
                 if (currentOwner != null && priority <= this.currentPriority)
                     // Already owned
@@ -73,7 +74,7 @@ namespace Animatroller.Framework.LogicalDevice
                 }
 
                 return this.currentOwner;
-            }
+            }*/
         }
     }
 }

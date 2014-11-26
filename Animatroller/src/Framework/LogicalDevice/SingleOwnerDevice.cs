@@ -1,63 +1,48 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reactive.Disposables;
 
 namespace Animatroller.Framework.LogicalDevice
 {
     public abstract class SingleOwnerDevice : BaseDevice, IOwnedDevice
     {
-        public class ControlledDevice : IControlToken
-        {
-            private bool hasControl;
-            private Action dispose;
-
-            public ControlledDevice(string name, bool hasControl, Action dispose)
-            {
-                this.Name = name;
-                this.hasControl = hasControl;
-                this.dispose = dispose;
-            }
-
-            public void Dispose()
-            {
-                if (this.dispose != null)
-                    this.dispose();
-            }
-
-            public string Name { get; private set; }
-
-            public bool HasControl
-            {
-                get { return this.hasControl; }
-            }
-        }
-
+        protected Stack<IControlToken> owners;
         protected IControlToken currentOwner;
-        protected int currentPriority;
 
         public SingleOwnerDevice(string name)
             : base(name)
         {
-            this.currentPriority = -1;
+            this.owners = new Stack<IControlToken>();
         }
 
         public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this)
             {
-                if (currentOwner != null && priority <= this.currentPriority)
-                    // Already owned
-                    return new ControlledDevice(name, false, null);
+                if (this.currentOwner != null && priority <= this.currentOwner.Priority)
+                    // Already owned (by us or someone else)
+                    return ControlledDevice.Empty;
 
-                this.currentPriority = priority;
-
-                this.currentOwner = new ControlledDevice(name, true, () =>
+                var newOwner = new ControlledDevice(name, true, priority, () =>
                 {
                     lock (this)
                     {
-                        this.currentOwner = null;
-                        this.currentPriority = -1;
+                        if (this.owners.Count > 0)
+                        {
+                            this.currentOwner = this.owners.Pop();
+                        }
+                        else
+                            this.currentOwner = null;
+
+                        Executor.Current.SetControlToken(this, this.currentOwner);
                     }
                 });
+
+                this.owners.Push(newOwner);
+
+                this.currentOwner = newOwner;
+
+                Executor.Current.SetControlToken(this, newOwner);
 
                 return this.currentOwner;
             }

@@ -17,30 +17,28 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class ControlledObserver<T> : IObserver<T>
     {
-        private IObserver<T> observer;
+        private IControlToken controlToken;
+        private ControlSubject<T, IControlToken> control;
 
-        public ControlledObserver(IControlToken controlToken, IOwnedDevice device, IObserver<T> control)
+        public ControlledObserver(IControlToken controlToken, ControlSubject<T, IControlToken> control)
         {
-            this.observer = Observer.Create<T>(onNext =>
-                {
-                    if (device.HasControl(controlToken))
-                        control.OnNext(onNext);
-                });
+            this.controlToken = controlToken;
+            this.control = control;
         }
 
         public void OnCompleted()
         {
-            this.observer.OnCompleted();
+            this.control.OnCompleted();
         }
 
         public void OnError(Exception error)
         {
-            this.observer.OnError(error);
+            this.control.OnError(error);
         }
 
         public void OnNext(T value)
         {
-            this.observer.OnNext(value);
+            this.control.OnNext(value, this.controlToken);
         }
     }
 }

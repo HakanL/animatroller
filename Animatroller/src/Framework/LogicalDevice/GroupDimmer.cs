@@ -47,7 +47,9 @@ namespace Animatroller.Framework.LogicalDevice
                     foreach (var observer in observers)
                         observer.OnNext(x);
                 });
-            return new ControlledObserver<double>(controlToken, this, groupObserver);
+            throw new NotImplementedException();
+            //FIXME
+//            return new ControlledObserver<double>(controlToken, this, groupObserver);
         }
 
         public double Brightness

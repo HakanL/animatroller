@@ -25,6 +25,10 @@ namespace Animatroller.Framework
         ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled);
     }
 
+    public interface ISequenceInstance2 : ISequenceInstance
+    {
+    }
+
     public interface IRunnableState
     {
         IRunnableState SetUp(Action action);

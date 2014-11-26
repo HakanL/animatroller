@@ -14,17 +14,17 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class ColorDimmer3 : Dimmer3
     {
-        protected ReplaySubject<Color> color;
+        protected ControlSubject<Color, IControlToken> color;
 
         public ColorDimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.color = new ReplaySubject<Color>(1);
+            this.color = new ControlSubject<Color, IControlToken>(Color.White, HasControl);
         }
 
         public ControlledObserver<Color> GetColorObserver(IControlToken controlToken)
         {
-            return new ControlledObserver<Color>(controlToken, this, this.color);
+            return new ControlledObserver<Color>(controlToken, this.color);
         }
 
         public IObservable<Color> OutputColor
@@ -37,7 +37,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public Color Color
         {
-            get { return this.color.GetLatestValue(Color.White); }
+            get { return this.color.Value; }
             set
             {
                 if (HasControl(null))
@@ -50,7 +50,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             base.UpdateOutput();
 
-            this.color.OnNext(this.color.GetLatestValue(Color.White));
+            this.color.OnNext(this.color.Value);
         }
 
         public void SetColor(Color color, double brightness)

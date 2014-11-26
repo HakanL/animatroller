@@ -32,6 +32,8 @@ namespace Animatroller.Framework
     public interface IControlToken : IDisposable
     {
         bool HasControl { get; }
+
+        int Priority { get; }
     }
 
     public interface IOwnedDevice : IDevice

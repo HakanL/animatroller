@@ -30,7 +30,17 @@ namespace Animatroller.Framework.Effect2
         {
             var taskSource = new TaskCompletionSource<bool>();
 
-            var control = device.TakeControl(priority);
+            IControlToken newToken = null;
+
+            IControlToken control = Executor.Current.GetControlToken(device);
+
+            if (control == null)
+            {
+                newToken =
+                control = device.TakeControl(priority);
+
+                Executor.Current.SetControlToken(device, control);
+            }
 
             var deviceObserver = device.GetBrightnessObserver(control);
 
@@ -47,7 +57,12 @@ namespace Animatroller.Framework.Effect2
                 },
                 onCompleted: () =>
                 {
-                    control.Dispose();
+                    if(newToken != null)
+                    {
+                        Executor.Current.RemoveControlToken(device);
+
+                        newToken.Dispose();
+                    }
 
                     taskSource.SetResult(true);
                 });
