@@ -435,9 +435,9 @@ namespace Animatroller.Simulator
             var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
 
             control.ValueChanged += (sender, e) =>
-            {
-                device.Trigger((sender as TrackBar).Value / 255.0);
-            };
+                {
+                    device.Trigger((sender as TrackBar).Value / 255.0);
+                };
 
             device.Connect(logicalDevice);
 
@@ -468,9 +468,9 @@ namespace Animatroller.Simulator
                 };
 
             control.MouseUp += (sender, e) =>
-            {
-                device.Trigger(false);
-            };
+                {
+                    device.Trigger(false);
+                };
 
             device.Connect(logicalDevice);
 
@@ -489,14 +489,14 @@ namespace Animatroller.Simulator
             var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
 
             control.MouseDown += (sender, e) =>
-            {
-                device.Trigger(true);
-            };
+                {
+                    device.Trigger(true);
+                };
 
             control.MouseUp += (sender, e) =>
-            {
-                device.Trigger(false);
-            };
+                {
+                    device.Trigger(false);
+                };
 
             device.Connect(logicalDevice);
 

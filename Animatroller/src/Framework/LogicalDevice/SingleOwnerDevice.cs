@@ -38,7 +38,8 @@ namespace Animatroller.Framework.LogicalDevice
                     }
                 });
 
-                this.owners.Push(newOwner);
+                // Push current owner
+                this.owners.Push(this.currentOwner);
 
                 this.currentOwner = newOwner;
 
@@ -50,7 +51,14 @@ namespace Animatroller.Framework.LogicalDevice
 
         public bool HasControl(IControlToken checkOwner)
         {
+            var test = Executor.Current.GetControlToken(this);
+
             return this.currentOwner == null || checkOwner == this.currentOwner;
+        }
+
+        public bool HasControl()
+        {
+            return HasControl(Executor.Current.GetControlToken(this));
         }
     }
 }

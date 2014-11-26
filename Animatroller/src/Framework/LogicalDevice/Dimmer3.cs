@@ -26,6 +26,7 @@ namespace Animatroller.Framework.LogicalDevice
         public Dimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+            this.output =
             this.brightness = new ControlSubject<double, IControlToken>(0, HasControl);
         }
 
@@ -69,9 +70,9 @@ namespace Animatroller.Framework.LogicalDevice
             }
             set
             {
-                if (HasControl(Executor.Current.GetControlToken(this)))
+                if (HasControl())
                     // Only allow if nobody is controlling us
-                    this.brightness.OnNext(value);
+                    this.brightness.OnNext(value, Executor.Current.GetControlToken(this));
             }
         }
 

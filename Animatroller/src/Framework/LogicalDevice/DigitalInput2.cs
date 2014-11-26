@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Concurrency;
 using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
@@ -84,7 +85,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected override void UpdateOutput()
         {
-            this.outputValue.OnNext(this.currentValue);
+            this.outputValue.NotifyOn(TaskPoolScheduler.Default).OnNext(this.currentValue);
         }
 
         public void WhenOutputChanges(Action<bool> action)

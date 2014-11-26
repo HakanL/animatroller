@@ -72,14 +72,21 @@ namespace Animatroller.SceneRunner
 
                     var observer1 = lightA.GetBrightnessObserver(control1);
 
+                    // Should skip
                     observer1.OnNext(1.0);
 
                     var faderTask = Exec.MasterFader.Fade(lightA, 0.0, 1.0, 5000);
 
-/*                    Task.Delay(3000).ContinueWith(_ =>
+                    Exec.Sleep(S(3));
+
+                    Exec.MasterFader.Fade(Exec.Blackout, 0.0, 1.0, 1000)
+                        .ContinueWith(b =>
                         {
-                            Exec.Blackout.OnNext(0.5);
-                        });*/
+                            Task.Delay(2000).ContinueWith(c =>
+                                {
+                                    Exec.Blackout.OnNext(0);
+                                });
+                        });
 
                     faderTask.ContinueWith(x =>
                         {

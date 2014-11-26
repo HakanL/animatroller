@@ -57,13 +57,38 @@ namespace Animatroller.Framework.Effect2
                 },
                 onCompleted: () =>
                 {
-                    if(newToken != null)
+                    if (newToken != null)
                     {
                         Executor.Current.RemoveControlToken(device);
 
                         newToken.Dispose();
                     }
 
+                    taskSource.SetResult(true);
+                });
+
+            this.timerJobRunner.AddTimerJob(observer, durationMs);
+
+            return taskSource.Task;
+        }
+
+        public Task Fade(IObserver<double> deviceObserver, double startBrightness, double endBrightness, int durationMs)
+        {
+            var taskSource = new TaskCompletionSource<bool>();
+
+            double brightnessRange = endBrightness - startBrightness;
+
+            var observer = Observer.Create<long>(
+                onNext: currentElapsedMs =>
+                {
+                    double pos = (double)currentElapsedMs / (double)durationMs;
+
+                    double brightness = startBrightness + (pos * brightnessRange);
+
+                    deviceObserver.OnNext(brightness);
+                },
+                onCompleted: () =>
+                {
                     taskSource.SetResult(true);
                 });
 

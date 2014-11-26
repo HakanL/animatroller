@@ -102,6 +102,11 @@ namespace Animatroller.Framework
                 RemoveControlToken(device);
         }
 
+        public void Sleep(TimeSpan value)
+        {
+            Thread.Sleep(value);
+        }
+
         public void RemoveControlToken(IOwnedDevice device)
         {
             if (ThreadStorage.ControlTokens.ContainsKey(device))
