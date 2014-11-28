@@ -15,8 +15,9 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class PixelScene1 : BaseScene, ISceneRequiresAcnStream
+    internal class PixelScene1 : BaseScene
     {
+        private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private VirtualPixel1D allPixels;
         private DigitalInput buttonTest;
 
@@ -33,14 +34,11 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 150);
 
             buttonTest = new DigitalInput("Test");
-        }
 
-        public void WireUp(Expander.AcnStream port)
-        {
             // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 0, 100), 4, 1);
+            acnOutput.Connect(new Physical.PixelRope(allPixels, 0, 150), 4, 1);
             // GECE
-            port.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
+//            acnOutput.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
         }
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)

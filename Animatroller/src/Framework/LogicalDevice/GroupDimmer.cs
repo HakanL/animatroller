@@ -65,5 +65,11 @@ namespace Animatroller.Framework.LogicalDevice
                     this.brightness.OnNext(value);
             }
         }
+
+
+        public ControlledObserver<double> GetBrightnessObserver()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
