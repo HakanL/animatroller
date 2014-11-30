@@ -81,7 +81,7 @@ namespace Animatroller.SceneRunner
                         {
                             allPixels.Inject((i % spacing) == 0 ? Color.Red : Color.White, 0.5);
 
-                            instance.WaitFor(S(0.2), true);
+                            instance.WaitFor(S(0.30), true);
                         }
                     }
                 })
