@@ -31,12 +31,14 @@ namespace Animatroller.SceneRunner
             candyCane = new Controller.Sequence("Candy Cane");
             laserSeq = new Controller.Sequence("Laser");
 
-            allPixels = new VirtualPixel1D("All Pixels", 150);
+            allPixels = new VirtualPixel1D("All Pixels", 200);
 
             buttonTest = new DigitalInput("Test");
 
             // WS2811
-            acnOutput.Connect(new Physical.PixelRope(allPixels, 0, 150), 4, 1);
+            acnOutput.Connect(new Physical.PixelRope(allPixels, 0, 50), 4, 1);
+            acnOutput.Connect(new Physical.PixelRope(allPixels, 50, 100), 5, 1);
+            acnOutput.Connect(new Physical.PixelRope(allPixels, 150, 50), 4, 151);
             // GECE
 //            acnOutput.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
         }
