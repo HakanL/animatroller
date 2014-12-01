@@ -13,7 +13,7 @@ namespace Animatroller.Simulator
     public class TestLight : INeedsLabelLight, IPhysicalDevice, IUpdateableControl
     {
         private double currentBrightness;
-        private Color currentColor;
+        private Color currentColor = Color.White;
 
         private ILogicalDevice logicalDevice;
 
