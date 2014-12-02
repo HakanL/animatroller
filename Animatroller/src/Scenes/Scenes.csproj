@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSCore, Version=1.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\lib\CSCore.dll</HintPath>
+    </Reference>
     <Reference Include="NLog">
       <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
@@ -67,6 +71,7 @@
     <Compile Include="IceBucket.cs" />
     <Compile Include="ItalianScene1.cs" />
     <Compile Include="FaderDemo.cs" />
+    <Compile Include="LORSceneCarol.cs" />
     <Compile Include="LORScene.cs" />
     <Compile Include="Nutcracker1Scene.cs" />
     <Compile Include="Nutcracker2Scene.cs" />

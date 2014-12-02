@@ -19,7 +19,7 @@ using CSCore.Codecs;
 
 namespace Animatroller.SceneRunner
 {
-    internal class LORScene : BaseScene
+    internal class LORSceneCarol : BaseScene
     {
         IWaveSource waveSource;
         ISoundOut soundOut = new WasapiOut();
@@ -92,6 +92,15 @@ namespace Animatroller.SceneRunner
         //private ColorDimmer light4_15;
         //private ColorDimmer light4_16;
 
+        private ColorDimmer3 lightTest1 = new ColorDimmer3();
+        private ColorDimmer3 lightTest2 = new ColorDimmer3();
+        private ColorDimmer3 lightTest3 = new ColorDimmer3();
+        private ColorDimmer3 lightTest4 = new ColorDimmer3();
+        private ColorDimmer3 lightTest5 = new ColorDimmer3();
+        private ColorDimmer3 lightTest6 = new ColorDimmer3();
+        private ColorDimmer3 lightTest7 = new ColorDimmer3();
+        private ColorDimmer3 lightTest8 = new ColorDimmer3();
+        
         private ColorDimmer3 lightRoof1 = new ColorDimmer3();
         private ColorDimmer3 lightRoof2 = new ColorDimmer3();
         private ColorDimmer3 lightRoof3 = new ColorDimmer3();
@@ -125,19 +134,28 @@ namespace Animatroller.SceneRunner
         private Import.LorImport2 lorImport = new Import.LorImport2();
 
 
-        public LORScene(IEnumerable<string> args)
+        public LORSceneCarol(IEnumerable<string> args)
         {
             allPixels = new VirtualPixel1D("All Pixels", 80);
             allPixels.SetAll(Color.White, 0);
 
-            lorImport.LoadFromFile(@"..\..\..\Test Files\Cannon Rock104.lms");
+            lorImport.LoadFromFile(@"..\..\..\Test Files\David Foster - Carol of the Bells.lms");
 
-            lorImport.MapDevice("Roof 1", lightRoof1);
-            lorImport.MapDevice("Roof 2", lightRoof2);
-            lorImport.MapDevice("Roof 3", lightRoof3);
-            lorImport.MapDevice("Roof 4", lightRoof4);
+            lorImport.MapDevice("E - 1", lightTest1);
+            lorImport.MapDevice("D# - 2", lightTest2);
+            lorImport.MapDevice("D - 3", lightTest3);
+            lorImport.MapDevice("C# - 4", lightTest4);
+            lorImport.MapDevice("C - 5", lightTest5);
+            lorImport.MapDevice("B - 6", lightTest6);
+            lorImport.MapDevice("A# - 7", lightTest7);
+            lorImport.MapDevice("A - 8", lightTest8);
 
-            lorImport.MapDevice("Sidewalk 1", lightSidewalk1);
+            lorImport.MapDevice("E - 9", lightRoof1);
+            lorImport.MapDevice("D# - 10", lightRoof2);
+            lorImport.MapDevice("D - 11", lightRoof3);
+            lorImport.MapDevice("C# - 12", lightRoof4);
+
+/*            lorImport.MapDevice("Sidewalk 1", lightSidewalk1);
             lorImport.MapDevice("Sidewalk 2", lightSidewalk2);
             lorImport.MapDevice("Sidewalk 3", lightSidewalk3);
             lorImport.MapDevice("Sidewalk 4", lightSidewalk4);
@@ -147,12 +165,13 @@ namespace Animatroller.SceneRunner
             lorImport.MapDevice("Sidewalk 8", lightSidewalk4);
 
             lorImport.MapDevice("Arch 1", light5_2);
+*/
 
             lorImport.Prepare();
             lorImport.Dump();
 
 
-            waveSource = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\21. Christmas Canon Rock.wav");
+            waveSource = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
 
             soundOut.Initialize(waveSource);
 
