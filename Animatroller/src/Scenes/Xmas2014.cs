@@ -100,8 +100,8 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 3), 22);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 4), 22);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 1), 23);
-            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 2), 23);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 1), 23);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), 23);
         }
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)
