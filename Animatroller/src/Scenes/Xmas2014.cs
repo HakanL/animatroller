@@ -29,8 +29,11 @@ namespace Animatroller.SceneRunner
         private Dimmer3 lightHat3 = new Dimmer3();
         private Dimmer3 lightHat4 = new Dimmer3();
         private Dimmer3 lightStar = new Dimmer3();
+        private Dimmer3 snowmanKaggen = new Dimmer3();
+        private DigitalOutput2 airSnowman = new DigitalOutput2();
         private Dimmer3 lightSnowman = new Dimmer3();
-        private DigitalOutput2 littleSnowman = new DigitalOutput2();
+        private DigitalOutput2 airSanta = new DigitalOutput2();
+        private Dimmer3 lightSanta = new Dimmer3();
         private DigitalOutput2 reindeer = new DigitalOutput2();
         private DigitalOutput2 packages = new DigitalOutput2();
 
@@ -41,12 +44,13 @@ namespace Animatroller.SceneRunner
         public Xmas2014(IEnumerable<string> args)
         {
             hours.AddRange("5:00 pm", "9:00 pm");
-            hours.SetForced(true);
+//            hours.SetForced(true);
 
             hours.Output.Log("Hours inside");
 
             reindeer.Power = true;
-            littleSnowman.Power = true;
+            airSnowman.Power = true;
+            airSanta.Power = true;
             packages.Power = true;
 
             hours
@@ -55,7 +59,8 @@ namespace Animatroller.SceneRunner
                 .ControlsMasterPower(lightHat3)
                 .ControlsMasterPower(lightHat4)*/
                 .ControlsMasterPower(packages)
-                .ControlsMasterPower(littleSnowman)
+                .ControlsMasterPower(airSnowman)
+                .ControlsMasterPower(airSanta)
                 .ControlsMasterPower(reindeer);
 
             hours.Output.Subscribe(x =>
@@ -65,7 +70,9 @@ namespace Animatroller.SceneRunner
                     lightHat3.Brightness = x ? 1.0 : 0.0;
                     lightHat4.Brightness = x ? 1.0 : 0.0;
                     lightStar.Brightness = x ? 1.0 : 0.0;
+                    snowmanKaggen.Brightness = x ? 1.0 : 0.0;
                     lightSnowman.Brightness = x ? 1.0 : 0.0;
+                    lightSanta.Brightness = x ? 1.0 : 0.0;
                 });
 
             testSeq = new Controller.Sequence("Pulse");
@@ -81,17 +88,20 @@ namespace Animatroller.SceneRunner
 //            acnOutput.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
 
             acnOutput.Connect(new Physical.GenericDimmer(reindeer, 10), 20);
-            acnOutput.Connect(new Physical.GenericDimmer(littleSnowman, 11), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(airSnowman, 11), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(airSanta, 12), 20);
             acnOutput.Connect(new Physical.GenericDimmer(lightStar, 50), 20);
 
             acnOutput.Connect(new Physical.GenericDimmer(packages, 1), 21);
-            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), 21);
-
+            acnOutput.Connect(new Physical.GenericDimmer(snowmanKaggen, 2), 21);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 1), 22);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 2), 22);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 3), 22);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 4), 22);
+
+            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 1), 23);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 2), 23);
         }
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)
