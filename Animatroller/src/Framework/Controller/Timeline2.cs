@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define DEBUG_LOG
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using NLog;
 
 namespace Animatroller.Framework.Controller
 {
-    public class Timeline2<T>
+    public class Timeline2<T> : ITimeline
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
@@ -47,12 +48,18 @@ namespace Animatroller.Framework.Controller
 
         public event EventHandler<TimelineEventArgs> TimelineTrigger;
         public event EventHandler<MultiTimelineEventArgs> MultiTimelineTrigger;
+        protected Action setupAction;
         protected Action tearDownAction;
 
         public Timeline2(int? iterations)
         {
             this.timeline = new SortedList<int, HashSet<T>>();
             this.iterations = iterations;
+        }
+
+        public void Setup(Action action)
+        {
+            this.setupAction = action;
         }
 
         public void TearDown(Action action)
@@ -121,6 +128,9 @@ namespace Animatroller.Framework.Controller
 
             this.task = new Task(() =>
             {
+                if (this.setupAction != null)
+                    this.setupAction.Invoke();
+
                 while (!this.iterationsLeft.HasValue || this.iterationsLeft.GetValueOrDefault() > 0)
                 {
                     if (this.iterationsLeft.HasValue)
@@ -145,6 +155,7 @@ namespace Animatroller.Framework.Controller
 
                         var codes = this.timeline.Values[currentPos];
 
+#if DEBUG_LOG
                         // Invoke
                         string debugStr;
                         if (codes.Count == 1)
@@ -153,6 +164,8 @@ namespace Animatroller.Framework.Controller
                             debugStr = string.Format("{0} codes ({1})", codes.Count,
                                 string.Join(",", codes));
                         log.Debug(string.Format("Invoking {1} at {0:N2} s   (pos {2})", elapsed, debugStr, currentPos + 1));
+#endif
+
                         var handler = TimelineTrigger;
                         if (handler != null)
                         {

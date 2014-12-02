@@ -103,6 +103,7 @@
     <Compile Include="Controller\HighPrecisionTimer2.cs" />
     <Compile Include="Controller\IntStateMachine.cs" />
     <Compile Include="Controller\Subroutine.cs" />
+    <Compile Include="Controller\ITimeline.cs" />
     <Compile Include="Controller\Timeline2.cs" />
     <Compile Include="ControlSubject.cs" />
     <Compile Include="DoubleZeroToOne.cs" />
@@ -125,7 +126,8 @@
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />
     <Compile Include="Import\BaseImporter2.cs" />
-    <Compile Include="Import\BufferImporter2.cs" />
+    <Compile Include="Import\HighLevelImporter2.cs" />
+    <Compile Include="Import\LowLevelImporter2.cs" />
     <Compile Include="Import\BufferImporter.cs" />
     <Compile Include="Import\LorImport2.cs" />
     <Compile Include="Interface\ICanExecute.cs" />

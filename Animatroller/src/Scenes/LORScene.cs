@@ -10,12 +10,16 @@ using Import = Animatroller.Framework.Import;
 using Effect = Animatroller.Framework.Effect;
 using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
+using Controller = Animatroller.Framework.Controller;
 using System.Threading.Tasks;
+using System.Media;
 
 namespace Animatroller.SceneRunner
 {
     internal class LORScene : BaseScene
     {
+        SoundPlayer soundPlayer = new SoundPlayer();
+
         //private ColorDimmer light1_1;
         //private ColorDimmer light1_2;
         //private ColorDimmer light1_3;
@@ -84,7 +88,16 @@ namespace Animatroller.SceneRunner
         //private ColorDimmer light4_15;
         //private ColorDimmer light4_16;
 
-        private ColorDimmer3 light5_1 = new ColorDimmer3();
+        private ColorDimmer3 lightRoof1 = new ColorDimmer3();
+        private ColorDimmer3 lightRoof2 = new ColorDimmer3();
+        private ColorDimmer3 lightRoof3 = new ColorDimmer3();
+        private ColorDimmer3 lightRoof4 = new ColorDimmer3();
+
+        private ColorDimmer3 lightSidewalk1 = new ColorDimmer3();
+        private ColorDimmer3 lightSidewalk2 = new ColorDimmer3();
+        private ColorDimmer3 lightSidewalk3 = new ColorDimmer3();
+        private ColorDimmer3 lightSidewalk4 = new ColorDimmer3();
+
         private ColorDimmer3 light5_2 = new ColorDimmer3();
         //private ColorDimmer light5_2;
         //private ColorDimmer light5_3;
@@ -105,7 +118,7 @@ namespace Animatroller.SceneRunner
         private VirtualPixel1D allPixels;
 
         private DigitalInput2 testButton = new DigitalInput2();
-        private Import.BaseImporter2.Timeline lorTimeline;
+        private Import.LorImport2 lorImport = new Import.LorImport2();
 
 
         public LORScene(IEnumerable<string> args)
@@ -113,9 +126,29 @@ namespace Animatroller.SceneRunner
             allPixels = new VirtualPixel1D("All Pixels", 80);
             allPixels.SetAll(Color.White, 0);
 
-            var lorImport = new Animatroller.Framework.Import.LorImport2(@"..\..\..\Test Files\Do You Want To Build A Snowman.lms");
+            lorImport.LoadFromFile(@"..\..\..\Test Files\Cannon Rock104.lms");
 
-            lorImport.MapDevice(0, 0, light5_1);
+            lorImport.MapDevice("Roof 1", lightRoof1);
+            lorImport.MapDevice("Roof 2", lightRoof2);
+            lorImport.MapDevice("Roof 3", lightRoof3);
+            lorImport.MapDevice("Roof 4", lightRoof4);
+
+            lorImport.MapDevice("Sidewalk 1", lightSidewalk1);
+            lorImport.MapDevice("Sidewalk 2", lightSidewalk2);
+            lorImport.MapDevice("Sidewalk 3", lightSidewalk3);
+            lorImport.MapDevice("Sidewalk 4", lightSidewalk4);
+            lorImport.MapDevice("Sidewalk 5", lightSidewalk1);
+            lorImport.MapDevice("Sidewalk 6", lightSidewalk2);
+            lorImport.MapDevice("Sidewalk 7", lightSidewalk3);
+            lorImport.MapDevice("Sidewalk 8", lightSidewalk4);
+
+            lorImport.MapDevice("Arch 1", light5_2);
+
+            lorImport.Prepare();
+            lorImport.Dump();
+
+            soundPlayer.SoundLocation = @"C:\Projects\Other\ChristmasSounds\trk\21. Christmas Canon Rock.wav";
+            soundPlayer.Load();
 
             //            light5_1 = lorImport.MapDevice(1, 1, name => new StrobeColorDimmer(name));
 
@@ -224,7 +257,6 @@ namespace Animatroller.SceneRunner
                             }
                         }
             */
-            lorTimeline = lorImport.CreateTimeline(1);
         }
 
         public override void Start()
@@ -237,16 +269,17 @@ namespace Animatroller.SceneRunner
                     log.Info("Button press!");
                 }
             });
-
-            lorTimeline.Start();
         }
 
         public override void Run()
         {
+            lorImport.Start();
+            soundPlayer.Play();
         }
 
         public override void Stop()
         {
+            soundPlayer.Stop();
         }
     }
 }

@@ -39,6 +39,9 @@ namespace Animatroller.Framework.LogicalDevice
         {
             var controlToken = Executor.Current.GetControlToken(this);
 
+            if (controlToken == null)
+                controlToken = TakeControl();
+
             return new ControlledObserver<double>(controlToken, this.brightness);
         }
 

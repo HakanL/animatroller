@@ -15,7 +15,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class ControlledObserver<T> : IObserver<T>
+    public class ControlledObserver<T> : IObserver<T>, IDisposable
     {
         private IControlToken controlToken;
         private ControlSubject<T, IControlToken> control;
@@ -39,6 +39,12 @@ namespace Animatroller.Framework.LogicalDevice
         public void OnNext(T value)
         {
             this.control.OnNext(value, this.controlToken);
+        }
+
+        public void Dispose()
+        {
+            if (this.controlToken != null)
+                this.controlToken.Dispose();
         }
     }
 }

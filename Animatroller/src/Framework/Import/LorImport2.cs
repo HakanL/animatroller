@@ -12,11 +12,13 @@ using Animatroller.Framework.Controller;
 namespace Animatroller.Framework.Import
 {
     // Light-O-Rama Musical Sequence
-    public class LorImport2 : BufferImporter2
+    public class LorImport2 : HighLevelImporter2
     {
-        private Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
+        public LorImport2()
+        {
+        }
 
-        public LorImport2(string filename)
+        public void LoadFromFile(string filename)
         {
             var deserializer = new XmlSerializer(typeof(LMS.sequence));
 
@@ -25,9 +27,6 @@ namespace Animatroller.Framework.Import
             {
                 sequence = (LMS.sequence)deserializer.Deserialize(textReader);
             }
-
-            this.eventPeriodInMilliseconds = 50;
-            this.effectsPerChannel = (int)(sequence.channels.Max(x => x.centiseconds) * 10 / this.eventPeriodInMilliseconds);
 
             foreach (var channel in sequence.channels)
             {
@@ -40,35 +39,75 @@ namespace Animatroller.Framework.Import
                 var channelIdentity = new UnitCircuit(channel.unit, channel.circuit);
                 AddChannelData(channelIdentity, new ChannelData(channel.name));
 
-                var channelEffectData = new byte[this.effectsPerChannel];
-
-                for (int pos = 0; pos < this.effectsPerChannel; pos++)
+                var channelEffects = new List<ChannelEffect>();
+                if (channel.effect != null)
                 {
-                    long centiSeconds = pos * this.eventPeriodInMilliseconds / 10;
-                    if (channel.effect != null)
+                    foreach (var effect in channel.effect)
                     {
-                        foreach (var effect in channel.effect)
-                        {
-                            if (effect.startCentisecond > centiSeconds)
-                                break;
-
-                            if (centiSeconds >= effect.startCentisecond && centiSeconds < effect.endCentisecond)
-                            {
-                                channelEffectData[pos] = (byte)(effect.intensity * 255 / 100);
-                                break;
-                            }
-                        }
+                        channelEffects.AddRange(GetChannelEffects(effect));
                     }
                 }
-                effectDataPerChannel[channelIdentity] = channelEffectData;
+
+                channelEffectsPerChannel[channelIdentity] = channelEffects;
+            }
+        }
+
+        private IEnumerable<ChannelEffect> GetChannelEffects(LMS.channelsChannelEffect effect)
+        {
+            int startMs = effect.startCentisecond * 10;
+            int endMs = effect.endCentisecond * 10;
+
+            switch (effect.type)
+            {
+                case "intensity":
+                    if (!string.IsNullOrEmpty(effect.intensity))
+                    {
+                        return new List<ChannelEffect>() {
+                            new InstantChannelEffect
+                            {
+                                StartMs = startMs,
+                                Brightness = double.Parse(effect.intensity) / 100.0
+                            },
+                            new InstantChannelEffect
+                            {
+                                StartMs = endMs,
+                                Brightness = 0
+                            }};
+                    }
+                    else
+                    {
+                        return new List<ChannelEffect>() { new FadeChannelEffect
+                            {
+                                StartMs = startMs,
+                                EndMs = endMs,
+                                StartBrightness = double.Parse(effect.startIntensity) / 100.0,
+                                EndBrightness = double.Parse(effect.endIntensity) / 100.0
+                            }};
+                    }
+
+                case "shimmer":
+                    return new List<ChannelEffect>() { new ShimmerChannelEffect
+                    {
+                        StartMs = startMs,
+                        EndMs = endMs
+                    }};
+
+                case "twinkle":
+                    return new List<ChannelEffect>() { new TwinkleChannelEffect
+                    {
+                        StartMs = startMs,
+                        EndMs = endMs,
+                        Brightness = double.Parse(effect.intensity) / 100.0
+                    }};
+
+                default:
+                    throw new NotImplementedException("Unknown effect type " + effect.type);
             }
         }
 
         public void MapDevice(int unit, int circuit, IReceivesBrightness device)
         {
-            var mappedDevice = new MappedDeviceDimmer(device);
-
-            InternalMapDevice(new UnitCircuit(unit, circuit), mappedDevice);
+            InternalMapDevice(new UnitCircuit(unit, circuit), device);
         }
 
         public class UnitCircuit : IChannelIdentity
@@ -100,54 +139,43 @@ namespace Animatroller.Framework.Import
                 return string.Format("U{0}C{1}", this.Unit, this.Circuit);
             }
         }
-    }
 
-    public class LOREvent2 : LMS.channelsChannelEffect, BaseImporter.ISimpleInvokeEvent
-    {
-        private IEnumerable<BaseImporter.MappedDeviceDimmer> devices;
-
-        public LOREvent2(IEnumerable<BaseImporter.MappedDeviceDimmer> devices, LMS.channelsChannelEffect effect)
+        protected class InstantChannelEffect : ChannelEffect
         {
-            this.devices = devices;
-            base.endCentisecond = effect.endCentisecond;
-            base.endIntensity = effect.endIntensity;
-            base.intensity = effect.intensity;
-            base.startCentisecond = effect.startCentisecond;
-            base.startIntensity = effect.startIntensity;
-            base.type = effect.type;
+            public double Brightness { get; set; }
+
+            public override void Execute(IObserver<double> device)
+            {
+                device.OnNext(Brightness);
+            }
         }
 
-        public void Invoke()
+        protected class FadeChannelEffect : ChannelEffectRange
         {
-            foreach (var device in this.devices)
+            public double StartBrightness { get; set; }
+
+            public double EndBrightness { get; set; }
+
+            public override void Execute(IObserver<double> device)
             {
-                switch (this.type)
-                {
-                    case "intensity":
-                        if (string.IsNullOrEmpty(this.startIntensity))
-                        {
-                            device.Device.Brightness = (double)this.intensity / 100;
-                        }
-                        else
-                        {
-                            device.RunEffect(
-                                new Effect2.Fader(
-                                    double.Parse(this.startIntensity) / 100,
-                                    double.Parse(this.endIntensity) / 100),
-                                TimeSpan.FromMilliseconds((this.endCentisecond - this.startCentisecond) * 100));
-                        }
-                        break;
+                Executor.Current.MasterFader.Fade(device, StartBrightness, EndBrightness, DurationMs);
+            }
+        }
 
-                    case "shimmer":
-                        //device.RunEffect(
-                        //    shimmerEffect,
-                        //    TimeSpan.FromMilliseconds((this.endCentisecond - this.startCentisecond) * 100));
-                        break;
+        protected class ShimmerChannelEffect : ChannelEffectRange
+        {
+            public override void Execute(IObserver<double> device)
+            {
+//                Executor.Current.MasterShimmer.Shimmer(device, 0, 1, DurationMs);
+            }
+        }
 
-                    default:
-                        //                        log.Warn("Unknown type {0}", lorEvent.type);
-                        break;
-                }
+        protected class TwinkleChannelEffect : ChannelEffectRange
+        {
+            public double Brightness { get; set; }
+
+            public override void Execute(IObserver<double> device)
+            {
             }
         }
     }

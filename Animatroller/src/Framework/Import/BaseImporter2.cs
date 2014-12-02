@@ -4,27 +4,16 @@ using System.Drawing;
 using System.Linq;
 using NLog;
 using Animatroller.Framework.Controller;
+using System.Threading.Tasks;
 
 namespace Animatroller.Framework.Import
 {
     public abstract class BaseImporter2
     {
-        public interface ISimpleInvokeEvent
-        {
-            void Invoke();
-        }
-
-        public class Timeline : Timeline2<ISimpleInvokeEvent>
-        {
-            public Timeline(int? iterations)
-                : base(iterations)
-            {
-            }
-        }
-
         public class ChannelData
         {
             public string Name { get; private set; }
+
             public bool Mapped { get; set; }
 
             public ChannelData(string name)
@@ -33,7 +22,7 @@ namespace Animatroller.Framework.Import
             }
         }
 
-        public class MappedDeviceDimmer
+/*        public class MappedDeviceDimmer
         {
             public IReceivesBrightness Device { get; set; }
 
@@ -46,7 +35,7 @@ namespace Animatroller.Framework.Import
             {
                 this.Device = device;
             }
-        }
+        }*/
 
         public class MappedDeviceRGB
         {
@@ -59,9 +48,9 @@ namespace Animatroller.Framework.Import
         }
 
         protected static Logger log = LogManager.GetCurrentClassLogger();
-        private Dictionary<IChannelIdentity, ChannelData> channelData;
+        protected Dictionary<IChannelIdentity, ChannelData> channelData;
         private List<IChannelIdentity> channels;
-        protected Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>> mappedDevices;
+        protected Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>> mappedDevices;
         protected Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>> mappedRGBDevices;
         protected HashSet<IControlledDevice> controlledDevices;
 
@@ -69,10 +58,14 @@ namespace Animatroller.Framework.Import
         {
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
             this.channels = new List<IChannelIdentity>();
-            this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>>();
+            this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>>();
             this.mappedRGBDevices = new Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>>();
             this.controlledDevices = new HashSet<IControlledDevice>();
         }
+
+        public abstract Task Start();
+        
+        public abstract void Stop();
 
         public IEnumerable<IChannelIdentity> GetChannels
         {
@@ -89,28 +82,39 @@ namespace Animatroller.Framework.Import
             return channel.Name;
         }
 
+        public IChannelIdentity ChannelIdentityFromName(string name)
+        {
+            foreach (var kvp in this.channelData)
+            {
+                if (kvp.Value.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                    return kvp.Key;
+            }
+
+            throw new KeyNotFoundException(string.Format("Channel {0} not found"));
+        }
+
         protected void AddChannelData(IChannelIdentity channelIdentity, ChannelData data)
         {
             this.channelData[channelIdentity] = data;
             this.channels.Add(channelIdentity);
         }
 
-        protected void InternalMapDevice(IChannelIdentity channelIdentity, MappedDeviceDimmer device)
+        protected void InternalMapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)
         {
-            HashSet<MappedDeviceDimmer> devices;
+            HashSet<IReceivesBrightness> devices;
             if (!mappedDevices.TryGetValue(channelIdentity, out devices))
             {
-                devices = new HashSet<MappedDeviceDimmer>();
+                devices = new HashSet<IReceivesBrightness>();
                 mappedDevices[channelIdentity] = devices;
             }
             devices.Add(device);
-         
+
             this.channelData[channelIdentity].Mapped = true;
 
-            if (device.Device is IControlledDevice)
-                this.controlledDevices.Add((IControlledDevice)device.Device);
-            if (device.Device is LogicalDevice.IHasControlledDevice)
-                this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device.Device).ControlledDevice);
+            if (device is IControlledDevice)
+                this.controlledDevices.Add((IControlledDevice)device);
+            if (device is LogicalDevice.IHasControlledDevice)
+                this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device).ControlledDevice);
         }
 
         protected void InternalMapDevice(RGBChannelIdentity channelIdentity, MappedDeviceRGB device)
@@ -135,9 +139,7 @@ namespace Animatroller.Framework.Import
 
         public void MapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)
         {
-            var mappedDevice = new MappedDeviceDimmer(device);
-
-            InternalMapDevice(channelIdentity, mappedDevice);
+            InternalMapDevice(channelIdentity, device);
         }
 
         //public T MapDevice<T>(IChannelIdentity channelIdentity, Func<string, T> logicalDevice) where T : LogicalDevice.IHasBrightnessControl
@@ -163,11 +165,11 @@ namespace Animatroller.Framework.Import
             device.Color = Color.Black;
         }
 
-        public T MapDevice<T>(
+        public TDevice MapDevice<TDevice>(
             IChannelIdentity channelIdentityR,
             IChannelIdentity channelIdentityG,
             IChannelIdentity channelIdentityB,
-            Func<string, T> logicalDevice) where T : LogicalDevice.IHasColorControl
+            Func<string, TDevice> logicalDevice) where TDevice : LogicalDevice.IHasColorControl
         {
             string name = string.Format("{0}/{1}/{2}",
                 GetChannelName(channelIdentityR), GetChannelName(channelIdentityG), GetChannelName(channelIdentityB));
@@ -178,43 +180,5 @@ namespace Animatroller.Framework.Import
 
             return device;
         }
-
-        protected Timeline InternalCreateTimeline(int? iterations)
-        {
-            foreach (var kvp in this.channelData)
-            {
-                if (!kvp.Value.Mapped)
-                {
-                    log.Warn("No devices mapped to {0}", kvp.Key);
-                }
-            }
-
-            var timeline = new Timeline(iterations);
-            timeline.TearDown(() =>
-                {
-                    foreach (var controlledDevice in this.controlledDevices)
-                        controlledDevice.TurnOff();
-                });
-
-            timeline.MultiTimelineTrigger += (sender, e) =>
-                {
-                    foreach (var controlledDevice in this.controlledDevices)
-                        controlledDevice.Suspend();
-                    try
-                    {
-                        foreach (var invokeEvent in e.Code)
-                            invokeEvent.Invoke();
-                    }
-                    finally
-                    {
-                        foreach (var controlledDevice in this.controlledDevices)
-                            controlledDevice.Resume();
-                    }
-                };
-
-            return timeline;
-        }
-
-        public abstract Timeline CreateTimeline(int? iterations);
     }
 }

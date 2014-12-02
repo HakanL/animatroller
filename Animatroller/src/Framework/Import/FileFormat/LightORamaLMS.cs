@@ -74,15 +74,15 @@ namespace Animatroller.Framework.Import.FileFormat.LightORama.LMS
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public long startCentisecond;
+        public int startCentisecond;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public long endCentisecond;
+        public int endCentisecond;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public short intensity;
+        public string intensity;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]

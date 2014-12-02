@@ -6,18 +6,16 @@ using Animatroller.Framework.Controller;
 
 namespace Animatroller.Framework.Import
 {
-    public abstract class BufferImporter2 : BaseImporter2
+    public abstract class LowLevelImporter2 : BaseImporter2
     {
-        protected Dictionary<IChannelIdentity, byte[]> effectDataPerChannel;
         protected int effectsPerChannel;
         protected int eventPeriodInMilliseconds;
 
-        public BufferImporter2()
+        public LowLevelImporter2()
         {
-            this.effectDataPerChannel = new Dictionary<IChannelIdentity, byte[]>();
         }
 
-        public override Timeline CreateTimeline(int? iterations)
+/*        public override Controller.Timeline2<TChannelEffect> CreateTimeline(int? iterations)
         {
             var timeline = InternalCreateTimeline(iterations);
 
@@ -25,9 +23,11 @@ namespace Animatroller.Framework.Import
             {
                 var channelIdentity = kvp.Key;
 
-                var effectData = effectDataPerChannel[channelIdentity];
-
-                byte? lastValue = null;
+                foreach(var effectData in channelEffectsPerChannel[channelIdentity])
+                {
+//                    timeline.AddMs();
+                }
+/*                byte? lastValue = null;
                 for (int i = 0; i < effectData.Length; i++)
                 {
                     if (effectData[i] == lastValue)
@@ -36,9 +36,9 @@ namespace Animatroller.Framework.Import
 
                     var timelineEvent = new SimpleDimmerEvent2(kvp.Value, (double)effectData[i] / 255);
                     timeline.AddMs(i * eventPeriodInMilliseconds, timelineEvent);
-                }
-            }
-
+                }*/
+            /*}*/
+/*
             foreach (var kvp in this.mappedRGBDevices)
             {
                 var channelIdentity = kvp.Key;
@@ -62,11 +62,11 @@ namespace Animatroller.Framework.Import
                     //    channelIdentity.G, channelIdentity.B);
                 }
             }
-
-            return timeline;
-        }
+*/
+//            return timeline;
+  //      }
     }
-
+/*
     public class SimpleDimmerEvent2 : BaseImporter2.ISimpleInvokeEvent
     {
         private IEnumerable<BaseImporter2.MappedDeviceDimmer> devices;
@@ -86,7 +86,7 @@ namespace Animatroller.Framework.Import
             }
         }
     }
-
+*//*
     public class SimpleColorEvent2 : BaseImporter2.ISimpleInvokeEvent
     {
         private IEnumerable<BaseImporter2.MappedDeviceRGB> devices;
@@ -105,5 +105,5 @@ namespace Animatroller.Framework.Import
                 device.Device.Color = this.color;
             }
         }
-    }
+    }*/
 }

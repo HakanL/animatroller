@@ -7,7 +7,7 @@ using NLog;
 
 namespace Animatroller.Framework.Controller
 {
-    public class Timeline<T>
+    public class Timeline<T> : ITimeline
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
 

@@ -54,7 +54,7 @@ namespace Animatroller.Framework.Import
 
                             if (centiSeconds >= effect.startCentisecond && centiSeconds < effect.endCentisecond)
                             {
-                                channelEffectData[pos] = (byte)(effect.intensity * 255 / 100);
+                                channelEffectData[pos] = (byte)(short.Parse(effect.intensity) * 255 / 100);
                                 break;
                             }
                         }
@@ -119,14 +119,14 @@ namespace Animatroller.Framework.Import
                     case "intensity":
                         if (string.IsNullOrEmpty(this.startIntensity))
                         {
-                            device.Device.Brightness = (double)this.intensity / 100;
+                            device.Device.Brightness = double.Parse(this.intensity) / 100.0;
                         }
                         else
                         {
                             device.RunEffect(
                                 new Effect2.Fader(
-                                    double.Parse(this.startIntensity) / 100,
-                                    double.Parse(this.endIntensity) / 100),
+                                    double.Parse(this.startIntensity) / 100.0,
+                                    double.Parse(this.endIntensity) / 100.0),
                                 TimeSpan.FromMilliseconds((this.endCentisecond - this.startCentisecond) * 100));
                         }
                         break;
