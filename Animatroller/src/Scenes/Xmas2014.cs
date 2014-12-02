@@ -19,6 +19,8 @@ namespace Animatroller.SceneRunner
     internal class Xmas2014 : BaseScene
     {
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
+        private Expander.OscServer oscServer = new Expander.OscServer(8000);
+
         private OperatingHours2 hours = new OperatingHours2();
         private VirtualPixel1D allPixels;
         private DigitalInput2 buttonTest = new DigitalInput2();
@@ -36,6 +38,8 @@ namespace Animatroller.SceneRunner
         private Dimmer3 lightSanta = new Dimmer3();
         private DigitalOutput2 reindeer = new DigitalOutput2();
         private DigitalOutput2 packages = new DigitalOutput2();
+
+        private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
         private Controller.Sequence testSeq;
         private Controller.Sequence candyCane;
@@ -63,17 +67,22 @@ namespace Animatroller.SceneRunner
                 .ControlsMasterPower(airSanta)
                 .ControlsMasterPower(reindeer);
 
+            pulsatingEffect1.ConnectTo(lightStar.GetBrightnessObserver());
+
+            hours.Output.Subscribe(pulsatingEffect1.InputRun);
+
             hours.Output.Subscribe(x =>
                 {
                     lightHat1.Brightness = x ? 1.0 : 0.0;
                     lightHat2.Brightness = x ? 1.0 : 0.0;
                     lightHat3.Brightness = x ? 1.0 : 0.0;
                     lightHat4.Brightness = x ? 1.0 : 0.0;
-                    lightStar.Brightness = x ? 1.0 : 0.0;
                     snowmanKaggen.Brightness = x ? 1.0 : 0.0;
                     lightSnowman.Brightness = x ? 1.0 : 0.0;
                     lightSanta.Brightness = x ? 1.0 : 0.0;
                 });
+
+            lightSanta.SetOutputFilter(new Effect.Blackout());
 
             testSeq = new Controller.Sequence("Pulse");
             candyCane = new Controller.Sequence("Candy Cane");
@@ -102,6 +111,17 @@ namespace Animatroller.SceneRunner
 
             acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 1), 23);
             acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), 23);
+
+
+            oscServer.RegisterActionSimple<double>("/1/faderA", (msg, data) =>
+            {
+                lightSnowman.Brightness = data;
+            });
+
+            oscServer.RegisterActionSimple<double>("/1/faderD", (msg, data) =>
+            {
+                Exec.Blackout.OnNext(data);
+            });
         }
 
         private void TestAllPixels(Color color, double brightness, TimeSpan delay)

@@ -1,4 +1,4 @@
-﻿//#define DEBUG_OSC
+﻿#define DEBUG_OSC
 
 using System;
 using System.Collections.Generic;
@@ -155,6 +155,23 @@ namespace Animatroller.Framework.Expander
                     var list = msg.Data.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
                     action(msg, list);
                 };
+
+            if (address.EndsWith("*"))
+                this.dispatchPartial[address.Substring(0, address.Length - 1)] = invokeAction;
+            else
+                this.dispatch[address] = invokeAction;
+
+            return this;
+        }
+
+        public OscServer RegisterActionSimple<T>(string address, Action<Message, T> action)
+        {
+            Action<Message> invokeAction = msg =>
+            {
+                var list = msg.Data.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
+                if (list.Count == 1)
+                    action(msg, list.First());
+            };
 
             if (address.EndsWith("*"))
                 this.dispatchPartial[address.Substring(0, address.Length - 1)] = invokeAction;
