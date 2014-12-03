@@ -7,7 +7,7 @@ using NLog;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public abstract class BaseDevice : IOutputDevice
+    public abstract class BaseDevice : IOutputDevice, IPhysicalDevice
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private ILogicalDevice[] logicalDevices;
@@ -25,7 +25,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
         public string Name
         {
-            get { return string.Empty; }
+            get { return this.logicalDevices.First().Name; }
         }
     }
 }

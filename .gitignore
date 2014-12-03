@@ -50,3 +50,5 @@ _ReSharper*/
 packages/
 
 /db
+*.lcs
+*.lsv

@@ -30,19 +30,9 @@ namespace Animatroller.Framework.LogicalDevice
             this.brightness = new ControlSubject<double, IControlToken>(0, HasControl);
         }
 
-        public ControlledObserver<double> GetBrightnessObserver(IControlToken controlToken)
-        {
-            return new ControlledObserver<double>(controlToken, this.brightness);
-        }
-
         public ControlledObserver<double> GetBrightnessObserver()
         {
-            var controlToken = Executor.Current.GetControlToken(this);
-
-            if (controlToken == null)
-                controlToken = TakeControl();
-
-            return new ControlledObserver<double>(controlToken, this.brightness);
+            return new ControlledObserver<double>(GetCurrentOrNewToken(), this.brightness);
         }
 
         public void SetOutputFilter(ISubject<double> outputFilter)

@@ -9,7 +9,7 @@ using VIX = Animatroller.Framework.Import.FileFormat.Vixen;
 namespace Animatroller.Framework.Import
 {
     public class VixenImport : BufferImporter
-    {   
+    {
         public VixenImport(string filename)
         {
             var deserializer = new XmlSerializer(typeof(VIX.Program));
@@ -63,6 +63,11 @@ namespace Animatroller.Framework.Import
             public override string ToString()
             {
                 return string.Format("{0}", this.Channel);
+            }
+
+            public int CompareTo(object other)
+            {
+                return this.Channel.CompareTo(((VixenChannel)other).Channel);
             }
         }
     }

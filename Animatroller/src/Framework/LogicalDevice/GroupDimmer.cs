@@ -36,8 +36,8 @@ namespace Animatroller.Framework.LogicalDevice
                     if (!this.memberControlTokens.TryGetValue(member, out memberControlToken))
                         // No lock/control token
                         continue;
-
-                    observers.Add(member.GetBrightnessObserver(memberControlToken));
+                    //FIXME: memberControlToken
+                    observers.Add(member.GetBrightnessObserver());
                 }
             }
 

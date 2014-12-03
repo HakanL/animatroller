@@ -8,25 +8,25 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public abstract class BaseDMXRGBStrobeLight : BaseRGBStrobeLight, INeedsDmxOutput
+    public abstract class BaseDMXStrobeLight : BaseStrobeLight, INeedsDmxOutput
     {
         protected int baseDmxChannel;
 
         public IDmxOutput DmxOutputPort { protected get; set; }
 
-        public BaseDMXRGBStrobeLight(ColorDimmer logicalDevice, int dmxChannel)
+        public BaseDMXStrobeLight(ColorDimmer logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
             this.baseDmxChannel = dmxChannel;
         }
 
-        public BaseDMXRGBStrobeLight(ColorDimmer2 logicalDevice, int dmxChannel)
+        public BaseDMXStrobeLight(ColorDimmer2 logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
             this.baseDmxChannel = dmxChannel;
         }
 
-        public BaseDMXRGBStrobeLight(ILogicalDevice logicalDevice, int dmxChannel)
+        public BaseDMXStrobeLight(ILogicalDevice logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
             this.baseDmxChannel = dmxChannel;

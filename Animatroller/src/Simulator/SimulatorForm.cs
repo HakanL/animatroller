@@ -12,6 +12,7 @@ using Animatroller.Framework.LogicalDevice;
 using Animatroller.Simulator.Extensions;
 using Animatroller.Framework.Extensions;
 using NLog;
+using System.Threading;
 
 namespace Animatroller.Simulator
 {
@@ -23,6 +24,11 @@ namespace Animatroller.Simulator
         public SimulatorForm()
         {
             InitializeComponent();
+
+            this.SetStyle(
+              ControlStyles.AllPaintingInWmPaint |
+              ControlStyles.UserPaint |
+              ControlStyles.DoubleBuffer, true);
         }
 
         public SimulatorForm AutoWireUsingReflection(IScene scene, params IRunningDevice[] excludeDevices)
@@ -505,7 +511,7 @@ namespace Animatroller.Simulator
 
         public void Connect(INeedsLabelLight output)
         {
-            output.LabelLightControl = AddNewLight(output.ConnectedDevice.Name);
+            output.LabelLightControl = AddNewLight(output.Name);
 
             if (output is IUpdateableControl)
             {
@@ -523,11 +529,18 @@ namespace Animatroller.Simulator
 
         private void updateTimer_Tick(object sender, EventArgs e)
         {
-            lock (this.updateableControls)
+            if (Monitor.TryEnter(this.updateableControls))
             {
-                foreach (var control in this.updateableControls)
+                try
                 {
-                    control.Update();
+                    foreach (var control in this.updateableControls)
+                    {
+                        control.Update();
+                    }
+                }
+                finally
+                {
+                    Monitor.Exit(this.updateableControls);
                 }
             }
         }

@@ -15,7 +15,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class ControlledObserver<T> : IObserver<T>, IDisposable
+    public class ControlledObserver<T> : IDisposableObserver<T>
     {
         private IControlToken controlToken;
         private ControlSubject<T, IControlToken> control;

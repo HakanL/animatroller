@@ -18,32 +18,32 @@ namespace Animatroller.SceneRunner
 {
     internal class Xmas2014 : BaseScene
     {
-        private Expander.AcnStream acnOutput = new Expander.AcnStream();
-        private Expander.OscServer oscServer = new Expander.OscServer(8000);
+        Expander.AcnStream acnOutput = new Expander.AcnStream();
+        Expander.OscServer oscServer = new Expander.OscServer(8000);
 
-        private OperatingHours2 hours = new OperatingHours2();
-        private VirtualPixel1D allPixels;
-        private DigitalInput2 buttonTest = new DigitalInput2();
-        private DigitalInput2 buttonTest2 = new DigitalInput2();
+        OperatingHours2 hours = new OperatingHours2();
+        VirtualPixel1D allPixels;
+        DigitalInput2 buttonTest = new DigitalInput2();
+        DigitalInput2 buttonTest2 = new DigitalInput2();
 
-        private Dimmer3 lightHat1 = new Dimmer3();
-        private Dimmer3 lightHat2 = new Dimmer3();
-        private Dimmer3 lightHat3 = new Dimmer3();
-        private Dimmer3 lightHat4 = new Dimmer3();
-        private Dimmer3 lightStar = new Dimmer3();
-        private Dimmer3 snowmanKaggen = new Dimmer3();
-        private DigitalOutput2 airSnowman = new DigitalOutput2();
-        private Dimmer3 lightSnowman = new Dimmer3();
-        private DigitalOutput2 airSanta = new DigitalOutput2();
-        private Dimmer3 lightSanta = new Dimmer3();
-        private DigitalOutput2 reindeer = new DigitalOutput2();
-        private DigitalOutput2 packages = new DigitalOutput2();
+        Dimmer3 lightHat1 = new Dimmer3();
+        Dimmer3 lightHat2 = new Dimmer3();
+        Dimmer3 lightHat3 = new Dimmer3();
+        Dimmer3 lightHat4 = new Dimmer3();
+        Dimmer3 lightStar = new Dimmer3();
+        Dimmer3 snowmanKaggen = new Dimmer3();
+        DigitalOutput2 airSnowman = new DigitalOutput2();
+        Dimmer3 lightSnowman = new Dimmer3();
+        DigitalOutput2 airSanta = new DigitalOutput2();
+        Dimmer3 lightSanta = new Dimmer3();
+        DigitalOutput2 reindeer = new DigitalOutput2();
+        DigitalOutput2 packages = new DigitalOutput2();
 
-        private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
-        private Controller.Sequence testSeq;
-        private Controller.Sequence candyCane;
-        private Controller.Sequence laserSeq;
+        Controller.Sequence testSeq;
+        Controller.Sequence candyCane;
+        Controller.Sequence laserSeq;
 
         public Xmas2014(IEnumerable<string> args)
         {

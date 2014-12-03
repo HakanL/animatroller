@@ -3,7 +3,7 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class RGBStrobe : BaseDMXRGBStrobeLight
+    public class RGBStrobe : BaseDMXStrobeLight
     {
         public RGBStrobe(ColorDimmer logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)

@@ -140,6 +140,7 @@
     <Compile Include="LogicalDevice\ColorDimmer3.cs" />
     <Compile Include="LogicalDevice\ColorDimmer2.cs" />
     <Compile Include="LogicalDevice\ControlledDevice.cs" />
+    <Compile Include="LogicalDevice\ControlledObserverRGB.cs" />
     <Compile Include="LogicalDevice\ControlTokenValue.cs" />
     <Compile Include="LogicalDevice\DigitalInput2.cs" />
     <Compile Include="LogicalDevice\ControlledObserver.cs" />
@@ -170,8 +171,9 @@
     <Compile Include="LogicalDevice\OperatingHours.cs" />
     <Compile Include="Import\BaseImporter.cs" />
     <Compile Include="PhysicalDevice\AnalogInput.cs" />
-    <Compile Include="PhysicalDevice\Base\BaseRGBStrobeLight.cs" />
-    <Compile Include="PhysicalDevice\Base\BaseDMXRGBStrobeLight.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseStrobeLight.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseDMXStrobeLight.cs" />
+    <Compile Include="PhysicalDevice\Base\BaseLight.cs" />
     <Compile Include="PhysicalDevice\MonopriceMovingHeadLight12chn.cs" />
     <Compile Include="PhysicalDevice\PixelRGBByte.cs" />
     <Compile Include="PhysicalDevice\PixelRope.cs" />

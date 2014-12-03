@@ -60,5 +60,15 @@ namespace Animatroller.Framework.LogicalDevice
         {
             return HasControl(Executor.Current.GetControlToken(this));
         }
+
+        protected IControlToken GetCurrentOrNewToken()
+        {
+            var controlToken = Executor.Current.GetControlToken(this);
+
+            if (controlToken == null)
+                controlToken = TakeControl();
+
+            return controlToken;
+        }
     }
 }

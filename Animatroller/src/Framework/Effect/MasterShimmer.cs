@@ -7,6 +7,7 @@ using System.Reactive;
 using NLog;
 using Animatroller.Framework.Effect;
 using Animatroller.Framework.Extensions;
+using System.Threading.Tasks;
 
 namespace Animatroller.Framework.Effect2
 {
@@ -24,11 +25,9 @@ namespace Animatroller.Framework.Effect2
         {
         }
 
-        public void Shimmer(IReceivesBrightness device, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
+        public Task Shimmer(IObserver<double> deviceObserver, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
         {
-            var control = device.TakeControl(priority);
-
-            var deviceObserver = device.GetBrightnessObserver(control);
+            var taskSource = new TaskCompletionSource<bool>();
 
             bool state = false;
 
@@ -41,10 +40,12 @@ namespace Animatroller.Framework.Effect2
                 },
                 onCompleted: () =>
                 {
-                    control.Dispose();
+                    taskSource.SetResult(true);
                 });
 
             this.timerJobRunner.AddTimerJob(observer, durationMs);
+
+            return taskSource.Task;
         }
     }
 }

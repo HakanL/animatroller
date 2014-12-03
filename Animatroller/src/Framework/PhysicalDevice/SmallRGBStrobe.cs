@@ -9,7 +9,7 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class SmallRGBStrobe : BaseDMXRGBStrobeLight
+    public class SmallRGBStrobe : BaseDMXStrobeLight
     {
         public SmallRGBStrobe(ColorDimmer logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)

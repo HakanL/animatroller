@@ -70,12 +70,12 @@ namespace Animatroller.SceneRunner
                     var control1 = lightA.TakeControl(1);
                     lightA.Brightness = 0.33;
 
-                    var observer1 = lightA.GetBrightnessObserver(control1);
+                    var observer1 = lightA.GetBrightnessObserver();
 
                     // Should skip
                     observer1.OnNext(1.0);
 
-                    var faderTask = Exec.MasterFader.Fade(lightA, 0.0, 1.0, 5000);
+                    var faderTask = Exec.MasterFader.Fade(observer1, 0.0, 1.0, 5000);
 
                     Exec.Sleep(S(3));
 
@@ -92,7 +92,7 @@ namespace Animatroller.SceneRunner
                         {
                             control1.Dispose();
 
-                            Exec.MasterFader.Fade(lightA, 1.0, 0.0, 5000);
+                            Exec.MasterFader.Fade(observer1, 1.0, 0.0, 5000);
                         });
 
 

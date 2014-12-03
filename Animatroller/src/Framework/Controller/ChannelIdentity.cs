@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Animatroller.Framework.Controller
 {
-    public interface IChannelIdentity
+    public interface IChannelIdentity : IComparable
     {
         bool Equals(object obj);
         int GetHashCode();

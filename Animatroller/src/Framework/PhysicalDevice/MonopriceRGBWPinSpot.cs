@@ -9,7 +9,7 @@ using Animatroller.Framework.Utility;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class MonopriceRGBWPinSpot : BaseDMXRGBStrobeLight
+    public class MonopriceRGBWPinSpot : BaseDMXStrobeLight
     {
         public MonopriceRGBWPinSpot(ColorDimmer logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)

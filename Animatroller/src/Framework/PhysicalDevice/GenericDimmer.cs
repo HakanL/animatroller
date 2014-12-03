@@ -4,53 +4,47 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class GenericDimmer : BaseDevice, INeedsDmxOutput
+    public class GenericDimmer : BaseLight, INeedsDmxOutput
     {
+        protected int baseDmxChannel;
+
         public IDmxOutput DmxOutputPort { protected get; set; }
 
         public GenericDimmer(Dimmer logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
-            logicalDevice.BrightnessChanged += (sender, e) =>
-            {
-                DmxOutputPort.SendDimmerValue(dmxChannel, e.NewBrightness.GetByteScale());
-            };
+            this.baseDmxChannel = dmxChannel;
         }
 
         public GenericDimmer(Switch logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
-            logicalDevice.PowerChanged += (sender, e) =>
-                {
-                    DmxOutputPort.SendDimmerValue(dmxChannel, (byte)(e.NewState ? 255 : 0));
-                };
+            this.baseDmxChannel = dmxChannel;
         }
 
         public GenericDimmer(DigitalOutput2 logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
-            logicalDevice.Output.Subscribe(x =>
-            {
-                DmxOutputPort.SendDimmerValue(dmxChannel, (byte)(x ? 255 : 0));
-            });
+            this.baseDmxChannel = dmxChannel;
         }
 
         public GenericDimmer(Dimmer2 logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
-            logicalDevice.InputBrightness.Subscribe(x =>
-            {
-                DmxOutputPort.SendDimmerValue(dmxChannel, x.Value.GetByteScale());
-            });
+            this.baseDmxChannel = dmxChannel;
         }
 
-        public GenericDimmer(Dimmer3 logicalDevice, int dmxChannel)
+        public GenericDimmer(ILogicalDevice logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
-            logicalDevice.OutputBrightness.Subscribe(x =>
-            {
-                DmxOutputPort.SendDimmerValue(dmxChannel, x.GetByteScale());
-            });
+            this.baseDmxChannel = dmxChannel;
+        }
+
+        protected override void Output()
+        {
+            double brightness = GetMonochromeBrightnessFromColorBrightness();
+
+            DmxOutputPort.SendDimmerValue(baseDmxChannel, brightness.GetByteScale());
         }
     }
 }

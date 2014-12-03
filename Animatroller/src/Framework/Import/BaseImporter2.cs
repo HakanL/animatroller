@@ -16,42 +16,44 @@ namespace Animatroller.Framework.Import
 
             public bool Mapped { get; set; }
 
+            public bool HasEffects { get; set; }
+
             public ChannelData(string name)
             {
                 this.Name = name;
             }
         }
 
-/*        public class MappedDeviceDimmer
-        {
-            public IReceivesBrightness Device { get; set; }
+        /*        public class MappedDeviceDimmer
+                {
+                    public IReceivesBrightness Device { get; set; }
 
-            //public void RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
-            //{
-            //    this.Device.RunEffect(effect, oneSweepDuration);
-            //}
+                    //public void RunEffect(Effect.IMasterBrightnessEffect effect, TimeSpan oneSweepDuration)
+                    //{
+                    //    this.Device.RunEffect(effect, oneSweepDuration);
+                    //}
 
-            public MappedDeviceDimmer(IReceivesBrightness device)
-            {
-                this.Device = device;
-            }
-        }*/
+                    public MappedDeviceDimmer(IReceivesBrightness device)
+                    {
+                        this.Device = device;
+                    }
+                }*/
+        /*
+                public class MappedDeviceRGB
+                {
+                    public LogicalDevice.IHasColorControl Device { get; set; }
 
-        public class MappedDeviceRGB
-        {
-            public LogicalDevice.IHasColorControl Device { get; set; }
-
-            public MappedDeviceRGB(LogicalDevice.IHasColorControl device)
-            {
-                this.Device = device;
-            }
-        }
-
+                    public MappedDeviceRGB(LogicalDevice.IHasColorControl device)
+                    {
+                        this.Device = device;
+                    }
+                }
+        */
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected Dictionary<IChannelIdentity, ChannelData> channelData;
         private List<IChannelIdentity> channels;
         protected Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>> mappedDevices;
-        protected Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>> mappedRGBDevices;
+        protected Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>> mappedRgbDevices;
         protected HashSet<IControlledDevice> controlledDevices;
 
         public BaseImporter2()
@@ -59,12 +61,12 @@ namespace Animatroller.Framework.Import
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
             this.channels = new List<IChannelIdentity>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>>();
-            this.mappedRGBDevices = new Dictionary<RGBChannelIdentity, HashSet<MappedDeviceRGB>>();
+            this.mappedRgbDevices = new Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>>();
             this.controlledDevices = new HashSet<IControlledDevice>();
         }
 
         public abstract Task Start();
-        
+
         public abstract void Stop();
 
         public IEnumerable<IChannelIdentity> GetChannels
@@ -109,38 +111,48 @@ namespace Animatroller.Framework.Import
             }
             devices.Add(device);
 
-            this.channelData[channelIdentity].Mapped = true;
+            if (device is IControlledDevice)
+                this.controlledDevices.Add((IControlledDevice)device);
+            if (device is LogicalDevice.IHasControlledDevice)
+                this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device).ControlledDevice);
+
+            var channelData = this.channelData[channelIdentity];
+            channelData.Mapped = true;
+
+            if (!channelData.HasEffects)
+                log.Warn("Channel {0}/{1} is mapped, but has no effects", channelIdentity, channelData.Name);
+        }
+
+        protected void InternalMapDevice(RGBChannelIdentity channelIdentity, IReceivesColor device)
+        {
+            HashSet<IReceivesColor> devices;
+            if (!mappedRgbDevices.TryGetValue(channelIdentity, out devices))
+            {
+                devices = new HashSet<IReceivesColor>();
+                mappedRgbDevices[channelIdentity] = devices;
+            }
+            devices.Add(device);
 
             if (device is IControlledDevice)
                 this.controlledDevices.Add((IControlledDevice)device);
             if (device is LogicalDevice.IHasControlledDevice)
                 this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device).ControlledDevice);
+
+            var channelDataR = this.channelData[channelIdentity.R];
+            var channelDataG = this.channelData[channelIdentity.G];
+            var channelDataB = this.channelData[channelIdentity.B];
+            channelDataR.Mapped = true;
+            channelDataG.Mapped = true;
+            channelDataB.Mapped = true;
+
+            if (!channelDataR.HasEffects && !channelDataG.HasEffects && !channelDataB.HasEffects)
+                log.Warn("Channel {0} is mapped, but has no effects", channelIdentity);
         }
 
-        protected void InternalMapDevice(RGBChannelIdentity channelIdentity, MappedDeviceRGB device)
-        {
-            HashSet<MappedDeviceRGB> devices;
-            if (!mappedRGBDevices.TryGetValue(channelIdentity, out devices))
-            {
-                devices = new HashSet<MappedDeviceRGB>();
-                mappedRGBDevices[channelIdentity] = devices;
-            }
-            devices.Add(device);
-
-            this.channelData[channelIdentity.R].Mapped = true;
-            this.channelData[channelIdentity.G].Mapped = true;
-            this.channelData[channelIdentity.B].Mapped = true;
-
-            if (device.Device is IControlledDevice)
-                this.controlledDevices.Add((IControlledDevice)device.Device);
-            if (device.Device is LogicalDevice.IHasControlledDevice)
-                this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device.Device).ControlledDevice);
-        }
-
-        public void MapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)
-        {
-            InternalMapDevice(channelIdentity, device);
-        }
+        //public void MapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)
+        //{
+        //    InternalMapDevice(channelIdentity, device);
+        //}
 
         //public T MapDevice<T>(IChannelIdentity channelIdentity, Func<string, T> logicalDevice) where T : LogicalDevice.IHasBrightnessControl
         //{
@@ -152,33 +164,33 @@ namespace Animatroller.Framework.Import
 
         //    return device;
         //}
+        /*
+                public void MapDevice(
+                    IChannelIdentity channelIdentityR,
+                    IChannelIdentity channelIdentityG,
+                    IChannelIdentity channelIdentityB,
+                    LogicalDevice.IHasColorControl device)
+                {
+                    var mappedDevice = new MappedDeviceRGB(device);
+                    InternalMapDevice(new RGBChannelIdentity(channelIdentityR, channelIdentityG, channelIdentityB), mappedDevice);
 
-        public void MapDevice(
-            IChannelIdentity channelIdentityR,
-            IChannelIdentity channelIdentityG,
-            IChannelIdentity channelIdentityB,
-            LogicalDevice.IHasColorControl device)
-        {
-            var mappedDevice = new MappedDeviceRGB(device);
-            InternalMapDevice(new RGBChannelIdentity(channelIdentityR, channelIdentityG, channelIdentityB), mappedDevice);
+                    device.Color = Color.Black;
+                }
+        */
+        /*        public TDevice MapDevice<TDevice>(
+                    IChannelIdentity channelIdentityR,
+                    IChannelIdentity channelIdentityG,
+                    IChannelIdentity channelIdentityB,
+                    Func<string, TDevice> logicalDevice) where TDevice : LogicalDevice.IHasColorControl
+                {
+                    string name = string.Format("{0}/{1}/{2}",
+                        GetChannelName(channelIdentityR), GetChannelName(channelIdentityG), GetChannelName(channelIdentityB));
 
-            device.Color = Color.Black;
-        }
+                    var device = logicalDevice.Invoke(name);
 
-        public TDevice MapDevice<TDevice>(
-            IChannelIdentity channelIdentityR,
-            IChannelIdentity channelIdentityG,
-            IChannelIdentity channelIdentityB,
-            Func<string, TDevice> logicalDevice) where TDevice : LogicalDevice.IHasColorControl
-        {
-            string name = string.Format("{0}/{1}/{2}",
-                GetChannelName(channelIdentityR), GetChannelName(channelIdentityG), GetChannelName(channelIdentityB));
+                    MapDevice(channelIdentityR, channelIdentityG, channelIdentityB, device);
 
-            var device = logicalDevice.Invoke(name);
-
-            MapDevice(channelIdentityR, channelIdentityG, channelIdentityB, device);
-
-            return device;
-        }
+                    return device;
+                }*/
     }
 }

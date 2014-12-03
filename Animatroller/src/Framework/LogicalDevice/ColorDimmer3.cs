@@ -12,7 +12,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class ColorDimmer3 : Dimmer3
+    public class ColorDimmer3 : Dimmer3, IReceivesColor, ISendsColor
     {
         protected ControlSubject<Color, IControlToken> color;
 
@@ -22,9 +22,17 @@ namespace Animatroller.Framework.LogicalDevice
             this.color = new ControlSubject<Color, IControlToken>(Color.White, HasControl);
         }
 
-        public ControlledObserver<Color> GetColorObserver(IControlToken controlToken)
+        public ControlledObserver<Color> GetColorObserver()
         {
-            return new ControlledObserver<Color>(controlToken, this.color);
+            return new ControlledObserver<Color>(GetCurrentOrNewToken(), this.color);
+        }
+
+        public ControlledObserverRGB GetRgbObsserver()
+        {
+            this.color.OnNext(Color.Black);
+            this.brightness.OnNext(1.0);
+
+            return new ControlledObserverRGB(GetCurrentOrNewToken(), this.color);
         }
 
         public IObservable<Color> OutputColor
@@ -53,21 +61,23 @@ namespace Animatroller.Framework.LogicalDevice
             this.color.OnNext(this.color.Value);
         }
 
-        public void SetColor(Color color, double brightness)
-        {
-            this.Color = color;
-            this.Brightness = brightness;
-        }
+        /*
+            public void SetColor(Color color, double brightness)
+            {
+                this.Color = color;
+                this.Brightness = brightness;
+            }
 
-        public void SetOnlyColor(Color color)
-        {
-            this.Color = color;
-        }
+            public void SetOnlyColor(Color color)
+            {
+                this.Color = color;
+            }
 
-        public void SetColor(Color color)
-        {
-            this.Color = color;
-            this.Brightness = 1.0;
-        }
+            public void SetColor(Color color)
+            {
+                this.Color = color;
+                this.Brightness = 1.0;
+            }
+        */
     }
 }

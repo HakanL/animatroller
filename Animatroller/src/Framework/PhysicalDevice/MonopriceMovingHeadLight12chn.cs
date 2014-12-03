@@ -9,7 +9,7 @@ using Animatroller.Framework.Utility;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class MonopriceMovingHeadLight12chn : BaseDMXRGBStrobeLight
+    public class MonopriceMovingHeadLight12chn : BaseDMXStrobeLight
     {
         protected double pan;
         protected double tilt;

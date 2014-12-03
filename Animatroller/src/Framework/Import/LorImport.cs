@@ -92,6 +92,11 @@ namespace Animatroller.Framework.Import
             {
                 return string.Format("U{0}C{1}", this.Unit, this.Circuit);
             }
+
+            public int CompareTo(object obj)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 

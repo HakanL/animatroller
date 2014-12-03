@@ -9,11 +9,20 @@ using System.Reactive.Subjects;
 
 namespace Animatroller.Framework
 {
+    public interface IDisposableObserver<T> : IObserver<T>, IDisposable
+    {
+    }
+
     public interface IReceivesBrightness : IOwnedDevice
     {
-        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken controlToken);
-
         Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver();
+    }
+
+    public interface IReceivesColor : IOwnedDevice
+    {
+        Animatroller.Framework.LogicalDevice.ControlledObserver<Color> GetColorObserver();
+
+        Animatroller.Framework.LogicalDevice.ControlledObserverRGB GetRgbObsserver();
     }
 
     public interface ISendsBrightness

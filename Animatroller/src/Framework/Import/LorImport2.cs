@@ -37,13 +37,17 @@ namespace Animatroller.Framework.Import
                 }
 
                 var channelIdentity = new UnitCircuit(channel.unit, channel.circuit);
-                AddChannelData(channelIdentity, new ChannelData(channel.name));
+                var channelData = new ChannelData(channel.name);
+
+                AddChannelData(channelIdentity, channelData);
 
                 var channelEffects = new List<ChannelEffect>();
                 if (channel.effect != null)
                 {
                     foreach (var effect in channel.effect)
                     {
+                        channelData.HasEffects = true;
+
                         channelEffects.AddRange(GetChannelEffects(effect));
                     }
                 }
@@ -138,6 +142,16 @@ namespace Animatroller.Framework.Import
             {
                 return string.Format("U{0}C{1}", this.Unit, this.Circuit);
             }
+
+            public int CompareTo(object obj)
+            {
+                var other = (UnitCircuit)obj;
+
+                if (this.Unit == other.Unit)
+                    return this.Circuit.CompareTo(other.Circuit);
+
+                return this.Unit.CompareTo(other.Unit);
+            }
         }
 
         protected class InstantChannelEffect : ChannelEffect
@@ -166,7 +180,7 @@ namespace Animatroller.Framework.Import
         {
             public override void Execute(IObserver<double> device)
             {
-//                Executor.Current.MasterShimmer.Shimmer(device, 0, 1, DurationMs);
+                //                Executor.Current.MasterShimmer.Shimmer(device, 0, 1, DurationMs);
             }
         }
 
