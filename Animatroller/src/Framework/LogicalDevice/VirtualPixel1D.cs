@@ -30,7 +30,7 @@ namespace Animatroller.Framework.LogicalDevice
         public event EventHandler<MultiPixelChangedEventArgs> MultiPixelChanged;
 
 
-        public VirtualPixel1D(string name, int pixels)
+        public VirtualPixel1D(int pixels, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
             if (pixels <= 0)

@@ -29,7 +29,7 @@ namespace Animatroller.SceneRunner
             candyCane = new Controller.Sequence("Candy Cane");
             //            laserSeq = new Controller.Sequence("Laser");
 
-            allPixels = new VirtualPixel1D("All Pixels", 28);
+            allPixels = new VirtualPixel1D(28);
         }
 
         public void WireUp(Expander.IOExpander port)

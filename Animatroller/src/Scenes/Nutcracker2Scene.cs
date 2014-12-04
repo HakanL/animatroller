@@ -20,7 +20,7 @@ namespace Animatroller.SceneRunner
         {
             testButton = new DigitalInput("Test");
 
-            allPixels = new VirtualPixel1D("All Pixels", 60);
+            allPixels = new VirtualPixel1D(60);
             allPixels.SetAll(Color.White, 0);
 
             var vixImport = new Import.VixenImport(@"..\..\..\Test Files\HAUK~HALLOWEEN1.vix");

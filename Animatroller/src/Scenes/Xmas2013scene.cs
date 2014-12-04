@@ -156,9 +156,9 @@ namespace Animatroller.SceneRunner
             offHours2Seq = new Controller.Sequence("Off hours 2");
             waveformSeq = new Controller.Sequence("Waveform");
 
-            allPixels = new VirtualPixel1D("All Pixels", 100);
-            starwarsPixels = new VirtualPixel1D("Star wars", 50);
-            saberPixels = new VirtualPixel1D("Saber", 60);
+            allPixels = new VirtualPixel1D(100);
+            starwarsPixels = new VirtualPixel1D(50);
+            saberPixels = new VirtualPixel1D(60);
 
             buttonTest = new DigitalInput("Test");
             buttonStartInflatables = new DigitalInput("Inflatables");

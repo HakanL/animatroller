@@ -127,7 +127,7 @@ namespace Animatroller.SceneRunner
 
         public LORScene(IEnumerable<string> args)
         {
-            allPixels = new VirtualPixel1D("All Pixels", 80);
+            allPixels = new VirtualPixel1D(80);
             allPixels.SetAll(Color.White, 0);
 
             lorImport.LoadFromFile(@"..\..\..\Test Files\Cannon Rock104.lms");

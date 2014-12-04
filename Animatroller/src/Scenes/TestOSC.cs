@@ -31,7 +31,7 @@ namespace Animatroller.SceneRunner
 
         public TestOSC(IEnumerable<string> args)
         {
-            allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
+            allPixels = new VirtualPixel1D(28 + 50);
 
             loopSeq = new Controller.Sequence("Loop Seq");
             fingers = new Finger[10];

@@ -25,8 +25,8 @@ namespace Animatroller.SceneRunner
             candyLight = new StrobeColorDimmer("Candy Light");
             testButton = new DigitalInput("Test");
 
-            allPixels1 = new VirtualPixel1D("Pixels 1", 256);
-            allPixels2 = new VirtualPixel1D("Pixels 2", 256);
+            allPixels1 = new VirtualPixel1D(256);
+            allPixels2 = new VirtualPixel1D(256);
             allPixels1.SetAll(Color.White, 0);
             allPixels2.SetAll(Color.White, 0);
 

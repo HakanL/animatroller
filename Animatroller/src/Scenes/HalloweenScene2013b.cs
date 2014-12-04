@@ -138,7 +138,7 @@ namespace Animatroller.SceneRunner
             switchSpiderEyes2 = new Switch("Spider Eyes 2");
             switchFog = new Switch("Fog");
 
-            allPixels = new VirtualPixel1D("All Pixels", 28 + 50);
+            allPixels = new VirtualPixel1D(28 + 50);
 
             // Cat
             raspberry1.DigitalInputs[0].Connect(buttonMotionCat);

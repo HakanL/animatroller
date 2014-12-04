@@ -125,7 +125,7 @@ namespace Animatroller.SceneRunner
             breathSeq = new Controller.Sequence("Breath");
             laserSeq = new Controller.Sequence("Laser");
 
-            allPixels = new VirtualPixel1D("All Pixels", 100);
+            allPixels = new VirtualPixel1D(100);
 
             pulsatingEffect1 = new Effect.Pulsating(S(2), 0.3, 1.0, false);
             pulsatingEffect2 = new Effect.Pulsating(S(2), 0.3, 1.0, false);

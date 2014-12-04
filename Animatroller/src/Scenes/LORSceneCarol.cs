@@ -21,10 +21,18 @@ namespace Animatroller.SceneRunner
 {
     internal class LORSceneCarol : BaseScene
     {
+        const int SacnUniverseDMX = 20;
+        const int SacnUniverseRenard1 = 21;
+        const int SacnUniverseRenard2 = 22;
+        const int SacnUniverseArduino = 23;
+
         Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         IWaveSource waveSource;
         ISoundOut soundOut = new WasapiOut();
+
+        VirtualPixel1D pixelsRoofEdge = new VirtualPixel1D(150);
+        VirtualPixel1D pixelsVideo = new VirtualPixel1D(200);
 
         ColorDimmer3 lightNote1 = new ColorDimmer3();
         ColorDimmer3 lightNote2 = new ColorDimmer3();
@@ -105,6 +113,23 @@ namespace Animatroller.SceneRunner
             lorImport.MapDevice("Star3", lightStar3);
             lorImport.MapDevice("Star extra", lightStarExtra);
 
+            lightREdge.OutputBrightness.Subscribe(x =>
+                {
+                    pixelsRoofEdge.SetBrightness(x, null);
+                });
+            lightREdge.OutputColor.Subscribe(x =>
+                {
+                    pixelsRoofEdge.SetAllOnlyColor(x);
+                });
+
+            lightBottom.OutputBrightness.Subscribe(x =>
+                {
+//                    pixelsVideo.SetBrightness(x, null);
+                });
+            lightBottom.OutputColor.Subscribe(x =>
+                {
+//                    pixelsVideo.SetAllOnlyColor(x);
+                });
 
             lorImport.MapDeviceRGBW("R-Edge R", "R-Edge G", "R-Edge B", "R-Edge W", lightREdge);
             lorImport.MapDeviceRGBW("R-Bottom", "G-Bottom", "B-Bottom", "W-Bottom", lightBottom);
@@ -269,31 +294,36 @@ namespace Animatroller.SceneRunner
             lorImport.Dump();
 
 
-            waveSource = CodecFactory.Instance.GetCodec(@"C:\Projects\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
+            waveSource = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
 
             soundOut.Initialize(waveSource);
 
-            //            acnOutput.Connect(new Physical.GenericDimmer(lightREdge, 1), 20);
-            acnOutput.Connect(new Physical.GenericDimmer(lightStarExtra, 50), 20);
-            acnOutput.Connect(new Physical.SmallRGBStrobe(lightREdge, 1), 20);
-            acnOutput.Connect(new Physical.RGBStrobe(lightNote1, 60), 20);
-            acnOutput.Connect(new Physical.RGBStrobe(lightNote2, 80), 20);
-            acnOutput.Connect(new Physical.RGBStrobe(lightNote6, 40), 20);
-            acnOutput.Connect(new Physical.RGBStrobe(lightNote10, 70), 20);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 1), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 2), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 3), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 4), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 5), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 6), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 7), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 8), 22);
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 4, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 5, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsVideo, 0, 200), 1, 1);
 
-            acnOutput.Connect(new Physical.AmericanDJStrobe(lightGarage, 5), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStarExtra, 50), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.SmallRGBStrobe(lightBottom, 1), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote1, 60), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote2, 80), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote6, 40), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote10, 70), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 1), SacnUniverseRenard2);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 2), SacnUniverseRenard2);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 3), SacnUniverseRenard2);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 4), SacnUniverseRenard2);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 1), 23);
-            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), 23);
-            acnOutput.Connect(new Physical.GenericDimmer(snowmanKaggen, 2), 21);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 5), SacnUniverseRenard2);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 6), SacnUniverseRenard2);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 7), SacnUniverseRenard2);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 8), SacnUniverseRenard2);
+
+            acnOutput.Connect(new Physical.AmericanDJStrobe(lightGarage, 5), SacnUniverseDMX);
+
+            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 1), SacnUniverseArduino);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), SacnUniverseArduino);
+            acnOutput.Connect(new Physical.GenericDimmer(snowmanKaggen, 2), SacnUniverseRenard1);
+
 
             this.lorImport.Progress.Subscribe(x =>
                 {
@@ -313,7 +343,7 @@ namespace Animatroller.SceneRunner
                 {
                     log.Info("Button press!");
 
-                    log.Debug("Sound pos: {0}", waveSource.GetMilliseconds(waveSource.Position));
+//                    pixelsVideo.SetAll(Color.Green, 1.0);
 
                     /*                    var controlToken = lightGarage.TakeControl();
 
