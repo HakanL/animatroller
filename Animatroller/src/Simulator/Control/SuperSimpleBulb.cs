@@ -13,7 +13,7 @@ namespace Animatroller.Simulator.Control.Bulb
     /// provide a sleek looking representation of an LED light that is sizable, 
     /// has a transparent background and can be set to different colors.  
     /// </summary>
-    public partial class SimpleBulb : System.Windows.Forms.Control
+    public partial class SuperSimpleBulb : System.Windows.Forms.Control
     {
 
         #region Public and Private Members
@@ -56,9 +56,9 @@ namespace Animatroller.Simulator.Control.Bulb
 
         #region Constructor
 
-        public SimpleBulb()
+        public SuperSimpleBulb()
         {
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            //            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             this.Color = Color.FromArgb(255, 153, 255, 54);
         }
 
@@ -103,6 +103,7 @@ namespace Animatroller.Simulator.Control.Bulb
                 this.offScreenBitmap = new Bitmap(this.ClientRectangle.Width, this.ClientRectangle.Height);
             }
 
+            // Create an offscreen graphics object for double buffering
             using (System.Drawing.Graphics g = Graphics.FromImage(this.offScreenBitmap))
             {
                 g.SmoothingMode = SmoothingMode.HighQuality;
@@ -127,43 +128,22 @@ namespace Animatroller.Simulator.Control.Bulb
             int offsetY = (paddedRectangle.Height - width) / 2;
             Rectangle drawRectangle = new Rectangle(paddedRectangle.X + offsetX, paddedRectangle.Y + offsetY, width, width);
 
-            // Draw the background ellipse
-            if (drawRectangle.Width < 1) drawRectangle.Width = 1;
-            if (drawRectangle.Height < 1) drawRectangle.Height = 1;
-            g.FillEllipse(new SolidBrush(drawColor), drawRectangle);
-
-            // Draw the glow gradient
-            GraphicsPath path = new GraphicsPath();
-            path.AddEllipse(drawRectangle);
-            PathGradientBrush pathBrush = new PathGradientBrush(path);
-            pathBrush.CenterColor = drawColor;
-            pathBrush.SurroundColors = new Color[] { Color.FromArgb(0, drawColor) };
-            g.FillEllipse(pathBrush, drawRectangle);
-
-            // Set the clip boundary  to the edge of the ellipse
-            GraphicsPath gp = new GraphicsPath();
-            gp.AddEllipse(drawRectangle);
-            g.SetClip(gp);
-
-            // Draw the white reflection gradient
-            GraphicsPath path1 = new GraphicsPath();
-            Rectangle whiteRect = new Rectangle(drawRectangle.X - Convert.ToInt32(drawRectangle.Width * .15F), drawRectangle.Y - Convert.ToInt32(drawRectangle.Width * .15F), Convert.ToInt32(drawRectangle.Width * .8F), Convert.ToInt32(drawRectangle.Height * .8F));
-            path1.AddEllipse(whiteRect);
-            PathGradientBrush pathBrush1 = new PathGradientBrush(path);
-            pathBrush1.CenterColor = Color.FromArgb(180, 255, 255, 255);
-            pathBrush1.SurroundColors = new Color[] { Color.FromArgb(0, 255, 255, 255) };
-            g.FillEllipse(pathBrush1, whiteRect);
-
-            // Draw the border
-            float w = drawRectangle.Width;
-            g.SetClip(this.ClientRectangle);
-            if (this.On) g.DrawEllipse(new Pen(Color.FromArgb(85, Color.Black), 1F), drawRectangle);
+            g.FillRectangle(new SolidBrush(drawColor), drawRectangle);
 
             if (!string.IsNullOrEmpty(Text))
             {
+                double brightness = Math.Max(Math.Max(drawColor.R, drawColor.G), drawColor.B) / 255.0;
+
+                Color fontColor;
+                if (brightness < 0.5)
+                    fontColor = Color.White;
+                else
+                    fontColor = Color.Black;
+
                 var textSize = g.MeasureString(Text, Font);
                 var pos = new PointF((Width - textSize.Width) / 2, (Height - textSize.Height) / 2);
-                g.DrawString(Text, Font, new SolidBrush(Color.Black), pos);
+
+                g.DrawString(Text, Font, new SolidBrush(fontColor), pos);
             }
         }
 

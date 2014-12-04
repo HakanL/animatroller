@@ -11,7 +11,7 @@ using Animatroller.Simulator.Extensions;
 
 namespace Animatroller.Simulator.Control
 {
-    public partial class StrobeBulb : Bulb.SimpleBulb
+    public partial class StrobeBulb : Bulb.SuperSimpleBulb
     {
         public StrobeBulb()
         {

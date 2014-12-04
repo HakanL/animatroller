@@ -92,6 +92,9 @@
     <Compile Include="Control\RopeLight.Designer.cs">
       <DependentUpon>RopeLight.cs</DependentUpon>
     </Compile>
+    <Compile Include="Control\SuperSimpleBulb.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Control\SimpleBulb.cs">
       <SubType>Component</SubType>
     </Compile>
