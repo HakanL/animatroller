@@ -45,7 +45,7 @@ namespace Animatroller.SceneRunner
                 lightB.Brightness = 0.5;
                 i.WaitFor(S(0.5));
 
-                Exec.MasterFader.Fade(lightA, 1.0, 0.0, 3000);
+                Exec.MasterEffect.Fade(lightA, 1.0, 0.0, 3000);
             });
         }
 

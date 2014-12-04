@@ -12,16 +12,16 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.Effect2
 {
-    public class MasterFader
+    public class MasterEffect
     {
         private TimerJobRunner timerJobRunner;
 
-        public MasterFader(TimerJobRunner timerJobRunner)
+        public MasterEffect(TimerJobRunner timerJobRunner)
         {
             this.timerJobRunner = timerJobRunner;
         }
 
-        public MasterFader()
+        public MasterEffect()
             : this(Executor.Current.TimerJobRunner)
         {
         }
@@ -97,6 +97,29 @@ namespace Animatroller.Framework.Effect2
                     double brightness = startBrightness + (pos * brightnessRange);
 
                     deviceObserver.OnNext(brightness);
+                },
+                onCompleted: () =>
+                {
+                    taskSource.SetResult(true);
+                });
+
+            this.timerJobRunner.AddTimerJob(observer, durationMs);
+
+            return taskSource.Task;
+        }
+
+        public Task Shimmer(IObserver<double> deviceObserver, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
+        {
+            var taskSource = new TaskCompletionSource<bool>();
+
+            bool state = false;
+
+            var observer = Observer.Create<long>(
+                onNext: currentElapsedMs =>
+                {
+                    state = !state;
+
+                    deviceObserver.OnNext(state ? maxBrightness : minBrightness);
                 },
                 onCompleted: () =>
                 {

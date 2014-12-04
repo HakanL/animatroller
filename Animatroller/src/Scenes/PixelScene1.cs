@@ -36,9 +36,9 @@ namespace Animatroller.SceneRunner
             buttonTest = new DigitalInput("Test");
 
             // WS2811
-            acnOutput.Connect(new Physical.PixelRope(allPixels, 0, 50), 4, 1);
-            acnOutput.Connect(new Physical.PixelRope(allPixels, 50, 100), 5, 1);
-            acnOutput.Connect(new Physical.PixelRope(allPixels, 150, 50), 4, 151);
+            acnOutput.Connect(new Physical.PixelRope(allPixels, 0, 200), 1, 1);
+//            acnOutput.Connect(new Physical.PixelRope(allPixels, 50, 100), 5, 1);
+//            acnOutput.Connect(new Physical.PixelRope(allPixels, 150, 50), 4, 151);
             // GECE
 //            acnOutput.Connect(new Physical.PixelRope(allPixels, 100, 50), 2, 91);
         }

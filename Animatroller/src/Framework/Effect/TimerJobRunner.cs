@@ -61,6 +61,7 @@ namespace Animatroller.Framework.Effect2
             }
         }
 
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         private List<TimerJob> timerJobs = new List<TimerJob>();
         private Animatroller.Framework.Controller.HighPrecisionTimer2 timer;
 
@@ -87,7 +88,7 @@ namespace Animatroller.Framework.Effect2
             {
                 TimerJob timerJob = null;
 
-                foreach (var existingTimerJob in timerJobs)
+                foreach (var existingTimerJob in this.timerJobs)
                 {
                     if (!existingTimerJob.Running)
                     {
@@ -100,7 +101,9 @@ namespace Animatroller.Framework.Effect2
                 if (timerJob == null)
                 {
                     timerJob = new TimerJob();
-                    timerJobs.Add(timerJob);
+                    this.timerJobs.Add(timerJob);
+
+                    log.Debug("Total {0} timer jobs", this.timerJobs.Count);
                 }
 
                 timerJob.Init(observer, durationMs, this.timer.ElapsedMs);

@@ -14,13 +14,13 @@ namespace Animatroller.Framework.Controller
 
         public class TimelineEventArgs : EventArgs
         {
-            public double ElapsedS { get; private set; }
+            public int ElapsedMs { get; private set; }
             public T Code { get; private set; }
             public int Step { get; private set; }
 
-            public TimelineEventArgs(double elapsedS, T code, int step)
+            public TimelineEventArgs(int elapsedMs, T code, int step)
             {
-                this.ElapsedS = elapsedS;
+                this.ElapsedMs = elapsedMs;
                 this.Code = code;
                 this.Step = step;
             }
@@ -28,13 +28,14 @@ namespace Animatroller.Framework.Controller
 
         public class MultiTimelineEventArgs : EventArgs
         {
-            public double ElapsedS { get; private set; }
+            public int ElapsedMs { get; private set; }
+
             public IEnumerable<T> Code { get; private set; }
             public int Step { get; private set; }
 
-            public MultiTimelineEventArgs(double elapsedS, IEnumerable<T> code, int step)
+            public MultiTimelineEventArgs(int elapsedMs, IEnumerable<T> code, int step)
             {
-                this.ElapsedS = elapsedS;
+                this.ElapsedMs = elapsedMs;
                 this.Code = code;
                 this.Step = step;
             }
@@ -139,9 +140,9 @@ namespace Animatroller.Framework.Controller
                     var watch = System.Diagnostics.Stopwatch.StartNew();
                     for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
                     {
-                        double elapsed = (double)this.timeline.Keys[currentPos] / 1000;
+                        int elapsed = this.timeline.Keys[currentPos];
 
-                        while (watch.Elapsed.TotalSeconds < elapsed)
+                        while (watch.ElapsedMilliseconds < elapsed)
                         {
                             System.Threading.Thread.Sleep(1);
                             if (this.cancelSource.Token.IsCancellationRequested)

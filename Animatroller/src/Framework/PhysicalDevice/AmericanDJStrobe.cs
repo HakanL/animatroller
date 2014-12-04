@@ -4,9 +4,9 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class AmericanDJStrobe : BaseDevice, INeedsDmxOutput
+    public class AmericanDJStrobe : BaseStrobeLight, INeedsDmxOutput
     {
-        private int baseDmxChannel;
+        protected int baseDmxChannel;
 
         public IDmxOutput DmxOutputPort { protected get; set; }
 
@@ -14,50 +14,37 @@ namespace Animatroller.Framework.PhysicalDevice
             : base(logicalDevice)
         {
             this.baseDmxChannel = dmxChannel;
-
-            logicalDevice.BrightnessChanged += (sender, e) =>
-            {
-                var dimmerValue = e.NewBrightness.GetByteScale(250) + 5;
-
-                DmxOutputPort.SendDimmerValue(dmxChannel + 1, (byte)dimmerValue);
-            };
         }
 
         public AmericanDJStrobe(Dimmer2 logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {
             this.baseDmxChannel = dmxChannel;
-
-            logicalDevice.InputBrightness.Subscribe(x =>
-            {
-                var dimmerValue = x.Value.GetByteScale(250) + 5;
-
-                DmxOutputPort.SendDimmerValue(dmxChannel + 1, (byte)dimmerValue);
-            });
         }
 
         public AmericanDJStrobe(StrobeDimmer logicalDevice, int dmxChannel)
             : this((Dimmer)logicalDevice, dmxChannel)
         {
             this.baseDmxChannel = dmxChannel;
-
-            logicalDevice.StrobeSpeedChanged += (sender, e) =>
-            {
-                if (e.NewSpeed == 0)
-                    DmxOutputPort.SendDimmerValue(dmxChannel, 255);
-                else
-                {
-                    // 2-127 strobe effect, slow to fast
-                    DmxOutputPort.SendDimmerValue(dmxChannel, (byte)(2 + e.NewSpeed.GetByteScale(125)));
-                }
-            };
         }
 
-        public override void StartDevice()
+        public AmericanDJStrobe(ILogicalDevice logicalDevice, int dmxChannel)
+            : base(logicalDevice)
         {
-            base.StartDevice();
+            this.baseDmxChannel = dmxChannel;
+        }
 
-            DmxOutputPort.SendDimmerValue(this.baseDmxChannel, 255);
+        protected override void Output()
+        {
+            byte brightness = (byte)(GetMonochromeBrightnessFromColorBrightness().GetByteScale(250) + 5);
+
+            byte strobe;
+            if (this.strobeSpeed == 0)
+                strobe = 255;
+            else
+                strobe = (byte)(2 + this.strobeSpeed.GetByteScale(125));
+
+            DmxOutputPort.SendDimmerValues(baseDmxChannel, new byte[] { strobe, brightness });
         }
     }
 }

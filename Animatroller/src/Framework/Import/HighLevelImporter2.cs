@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Linq;
 using System.Drawing;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using NLog;
 using LMS = Animatroller.Framework.Import.FileFormat.LightORama.LMS;
 using Animatroller.Framework.Extensions;
@@ -20,6 +23,8 @@ namespace Animatroller.Framework.Import
         private bool prepared;
         private Dictionary<IOwnedDevice, IDisposableObserver<double>> brightnessObservers;
         private Dictionary<IOwnedDevice, ControlledObserverRGB> rgbObservers;
+        private int lastProgressReport;
+        private Subject<int> progress;
 
         public HighLevelImporter2()
         {
@@ -27,38 +32,13 @@ namespace Animatroller.Framework.Import
             this.timeline = new Timeline2<ChannelEffectInstance>(iterations: 1);
             this.brightnessObservers = new Dictionary<IOwnedDevice, IDisposableObserver<double>>();
             this.rgbObservers = new Dictionary<IOwnedDevice, ControlledObserverRGB>();
+
+            this.progress = new Subject<int>();
         }
 
-        protected void WireUpTimeline(Action exec)
+        public IObservable<int> Progress
         {
-            foreach (var kvp in this.channelData)
-            {
-                if (!kvp.Value.Mapped)
-                {
-                    log.Warn("No devices mapped to {0}", kvp.Key);
-                }
-            }
-
-            timeline.TearDown(() =>
-            {
-                foreach (var controlledDevice in this.controlledDevices)
-                    controlledDevice.TurnOff();
-            });
-
-            timeline.MultiTimelineTrigger += (sender, e) =>
-            {
-                foreach (var controlledDevice in this.controlledDevices)
-                    controlledDevice.Suspend();
-                try
-                {
-                    exec();
-                }
-                finally
-                {
-                    foreach (var controlledDevice in this.controlledDevices)
-                        controlledDevice.Resume();
-                }
-            };
+            get { return this.progress.AsObservable(); }
         }
 
         private void AddEffectData(IChannelIdentity channelIdentity, IEnumerable<IOwnedDevice> devices, ChannelEffectInstance.DeviceType deviceType)
@@ -140,6 +120,14 @@ namespace Animatroller.Framework.Import
 
             timeline.MultiTimelineTrigger += (sender, e) =>
             {
+                if ((e.ElapsedMs - this.lastProgressReport) > 1000)
+                {
+                    // Update progress
+                    this.lastProgressReport = e.ElapsedMs;
+
+                    this.progress.OnNext(e.ElapsedMs);
+                }
+
                 foreach (var controlledDevice in this.controlledDevices)
                     controlledDevice.Suspend();
 

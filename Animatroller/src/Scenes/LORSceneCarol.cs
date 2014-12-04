@@ -39,29 +39,16 @@ namespace Animatroller.SceneRunner
         ColorDimmer3 lightNote11 = new ColorDimmer3();
         ColorDimmer3 lightNote12 = new ColorDimmer3();
 
-        Dimmer3 lightSky1 = new Dimmer3();
-        Dimmer3 lightSky2 = new Dimmer3();
-        Dimmer3 lightSky3 = new Dimmer3();
-        Dimmer3 lightSky4 = new Dimmer3();
-        Dimmer3 lightSky5 = new Dimmer3();
+        Dimmer3 lightNet1 = new Dimmer3();
+        Dimmer3 lightNet2 = new Dimmer3();
+        Dimmer3 lightNet3 = new Dimmer3();
+        Dimmer3 lightNet4 = new Dimmer3();
+        Dimmer3 lightNet5 = new Dimmer3();
 
-        Dimmer3 lightRooftop = new Dimmer3();
         Dimmer3 lightStar1 = new Dimmer3();
         Dimmer3 lightStar2 = new Dimmer3();
         Dimmer3 lightStar3 = new Dimmer3();
         Dimmer3 lightStarExtra = new Dimmer3();
-
-        Dimmer3 lightTreeA = new Dimmer3();
-        Dimmer3 lightTreeB = new Dimmer3();
-        
-        ColorDimmer3 lightTest1 = new ColorDimmer3();
-        ColorDimmer3 lightTest2 = new ColorDimmer3();
-        ColorDimmer3 lightTest3 = new ColorDimmer3();
-        ColorDimmer3 lightTest4 = new ColorDimmer3();
-        ColorDimmer3 lightTest5 = new ColorDimmer3();
-        ColorDimmer3 lightTest6 = new ColorDimmer3();
-        ColorDimmer3 lightTest7 = new ColorDimmer3();
-        ColorDimmer3 lightTest8 = new ColorDimmer3();
 
         ColorDimmer3 lightREdge = new ColorDimmer3();
         ColorDimmer3 lightBottom = new ColorDimmer3();
@@ -71,6 +58,18 @@ namespace Animatroller.SceneRunner
         ColorDimmer3 lightLWindow = new ColorDimmer3();
         ColorDimmer3 lightFrontDoor = new ColorDimmer3();
         ColorDimmer3 lightBush = new ColorDimmer3();
+
+        Dimmer3 lightHat1 = new Dimmer3();
+        Dimmer3 lightHat2 = new Dimmer3();
+        Dimmer3 lightHat3 = new Dimmer3();
+        Dimmer3 lightHat4 = new Dimmer3();
+
+        //        Dimmer3 lightTest1 = new Dimmer3();
+
+        Dimmer3 snowmanKaggen = new Dimmer3();
+        Dimmer3 lightSnowman = new Dimmer3();
+        Dimmer3 lightSanta = new Dimmer3();
+        Dimmer3 lightR2D2 = new Dimmer3();
 
         DigitalInput2 testButton = new DigitalInput2();
         Import.LorImport2 lorImport = new Import.LorImport2();
@@ -93,13 +92,13 @@ namespace Animatroller.SceneRunner
             lorImport.MapDevice("A# - 15", lightNote11);
             lorImport.MapDevice("A - 16", lightNote12);
 
-            lorImport.MapDevice("Sky 1", lightSky1);
-            lorImport.MapDevice("Sky 2", lightSky2);
-            lorImport.MapDevice("Sky 3", lightSky3);
-            lorImport.MapDevice("Sky 4", lightSky4);
-            lorImport.MapDevice("Sky 5", lightSky5);
+            lorImport.MapDevice("Sky 1", lightNet1);
+            lorImport.MapDevice("Sky 2", lightNet2);
+            lorImport.MapDevice("Sky 3", lightNet3);
+            lorImport.MapDevice("Sky 4", lightNet4);
+            lorImport.MapDevice("Sky 5", lightNet5);
 
-            lorImport.MapDevice("Rooftop", lightRooftop);
+            lorImport.MapDevice("Rooftop", snowmanKaggen);
 
             lorImport.MapDevice("Star1", lightStar1);
             lorImport.MapDevice("Star2", lightStar2);
@@ -116,16 +115,16 @@ namespace Animatroller.SceneRunner
             lorImport.MapDeviceRGBW("Ft door R", "Ft door G", "Ft door B", "FT door W", lightFrontDoor);
             lorImport.MapDeviceRGBW("Bush - red", "Bush - green", "Bush - blue", "Bush - white", lightBush);
 
-            lorImport.MapDevice("Tree - A", lightTreeA);
-            lorImport.MapDevice("Tree - B", lightTreeB);
+            lorImport.MapDevice("Tree - A", lightSnowman);
+            lorImport.MapDevice("Tree - B", lightSanta);
 
+            lorImport.MapDevice("Spoke 1a", lightHat1);
+            lorImport.MapDevice("Spoke 2a", lightHat2);
+            lorImport.MapDevice("Spoke 3a", lightHat3);
+            lorImport.MapDevice("Spoke  4a", lightHat4);
+            lorImport.MapDevice("Spoke 5a", lightR2D2);
+            //            lorImport.MapDevice("Spoke 6a", lightTest1);
 
-            // lorImport.MapDevice("Spoke 1a", light);
-            // lorImport.MapDevice("Spoke 2a", light);
-            // lorImport.MapDevice("Spoke 3a", light);
-            // lorImport.MapDevice("Spoke  4a", light);
-            // lorImport.MapDevice("Spoke 5a", light);
-            // lorImport.MapDevice("Spoke 6a", light);
             // lorImport.MapDevice("Spoke 7a", light);
             // lorImport.MapDevice("Spoke 8a", light);
             // lorImport.MapDevice("Spoke 9a", light);
@@ -270,11 +269,39 @@ namespace Animatroller.SceneRunner
             lorImport.Dump();
 
 
-            waveSource = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
+            waveSource = CodecFactory.Instance.GetCodec(@"C:\Projects\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
 
             soundOut.Initialize(waveSource);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightREdge, 50), 20);
+            //            acnOutput.Connect(new Physical.GenericDimmer(lightREdge, 1), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStarExtra, 50), 20);
+            acnOutput.Connect(new Physical.SmallRGBStrobe(lightREdge, 1), 20);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote1, 60), 20);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote2, 80), 20);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote6, 40), 20);
+            acnOutput.Connect(new Physical.RGBStrobe(lightNote10, 70), 20);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 1), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 2), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 3), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 4), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 5), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 6), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 7), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 8), 22);
+
+            acnOutput.Connect(new Physical.AmericanDJStrobe(lightGarage, 5), 20);
+
+            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 1), 23);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), 23);
+            acnOutput.Connect(new Physical.GenericDimmer(snowmanKaggen, 2), 21);
+
+            this.lorImport.Progress.Subscribe(x =>
+                {
+                    long soundPos = waveSource.GetMilliseconds(waveSource.Position);
+
+                    log.Trace("Sound pos: {0:N0}   Timeline pos: {1:N0}   Diff: {2:N0} ms",
+                        soundPos, x, soundPos - x);
+                });
         }
 
         public override void Start()
@@ -287,6 +314,15 @@ namespace Animatroller.SceneRunner
                     log.Info("Button press!");
 
                     log.Debug("Sound pos: {0}", waveSource.GetMilliseconds(waveSource.Position));
+
+                    /*                    var controlToken = lightGarage.TakeControl();
+
+                                        Exec.MasterEffect.Fade(lightGarage.GetBrightnessObserver(), 1.0, 0.0, 2000).ContinueWith(x =>
+                                            {
+                                                controlToken.Dispose();
+                                            });
+
+                                        // Dispose all*/
                 }
             });
         }

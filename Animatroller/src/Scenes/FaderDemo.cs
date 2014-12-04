@@ -75,11 +75,11 @@ namespace Animatroller.SceneRunner
                     // Should skip
                     observer1.OnNext(1.0);
 
-                    var faderTask = Exec.MasterFader.Fade(observer1, 0.0, 1.0, 5000);
+                    var faderTask = Exec.MasterEffect.Fade(observer1, 0.0, 1.0, 5000);
 
                     Exec.Sleep(S(3));
 
-                    Exec.MasterFader.Fade(Exec.Blackout, 0.0, 1.0, 1000)
+                    Exec.MasterEffect.Fade(Exec.Blackout, 0.0, 1.0, 1000)
                         .ContinueWith(b =>
                         {
                             Task.Delay(2000).ContinueWith(c =>
@@ -92,7 +92,7 @@ namespace Animatroller.SceneRunner
                         {
                             control1.Dispose();
 
-                            Exec.MasterFader.Fade(observer1, 1.0, 0.0, 5000);
+                            Exec.MasterEffect.Fade(observer1, 1.0, 0.0, 5000);
                         });
 
 

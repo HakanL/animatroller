@@ -70,5 +70,16 @@ namespace Animatroller.Framework.LogicalDevice
 
             return controlToken;
         }
+
+        public void ReleaseOurLock()
+        {
+            var threadControlToken = Executor.Current.GetControlToken(this);
+
+            if(threadControlToken == this.currentOwner)
+            {
+                // Release
+                threadControlToken.Dispose();
+            }
+        }
     }
 }

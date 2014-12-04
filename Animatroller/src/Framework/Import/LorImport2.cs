@@ -172,7 +172,7 @@ namespace Animatroller.Framework.Import
 
             public override void Execute(IObserver<double> device)
             {
-                Executor.Current.MasterFader.Fade(device, StartBrightness, EndBrightness, DurationMs);
+                Executor.Current.MasterEffect.Fade(device, StartBrightness, EndBrightness, DurationMs);
             }
         }
 
@@ -180,7 +180,7 @@ namespace Animatroller.Framework.Import
         {
             public override void Execute(IObserver<double> device)
             {
-                //                Executor.Current.MasterShimmer.Shimmer(device, 0, 1, DurationMs);
+                Executor.Current.MasterEffect.Shimmer(device, 0, 1, DurationMs);
             }
         }
 
