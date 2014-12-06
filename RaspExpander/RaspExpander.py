@@ -48,7 +48,7 @@ except pif.NoPiFaceDigitalDetectedError:
     logging.warning('No PiFace card detected')
     pass
 
-soundPath = 'halloweensounds'
+soundPath = 'christmassounds'
 bgPath = os.path.join(soundPath, 'bg')
 soundFXdict = {}
 client = udp_client
