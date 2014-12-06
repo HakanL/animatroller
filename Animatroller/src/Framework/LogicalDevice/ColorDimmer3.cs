@@ -61,23 +61,21 @@ namespace Animatroller.Framework.LogicalDevice
             this.color.OnNext(this.color.Value);
         }
 
-        /*
-            public void SetColor(Color color, double brightness)
-            {
-                this.Color = color;
-                this.Brightness = brightness;
-            }
+        public void SetColor(Color color, double brightness)
+        {
+            this.Color = color;
+            this.Brightness = brightness;
+        }
 
-            public void SetOnlyColor(Color color)
-            {
-                this.Color = color;
-            }
+        public void SetOnlyColor(Color color)
+        {
+            this.Color = color;
+        }
 
-            public void SetColor(Color color)
-            {
-                this.Color = color;
-                this.Brightness = 1.0;
-            }
-        */
+        public void SetColor(Color color)
+        {
+            this.Color = color;
+            this.Brightness = 1.0;
+        }
     }
 }

@@ -28,6 +28,8 @@ namespace Animatroller.SceneRunner
 
         Expander.AcnStream acnOutput = new Expander.AcnStream();
 
+        OperatingHours2 hours = new OperatingHours2();
+
         IWaveSource waveSource;
         ISoundOut soundOut = new WasapiOut();
 
@@ -52,6 +54,11 @@ namespace Animatroller.SceneRunner
         Dimmer3 lightNet3 = new Dimmer3();
         Dimmer3 lightNet4 = new Dimmer3();
         Dimmer3 lightNet5 = new Dimmer3();
+        Dimmer3 lightNet6 = new Dimmer3();
+        Dimmer3 lightNet7 = new Dimmer3();
+        Dimmer3 lightNet8 = new Dimmer3();
+        Dimmer3 lightNet9 = new Dimmer3();
+        Dimmer3 lightNet10 = new Dimmer3();
 
         Dimmer3 lightStar1 = new Dimmer3();
         Dimmer3 lightStar2 = new Dimmer3();
@@ -66,6 +73,7 @@ namespace Animatroller.SceneRunner
         ColorDimmer3 lightLWindow = new ColorDimmer3();
         ColorDimmer3 lightFrontDoor = new ColorDimmer3();
         ColorDimmer3 lightBush = new ColorDimmer3();
+        Dimmer3 lightMetalReindeer = new Dimmer3();
 
         Dimmer3 lightHat1 = new Dimmer3();
         Dimmer3 lightHat2 = new Dimmer3();
@@ -78,6 +86,11 @@ namespace Animatroller.SceneRunner
         Dimmer3 lightSnowman = new Dimmer3();
         Dimmer3 lightSanta = new Dimmer3();
         Dimmer3 lightR2D2 = new Dimmer3();
+        DigitalOutput2 airSnowman = new DigitalOutput2();
+        DigitalOutput2 airR2D2 = new DigitalOutput2();
+        DigitalOutput2 airSanta = new DigitalOutput2();
+        DigitalOutput2 reindeer = new DigitalOutput2();
+        DigitalOutput2 packages = new DigitalOutput2();
 
         DigitalInput2 testButton = new DigitalInput2();
         Import.LorImport2 lorImport = new Import.LorImport2();
@@ -85,6 +98,22 @@ namespace Animatroller.SceneRunner
 
         public LORSceneCarol(IEnumerable<string> args)
         {
+            hours.AddRange("5:00 pm", "9:00 pm");
+
+            reindeer.Power = true;
+            airSnowman.Power = true;
+            airR2D2.Power = true;
+            airSanta.Power = true;
+            packages.Power = true;
+
+            hours
+                .ControlsMasterPower(packages)
+                .ControlsMasterPower(airSnowman)
+                .ControlsMasterPower(airR2D2)
+                .ControlsMasterPower(airSanta)
+                .ControlsMasterPower(reindeer);
+
+
             lorImport.LoadFromFile(@"..\..\..\Test Files\David Foster - Carol of the Bells.lms");
 
             lorImport.MapDeviceRGB("E - 1", "D# - 2", "D - 3", lightNote1);
@@ -105,6 +134,12 @@ namespace Animatroller.SceneRunner
             lorImport.MapDevice("Sky 3", lightNet3);
             lorImport.MapDevice("Sky 4", lightNet4);
             lorImport.MapDevice("Sky 5", lightNet5);
+
+            lorImport.MapDevice("Sky 1", lightNet6);
+            lorImport.MapDevice("Sky 2", lightNet7);
+            lorImport.MapDevice("Sky 3", lightNet8);
+            lorImport.MapDevice("Sky 4", lightNet9);
+            lorImport.MapDevice("Sky 5", lightNet10);
 
             lorImport.MapDevice("Rooftop", snowmanKaggen);
 
@@ -291,7 +326,7 @@ namespace Animatroller.SceneRunner
 
 
             lorImport.Prepare();
-            lorImport.Dump();
+//            lorImport.Dump();
 
 
             waveSource = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
@@ -303,6 +338,12 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.PixelRope(pixelsVideo, 0, 200), 1, 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightStarExtra, 50), SacnUniverseDMX);
+
+            acnOutput.Connect(new Physical.GenericDimmer(reindeer, 10), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(airSnowman, 11), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(airSanta, 12), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(airR2D2, 13), SacnUniverseDMX);
+
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightBottom, 1), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightNote1, 60), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightNote2, 80), SacnUniverseDMX);
@@ -317,6 +358,13 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 6), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 7), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 8), SacnUniverseRenard2);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 4), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 5), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 6), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet8, 7), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet9, 8), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet10, 9), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRWindow, 10), SacnUniverseRenard1);     // Metal reindeers
 
             acnOutput.Connect(new Physical.AmericanDJStrobe(lightGarage, 5), SacnUniverseDMX);
 
@@ -359,7 +407,7 @@ namespace Animatroller.SceneRunner
 
         public override void Run()
         {
-            lorImport.Start();
+//            lorImport.Start();
             soundOut.Play();
         }
 

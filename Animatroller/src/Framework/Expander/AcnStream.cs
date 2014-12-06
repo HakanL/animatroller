@@ -177,7 +177,8 @@ namespace Animatroller.Framework.Expander
             this.socket.Open(bindIpAddress);
             log.Info("ACN binding to {0}", bindIpAddress);
 
-            this.dmxStreamer = new DmxStreamer(socket);
+            this.dmxStreamer = new DmxStreamer(this.socket);
+            this.dmxStreamer.Priority = 150;
             this.sendingUniverses = new Dictionary<int, AcnUniverse>();
 
             Executor.Current.Register(this);
