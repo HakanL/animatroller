@@ -36,7 +36,7 @@ namespace Animatroller.Framework.LogicalDevice
             RaiseColorChanged();
         }
 
-        public override void StartDevice()
+        public override void SetInitialState()
         {
             RaiseBrightnessChanged();
         }

@@ -37,9 +37,9 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.currentMasterPower; }
         }
 
-        public override void StartDevice()
+        public override void SetInitialState()
         {
-            base.StartDevice();
+            base.SetInitialState();
 
             UpdateOutput();
         }

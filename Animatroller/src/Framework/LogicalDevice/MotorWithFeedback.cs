@@ -119,7 +119,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void StartDevice()
+        public void SetInitialState()
         {
             RaiseVectorChanged();
         }

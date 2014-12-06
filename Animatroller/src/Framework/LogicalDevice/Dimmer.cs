@@ -135,7 +135,7 @@ namespace Animatroller.Framework.LogicalDevice
                 this.effectJob.Stop();
         }
 
-        public virtual void StartDevice()
+        public virtual void SetInitialState()
         {
             RaiseBrightnessChanged();
         }

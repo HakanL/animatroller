@@ -9,7 +9,7 @@ using Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.Framework.Expander
 {
-    public class IOExpander : SerialController, IPort, IDmxOutput, IPixelOutput
+    public class IOExpander : SerialController, IPort, IDmxOutput, IPixelOutput, IOutputHardware
     {
         private object lockObject = new object();
         private HashSet<byte> changedPixels;

@@ -41,9 +41,9 @@ namespace Animatroller.Framework.LogicalDevice
             });
         }
 
-        public override void StartDevice()
+        public override void SetInitialState()
         {
-            base.StartDevice();
+            base.SetInitialState();
 
             inputPan.OnNext(0);
             inputTilt.OnNext(0);

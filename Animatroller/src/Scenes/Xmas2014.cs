@@ -37,8 +37,6 @@ namespace Animatroller.SceneRunner
             DarthVader
         }
 
-        //IWaveSource waveCarol = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
-        //IWaveSource waveStarwars = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\01. Star Wars - Main Title.wav");
         ISoundOut soundOut = new WasapiOut();
 
         Expander.AcnStream acnOutput = new Expander.AcnStream();
@@ -129,24 +127,27 @@ namespace Animatroller.SceneRunner
         Controller.Sequence starwarsCane = new Controller.Sequence();
         Controller.Sequence music1Seq = new Controller.Sequence();
         Controller.Sequence backgroundLoop = new Controller.Sequence();
-        private bool inflatablesRunning;
+        Subject<bool> inflatablesRunning = new Subject<bool>();
 
         Import.LorImport2 lorImport = new Import.LorImport2();
 
         public Xmas2014(IEnumerable<string> args)
         {
-            hours.AddRange("4:30 pm", "10:00 pm");
-            //            hours.SetForced(true);
+            hours.AddRange("5:00 pm", "9:00 pm");
+            hours.SetForced(true);
 
-            bool.TryParse(Exec.GetKey("InflatablesRunning", false.ToString()), out inflatablesRunning);
+            inflatablesRunning.Subscribe(x =>
+                {
+                    airR2D2.Power = x;
+                    airSanta.Power = x;
+                    airSnowman.Power = x;
+                    airReindeer.Power = x;
 
-            if (inflatablesRunning)
-            {
-                airR2D2.Power = true;
-                airSanta.Power = true;
-                airSnowman.Power = true;
-                airReindeer.Power = true;
-            }
+                    Exec.SetKey("InflatablesRunning", x.ToString());
+                });
+
+            // Read from storage
+            inflatablesRunning.OnNext(Exec.GetSetKey("InflatablesRunning", false));
 
             hours.Output.Log("Hours inside");
             movingHead.InputPan.Log("Pan");
@@ -182,12 +183,7 @@ namespace Animatroller.SceneRunner
             {
                 if (e.NewState && hours.IsOpen)
                 {
-                    InflatablesRunning = true;
-
-                    airR2D2.Power = true;
-                    airSanta.Power = true;
-                    airSnowman.Power = true;
-                    airReindeer.Power = true;
+                    inflatablesRunning.OnNext(true);
                 }
             };
 
@@ -328,29 +324,27 @@ namespace Animatroller.SceneRunner
 
                     //                    EverythingOff();
                     soundOut.Stop();
-                    var waveCarol = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav");
-                    soundOut.Initialize(waveCarol);
+                    soundOut.WaitForStopped();
                 })
                 .Execute(instance =>
                 {
-                    soundOut.Play();
-                    var task = lorImport.Start();
-                    try
+                    using (var waveCarol = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\09 Carol of the Bells (Instrumental).wav"))
                     {
+                        soundOut.Initialize(waveCarol);
+                        soundOut.Play();
+                        var task = lorImport.Start();
                         task.Wait(instance.CancelToken);
 
-                        instance.WaitFor(S(8));
-                    }
-                    finally
-                    {
-                        lorImport.Stop();
                         soundOut.Stop();
+                        soundOut.WaitForStopped();
                     }
+
+                    instance.WaitFor(S(8));
                 })
                 .TearDown(() =>
                 {
-                    stateMachine.SetState(States.DarthVader);
-                    //                    EverythingOff();
+                    lorImport.Stop();
+                    soundOut.Stop();
                 });
 
             backgroundLoop
@@ -358,6 +352,7 @@ namespace Animatroller.SceneRunner
                 .SetUp(() =>
                 {
                     Exec.Execute(candyCane);
+
                     //pulsatingEffect1.Start();
                     //flickerEffect.Start();
                     //switchButtonBlue.SetPower(true);
@@ -413,8 +408,7 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                     {
-                        saberPixels.TurnOff();
-                        soundOut.Stop();
+                        pixelsRoofEdge.TurnOff();
                     });
 
             fatherSeq
@@ -426,78 +420,82 @@ namespace Animatroller.SceneRunner
                     lightR2D2.Brightness = 1.0;
 
                     soundOut.Stop();
-                    instance.WaitFor(S(0.5));
-                    var waveStarwars = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\01. Star Wars - Main Title.wav");
-                    soundOut.Initialize(waveStarwars);
-                    soundOut.Play();
-
-                    //lightCeiling1.SetOnlyColor(Color.Yellow);
-                    //lightCeiling2.SetOnlyColor(Color.Yellow);
-                    //lightCeiling3.SetOnlyColor(Color.Yellow);
-                    //pulsatingEffect2.Start();
-
-                    instance.WaitFor(S(16));
-
-                    //pulsatingEffect2.Stop();
-                    soundOut.Stop();
-                    Executor.Current.Cancel(starwarsCane);
-                    pixelsRoofEdge.TurnOff();
-                    instance.WaitFor(S(0.5));
-                    /*
-                                        elJesus.SetPower(true);
-                                        pulsatingStar.Start();
-                                        lightJesus.SetColor(Color.White, 0.3);
-                                        light3wise.SetOnlyColor(Color.LightYellow);
-                                        light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));*/
-                    lightVader.SetOnlyColor(Color.Red);
-                    var ctrl = lightVader.TakeControl();
-                    Exec.MasterEffect.Fade(lightVader, 0, 1, 1000).ContinueWith(_ => ctrl.Dispose());
-
-                    instance.WaitFor(S(2.5));
-
-                    //elLightsaber.SetPower(true);
-                    audioDarthVader.PlayEffect("saberon");
-                    for (int sab = 00; sab < 32; sab++)
+                    soundOut.WaitForStopped();
+                    using (var waveStarwars = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\01. Star Wars - Main Title.wav"))
                     {
-                        saberPixels.Inject(Color.Red, 0.5);
-                        instance.WaitFor(S(0.01));
+                        soundOut.Initialize(waveStarwars);
+                        soundOut.Play();
+
+                        //lightCeiling1.SetOnlyColor(Color.Yellow);
+                        //lightCeiling2.SetOnlyColor(Color.Yellow);
+                        //lightCeiling3.SetOnlyColor(Color.Yellow);
+                        //pulsatingEffect2.Start();
+
+                        instance.WaitFor(S(16));
+
+                        //pulsatingEffect2.Stop();
+                        soundOut.Stop();
+                        soundOut.WaitForStopped();
+                        Executor.Current.Cancel(starwarsCane);
+                        pixelsRoofEdge.TurnOff();
+                        instance.WaitFor(S(0.5));
+                        /*
+                                            elJesus.SetPower(true);
+                                            pulsatingStar.Start();
+                                            lightJesus.SetColor(Color.White, 0.3);
+                                            light3wise.SetOnlyColor(Color.LightYellow);
+                                            light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));*/
+                        lightVader.SetOnlyColor(Color.Red);
+                        var ctrl = lightVader.TakeControl();
+                        Exec.MasterEffect.Fade(lightVader, 0, 1, 1000).ContinueWith(_ => ctrl.Dispose());
+
+                        instance.WaitFor(S(2.5));
+
+                        //elLightsaber.SetPower(true);
+                        audioDarthVader.PlayEffect("saberon");
+                        for (int sab = 00; sab < 32; sab++)
+                        {
+                            saberPixels.Inject(Color.Red, 0.5);
+                            instance.WaitFor(S(0.01));
+                        }
+
+                        lightVader.SetColor(Color.Red, 1.0);
+                        audioDarthVader.PlayEffect("father");
+                        instance.WaitFor(S(4));
+                        saberSidePixels.SetAll(Color.Red, 1.0);
+                        instance.WaitFor(S(1));
+
+                        lightVader.Brightness = 0;
+                        //light3wise.TurnOff();
+                        //lightJesus.TurnOff();
+                        //pulsatingStar.Stop();
+                        //elJesus.TurnOff();
+
+                        audioDarthVader.PlayEffect("force1");
+                        instance.WaitFor(S(4));
+
+                        lightVader.Brightness = 0;
+                        saberSidePixels.SetAll(Color.Red, 0);
+
+                        audioDarthVader.PlayEffect("saberoff");
+                        instance.WaitFor(S(0.7));
+                        for (int sab = 0; sab < 16; sab++)
+                        {
+                            saberPixels.InjectRev(Color.Black, 0);
+                            saberPixels.InjectRev(Color.Black, 0);
+                            instance.WaitFor(S(0.01));
+                        }
+                        //elLightsaber.SetPower(false);
+                        instance.WaitFor(S(2));
+
+                        //lightJesus.TurnOff();
+                        //light3wise.TurnOff();
+                        //elLightsaber.TurnOff();
+                        //pulsatingStar.Stop();
+                        //elJesus.TurnOff();
+                        //instance.WaitFor(S(2));
+
                     }
-
-                    lightVader.SetColor(Color.Red, 1.0);
-                    audioDarthVader.PlayEffect("father");
-                    instance.WaitFor(S(4));
-                    saberSidePixels.SetAll(Color.Red, 1.0);
-                    instance.WaitFor(S(1));
-
-                    lightVader.Brightness = 0;
-                    //light3wise.TurnOff();
-                    //lightJesus.TurnOff();
-                    //pulsatingStar.Stop();
-                    //elJesus.TurnOff();
-
-                    audioDarthVader.PlayEffect("force1");
-                    instance.WaitFor(S(4));
-
-                    lightVader.Brightness = 0;
-                    saberSidePixels.SetAll(Color.Red, 0);
-
-                    audioDarthVader.PlayEffect("saberoff");
-                    instance.WaitFor(S(0.7));
-                    for (int sab = 0; sab < 16; sab++)
-                    {
-                        saberPixels.InjectRev(Color.Black, 0);
-                        saberPixels.InjectRev(Color.Black, 0);
-                        instance.WaitFor(S(0.01));
-                    }
-                    //elLightsaber.SetPower(false);
-                    instance.WaitFor(S(2));
-
-                    //lightJesus.TurnOff();
-                    //light3wise.TurnOff();
-                    //elLightsaber.TurnOff();
-                    //pulsatingStar.Stop();
-                    //elJesus.TurnOff();
-                    //instance.WaitFor(S(2));
                 })
                 .TearDown(() =>
                 {
@@ -517,14 +515,6 @@ namespace Animatroller.SceneRunner
                     //lightTreeUp.SetColor(Color.Red, 1.0);
                     //lightSnow1.SetBrightness(1.0);
                     //lightSnow2.SetBrightness(1.0);
-
-                    if (InflatablesRunning)
-                    {
-                        airR2D2.Power = true;
-                        airSanta.Power = true;
-                        airSnowman.Power = true;
-                        airReindeer.Power = true;
-                    }
                 }
                 else
                 {
@@ -543,21 +533,11 @@ namespace Animatroller.SceneRunner
 
                     //switchDeerHuge.TurnOff();
                     //switchSanta.TurnOff();
-                    InflatablesRunning = false;
+                    inflatablesRunning.OnNext(false);
                 }
             });
 
             ImportAndMapLOR();
-        }
-
-        private bool InflatablesRunning
-        {
-            get { return this.inflatablesRunning; }
-            set
-            {
-                this.inflatablesRunning = value;
-                Exec.SetKey("InflatablesRunning", inflatablesRunning.ToString());
-            }
         }
 
         private void ImportAndMapLOR()

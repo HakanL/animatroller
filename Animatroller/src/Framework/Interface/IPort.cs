@@ -10,6 +10,10 @@ namespace Animatroller.Framework
     {
     }
 
+    public interface IOutputHardware
+    {
+    }
+
     public interface IDmxOutput : IPort
     {
         SendStatus SendDimmerValue(int channel, byte value);

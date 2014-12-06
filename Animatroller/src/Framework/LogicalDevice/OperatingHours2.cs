@@ -84,9 +84,10 @@ namespace Animatroller.Framework.LogicalDevice
             IsOpen = isOpenNow;
         }
 
-        public override void StartDevice()
+        public override void SetInitialState()
         {
-            base.StartDevice();
+            EvaluateOpenHours();
+            base.SetInitialState();
 
             this.timer.Change(0, 1000);
         }

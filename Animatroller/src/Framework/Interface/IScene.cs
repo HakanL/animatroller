@@ -8,8 +8,11 @@ namespace Animatroller.Framework
 {
     public interface IScene
     {
+        [Obsolete]
         void Start();
+
         void Run();
+
         void Stop();
     }
 }

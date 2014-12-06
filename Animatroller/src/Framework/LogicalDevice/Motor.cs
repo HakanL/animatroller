@@ -58,7 +58,7 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        public virtual void StartDevice()
+        public virtual void SetInitialState()
         {
             RaiseSpeedChanged();
         }

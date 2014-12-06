@@ -8,7 +8,7 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class Renard : IPort, IRunnable, IDmxOutput
+    public class Renard : IPort, IRunnable, IDmxOutput, IOutputHardware
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private int sendCounter;

@@ -11,6 +11,6 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public interface IOutput
     {
-        void StartDevice();
+        void SetInitialState();
     }
 }

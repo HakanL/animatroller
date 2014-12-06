@@ -35,9 +35,9 @@ namespace Animatroller.Framework.LogicalDevice
                 });
         }
 
-        public override void StartDevice()
+        public override void SetInitialState()
         {
-            base.StartDevice();
+            base.SetInitialState();
 
             inputStrobeSpeed.OnNext(DoubleZeroToOne.Zero);
         }

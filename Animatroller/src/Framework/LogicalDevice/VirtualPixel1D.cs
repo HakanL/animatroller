@@ -144,7 +144,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void StartDevice()
+        public void SetInitialState()
         {
             RaiseMultiPixelChanged(0, Pixels);
         }

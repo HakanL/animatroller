@@ -98,9 +98,9 @@ namespace Animatroller.Framework.PhysicalDevice
                 this.colorBrightness.Color = Color.White;
         }
 
-        public override void StartDevice()
+        public override void SetInitialState()
         {
-            base.StartDevice();
+            base.SetInitialState();
 
             Output();
         }

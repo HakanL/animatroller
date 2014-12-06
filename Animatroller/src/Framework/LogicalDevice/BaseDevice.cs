@@ -21,7 +21,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.name; }
         }        
 
-        public virtual void StartDevice()
+        public virtual void SetInitialState()
         {
             UpdateOutput();
         }

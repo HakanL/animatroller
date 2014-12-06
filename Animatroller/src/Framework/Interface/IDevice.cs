@@ -73,7 +73,7 @@ namespace Animatroller.Framework
 
     public interface IRunningDevice : IDevice
     {
-        void StartDevice();
+        void SetInitialState();
     }
 
     public interface ILogicalDevice : IRunningDevice

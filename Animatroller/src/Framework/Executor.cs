@@ -284,21 +284,21 @@ namespace Animatroller.Framework
             }
         }
 
-        public Executor Start()
+        public Executor Run()
         {
-            foreach (var runnable in this.runnable)
+            // First start non-hardware outputs
+            foreach (var runnable in this.runnable.Where(x => !(x is IOutputHardware)))
+                runnable.Start();
+
+            foreach (var device in this.devices)
+                device.SetInitialState();
+
+            // Then start hardware outputs, all devices should have their initial states now
+            foreach (var runnable in this.runnable.Where(x => (x is IOutputHardware)))
                 runnable.Start();
 
             foreach (var scene in this.scenes)
                 scene.Start();
-
-            return this;
-        }
-
-        public Executor Run()
-        {
-            foreach (var device in this.devices)
-                device.StartDevice();
 
             foreach (var scene in this.scenes)
                 scene.Run();

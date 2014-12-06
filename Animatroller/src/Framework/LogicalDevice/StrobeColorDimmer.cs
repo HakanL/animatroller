@@ -28,9 +28,9 @@ namespace Animatroller.Framework.LogicalDevice
                 handler(this, new StrobeSpeedChangedEventArgs(this.StrobeSpeed));
         }
 
-        public override void StartDevice()
+        public override void SetInitialState()
         {
-            base.StartDevice();
+            base.SetInitialState();
             RaiseStrobeSpeedChanged();
         }
 

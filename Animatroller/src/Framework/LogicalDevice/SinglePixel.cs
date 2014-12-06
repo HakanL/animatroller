@@ -30,7 +30,7 @@ namespace Animatroller.Framework.LogicalDevice
             Executor.Current.Register(this);
         }
 
-        public void StartDevice()
+        public void SetInitialState()
         {
         }
 

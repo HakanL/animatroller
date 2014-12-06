@@ -8,7 +8,7 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class DMXPro : IPort, IRunnable, IDmxOutput
+    public class DMXPro : IPort, IRunnable, IDmxOutput, IOutputHardware
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private int sendCounter;

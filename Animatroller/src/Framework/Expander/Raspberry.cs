@@ -9,7 +9,7 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class Raspberry : IPort, IRunnable
+    public class Raspberry : IPort, IRunnable, IOutputHardware
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private OscClient oscClient;

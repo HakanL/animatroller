@@ -17,7 +17,7 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class AcnStream : IPort, IRunnable
+    public class AcnStream : IPort, IRunnable, IOutputHardware
     {
         public readonly Guid animatrollerAcnId = new Guid("{53A974B9-8286-4DC1-BFAB-00FEC91FD7A9}");
         protected static Logger log = LogManager.GetCurrentClassLogger();

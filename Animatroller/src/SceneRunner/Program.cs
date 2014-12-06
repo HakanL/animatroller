@@ -138,8 +138,6 @@ namespace Animatroller.SceneRunner
                 ((ISceneRequiresAcnStream)scene).WireUp(acnOutput);
             }
 
-            // Initialize
-            Executor.Current.Start();
             // Run
             Executor.Current.Run();
 

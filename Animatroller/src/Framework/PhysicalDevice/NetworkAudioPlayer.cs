@@ -86,7 +86,7 @@ namespace Animatroller.Framework.PhysicalDevice
             return this;
         }
 
-        public void StartDevice()
+        public void SetInitialState()
         {
         }
 

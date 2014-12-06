@@ -138,7 +138,7 @@ namespace Animatroller.Simulator
             get { return this.logicalDevice; }
         }
 
-        public void StartDevice()
+        public void SetInitialState()
         {
         }
 
