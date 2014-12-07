@@ -133,8 +133,8 @@ namespace Animatroller.SceneRunner
 
         public Xmas2014(IEnumerable<string> args)
         {
-            hours.AddRange("5:00 pm", "9:00 pm");
-            hours.SetForced(true);
+            hours.AddRange("4:00 pm", "9:00 pm");
+            //            hours.SetForced(true);
 
             inflatablesRunning.Subscribe(x =>
                 {
@@ -192,7 +192,7 @@ namespace Animatroller.SceneRunner
             hours.Output.Subscribe(x =>
                 {
                     packages.Power = x;
-
+/*
                     lightHat1.Brightness = x ? 1.0 : 0.0;
                     lightHat2.Brightness = x ? 1.0 : 0.0;
                     lightHat3.Brightness = x ? 1.0 : 0.0;
@@ -221,7 +221,7 @@ namespace Animatroller.SceneRunner
                     lightX5.Brightness = x ? 1.0 : 0.0;
                     lightX6.Brightness = x ? 1.0 : 0.0;
                     lightX7.Brightness = x ? 1.0 : 0.0;
-                    lightBushes.Brightness = x ? 1.0 : 0.0;
+                    lightBushes.Brightness = x ? 1.0 : 0.0;*/
                 });
 
             lightSanta.SetOutputFilter(new Effect.Blackout());
@@ -351,7 +351,7 @@ namespace Animatroller.SceneRunner
                 .WhenExecuted
                 .SetUp(() =>
                 {
-                    Exec.Execute(candyCane);
+                    //                    Exec.Execute(candyCane);
 
                     //pulsatingEffect1.Start();
                     //flickerEffect.Start();
@@ -363,9 +363,21 @@ namespace Animatroller.SceneRunner
 
                     //Executor.Current.Execute(twinkleSeq);
                 })
+                .Execute(i =>
+                    {
+                        while (!i.IsCancellationRequested)
+                        {
+                            Exec.ExecuteAndWait(fatherSeq);
+                            
+                            if (i.IsCancellationRequested)
+                                break;
+
+                            Exec.ExecuteAndWait(music1Seq);
+                        }
+                    })
                 .TearDown(() =>
                 {
-                    Exec.Cancel(candyCane);
+                    //                    Exec.Cancel(candyCane);
                     //Executor.Current.Cancel(twinkleSeq);
 
                     //switchButtonBlue.SetPower(false);
@@ -503,7 +515,6 @@ namespace Animatroller.SceneRunner
                     //                    EverythingOff();
 
                     soundOut.Stop();
-                    stateMachine.SetState(States.Background);
                 });
 
             hours.Output.Subscribe(x =>

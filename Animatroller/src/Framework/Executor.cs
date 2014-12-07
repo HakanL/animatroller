@@ -446,16 +446,31 @@ namespace Animatroller.Framework
 
         public CancellationTokenSource Execute(ICanExecute value)
         {
+            Task task;
+
+            return Execute(value, out task);
+        }
+
+        public void ExecuteAndWait(ICanExecute value)
+        {
+            Task task;
+
+            Execute(value, out task);
+
+            task.Wait();
+        }
+
+        public CancellationTokenSource Execute(ICanExecute value, out Task task)
+        {
             CleanupCompletedTasks();
 
             CancellationTokenSource cancelSource;
-            Task task;
 
             if (!value.IsMultiInstance)
             {
                 lock (singleInstanceTasks)
                 {
-                    if (singleInstanceTasks.ContainsKey(value))
+                    if (singleInstanceTasks.TryGetValue(value, out task))
                     {
                         // Already running
                         log.Info("Single instance already running, skipping");
