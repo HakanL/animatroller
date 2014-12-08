@@ -86,6 +86,12 @@
     <Compile Include="Control\Motor.Designer.cs">
       <DependentUpon>Motor.cs</DependentUpon>
     </Compile>
+    <Compile Include="Control\MatrixLight.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Control\MatrixLight.Designer.cs">
+      <DependentUpon>MatrixLight.cs</DependentUpon>
+    </Compile>
     <Compile Include="Control\RopeLight.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -104,6 +110,7 @@
     <Compile Include="Control\StrobeBulb.Designer.cs">
       <DependentUpon>StrobeBulb.cs</DependentUpon>
     </Compile>
+    <Compile Include="TestPixel2D.cs" />
     <Compile Include="TestPixel1D.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Interfaces.cs" />
@@ -125,6 +132,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Control\Motor.resx">
       <DependentUpon>Motor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Control\MatrixLight.resx">
+      <DependentUpon>MatrixLight.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Control\RopeLight.resx">
       <DependentUpon>RopeLight.cs</DependentUpon>

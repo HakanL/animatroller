@@ -24,7 +24,7 @@ namespace Animatroller.Simulator
         private Control.RopeLight control;
         private int numberOfPixels;
 
-        public Control.RopeLight RopeLightControl
+        public Control.RopeLight LightControl
         {
             set
             {

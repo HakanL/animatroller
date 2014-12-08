@@ -19,8 +19,12 @@ namespace Animatroller.SceneRunner
     {
         Expander.AcnStream acnOutput = new Expander.AcnStream();
         Expander.Tpm2NetSink tpmSink = new Expander.Tpm2NetSink();
-        VirtualPixel1D allPixels = new VirtualPixel1D(200);
-        DigitalInput buttonTest = new DigitalInput();
+        PixelMapper2D tpmPixelMapper = new PixelMapper2D(20, 10, PixelMapper2D.PixelOrders.HorizontalLineTopLeft);
+        PixelMapper2D opcPixelMapper = new PixelMapper2D(20, 10, PixelMapper2D.PixelOrders.HorizontalSnakeTopLeft);
+
+        VirtualPixel2D allPixels = new VirtualPixel2D(20, 10);
+        DigitalInput2 buttonTest = new DigitalInput2();
+        Expander.OpcClient opcOutput = new Expander.OpcClient("192.168.1.113");
 
         public TpmTest(IEnumerable<string> args)
         {
@@ -29,21 +33,31 @@ namespace Animatroller.SceneRunner
                     switch (x.PacketNumber)
                     {
                         case 1:
-                            allPixels.SetRGB(array: x.Data, arrayOffset: 0, arrayLength: 160 * 3, pixelOffset: 0);
+                            tpmPixelMapper.FromRGBByteArray(x.Data, 0, allPixels.SetPixel);
                             break;
 
                         case 2:
-                            allPixels.SetRGB(array: x.Data, arrayOffset: 0, arrayLength: 40 * 3, pixelOffset: 160);
+                            tpmPixelMapper.FromRGBByteArray(x.Data, 160, allPixels.SetPixel);
                             break;
                     }
+
+                    if (x.PacketNumber == x.TotalPackets)
+                        allPixels.ShowBuffer();
                 });
+
+            opcOutput.Connect(allPixels, opcPixelMapper, 1);
+
 
             // WS2811
             //            acnOutput.Connect(new Physical.PixelRope(allPixels, 0, 200), 1, 1);
-        }
 
-        public override void Start()
-        {
+            buttonTest.Output.Subscribe(x =>
+                {
+                    if (x)
+                        Exec.MasterEffect.Fade(allPixels.GlobalBrightnessControl, 1, 0, 2000);
+                    else
+                        Exec.MasterEffect.Fade(allPixels.GlobalBrightnessControl, 0, 1, 2000);
+                });
         }
 
         public override void Run()

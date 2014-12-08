@@ -24,6 +24,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected double[] brightness;
         protected Color[] color;
         protected Effect.MasterSweeper.Job effectJob;
+        protected ControlSubject<double> globalBrightness;
 
         // Master events, primarily used by simulator
         public event EventHandler<PixelChangedEventArgs> PixelChanged;
@@ -36,6 +37,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (pixels <= 0)
                 throw new ArgumentOutOfRangeException("pixels");
 
+            this.globalBrightness = new ControlSubject<double>(1.0);
             this.pixelCount = pixels;
 
             this.devices = new List<PixelDevice>();
@@ -80,7 +82,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
 
             var handler = PixelChanged;
-            if(handler != null)
+            if (handler != null)
                 handler(this, new PixelChangedEventArgs(position, this.color[position], this.brightness[position]));
 
             foreach (var pixelDevice in this.devices)
@@ -114,7 +116,7 @@ namespace Animatroller.Framework.LogicalDevice
                 for (int i = 0; i < size; i++)
                 {
                     int position = i + startPosition;
-                    newValues.Add(new ColorBrightness(this.color[position], this.brightness[position]));
+                    newValues.Add(new ColorBrightness(this.color[position], this.brightness[position] * this.globalBrightness.Value));
                 }
                 handler(this, new MultiPixelChangedEventArgs(startPosition, newValues.ToArray()));
             }
@@ -128,10 +130,10 @@ namespace Animatroller.Framework.LogicalDevice
                     int position = i + startPosition;
                     if (pixelDevice.IsPositionForThisDevice(position))
                     {
-                        if(!firstPosition.HasValue)
+                        if (!firstPosition.HasValue)
                             firstPosition = position - pixelDevice.StartPosition;
 
-                        newValues.Add(new ColorBrightness(this.color[position], this.brightness[position]));
+                        newValues.Add(new ColorBrightness(this.color[position], this.brightness[position] * this.globalBrightness.Value));
                     }
                 }
 
@@ -141,6 +143,17 @@ namespace Animatroller.Framework.LogicalDevice
                     if (handler != null)
                         handler(this, new MultiPixelChangedEventArgs(firstPosition.Value, newValues.ToArray()));
                 }
+            }
+        }
+
+        public double GlobalBrightness
+        {
+            get { return this.globalBrightness.Value; }
+            set
+            {
+                this.globalBrightness.OnNext(value);
+
+                RaiseMultiPixelChanged(0, this.pixelCount);
             }
         }
 
@@ -389,7 +402,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         //IDEA: Fade to new array of ColorBrightness
 
-        
+
         public VirtualPixel1D Inject(ColorBrightness colorBrightness)
         {
             Inject(colorBrightness.Color, colorBrightness.Brightness);
@@ -595,7 +608,12 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void SetRGB(byte[] array, int arrayOffset, int arrayLength, int pixelOffset)
+        public void ShowBuffer()
+        {
+            RaiseMultiPixelChanged(0, this.pixelCount);
+        }
+
+        public void SetRGB(byte[] array, int arrayOffset, int arrayLength, int pixelOffset, bool raiseChangeEvent = true)
         {
             int pixel = pixelOffset;
 
@@ -617,7 +635,8 @@ namespace Animatroller.Framework.LogicalDevice
                 pixel++;
             }
 
-            RaiseMultiPixelChanged(pixelOffset, pixel - pixelOffset);
+            if (raiseChangeEvent)
+                RaiseMultiPixelChanged(pixelOffset, pixel - pixelOffset);
         }
     }
 }

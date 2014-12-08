@@ -83,6 +83,8 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel1D))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D)fieldValue));
+                else if (field.FieldType == typeof(VirtualPixel2D))
+                    this.Connect(new Animatroller.Simulator.TestPixel2D((VirtualPixel2D)fieldValue));
                 else if (field.FieldType == typeof(AnalogInput))
                     this.AddAnalogInput((AnalogInput)fieldValue);
                 else if (field.FieldType == typeof(AnalogInput2))
@@ -254,6 +256,20 @@ namespace Animatroller.Simulator
             var control = new Control.RopeLight();
             moduleControl.ChildControl = control;
             control.Pixels = pixels;
+
+            flowLayoutPanelLights.Controls.Add(moduleControl);
+
+            return control;
+        }
+
+        public Control.MatrixLight AddNewMatrix(string name, int width, int height)
+        {
+            var moduleControl = new Control.ModuleControl();
+            moduleControl.Text = name;
+            moduleControl.Size = new System.Drawing.Size(8 * width + 6, 8 * height + 27);
+
+            var control = new Control.MatrixLight(width, height);
+            moduleControl.ChildControl = control;
 
             flowLayoutPanelLights.Controls.Add(moduleControl);
 
@@ -524,7 +540,12 @@ namespace Animatroller.Simulator
 
         public void Connect(INeedsRopeLight output)
         {
-            output.RopeLightControl = AddNewRope(output.ConnectedDevice.Name, output.Pixels);
+            output.LightControl = AddNewRope(output.ConnectedDevice.Name, output.Pixels);
+        }
+
+        public void Connect(INeedsMatrixLight output)
+        {
+            output.LightControl = AddNewMatrix(output.Name, 20, 10);
         }
 
         private void updateTimer_Tick(object sender, EventArgs e)

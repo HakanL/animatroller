@@ -118,6 +118,7 @@
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
+    <Compile Include="Expander\OpcClient.cs" />
     <Compile Include="Expander\Tpm2NetSink.cs" />
     <Compile Include="Expander\Renard.cs" />
     <Compile Include="Expander\OscServer.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="LogicalDevice\Dimmer3.cs" />
     <Compile Include="LogicalDevice\Interface\IHasMasterPower.cs" />
     <Compile Include="LogicalDevice\OperatingHours2.cs" />
+    <Compile Include="LogicalDevice\PixelMapper2D.cs" />
     <Compile Include="LogicalDevice\SingleOwnerOutputDevice.cs" />
     <Compile Include="LogicalDevice\SingleOwnerDevice.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
@@ -163,6 +165,7 @@
     <Compile Include="LogicalDevice\MovingHead.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer3.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer2.cs" />
+    <Compile Include="LogicalDevice\VirtualPixel2D.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
     <Compile Include="LogicalDevice\Event\PixelChanged.cs" />

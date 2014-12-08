@@ -20,10 +20,19 @@ namespace Animatroller.Simulator
 
     public interface INeedsRopeLight : IOutputDevice
     {
-        Control.RopeLight RopeLightControl { set; }
+        Control.RopeLight LightControl { set; }
 
         int Pixels { get; }
 
         ILogicalDevice ConnectedDevice { get; }
+    }
+
+    public interface INeedsMatrixLight : IOutputDevice
+    {
+        Control.MatrixLight LightControl { set; }
+
+        int PixelWidth { get; }
+
+        int PixelHeight { get; }
     }
 }
