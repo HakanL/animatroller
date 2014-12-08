@@ -594,5 +594,30 @@ namespace Animatroller.Framework.LogicalDevice
                     RaiseMultiPixelChanged(this.suspendedStart.Value, this.suspendedEnd.Value - this.suspendedStart.Value + 1);
             }
         }
+
+        public void SetRGB(byte[] array, int arrayOffset, int arrayLength, int pixelOffset)
+        {
+            int pixel = pixelOffset;
+
+            for (int i = 0; i < arrayLength; i += 3)
+            {
+                if (pixel >= this.color.Length)
+                    break;
+
+                if (arrayOffset + i + 2 >= array.Length)
+                    break;
+
+                byte r = array[arrayOffset + i];
+                byte g = array[arrayOffset + i + 1];
+                byte b = array[arrayOffset + i + 2];
+
+                this.brightness[pixel] = 1.0;
+                this.color[pixel] = Color.FromArgb(r, g, b);
+
+                pixel++;
+            }
+
+            RaiseMultiPixelChanged(pixelOffset, pixel - pixelOffset);
+        }
     }
 }

@@ -40,6 +40,8 @@ namespace Animatroller.Framework
 
         public virtual void Stop()
         {
+            // Hack :)
+            System.Threading.Thread.Sleep(200);
         }
 
         protected Executor Exec

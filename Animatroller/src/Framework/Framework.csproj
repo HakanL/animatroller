@@ -118,6 +118,7 @@
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
+    <Compile Include="Expander\Tpm2NetSink.cs" />
     <Compile Include="Expander\Renard.cs" />
     <Compile Include="Expander\OscServer.cs" />
     <Compile Include="Expander\OscClient.cs" />
