@@ -335,6 +335,8 @@ namespace Animatroller.SceneRunner
                         var task = lorImport.Start();
                         task.Wait(instance.CancelToken);
 
+                        instance.WaitFor(S(5));
+
                         soundOut.Stop();
                         soundOut.WaitForStopped();
                     }
@@ -470,6 +472,7 @@ namespace Animatroller.SceneRunner
                             saberPixels.Inject(Color.Red, 0.5);
                             instance.WaitFor(S(0.01));
                         }
+                        instance.WaitFor(S(1));
 
                         lightVader.SetColor(Color.Red, 1.0);
                         audioDarthVader.PlayEffect("father");
