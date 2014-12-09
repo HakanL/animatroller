@@ -477,7 +477,7 @@ namespace Animatroller.SceneRunner
                         lightVader.SetColor(Color.Red, 1.0);
                         audioDarthVader.PlayEffect("father");
                         instance.WaitFor(S(4));
-                        saberSidePixels.SetAll(Color.Red, 1.0);
+                        saberSidePixels.SetAll(Color.Red, 0.5);
                         instance.WaitFor(S(1));
 
                         lightVader.Brightness = 0;
