@@ -18,19 +18,24 @@ namespace Animatroller.Framework.Expander
         private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
         private ISubject<ChannelMessage> midiMessages;
 
-        public MidiInput2([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public MidiInput2(bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             int deviceId = Executor.Current.GetSetKey(this, name + ".DeviceId", 0);
-
-            if (InputDevice.DeviceCount <= deviceId)
-                throw new ArgumentException("Midi device not detected");
 
             this.messageMapper = new Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>>();
 
             this.midiMessages = new Subject<ChannelMessage>();
 
-            this.inputDevice = new InputDevice(deviceId);
-            this.inputDevice.ChannelMessageReceived += inputDevice_ChannelMessageReceived;
+            if (InputDevice.DeviceCount <= deviceId)
+            {
+                if (!ignoreMissingDevice)
+                    throw new ArgumentException("Midi device not detected");
+            }
+            else
+            {
+                this.inputDevice = new InputDevice(deviceId);
+                this.inputDevice.ChannelMessageReceived += inputDevice_ChannelMessageReceived;
+            }
 
             Executor.Current.Register(this);
         }
@@ -71,13 +76,17 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
-            this.inputDevice.StartRecording();
+            if (this.inputDevice != null)
+                this.inputDevice.StartRecording();
         }
 
         public void Stop()
         {
-            this.inputDevice.StopRecording();
-            this.inputDevice.Close();
+            if (this.inputDevice != null)
+            {
+                this.inputDevice.StopRecording();
+                this.inputDevice.Close();
+            }
         }
 
         public IObservable<DoubleZeroToOne> Controller(int midiChannel, int controller)

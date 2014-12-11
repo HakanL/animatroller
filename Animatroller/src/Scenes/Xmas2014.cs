@@ -34,6 +34,7 @@ namespace Animatroller.SceneRunner
         {
             Background,
             Music1,
+            Music2,
             DarthVader
         }
 
@@ -58,12 +59,12 @@ namespace Animatroller.SceneRunner
 
         Effect.Pulsating pulsatingStar = new Effect.Pulsating(S(2), 0.2, 0.4, false);
 
-        ColorDimmer3 lightNote1 = new ColorDimmer3();
-        ColorDimmer3 lightNote2 = new ColorDimmer3();
+        ColorDimmer3 lightStraigthAhead = new ColorDimmer3();
+        ColorDimmer3 lightRightColumn = new ColorDimmer3();
         ColorDimmer3 lightNote3 = new ColorDimmer3();
         ColorDimmer3 lightNote4 = new ColorDimmer3();
         ColorDimmer3 lightNote5 = new ColorDimmer3();
-        ColorDimmer3 lightNote6 = new ColorDimmer3();
+        ColorDimmer3 lightUpTree = new ColorDimmer3();
         ColorDimmer3 lightNote7 = new ColorDimmer3();
         ColorDimmer3 lightNote8 = new ColorDimmer3();
         ColorDimmer3 lightNote9 = new ColorDimmer3();
@@ -94,26 +95,24 @@ namespace Animatroller.SceneRunner
         Dimmer3 lightNet8 = new Dimmer3();
         Dimmer3 lightNet9 = new Dimmer3();
         Dimmer3 lightNet10 = new Dimmer3();
-        Dimmer3 lightMetalReindeer = new Dimmer3();
+        Dimmer3 lightNet11 = new Dimmer3();
 
-        Dimmer3 lightStarExtra = new Dimmer3();
+        Dimmer3 lightStar = new Dimmer3();
 
-        Dimmer3 lightX1 = new Dimmer3();
-        Dimmer3 lightX2 = new Dimmer3();
-        Dimmer3 lightX3 = new Dimmer3();
-        Dimmer3 lightX4 = new Dimmer3();
-        Dimmer3 lightX5 = new Dimmer3();
-        Dimmer3 lightX6 = new Dimmer3();
-        Dimmer3 lightX7 = new Dimmer3();
+        Dimmer3 lightStairsLeft = new Dimmer3();
+        Dimmer3 lightFenceLeft = new Dimmer3();
+        Dimmer3 lightFenceMid = new Dimmer3();
+        Dimmer3 lightFenceRight = new Dimmer3();
+        Dimmer3 lightStairsRight = new Dimmer3();
         Dimmer3 lightBushes = new Dimmer3();
 
-        ColorDimmer3 lightREdge = new ColorDimmer3();
-        ColorDimmer3 lightBottom = new ColorDimmer3();
-        ColorDimmer3 lightGarage = new ColorDimmer3();
-        ColorDimmer3 lightRWindow = new ColorDimmer3();
-        ColorDimmer3 lightCWindow = new ColorDimmer3();
-        ColorDimmer3 lightLWindow = new ColorDimmer3();
-        ColorDimmer3 lightFrontDoor = new ColorDimmer3();
+        ColorDimmer3 lightRoofEdge = new ColorDimmer3();
+        //        ColorDimmer3 lightNotUsed1 = new ColorDimmer3();
+        ColorDimmer3 lightWhiteStrobe = new ColorDimmer3();
+        ColorDimmer3 lightMetalReindeer = new ColorDimmer3();
+        //ColorDimmer3 lightCWindow = new ColorDimmer3();
+        //ColorDimmer3 lightLWindow = new ColorDimmer3();
+        //ColorDimmer3 lightFrontDoor = new ColorDimmer3();
         ColorDimmer3 lightBush = new ColorDimmer3();
 
         MovingHead movingHead = new MovingHead();
@@ -121,20 +120,24 @@ namespace Animatroller.SceneRunner
 
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
-        Expander.MidiInput2 midiInput = new Expander.MidiInput2();
+        Expander.MidiInput2 midiInput = new Expander.MidiInput2(true);
         Controller.Sequence candyCane = new Controller.Sequence();
         Controller.Sequence fatherSeq = new Controller.Sequence();
         Controller.Sequence starwarsCane = new Controller.Sequence();
         Controller.Sequence music1Seq = new Controller.Sequence();
+        Controller.Sequence music2Seq = new Controller.Sequence();
         Controller.Sequence backgroundLoop = new Controller.Sequence();
         Subject<bool> inflatablesRunning = new Subject<bool>();
 
-        Import.LorImport2 lorImport = new Import.LorImport2();
+        Import.LorImport2 lorCarolBells = new Import.LorImport2();
+        Import.LorImport2 lorCoke = new Import.LorImport2();
 
         public Xmas2014(IEnumerable<string> args)
         {
             hours.AddRange("4:00 pm", "9:00 pm");
             //            hours.SetForced(true);
+
+            //acnOutput.Muted = true;
 
             inflatablesRunning.Subscribe(x =>
                 {
@@ -183,36 +186,36 @@ namespace Animatroller.SceneRunner
             hours.Output.Subscribe(x =>
                 {
                     packages.Power = x;
-/*
-                    lightHat1.Brightness = x ? 1.0 : 0.0;
-                    lightHat2.Brightness = x ? 1.0 : 0.0;
-                    lightHat3.Brightness = x ? 1.0 : 0.0;
-                    lightHat4.Brightness = x ? 1.0 : 0.0;
-                    snowmanKaggen.Brightness = x ? 1.0 : 0.0;
-                    lightSnowman.Brightness = x ? 1.0 : 0.0;
-                    lightSanta.Brightness = x ? 1.0 : 0.0;
-                    lightR2D2.Brightness = x ? 1.0 : 0.0;
-                    lightStarExtra.Brightness = x ? 1.0 : 0.0;
+                    /*
+                                        lightHat1.Brightness = x ? 1.0 : 0.0;
+                                        lightHat2.Brightness = x ? 1.0 : 0.0;
+                                        lightHat3.Brightness = x ? 1.0 : 0.0;
+                                        lightHat4.Brightness = x ? 1.0 : 0.0;
+                                        snowmanKaggen.Brightness = x ? 1.0 : 0.0;
+                                        lightSnowman.Brightness = x ? 1.0 : 0.0;
+                                        lightSanta.Brightness = x ? 1.0 : 0.0;
+                                        lightR2D2.Brightness = x ? 1.0 : 0.0;
+                                        lightStarExtra.Brightness = x ? 1.0 : 0.0;
 
-                    lightNet1.Brightness = x ? 1.0 : 0.0;
-                    lightNet2.Brightness = x ? 1.0 : 0.0;
-                    lightNet3.Brightness = x ? 1.0 : 0.0;
-                    lightNet4.Brightness = x ? 1.0 : 0.0;
-                    lightNet5.Brightness = x ? 1.0 : 0.0;
-                    lightNet6.Brightness = x ? 1.0 : 0.0;
-                    lightNet7.Brightness = x ? 1.0 : 0.0;
-                    lightNet8.Brightness = x ? 1.0 : 0.0;
-                    lightNet9.Brightness = x ? 1.0 : 0.0;
-                    lightNet10.Brightness = x ? 1.0 : 0.0;
+                                        lightNet1.Brightness = x ? 1.0 : 0.0;
+                                        lightNet2.Brightness = x ? 1.0 : 0.0;
+                                        lightNet3.Brightness = x ? 1.0 : 0.0;
+                                        lightNet4.Brightness = x ? 1.0 : 0.0;
+                                        lightNet5.Brightness = x ? 1.0 : 0.0;
+                                        lightNet6.Brightness = x ? 1.0 : 0.0;
+                                        lightNet7.Brightness = x ? 1.0 : 0.0;
+                                        lightNet8.Brightness = x ? 1.0 : 0.0;
+                                        lightNet9.Brightness = x ? 1.0 : 0.0;
+                                        lightNet10.Brightness = x ? 1.0 : 0.0;
 
-                    lightX1.Brightness = x ? 1.0 : 0.0;
-                    lightX2.Brightness = x ? 1.0 : 0.0;
-                    lightX3.Brightness = x ? 1.0 : 0.0;
-                    lightX4.Brightness = x ? 1.0 : 0.0;
-                    lightX5.Brightness = x ? 1.0 : 0.0;
-                    lightX6.Brightness = x ? 1.0 : 0.0;
-                    lightX7.Brightness = x ? 1.0 : 0.0;
-                    lightBushes.Brightness = x ? 1.0 : 0.0;*/
+                                        lightX1.Brightness = x ? 1.0 : 0.0;
+                                        lightX2.Brightness = x ? 1.0 : 0.0;
+                                        lightX3.Brightness = x ? 1.0 : 0.0;
+                                        lightX4.Brightness = x ? 1.0 : 0.0;
+                                        lightX5.Brightness = x ? 1.0 : 0.0;
+                                        lightX6.Brightness = x ? 1.0 : 0.0;
+                                        lightX7.Brightness = x ? 1.0 : 0.0;
+                                        lightBushes.Brightness = x ? 1.0 : 0.0;*/
                 });
 
             lightSanta.SetOutputFilter(new Effect.Blackout());
@@ -227,14 +230,14 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(airSanta, 12), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(airR2D2, 13), SacnUniverseDMX);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightStarExtra, 50), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStar, 50), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(lightBushes, 51), SacnUniverseDMX);
 
-            acnOutput.Connect(new Physical.AmericanDJStrobe(lightGarage, 5), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.AmericanDJStrobe(lightWhiteStrobe, 5), SacnUniverseDMX);
             //            acnOutput.Connect(new Physical.SmallRGBStrobe(lightBottom, 1), SacnUniverseDMX);
-            acnOutput.Connect(new Physical.RGBStrobe(lightNote1, 60), SacnUniverseDMX);
-            acnOutput.Connect(new Physical.RGBStrobe(lightNote2, 80), SacnUniverseDMX);
-            acnOutput.Connect(new Physical.RGBStrobe(lightNote6, 40), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightStraigthAhead, 60), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightRightColumn, 80), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightUpTree, 40), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightVader, 70), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 1), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 2), SacnUniverseRenard2);
@@ -242,40 +245,34 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 4), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(movingHead, 200), SacnUniverseDMX);
 
-            acnOutput.Connect(new Physical.GenericDimmer(packages, 1), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(snowmanKaggen, 2), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 3), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 4), SacnUniverseRenard1);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 5), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 6), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 7), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 8), SacnUniverseRenard2);
+
+            acnOutput.Connect(new Physical.GenericDimmer(packages, 1), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(snowmanKaggen, 2), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 3), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 4), SacnUniverseRenard1);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 5), SacnUniverseRenard1);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 6), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet8, 7), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightMetalReindeer, 7), SacnUniverseRenard1);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet9, 8), SacnUniverseRenard1);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet10, 9), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightRWindow, 10), SacnUniverseRenard1);     // Metal reindeers
-
-            acnOutput.Connect(new Physical.GenericDimmer(lightX1, 10), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightX2, 11), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightX3, 12), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightX4, 13), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightX5, 14), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightX6, 15), SacnUniverseRenard1);
-            acnOutput.Connect(new Physical.GenericDimmer(lightX7, 16), SacnUniverseRenard1);
-
-
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 1), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 2), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 3), 22);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 4), 22);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet8, 10), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairsLeft, 11), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightFenceLeft, 12), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightFenceMid, 13), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightFenceRight, 14), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairsRight, 15), SacnUniverseRenard1);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet11, 16), SacnUniverseRenard1);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 1), SacnUniverseArduino);
             acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), SacnUniverseArduino);
 
             stateMachine.ForFromSequence(States.Background, backgroundLoop);
             stateMachine.ForFromSequence(States.Music1, music1Seq);
+            stateMachine.ForFromSequence(States.Music2, music2Seq);
             stateMachine.ForFromSequence(States.DarthVader, fatherSeq);
 
             /*            oscServer.RegisterActionSimple<double>("/1/faderA", (msg, data) =>
@@ -292,7 +289,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (data == 1)
                     {
-                        stateMachine.SetState(States.Music1);
+                        stateMachine.SetState(States.DarthVader);
                     }
                 });
 
@@ -300,20 +297,22 @@ namespace Animatroller.SceneRunner
             {
                 if (data == 1)
                 {
-                    stateMachine.SetState(States.DarthVader);
+                    stateMachine.SetState(States.Music1);
                 }
             });
 
+            oscServer.RegisterActionSimple<int>("/2/push3", (msg, data) =>
+            {
+                if (data == 1)
+                {
+                    stateMachine.SetState(States.Music2);
+                }
+            });
 
             music1Seq
                 .WhenExecuted
                 .SetUp(() =>
                 {
-                    //                    audioPlayer.CueTrack("21. Christmas Canon Rock");
-                    // Make sure it's ready
-                    //                    System.Threading.Thread.Sleep(800);
-
-                    //                    EverythingOff();
                     soundOut.Stop();
                     soundOut.WaitForStopped();
                 })
@@ -323,7 +322,7 @@ namespace Animatroller.SceneRunner
                     {
                         soundOut.Initialize(waveCarol);
                         soundOut.Play();
-                        var task = lorImport.Start();
+                        var task = lorCarolBells.Start();
                         task.Wait(instance.CancelToken);
 
                         instance.WaitFor(S(5));
@@ -336,7 +335,37 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                 {
-                    lorImport.Stop();
+                    lorCarolBells.Stop();
+                    soundOut.Stop();
+                });
+
+            music2Seq
+                .WhenExecuted
+                .SetUp(() =>
+                {
+                    soundOut.Stop();
+                    soundOut.WaitForStopped();
+                })
+                .Execute(instance =>
+                {
+                    using (var wave = CodecFactory.Instance.GetCodec(@"C:\Projects\Other\ChristmasSounds\trk\Coca Cola - Holidays Are Coming.wav"))
+                    {
+                        soundOut.Initialize(wave);
+                        soundOut.Play();
+                        var task = lorCoke.Start();
+                        task.Wait(instance.CancelToken);
+
+                        instance.WaitFor(S(5));
+
+                        soundOut.Stop();
+                        soundOut.WaitForStopped();
+                    }
+
+                    instance.WaitFor(S(8));
+                })
+                .TearDown(() =>
+                {
+                    lorCoke.Stop();
                     soundOut.Stop();
                 });
 
@@ -361,7 +390,7 @@ namespace Animatroller.SceneRunner
                         while (!i.IsCancellationRequested)
                         {
                             Exec.ExecuteAndWait(fatherSeq);
-                            
+
                             if (i.IsCancellationRequested)
                                 break;
 
@@ -542,50 +571,51 @@ namespace Animatroller.SceneRunner
                 }
             });
 
-            ImportAndMapLOR();
+            ImportAndMapCarolBells();
+            ImportAndMapCoke();
         }
 
-        private void ImportAndMapLOR()
+        private void ImportAndMapCarolBells()
         {
-            lorImport.LoadFromFile(@"..\..\..\Test Files\David Foster - Carol of the Bells.lms");
+            lorCarolBells.LoadFromFile(@"..\..\..\Test Files\David Foster - Carol of the Bells.lms");
 
-            lorImport.MapDeviceRGB("E - 1", "D# - 2", "D - 3", lightNote1);
-            lorImport.MapDeviceRGB("C# - 4", "C - 5", "B - 6", lightNote2);
-            lorImport.MapDeviceRGB("A# - 7", "A - 8", "G# - 9", lightNote3);
-            lorImport.MapDeviceRGB("G - 10", "F# - 11", "F - 12", lightNote4);
-            lorImport.MapDeviceRGB("E - 13", "D# - 14", "D - 15", lightNote5);
-            lorImport.MapDeviceRGB("C# - 16", "C - 1", "B - 2", lightNote6);
-            lorImport.MapDeviceRGB("A# - 3", "A - 4", "G# - 5", lightNote7);
-            lorImport.MapDeviceRGB("G - 6", "F# - 7", "F - 8", lightNote8);
-            lorImport.MapDeviceRGB("E - 9", "D# - 10", "D - 11", lightNote9);
-            lorImport.MapDeviceRGB("C# - 12", "C - 13", "B - 14", lightVader);
-            lorImport.MapDevice("A# - 15", lightNote11);
-            lorImport.MapDevice("A - 16", lightNote12);
+            lorCarolBells.MapDeviceRGB("E - 1", "D# - 2", "D - 3", lightStraigthAhead);
+            lorCarolBells.MapDeviceRGB("C# - 4", "C - 5", "B - 6", lightRightColumn);
+            lorCarolBells.MapDeviceRGB("A# - 7", "A - 8", "G# - 9", lightNote3);
+            lorCarolBells.MapDeviceRGB("G - 10", "F# - 11", "F - 12", lightNote4);
+            lorCarolBells.MapDeviceRGB("E - 13", "D# - 14", "D - 15", lightNote5);
+            lorCarolBells.MapDeviceRGB("C# - 16", "C - 1", "B - 2", lightUpTree);
+            lorCarolBells.MapDeviceRGB("A# - 3", "A - 4", "G# - 5", lightNote7);
+            lorCarolBells.MapDeviceRGB("G - 6", "F# - 7", "F - 8", lightNote8);
+            lorCarolBells.MapDeviceRGB("E - 9", "D# - 10", "D - 11", lightNote9);
+            lorCarolBells.MapDeviceRGB("C# - 12", "C - 13", "B - 14", lightVader);
+            lorCarolBells.MapDevice("A# - 15", lightNote11);
+            lorCarolBells.MapDevice("A - 16", lightNote12);
 
-            lorImport.MapDevice("Sky 1", lightNet1);
-            lorImport.MapDevice("Sky 2", lightNet2);
-            lorImport.MapDevice("Sky 3", lightNet3);
-            lorImport.MapDevice("Sky 4", lightNet4);
-            lorImport.MapDevice("Sky 5", lightNet5);
+            lorCarolBells.MapDevice("Sky 1", lightNet1);
+            lorCarolBells.MapDevice("Sky 2", lightNet2);
+            lorCarolBells.MapDevice("Sky 3", lightNet3);
+            lorCarolBells.MapDevice("Sky 4", lightNet4);
+            lorCarolBells.MapDevice("Sky 5", lightNet5);
 
-            lorImport.MapDevice("Sky 1", lightNet10);
-            lorImport.MapDevice("Sky 2", lightNet9);
-            lorImport.MapDevice("Sky 3", lightNet8);
-            lorImport.MapDevice("Sky 4", lightNet7);
-            lorImport.MapDevice("Sky 5", lightNet6);
+            lorCarolBells.MapDevice("Sky 1", lightNet10);
+            lorCarolBells.MapDevice("Sky 2", lightNet9);
+            lorCarolBells.MapDevice("Sky 3", lightNet8);
+            lorCarolBells.MapDevice("Sky 4", lightNet7);
+            lorCarolBells.MapDevice("Sky 5", lightNet6);
 
-            lorImport.MapDevice("Rooftop", snowmanKaggen);
+            lorCarolBells.MapDevice("Rooftop", snowmanKaggen);
 
-            lorImport.MapDevice("Star1", lightX1);
-            lorImport.MapDevice("Star2", lightX2);
-            lorImport.MapDevice("Star3", lightX3);
-            lorImport.MapDevice("Star extra", lightStarExtra);
+            lorCarolBells.MapDevice("Star1", lightNet11);
+            lorCarolBells.MapDevice("Star2", lightStairsLeft);
+            lorCarolBells.MapDevice("Star3", lightFenceLeft);
+            lorCarolBells.MapDevice("Star extra", lightStar);
 
-            lightREdge.OutputBrightness.Subscribe(x =>
+            lightRoofEdge.OutputBrightness.Subscribe(x =>
             {
                 pixelsRoofEdge.SetBrightness(x, null);
             });
-            lightREdge.OutputColor.Subscribe(x =>
+            lightRoofEdge.OutputColor.Subscribe(x =>
             {
                 pixelsRoofEdge.SetAllOnlyColor(x);
             });
@@ -599,32 +629,32 @@ namespace Animatroller.SceneRunner
                             //                    pixelsVideo.SetAllOnlyColor(x);
                         });
             */
-            lorImport.MapDeviceRGBW("R-Edge R", "R-Edge G", "R-Edge B", "R-Edge W", lightREdge);
-            lorImport.MapDeviceRGBW("R-Bottom", "G-Bottom", "B-Bottom", "W-Bottom", lightBottom);
-            lorImport.MapDeviceRGBW("Garage R", "Garage G", "Garage B", "Garage W", lightGarage);
-            lorImport.MapDeviceRGBW("Rwindo R", "Rwindo G", "Rwindo B", "Rwindo W", lightRWindow);
-            lorImport.MapDeviceRGBW("Cwindo R", "Cwindo G", "Cwindo B", "Cwindo W", lightCWindow);
-            lorImport.MapDeviceRGBW("Lwindo R", "Lwindo G", "Lwindo B", "Lwindo W", lightLWindow);
-            lorImport.MapDeviceRGBW("Ft door R", "Ft door G", "Ft door B", "FT door W", lightFrontDoor);
-            lorImport.MapDeviceRGBW("Bush - red", "Bush - green", "Bush - blue", "Bush - white", lightBush);
+            lorCarolBells.MapDeviceRGBW("R-Edge R", "R-Edge G", "R-Edge B", "R-Edge W", lightRoofEdge);
+            //            lorCarolBells.MapDeviceRGBW("R-Bottom", "G-Bottom", "B-Bottom", "W-Bottom", lightNotUsed1);
+            lorCarolBells.MapDeviceRGBW("Garage R", "Garage G", "Garage B", "Garage W", lightWhiteStrobe);
+            lorCarolBells.MapDeviceRGBW("Rwindo R", "Rwindo G", "Rwindo B", "Rwindo W", lightMetalReindeer);
+            //lorCarolBells.MapDeviceRGBW("Cwindo R", "Cwindo G", "Cwindo B", "Cwindo W", lightCWindow);
+            //lorCarolBells.MapDeviceRGBW("Lwindo R", "Lwindo G", "Lwindo B", "Lwindo W", lightLWindow);
+            //lorCarolBells.MapDeviceRGBW("Ft door R", "Ft door G", "Ft door B", "FT door W", lightFrontDoor);
+            lorCarolBells.MapDeviceRGBW("Bush - red", "Bush - green", "Bush - blue", "Bush - white", lightBush);
 
-            lorImport.MapDevice("Tree - A", lightSnowman);
-            lorImport.MapDevice("Tree - B", lightSanta);
+            lorCarolBells.MapDevice("Tree - A", lightSnowman);
+            lorCarolBells.MapDevice("Tree - B", lightSanta);
 
-            lorImport.MapDevice("Spoke 1a", lightHat1);
-            lorImport.MapDevice("Spoke 2a", lightHat2);
-            lorImport.MapDevice("Spoke 3a", lightHat3);
-            lorImport.MapDevice("Spoke  4a", lightHat4);
-            lorImport.MapDevice("Spoke 5a", lightR2D2);
-            lorImport.MapDevice("Spoke 6a", lightX1);
+            lorCarolBells.MapDevice("Spoke 1a", lightHat1);
+            lorCarolBells.MapDevice("Spoke 2a", lightHat2);
+            lorCarolBells.MapDevice("Spoke 3a", lightHat3);
+            lorCarolBells.MapDevice("Spoke  4a", lightHat4);
+            lorCarolBells.MapDevice("Spoke 5a", lightR2D2);
+            lorCarolBells.MapDevice("Spoke 6a", lightNet11);
 
-            lorImport.MapDevice("Spoke 7a", lightX2);
-            lorImport.MapDevice("Spoke 8a", lightX3);
-            lorImport.MapDevice("Spoke 9a", lightX4);
-            lorImport.MapDevice("Spoike 10a", lightX5);
-            lorImport.MapDevice("Spoke  11a", lightX6);
-            lorImport.MapDevice("Spoke  12a", lightX7);
-            lorImport.MapDevice("Spoke  13a", lightBushes);
+            lorCarolBells.MapDevice("Spoke 7a", lightStairsLeft);
+            lorCarolBells.MapDevice("Spoke 8a", lightFenceLeft);
+            lorCarolBells.MapDevice("Spoke 9a", lightFenceMid);
+            lorCarolBells.MapDevice("Spoike 10a", lightFenceRight);
+            lorCarolBells.MapDevice("Spoke  11a", lightStairsRight);
+            lorCarolBells.MapDevice("Spoke  12a", lightNet11);
+            lorCarolBells.MapDevice("Spoke  13a", lightBushes);
             // lorImport.MapDevice("Spoke  14a", light);
             // lorImport.MapDevice("Spoke  15a", light);
             // lorImport.MapDevice("Spoke  16a", light);
@@ -758,7 +788,340 @@ namespace Animatroller.SceneRunner
             // lorImport.MapDevice("Arch 4-8", light);
 
 
-            lorImport.Prepare();
+            lorCarolBells.Prepare();
+        }
+
+        private void ImportAndMapCoke()
+        {
+            lorCoke.LoadFromFile(@"..\..\..\Test Files\Coca Cola - Holidays Are Coming.lms");
+
+            // lorCoke.MapDevice("Mini Tree 1", light);
+            // lorCoke.MapDevice("Mini Tree 2", light);
+            // lorCoke.MapDevice("Mini Tree 3", light);
+            // lorCoke.MapDevice("Mini Tree 4", light);
+            // lorCoke.MapDevice("Mini Tree 5", light);
+            // lorCoke.MapDevice("Mini Tree 6", light);
+            // lorCoke.MapDevice("Mini Tree 7", light);
+            // lorCoke.MapDevice("Mini Tree 8", light);
+            // lorCoke.MapDevice("Mini Tree 9", light);
+            // lorCoke.MapDevice("Mini Tree 10", light);
+            // lorCoke.MapDevice("Mini Tree 11", light);
+            // lorCoke.MapDevice("Mini Tree 12", light);
+            // lorCoke.MapDevice("Mini Tree 13", light);
+            // lorCoke.MapDevice("Mini Tree 14", light);
+            // lorCoke.MapDevice("Mini Tree 15", light);
+            // lorCoke.MapDevice("Mini Tree 16", light);
+            // lorCoke.MapDevice("Nativity Scene", light);
+            // lorCoke.MapDevice("Believe Sign", light);
+            // lorCoke.MapDevice("Window Candles", light);
+            // lorCoke.MapDevice("Santa Claus Blowmold", light);
+            // lorCoke.MapDevice("Tree 1", light);
+            // lorCoke.MapDevice("Snowman Ropelight", light);
+            // lorCoke.MapDevice("Tree 3", light);
+            // lorCoke.MapDevice("Tree 5", light);
+            // lorCoke.MapDevice("Christmas Sign", light);
+            // lorCoke.MapDevice("Santa Wireframe", light);
+            // lorCoke.MapDevice("Red Fence 5", light);
+            // lorCoke.MapDevice("Red Fence 6", light);
+            // lorCoke.MapDevice("Red Fence 7", light);
+            // lorCoke.MapDevice("Red Fence 8", light);
+            // lorCoke.MapDevice("Clear Fence 5", light);
+            // lorCoke.MapDevice("Clear Fence 6", light);
+            // lorCoke.MapDevice("Clear Fence 7", light);
+            // lorCoke.MapDevice("Clear Fence 8", light);
+            // lorCoke.MapDevice("Red Fence 1", light);
+            // lorCoke.MapDevice("Red Fence 2", light);
+            // lorCoke.MapDevice("Red Fence 3", light);
+            // lorCoke.MapDevice("Red Fence 4", light);
+            // lorCoke.MapDevice("Clear Fence 1", light);
+            // lorCoke.MapDevice("Clear Fence 2", light);
+            // lorCoke.MapDevice("Clear Fence 3", light);
+            // lorCoke.MapDevice("Clear Fence 4", light);
+            // lorCoke.MapDevice("Mini Tree 1", light);
+            // lorCoke.MapDevice("Mini Tree 2 ", light);
+            // lorCoke.MapDevice("Mini Tree 3", light);
+            // lorCoke.MapDevice("Mini Tree 4", light);
+            // lorCoke.MapDevice("Mini Tree 5", light);
+            // lorCoke.MapDevice("Mini Tree 6", light);
+            // lorCoke.MapDevice("Mini Tree 7", light);
+            // lorCoke.MapDevice("Mini Tree 8", light);
+            // lorCoke.MapDevice("Mini Tree 9", light);
+            // lorCoke.MapDevice("Mini Tree 10", light);
+            // lorCoke.MapDevice("Mini Tree 11", light);
+            // lorCoke.MapDevice("Mini Tree 12 ", light);
+            // lorCoke.MapDevice("Mini Tree 13  ", light);
+            // lorCoke.MapDevice("Mini Tree 14 ", light);
+            // lorCoke.MapDevice("Mini Tree 15 ", light);
+            // lorCoke.MapDevice("Mini Tree 16", light);
+            // lorCoke.MapDevice("Red 1", light);
+            // lorCoke.MapDevice("Red 2", light);
+            // lorCoke.MapDevice("Red 3", light);
+            // lorCoke.MapDevice("Red 4", light);
+            // lorCoke.MapDevice("Red 5", light);
+            // lorCoke.MapDevice("Red 6", light);
+            // lorCoke.MapDevice("Red 7", light);
+            // lorCoke.MapDevice("Red 8", light);
+            // lorCoke.MapDevice("Red 9", light);
+            // lorCoke.MapDevice("Red 10", light);
+            // lorCoke.MapDevice("Red 11", light);
+            // lorCoke.MapDevice("Red 12", light);
+            // lorCoke.MapDevice("White 1", light);
+            // lorCoke.MapDevice("White 2", light);
+            // lorCoke.MapDevice("White 3", light);
+            // lorCoke.MapDevice("White 4", light);
+            // lorCoke.MapDevice("White 5", light);
+            // lorCoke.MapDevice("White 6", light);
+            // lorCoke.MapDevice("White 7", light);
+            // lorCoke.MapDevice("White 8", light);
+            // lorCoke.MapDevice("White 9", light);
+            // lorCoke.MapDevice("White 10", light);
+            // lorCoke.MapDevice("White 11", light);
+            // lorCoke.MapDevice("White 12", light);
+            // lorCoke.MapDevice("White 1", light);
+            // lorCoke.MapDevice("White 2", light);
+            // lorCoke.MapDevice("White 3", light);
+            // lorCoke.MapDevice("White 4", light);
+            // lorCoke.MapDevice("White 5", light);
+            // lorCoke.MapDevice("White 6", light);
+            // lorCoke.MapDevice("White 7", light);
+            // lorCoke.MapDevice("White 8", light);
+            // lorCoke.MapDevice("White 9", light);
+            // lorCoke.MapDevice("White 10", light);
+            // lorCoke.MapDevice("White 11", light);
+            // lorCoke.MapDevice("White 12", light);
+            // lorCoke.MapDevice("Red 1", light);
+            // lorCoke.MapDevice("Red 2", light);
+            // lorCoke.MapDevice("Red 3", light);
+            // lorCoke.MapDevice("Red 4", light);
+            // lorCoke.MapDevice("Red 5", light);
+            // lorCoke.MapDevice("Red 6", light);
+            // lorCoke.MapDevice("Red 7", light);
+            // lorCoke.MapDevice("Red 8", light);
+            // lorCoke.MapDevice("Red 9", light);
+            // lorCoke.MapDevice("Red 10", light);
+            // lorCoke.MapDevice("Red 11", light);
+            // lorCoke.MapDevice("Red 12", light);
+            // lorCoke.MapDevice("Clear 1", light);
+            // lorCoke.MapDevice("Clear 2", light);
+            // lorCoke.MapDevice("Clear 3", light);
+            // lorCoke.MapDevice("Clear 4", light);
+            // lorCoke.MapDevice("Clear 5", light);
+            // lorCoke.MapDevice("Clear 6", light);
+            // lorCoke.MapDevice("Clear 7", light);
+            // lorCoke.MapDevice("Clear 8", light);
+            // lorCoke.MapDevice("Clear 9", light);
+            // lorCoke.MapDevice("Clear 10", light);
+            // lorCoke.MapDevice("Clear 11", light);
+            // lorCoke.MapDevice("Clear 12", light);
+            // lorCoke.MapDevice("Mini Tree 1", light);
+            // lorCoke.MapDevice("Mini Tree 2", light);
+            // lorCoke.MapDevice("Mini Tree 3", light);
+            // lorCoke.MapDevice("Mini Tree 4", light);
+            // lorCoke.MapDevice("Mini Tree 5", light);
+            // lorCoke.MapDevice("Mini Tree 6", light);
+            // lorCoke.MapDevice("Mini Tree 7", light);
+            // lorCoke.MapDevice("Mini Tree 8 ", light);
+            // lorCoke.MapDevice("Mini Tree 9", light);
+            // lorCoke.MapDevice("Mini Tree 10", light);
+            // lorCoke.MapDevice("Mini Tree 11", light);
+            // lorCoke.MapDevice("Mini Tree 12", light);
+            // lorCoke.MapDevice("Mini Tree 13", light);
+            // lorCoke.MapDevice("Mini Tree 14", light);
+            // lorCoke.MapDevice("Mini Tree 15", light);
+            // lorCoke.MapDevice("Mini Tree 16", light);
+            // lorCoke.MapDevice("C", light);
+            // lorCoke.MapDevice("H", light);
+            // lorCoke.MapDevice("R", light);
+            // lorCoke.MapDevice("I", light);
+            // lorCoke.MapDevice("S", light);
+            // lorCoke.MapDevice("T", light);
+            // lorCoke.MapDevice("M", light);
+            // lorCoke.MapDevice("A", light);
+            // lorCoke.MapDevice("S", light);
+            // lorCoke.MapDevice("Back Porch Trees", light);
+            // lorCoke.MapDevice("Porch Railing Red", light);
+            // lorCoke.MapDevice("Porch Railing Clear", light);
+            // lorCoke.MapDevice("Red Spheres", light);
+            // lorCoke.MapDevice("Blue Spheres", light);
+            // lorCoke.MapDevice("Snow Flake 1", light);
+            // lorCoke.MapDevice("Snow Flake 2", light);
+            // lorCoke.MapDevice("Snow Flake 3", light);
+            // lorCoke.MapDevice("Archway", light);
+            // lorCoke.MapDevice("Cross", light);
+            // lorCoke.MapDevice("Red 1", light);
+            // lorCoke.MapDevice("Red 2", light);
+            // lorCoke.MapDevice("Red 3", light);
+            // lorCoke.MapDevice("Red 4", light);
+            // lorCoke.MapDevice("Red 5", light);
+            // lorCoke.MapDevice("Red 6", light);
+            // lorCoke.MapDevice("Red 7", light);
+            // lorCoke.MapDevice("Red 8", light);
+            // lorCoke.MapDevice("Red 9", light);
+            // lorCoke.MapDevice("Red 10", light);
+            // lorCoke.MapDevice("Red 11", light);
+            // lorCoke.MapDevice("Red 12", light);
+            // lorCoke.MapDevice("Clear 1", light);
+            // lorCoke.MapDevice("Clear 2", light);
+            // lorCoke.MapDevice("Clear 3", light);
+            // lorCoke.MapDevice("Clear 4", light);
+            // lorCoke.MapDevice("Clear 5", light);
+            // lorCoke.MapDevice("Clear 6", light);
+            // lorCoke.MapDevice("Clear 7", light);
+            // lorCoke.MapDevice("Clear 8", light);
+            // lorCoke.MapDevice("Clear 9", light);
+            // lorCoke.MapDevice("Clear 10", light);
+            // lorCoke.MapDevice("Clear 11", light);
+            // lorCoke.MapDevice("Clear 12", light);
+            // lorCoke.MapDevice("Train Engine", light);
+            // lorCoke.MapDevice("Train Cart 1", light);
+            // lorCoke.MapDevice("Train Caboose", light);
+            // lorCoke.MapDevice("Train Wheels", light);
+            // lorCoke.MapDevice("Horse and Sleigh", light);
+            // lorCoke.MapDevice("Snowman Wireframe", light);
+            // lorCoke.MapDevice("Mega Star 1", light);
+            // lorCoke.MapDevice("Mega Star 2", light);
+            // lorCoke.MapDevice("Mega Star 3", light);
+            // lorCoke.MapDevice("Mega Star 4", light);
+            // lorCoke.MapDevice("Creek 1", light);
+            // lorCoke.MapDevice("Creek 2", light);
+            // lorCoke.MapDevice("Creek 3", light);
+            // lorCoke.MapDevice("Creek 4", light);
+            // lorCoke.MapDevice("Creek 5", light);
+            // lorCoke.MapDevice("Creek 6", light);
+            // lorCoke.MapDevice("Creek 7", light);
+            // lorCoke.MapDevice("Creek 8", light);
+            // lorCoke.MapDevice("Creek 9", light);
+            // lorCoke.MapDevice("Creek 10", light);
+            // lorCoke.MapDevice("Creek 11", light);
+            // lorCoke.MapDevice("Creek 12", light);
+            // lorCoke.MapDevice("Creek 13", light);
+            // lorCoke.MapDevice("Creek 14", light);
+            // lorCoke.MapDevice("Creek 15", light);
+            // lorCoke.MapDevice("Creek 16", light);
+            // lorCoke.MapDevice("Pole 5-1", light);
+            // lorCoke.MapDevice("Pole 5-2", light);
+            // lorCoke.MapDevice("Pole 5-3", light);
+            // lorCoke.MapDevice("Pole 5-4", light);
+            // lorCoke.MapDevice("Pole 5-5", light);
+            // lorCoke.MapDevice("Pole 5-6", light);
+            // lorCoke.MapDevice("Pole 5-7", light);
+            // lorCoke.MapDevice("Spinner 3-1", light);
+            // lorCoke.MapDevice("Spinner 3-2", light);
+            // lorCoke.MapDevice("Spinner 3-3", light);
+            // lorCoke.MapDevice("Spinner 3-4", light);
+            // lorCoke.MapDevice("Spinner 3-5", light);
+            // lorCoke.MapDevice("Spinner 3-6", light);
+            // lorCoke.MapDevice("Spinner 3-7", light);
+            // lorCoke.MapDevice("Spinner 3-8", light);
+            // lorCoke.MapDevice("Pole 1-1", light);
+            // lorCoke.MapDevice("Pole 1-2", light);
+            // lorCoke.MapDevice("Pole 1-3", light);
+            // lorCoke.MapDevice("Pole 1-4", light);
+            // lorCoke.MapDevice("Pole 1-5", light);
+            // lorCoke.MapDevice("Pole 1-6", light);
+            // lorCoke.MapDevice("Pole 1-7", light);
+            // lorCoke.MapDevice("Pole 2-1", light);
+            // lorCoke.MapDevice("Pole 2-2", light);
+            // lorCoke.MapDevice("Pole 2-3", light);
+            // lorCoke.MapDevice("Pole 2-4", light);
+            // lorCoke.MapDevice("Pole 2-5", light);
+            // lorCoke.MapDevice("Pole 2-6", light);
+            // lorCoke.MapDevice("Pole 2-7", light);
+            // lorCoke.MapDevice("Pole 3-1", light);
+            // lorCoke.MapDevice("Pole 3-2", light);
+            // lorCoke.MapDevice("Pole 3-3", light);
+            // lorCoke.MapDevice("Pole 3-4", light);
+            // lorCoke.MapDevice("Pole 3-5", light);
+            // lorCoke.MapDevice("Pole 3-6", light);
+            // lorCoke.MapDevice("Pole 3-7", light);
+            // lorCoke.MapDevice("Pole 4-1", light);
+            // lorCoke.MapDevice("Pole 4-2", light);
+            // lorCoke.MapDevice("Pole 4-3", light);
+            // lorCoke.MapDevice("Pole 4-4", light);
+            // lorCoke.MapDevice("Pole 4-5", light);
+            // lorCoke.MapDevice("Pole 4-6", light);
+            // lorCoke.MapDevice("Pole 4-7", light);
+            // lorCoke.MapDevice("Spinner 2-1", light);
+            // lorCoke.MapDevice("Spinner 2-2", light);
+            // lorCoke.MapDevice("Spinner 2-3", light);
+            // lorCoke.MapDevice("Spinner 2-4", light);
+            // lorCoke.MapDevice("Spinner 2-5", light);
+            // lorCoke.MapDevice("Spinner 2-6", light);
+            // lorCoke.MapDevice("Spinner 2-7", light);
+            // lorCoke.MapDevice("Spinner 2-8", light);
+            // lorCoke.MapDevice("Deer 1", light);
+            // lorCoke.MapDevice("Deer 3", light);
+            // lorCoke.MapDevice("Deer 4", light);
+            // lorCoke.MapDevice("Deer 5", light);
+            // lorCoke.MapDevice("Deer 6", light);
+            // lorCoke.MapDevice("Deer 7", light);
+            // lorCoke.MapDevice("Deer 8", light);
+            lorCoke.MapDevice("Red Candy 1", lightSnowman);
+            // lorCoke.MapDevice("Red Candy 2", light);
+            // lorCoke.MapDevice("Red Candy 3", light);
+            // lorCoke.MapDevice("Red Candy 4", light);
+            // lorCoke.MapDevice("Red Candy 5", light);
+            // lorCoke.MapDevice("Red Candy 6", light);
+            // lorCoke.MapDevice("Red Candy 7", light);
+            // lorCoke.MapDevice("Red Candy 8", light);
+            lorCoke.MapDevice("Red Candy 9", lightSanta);
+            // lorCoke.MapDevice("Red Candy 10", light);
+            // lorCoke.MapDevice("Red Candy 11", light);
+            // lorCoke.MapDevice("Red Candy 12", light);
+            // lorCoke.MapDevice("Red Candy 13", light);
+            // lorCoke.MapDevice("Red Candy 14", light);
+            // lorCoke.MapDevice("Red Candy 15", light);
+            // lorCoke.MapDevice("Red Candy 16", light);
+            // lorCoke.MapDevice("Spinner 1-1", light);
+            // lorCoke.MapDevice("Spinner 1-2", light);
+            // lorCoke.MapDevice("Spinner 1-3", light);
+            // lorCoke.MapDevice("Spinner 1-4", light);
+            // lorCoke.MapDevice("Spinner 2-1", light);
+            // lorCoke.MapDevice("Spinner 2-2", light);
+            // lorCoke.MapDevice("Spinner 2-3", light);
+            // lorCoke.MapDevice("Spinner 2-4", light);
+            // lorCoke.MapDevice("Spinner 3-1", light);
+            // lorCoke.MapDevice("Spinner 3-2", light);
+            // lorCoke.MapDevice("Spinner 3-3", light);
+            // lorCoke.MapDevice("Spinner 3-4", light);
+            // lorCoke.MapDevice("Spinner 4-1", light);
+            // lorCoke.MapDevice("Spinner 4-2", light);
+            // lorCoke.MapDevice("Spinner 4-3", light);
+            // lorCoke.MapDevice("Spinner 4-4", light);
+            // lorCoke.MapDevice("Spinner 5-1", light);
+            // lorCoke.MapDevice("Spinner 5-2", light);
+            // lorCoke.MapDevice("Spinner 5-3", light);
+            // lorCoke.MapDevice("Spinner 5-4", light);
+            // lorCoke.MapDevice("Spinner 6-1", light);
+            // lorCoke.MapDevice("Spinner 6-2", light);
+            // lorCoke.MapDevice("Spinner 6-3", light);
+            // lorCoke.MapDevice("Spinner 6-4", light);
+            // lorCoke.MapDevice("Spinner 7-1", light);
+            // lorCoke.MapDevice("Spinner 7-2", light);
+            // lorCoke.MapDevice("Spinner 7-3", light);
+            // lorCoke.MapDevice("Spinner 7-4", light);
+            // lorCoke.MapDevice("Spinner 8-1", light);
+            // lorCoke.MapDevice("Spinner 8-2", light);
+            // lorCoke.MapDevice("Spinner 8-3", light);
+            // lorCoke.MapDevice("Spinner 8-4", light);
+            // lorCoke.MapDevice("Spinner 4-1", light);
+            // lorCoke.MapDevice("Spinner 4-2", light);
+            // lorCoke.MapDevice("Spinner 4-3", light);
+            // lorCoke.MapDevice("Spinner 4-4", light);
+            // lorCoke.MapDevice("Spinner 4-5", light);
+            // lorCoke.MapDevice("Spinner 4-6", light);
+            // lorCoke.MapDevice("Spinner 4-7", light);
+            // lorCoke.MapDevice("Spinner 4-8", light);
+            // lorCoke.MapDevice("Spinner 1-1", light);
+            // lorCoke.MapDevice("Spinner 1-2", light);
+            // lorCoke.MapDevice("Spinner 1-3", light);
+            // lorCoke.MapDevice("Spinner 1-4", light);
+            // lorCoke.MapDevice("Spinner 1-5", light);
+            // lorCoke.MapDevice("Spinner 1-6", light);
+            // lorCoke.MapDevice("Spinner 1-7", light);
+            // lorCoke.MapDevice("Spinner 1-8", light);
+
+            lorCoke.Prepare();
         }
 
         public override void Start()
@@ -794,7 +1157,7 @@ namespace Animatroller.SceneRunner
                 if (!x)
                     return;
 
-                stateMachine.SetState(States.Music1);
+                stateMachine.SetState(States.Music2);
             });
 
             buttonTest2.Output.Subscribe(x =>

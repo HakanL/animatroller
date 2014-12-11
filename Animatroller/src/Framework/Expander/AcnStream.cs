@@ -111,11 +111,13 @@ namespace Animatroller.Framework.Expander
             private int universe;
             private Acn.DmxStreamer streamer;
             private DmxUniverse dmxUniverse;
+            private AcnStream parent;
 
-            public AcnUniverse(Acn.DmxStreamer streamer, int universe)
+            public AcnUniverse(Acn.DmxStreamer streamer, int universe, AcnStream parent)
             {
                 this.streamer = streamer;
                 this.universe = universe;
+                this.parent = parent;
 
                 this.dmxUniverse = new DmxUniverse(universe);
                 bool isStreamerRunning = this.streamer.Streaming;
@@ -133,7 +135,8 @@ namespace Animatroller.Framework.Expander
 
             public SendStatus SendDimmerValue(int channel, byte value)
             {
-                this.dmxUniverse.SetDmx(channel, value);
+                if (!this.parent.Muted)
+                    this.dmxUniverse.SetDmx(channel, value);
 
                 return SendStatus.NotSet;
             }
@@ -155,8 +158,11 @@ namespace Animatroller.Framework.Expander
                         dmxData[chn] = values[offset + i];
                 }
 
-                // Force a send
-                this.dmxUniverse.SetDmx(dmxData);
+                if (!this.parent.Muted)
+                {
+                    // Force a send
+                    this.dmxUniverse.SetDmx(dmxData);
+                }
 
                 return SendStatus.NotSet;
             }
@@ -202,6 +208,8 @@ namespace Animatroller.Framework.Expander
             log.Debug("Received DMX packet on ACN stream");
         }
 
+        public bool Muted { get; set; }
+
         protected AcnUniverse GetSendingUniverse(int universe)
         {
             AcnUniverse acnUniverse;
@@ -209,7 +217,7 @@ namespace Animatroller.Framework.Expander
             {
                 if (!this.sendingUniverses.TryGetValue(universe, out acnUniverse))
                 {
-                    acnUniverse = new AcnUniverse(this.dmxStreamer, universe);
+                    acnUniverse = new AcnUniverse(this.dmxStreamer, universe, this);
 
                     this.sendingUniverses.Add(universe, acnUniverse);
 
