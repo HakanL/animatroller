@@ -138,9 +138,6 @@ namespace Animatroller.SceneRunner
 
             inflatablesRunning.Subscribe(x =>
                 {
-                    airR2D2.Power = x;
-                    airSanta.Power = x;
-                    airSnowman.Power = x;
                     airReindeer.Power = x;
 
                     Exec.SetKey("InflatablesRunning", x.ToString());
@@ -154,24 +151,18 @@ namespace Animatroller.SceneRunner
             movingHead.InputTilt.Log("Tilt");
 
             raspberryDarth.Connect(audioDarthVader);
-            /*
-                        airReindeer.Power = true;
-                        airSnowman.Power = true;
-                        airR2D2.Power = true;
-                        airSanta.Power = true;
-                        packages.Power = true;
 
-                        hours
-                            /*                .ControlsMasterPower(lightHat1)
-                                            .ControlsMasterPower(lightHat2)
-                                            .ControlsMasterPower(lightHat3)
-                                            .ControlsMasterPower(lightHat4)*/
-            /*.ControlsMasterPower(packages)
-            .ControlsMasterPower(airSnowman)
-            .ControlsMasterPower(airR2D2)
-            .ControlsMasterPower(airSanta)
-            .ControlsMasterPower(airReindeer);
-*/
+            packages.Power = true;
+            airSnowman.Power = true;
+            airR2D2.Power = true;
+            airSanta.Power = true;
+
+            hours
+                .ControlsMasterPower(packages)
+                .ControlsMasterPower(airSnowman)
+                .ControlsMasterPower(airR2D2)
+                .ControlsMasterPower(airSanta);
+
             midiInput.Controller(midiChannel, 1).Controls(
                 Observer.Create<double>(x => { allLights.Brightness = x; }));
 
