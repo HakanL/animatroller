@@ -611,13 +611,9 @@ namespace Animatroller.SceneRunner
             lorCarolBells.MapDevice("Star3", lightFenceLeft);
             lorCarolBells.MapDevice("Star extra", lightStar);
 
-            lightRoofEdge.OutputBrightness.Subscribe(x =>
-            {
-                pixelsRoofEdge.SetBrightness(x, null);
-            });
             lightRoofEdge.OutputColor.Subscribe(x =>
             {
-                pixelsRoofEdge.SetAllOnlyColor(x);
+                pixelsRoofEdge.SetAll(x, 1.0);
             });
             /*
                         lightBottom.OutputBrightness.Subscribe(x =>
