@@ -134,10 +134,10 @@ namespace Animatroller.SceneRunner
 
         public Xmas2014(IEnumerable<string> args)
         {
-            hours.AddRange("4:00 pm", "9:00 pm");
+            hours.AddRange("5:00 pm", "9:00 pm");
             //            hours.SetForced(true);
 
-            acnOutput.Muted = true;
+            //acnOutput.Muted = true;
 
             inflatablesRunning.Subscribe(x =>
                 {
