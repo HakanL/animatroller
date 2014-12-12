@@ -36,7 +36,10 @@ namespace Animatroller.Framework.Import
                     continue;
                 }
 
-                var channelIdentity = new UnitCircuit(channel.unit, channel.circuit);
+                if (channel.unit == 0 && channel.circuit == 0)
+                    continue;
+
+                var channelIdentity = new UnitCircuit(channel.unit, channel.circuit, channel.savedIndex);
                 var channelData = new ChannelData(channel.name);
 
                 AddChannelData(channelIdentity, channelData);
@@ -109,20 +112,24 @@ namespace Animatroller.Framework.Import
             }
         }
 
-        public void MapDevice(int unit, int circuit, IReceivesBrightness device)
+        public void MapDevice(int unit, int circuit, int position, IReceivesBrightness device)
         {
-            InternalMapDevice(new UnitCircuit(unit, circuit), device);
+            InternalMapDevice(new UnitCircuit(unit, circuit, position), device);
         }
 
         public class UnitCircuit : IChannelIdentity
         {
             public int Unit { get; set; }
+
             public int Circuit { get; set; }
 
-            public UnitCircuit(int unit, int circuit)
+            public int Position { get; set; }
+
+            public UnitCircuit(int unit, int circuit, int position)
             {
                 this.Unit = unit;
                 this.Circuit = circuit;
+                this.Position = position;
             }
 
             public override bool Equals(object obj)
@@ -130,27 +137,25 @@ namespace Animatroller.Framework.Import
                 var b = (obj as UnitCircuit);
 
                 return this.Unit == (obj as UnitCircuit).Unit &&
-                    this.Circuit == (obj as UnitCircuit).Circuit;
+                    this.Circuit == (obj as UnitCircuit).Circuit &&
+                    this.Position == (obj as UnitCircuit).Position;
             }
 
             public override int GetHashCode()
             {
-                return this.Unit.GetHashCode() ^ this.Circuit.GetHashCode();
+                return this.Unit.GetHashCode() ^ this.Circuit.GetHashCode() ^ this.Position.GetHashCode();
             }
 
             public override string ToString()
             {
-                return string.Format("U{0}C{1}", this.Unit, this.Circuit);
+                return string.Format("U{0}C{1}x{2}", this.Unit, this.Circuit, this.Position);
             }
 
             public int CompareTo(object obj)
             {
                 var other = (UnitCircuit)obj;
 
-                if (this.Unit == other.Unit)
-                    return this.Circuit.CompareTo(other.Circuit);
-
-                return this.Unit.CompareTo(other.Unit);
+                return this.Position.CompareTo(other.Position);
             }
         }
 

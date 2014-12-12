@@ -22,6 +22,11 @@ namespace Animatroller.Framework.Import
             {
                 this.Name = name;
             }
+
+            public void ChangeName(string newName)
+            {
+                Name = newName;
+            }
         }
 
         /*        public class MappedDeviceDimmer
@@ -51,7 +56,7 @@ namespace Animatroller.Framework.Import
         */
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected Dictionary<IChannelIdentity, ChannelData> channelData;
-        private List<IChannelIdentity> channels;
+        //        private List<IChannelIdentity> channels;
         protected Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>> mappedDevices;
         protected Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>> mappedRgbDevices;
         protected HashSet<IControlledDevice> controlledDevices;
@@ -59,7 +64,7 @@ namespace Animatroller.Framework.Import
         public BaseImporter2()
         {
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
-            this.channels = new List<IChannelIdentity>();
+            //            this.channels = new List<IChannelIdentity>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>>();
             this.mappedRgbDevices = new Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>>();
             this.controlledDevices = new HashSet<IControlledDevice>();
@@ -69,13 +74,13 @@ namespace Animatroller.Framework.Import
 
         public abstract void Stop();
 
-        public IEnumerable<IChannelIdentity> GetChannels
-        {
-            get
-            {
-                return this.channels;
-            }
-        }
+        //public IEnumerable<IChannelIdentity> GetChannels
+        //{
+        //    get
+        //    {
+        //        return this.channels;
+        //    }
+        //}
 
         public string GetChannelName(IChannelIdentity channelIdentity)
         {
@@ -95,10 +100,33 @@ namespace Animatroller.Framework.Import
             throw new KeyNotFoundException(string.Format("Channel {0} not found"));
         }
 
+        private bool ChannelNameExists(string channelName)
+        {
+            foreach (var kvp in this.channelData)
+            {
+                if (kvp.Value.Name.Equals(channelName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
         protected void AddChannelData(IChannelIdentity channelIdentity, ChannelData data)
         {
+            string originalName = data.Name;
+            int suffixNumber = 0;
+            while (ChannelNameExists(data.Name))
+            {
+                suffixNumber++;
+
+                data.ChangeName(string.Format("{0} ({1})", originalName, suffixNumber));
+            }
+
+            if (this.channelData.ContainsKey(channelIdentity))
+                log.Warn("Channel id {0} already exists", channelIdentity);
+
             this.channelData[channelIdentity] = data;
-            this.channels.Add(channelIdentity);
+            //            this.channels.Add(channelIdentity);
         }
 
         protected void InternalMapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)
