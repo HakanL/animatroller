@@ -52,6 +52,8 @@ namespace Animatroller.Framework
         IControlToken TakeControl(int priority, string name = "");
 
         bool HasControl(IControlToken checkOwner);
+
+        bool IsOwned { get; }
     }
 
     public interface IOwner

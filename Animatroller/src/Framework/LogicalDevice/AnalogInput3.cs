@@ -9,23 +9,23 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class AnalogInput2 : BaseDevice, ISupportsPersistence
+    public class AnalogInput3 : BaseDevice, ISupportsPersistence
     {
         protected double currentValue;
-        protected ISubject<DoubleZeroToOne> control;
-        protected ISubject<DoubleZeroToOne> outputValue;
+        protected ISubject<double> control;
+        protected ISubject<double> outputValue;
 
-        public AnalogInput2(bool persistState = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public AnalogInput3(bool persistState = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name, persistState)
         {
-            this.outputValue = new Subject<DoubleZeroToOne>();
-            this.control = new Subject<DoubleZeroToOne>();
+            this.outputValue = new Subject<double>();
+            this.control = new Subject<double>();
 
             this.control.Subscribe(x =>
                 {
-                    if (this.currentValue != x.Value)
+                    if (this.currentValue != x)
                     {
-                        this.currentValue = x.Value;
+                        this.currentValue = x;
 
                         UpdateOutput();
                     }
@@ -47,7 +47,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.persistState; }
         }
 
-        public ISubject<DoubleZeroToOne> Control
+        public ISubject<double> Control
         {
             get
             {
@@ -55,7 +55,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public IObservable<DoubleZeroToOne> Output
+        public IObservable<double> Output
         {
             get
             {
@@ -63,7 +63,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void ConnectTo(ISubject<DoubleZeroToOne> component)
+        public void ConnectTo(ISubject<double> component)
         {
             this.outputValue.Subscribe(component);
         }
@@ -81,10 +81,10 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected override void UpdateOutput()
         {
-            this.outputValue.OnNext(new DoubleZeroToOne(this.currentValue));
+            this.outputValue.OnNext(this.currentValue);
         }
 
-        public void WhenOutputChanges(Action<DoubleZeroToOne> action)
+        public void WhenOutputChanges(Action<double> action)
         {
             Output.Subscribe(action);
         }

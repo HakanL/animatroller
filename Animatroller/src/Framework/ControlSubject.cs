@@ -51,7 +51,7 @@ namespace Animatroller.Framework
     /// Observers can subscribe to the subject to receive the last (or initial) value and all subsequent notifications.
     /// </summary>
     /// <typeparam name="T">The type of the elements processed by the subject.</typeparam>
-    public class ControlSubject<T> : ISubject<T>, IDisposable
+    public class ControlSubject<T> : ISubject<T>, ISubjectWithValue<T>, IDisposable
     {
         /// <summary>
         /// Gets the current value or throws an exception.

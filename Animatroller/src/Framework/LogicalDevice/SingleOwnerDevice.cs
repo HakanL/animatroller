@@ -8,11 +8,13 @@ namespace Animatroller.Framework.LogicalDevice
     {
         protected Stack<IControlToken> owners;
         protected IControlToken currentOwner;
+        protected List<Action> releaseActions;
 
         public SingleOwnerDevice(string name)
             : base(name)
         {
             this.owners = new Stack<IControlToken>();
+            this.releaseActions = new List<Action>();
         }
 
         public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
@@ -36,6 +38,8 @@ namespace Animatroller.Framework.LogicalDevice
 
                         Executor.Current.SetControlToken(this, this.currentOwner);
                     }
+
+                    this.releaseActions.ForEach(x => x());
                 });
 
                 // Push current owner
@@ -61,6 +65,11 @@ namespace Animatroller.Framework.LogicalDevice
             return HasControl(Executor.Current.GetControlToken(this));
         }
 
+        public bool IsOwned
+        {
+            get { return this.currentOwner != null; }
+        }
+
         protected IControlToken GetCurrentOrNewToken()
         {
             var controlToken = Executor.Current.GetControlToken(this);
@@ -75,7 +84,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             var threadControlToken = Executor.Current.GetControlToken(this);
 
-            if(threadControlToken == this.currentOwner)
+            if (threadControlToken == this.currentOwner)
             {
                 // Release
                 threadControlToken.Dispose();

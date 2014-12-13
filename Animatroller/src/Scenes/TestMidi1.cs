@@ -35,10 +35,10 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 buttonTest2 = new DigitalInput2("Test 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonTest3 = new DigitalInput2("Test 3");
-        private AnalogInput2 inputBrightness = new AnalogInput2("Brightness");
-        private AnalogInput2 inputH = new AnalogInput2("Hue", true);
-        private AnalogInput2 inputS = new AnalogInput2("Saturation", true);
-        private AnalogInput2 inputV = new AnalogInput2("Value", true);
+        private AnalogInput2 inputBrightness = new AnalogInput2();
+        private AnalogInput2 inputH = new AnalogInput2(true, "Hue");
+        private AnalogInput2 inputS = new AnalogInput2(true, "Saturation");
+        private AnalogInput2 inputV = new AnalogInput2(true, "Value");
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2();
         private DigitalOutput2 catLight = new DigitalOutput2();

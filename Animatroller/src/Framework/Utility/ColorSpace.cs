@@ -8,6 +8,9 @@ namespace Animatroller.Framework
 {
     public class HSV
     {
+        public static HSV White = new HSV(Color.White);
+        public static HSV Black = new HSV(Color.Black);
+
         public double Hue { get; set; }
         public double Saturation { get; set; }
         public double Value { get; set; }

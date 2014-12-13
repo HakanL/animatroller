@@ -105,6 +105,8 @@ namespace Animatroller.Framework.Effect2
 
             this.timerJobRunner.AddTimerJob(observer, durationMs);
 
+            Executor.Current.SetManagedTask(taskSource.Task);
+
             return taskSource.Task;
         }
 

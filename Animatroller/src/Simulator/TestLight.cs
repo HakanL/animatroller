@@ -52,7 +52,17 @@ namespace Animatroller.Simulator
         protected override void Output()
         {
             this.control.Color = GetColorFromColorBrightness();
-            this.control.Text = string.Format("{0:0%}", GetMonochromeBrightnessFromColorBrightness());
+            string ownedStatus = string.Empty;
+
+            foreach (ILogicalDevice device in this.logicalDevices)
+            {
+                if (device is IOwnedDevice && ((IOwnedDevice)device).IsOwned)
+                {
+                    ownedStatus = "*";
+                    break;
+                }
+            }
+            this.control.Text = string.Format("{1}{0:0%}", GetMonochromeBrightnessFromColorBrightness(), ownedStatus);
         }
 
         public void Update()

@@ -82,13 +82,12 @@ namespace Animatroller.Framework.Controller
             // Can only execute one at a time
             lock (lockObject)
             {
-                log.Info("Starting SequenceJob {0}", this.name);
+                log.Info("Starting Subroutine {0}", this.name);
 
                 this.cancelToken = cancelToken;
 
                 if (this.setUpAction != null)
                     this.setUpAction.Invoke();
-
 
                 var heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
                 foreach (var handleLock in this.handleLocks)
@@ -102,6 +101,8 @@ namespace Animatroller.Framework.Controller
 
                 if (this.mainAction != null)
                     this.mainAction(this);
+
+                Executor.Current.WaitForManagedTasks();
 
                 foreach (var kvp in heldLocks)
                 {
@@ -123,7 +124,6 @@ namespace Animatroller.Framework.Controller
         {
             get { return this.id; }
         }
-
 
         public Subroutine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -150,9 +150,11 @@ namespace Animatroller.Framework.Controller
             Executor.Current.Execute(this);
         }
 
-        public void LockWhenRunning(params IOwnedDevice[] devices)
+        public Subroutine LockWhenRunning(params IOwnedDevice[] devices)
         {
             this.handleLocks.AddRange(devices);
+
+            return this;
         }
     }
 }

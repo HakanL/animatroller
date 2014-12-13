@@ -28,6 +28,8 @@ namespace Animatroller.Framework.LogicalDevice
         {
             this.output =
             this.brightness = new ControlSubject<double, IControlToken>(0, HasControl);
+
+            this.releaseActions.Add(() => this.brightness.OnNext(0));
         }
 
         public ControlledObserver<double> GetBrightnessObserver()

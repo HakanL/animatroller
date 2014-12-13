@@ -89,6 +89,8 @@ namespace Animatroller.Simulator
                     this.AddAnalogInput((AnalogInput)fieldValue);
                 else if (field.FieldType == typeof(AnalogInput2))
                     this.AddAnalogInput((AnalogInput2)fieldValue);
+                else if (field.FieldType == typeof(AnalogInput3))
+                    this.AddAnalogInput((AnalogInput3)fieldValue);
                 else if (field.FieldType == typeof(MotorWithFeedback))
                 {
                     // Skip
@@ -469,6 +471,34 @@ namespace Animatroller.Simulator
                 {
                     control.Value = x.Value.GetByteScale();
                 });
+
+            return device;
+        }
+
+        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput(AnalogInput3 logicalDevice)
+        {
+            var control = new TrackBar();
+            control.Text = logicalDevice.Name;
+            control.Size = new System.Drawing.Size(80, 80);
+            control.Maximum = 255;
+
+            flowLayoutPanelLights.Controls.Add(control);
+
+            var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
+
+            control.ValueChanged += (sender, e) =>
+            {
+                device.Trigger((sender as TrackBar).Value / 255.0);
+            };
+
+            device.Connect(logicalDevice);
+
+            control.Value = logicalDevice.Value.GetByteScale();
+
+            logicalDevice.Output.Subscribe(x =>
+            {
+                control.Value = x.GetByteScale();
+            });
 
             return device;
         }

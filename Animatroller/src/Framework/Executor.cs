@@ -16,9 +16,12 @@ namespace Animatroller.Framework
         {
             public Dictionary<IOwnedDevice, IControlToken> ControlTokens { get; private set; }
 
+            public List<Task> ManagedTasks { get; private set; }
+
             public ThreadLocalStorage()
             {
                 this.ControlTokens = new Dictionary<IOwnedDevice, IControlToken>();
+                this.ManagedTasks = new List<Task>();
             }
         }
 
@@ -50,6 +53,7 @@ namespace Animatroller.Framework
         private string keyStoragePath;
         private static ThreadLocal<ThreadLocalStorage> threadStorage;
         private ControlSubject<double> blackout;
+        private ControlSubject<double> whiteout;
 
         private Executor()
         {
@@ -73,13 +77,19 @@ namespace Animatroller.Framework
                 System.IO.Directory.CreateDirectory(this.keyStoragePath);
 
             this.blackout = new ControlSubject<double>(0.0);
+            this.whiteout = new ControlSubject<double>(0.0);
 
             threadStorage = new ThreadLocal<ThreadLocalStorage>(() => new ThreadLocalStorage());
         }
 
-        public ISubject<double> Blackout
+        public ISubjectWithValue<double> Blackout
         {
             get { return this.blackout; }
+        }
+
+        public ISubjectWithValue<double> Whiteout
+        {
+            get { return this.whiteout; }
         }
 
         internal ThreadLocalStorage ThreadStorage { get { return threadStorage.Value; } }
@@ -98,6 +108,16 @@ namespace Animatroller.Framework
                 ThreadStorage.ControlTokens[device] = token;
             else
                 RemoveControlToken(device);
+        }
+
+        public void SetManagedTask(Task task)
+        {
+            ThreadStorage.ManagedTasks.Add(task);
+        }
+
+        public void WaitForManagedTasks()
+        {
+            Task.WaitAll(ThreadStorage.ManagedTasks.ToArray());
         }
 
         public void Sleep(TimeSpan value)

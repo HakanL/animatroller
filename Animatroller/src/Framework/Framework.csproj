@@ -132,10 +132,12 @@
     <Compile Include="Import\BufferImporter.cs" />
     <Compile Include="Import\LorImport2.cs" />
     <Compile Include="Interface\ICanExecute.cs" />
+    <Compile Include="Interface\ISubjectWithValue.cs" />
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="Controller\ChannelIdentity.cs" />
     <Compile Include="Interface\ISupportsPersistence.cs" />
     <Compile Include="Interface\SceneInterfaces.cs" />
+    <Compile Include="LogicalDevice\AnalogInput3.cs" />
     <Compile Include="LogicalDevice\AnalogInput2.cs" />
     <Compile Include="LogicalDevice\BrightnessPowerAdapter.cs" />
     <Compile Include="LogicalDevice\ColorDimmer3.cs" />

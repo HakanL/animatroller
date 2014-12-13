@@ -15,8 +15,22 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             var hsv = new HSV(this.colorBrightness.Color);
 
+            double whiteOut = Executor.Current.Whiteout.Value;
+
             // Adjust brightness
-            hsv.Value = hsv.Value * this.colorBrightness.Brightness;
+            double adjustedValue = (hsv.Value * this.colorBrightness.Brightness) + whiteOut;
+
+            // Adjust for WhiteOut
+            HSV baseHsv;
+            if (this.colorBrightness.Brightness == 0 && whiteOut > 0)
+                // Base it on black instead
+                baseHsv = HSV.Black;
+            else
+                baseHsv = hsv;
+
+            hsv.Hue = baseHsv.Hue + (HSV.White.Hue - baseHsv.Hue) * whiteOut;
+            hsv.Saturation = baseHsv.Saturation + (HSV.White.Saturation - baseHsv.Saturation) * whiteOut;
+            hsv.Value = adjustedValue.Limit(0, 1) * (1 - Executor.Current.Blackout.Value);
 
             return hsv.Color;
         }
@@ -96,6 +110,9 @@ namespace Animatroller.Framework.PhysicalDevice
             }
             else
                 this.colorBrightness.Color = Color.White;
+
+            Executor.Current.Blackout.Subscribe(_ => Output());
+            Executor.Current.Whiteout.Subscribe(_ => Output());
         }
 
         public override void SetInitialState()

@@ -42,6 +42,16 @@ namespace Animatroller.Framework.PhysicalDevice
             return this;
         }
 
+        public AnalogInput Connect(LogicalDevice.AnalogInput3 logicalDevice)
+        {
+            ValueChanged += (sender, e) =>
+            {
+                logicalDevice.Value = e.NewBrightness;
+            };
+
+            return this;
+        }
+
         public void SetInitialState()
         {
         }

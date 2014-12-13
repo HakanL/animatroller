@@ -1,62 +1,61 @@
 ﻿using System;
-using System.Drawing;
-using System.Threading;
 using System.Collections.Generic;
+using System.Drawing;
 using Animatroller.Framework;
-using Animatroller.Framework.Extensions;
-using Expander = Animatroller.Framework.Expander;
 using Animatroller.Framework.LogicalDevice;
-using Import = Animatroller.Framework.Import;
-using Effect = Animatroller.Framework.Effect;
-using Effect2 = Animatroller.Framework.Effect2;
-using Physical = Animatroller.Framework.PhysicalDevice;
 using Controller = Animatroller.Framework.Controller;
-using System.Threading.Tasks;
+using Expander = Animatroller.Framework.Expander;
+using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
     internal class LockDemo : BaseScene
     {
-        private Expander.AcnStream acnOutput = new Expander.AcnStream();
+        Expander.AcnStream acnOutput = new Expander.AcnStream();
 
-        private ColorDimmer3 lightA = new ColorDimmer3();
-        private ColorDimmer3 lightB = new ColorDimmer3();
+        ColorDimmer3 lightA = new ColorDimmer3();
+        ColorDimmer3 lightB = new ColorDimmer3();
 
-        private GroupDimmer lightGroup = new GroupDimmer();
+        GroupDimmer lightGroup = new GroupDimmer();
 
-        private DigitalInput2 testButton = new DigitalInput2();
+        DigitalInput2 testButton = new DigitalInput2();
+        AnalogInput3 blackOut = new AnalogInput3();
+        AnalogInput3 whiteOut = new AnalogInput3();
 
-        private Controller.Subroutine sub = new Controller.Subroutine();
+        Controller.Subroutine sub = new Controller.Subroutine();
 
         public LockDemo(IEnumerable<string> args)
         {
+            blackOut.ConnectTo(Exec.Blackout);
+            whiteOut.ConnectTo(Exec.Whiteout);
+
             lightGroup.Add(lightA, lightB);
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 2), 20);
 
-            sub.LockWhenRunning(lightA, lightB);
+            lightA.SetOnlyColor(Color.Red);
+            lightB.SetOnlyColor(Color.Blue);
 
-            sub.RunAction(i =>
-            {
-                lightA.Brightness = 1.0;
-                i.WaitFor(S(0.5));
-
-                lightB.Brightness = 0.5;
-                i.WaitFor(S(0.5));
-
-                Exec.MasterEffect.Fade(lightA, 1.0, 0.0, 3000);
-            });
-        }
-
-        public override void Start()
-        {
-            // Set color
-            testButton.Output.Subscribe(button =>
-            {
-                if (button)
+            sub
+                .LockWhenRunning(lightA, lightB)
+                .RunAction(i =>
                 {
-                    log.Info("Button press!");
+                    lightA.Brightness = 1.0;
+                    i.WaitFor(S(0.5));
+
+                    lightB.Brightness = 0.5;
+                    i.WaitFor(S(0.5));
+
+                    Exec.MasterEffect.Fade(lightA, 1.0, 0.0, 3000);
+                });
+
+            // Run
+            testButton.Output.Subscribe(value =>
+            {
+                if (value)
+                {
+                    log.Info("Button pressed!");
 
                     sub.Run();
                 }

@@ -10,7 +10,7 @@ namespace Animatroller.Framework.PhysicalDevice
     public abstract class BaseDevice : IOutputDevice, IPhysicalDevice
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
-        private ILogicalDevice[] logicalDevices;
+        protected ILogicalDevice[] logicalDevices;
 
         public BaseDevice(params ILogicalDevice[] logicalDevice)
         {
