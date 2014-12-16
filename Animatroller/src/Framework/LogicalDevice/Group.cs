@@ -15,16 +15,40 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public abstract class Group<T> : SingleOwnerDevice where T : IOwnedDevice
+    public abstract class Group<T> : BaseDevice, IOwnedDevice where T : IOwnedDevice
     {
+        public class GroupControlToken : IControlToken
+        {
+            internal Dictionary<T, IControlToken> MemberTokens { get; set; }
+            private Action dispose;
+
+            public GroupControlToken(Dictionary<T, IControlToken> memberTokens, Action dispose)
+            {
+                MemberTokens = memberTokens;
+                this.dispose = dispose;
+            }
+
+            public int Priority { get; set; }
+
+            public void Dispose()
+            {
+                foreach (var memberToken in MemberTokens.Values)
+                    memberToken.Dispose();
+                MemberTokens.Clear();
+
+                this.dispose();
+            }
+        }
+
+        protected GroupControlToken currentOwner;
         protected List<T> members;
-        protected Dictionary<T, IControlToken> memberControlTokens;
+        protected Stack<GroupControlToken> owners;
 
         public Group([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.members = new List<T>();
-            this.memberControlTokens = new Dictionary<T, IControlToken>();
+            this.owners = new Stack<GroupControlToken>();
         }
 
         public void Add(params T[] devices)
@@ -40,41 +64,66 @@ namespace Animatroller.Framework.LogicalDevice
             // No need to do anything here, each individual member should be started on its own
         }
 
-        public override IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        protected IControlToken GetCurrentOrNewToken()
         {
-            throw new NotImplementedException();
-/*            lock (this.members)
+            var controlToken = Executor.Current.GetControlToken(this);
+
+            if (controlToken == null)
+                controlToken = TakeControl();
+
+            return controlToken;
+        }
+
+        public IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            lock (this.members)
             {
-                if (currentOwner != null && priority <= this.currentPriority)
-                    // Already owned
-                    return new ControlledDevice(name, false, null);
+                if (currentOwner != null && priority <= this.currentOwner.Priority)
+                    // Already owned (by us or someone else)
+                    return ControlledDevice.Empty;
 
-                this.currentPriority = priority;
+                var memberTokens = new Dictionary<T, IControlToken>();
+                foreach (var device in this.members)
+                    memberTokens.Add(device, device.TakeControl(priority, name));
 
-                this.currentOwner = new ControlledDevice(name, true, () =>
-                {
-                    lock (this.members)
-                    {
-                        foreach (var memberControlToken in this.memberControlTokens.Values)
+                var newOwner = new GroupControlToken(
+                    memberTokens,
+                    () =>
                         {
-                            memberControlToken.Dispose();
-                        }
-                        this.memberControlTokens.Clear();
+                            lock (this.members)
+                            {
+                                if (this.owners.Count > 0)
+                                {
+                                    this.currentOwner = this.owners.Pop();
+                                }
+                                else
+                                    this.currentOwner = null;
 
-                        this.currentOwner = null;
-                        this.currentPriority = -1;
-                    }
-                });
+                                Executor.Current.SetControlToken(this, this.currentOwner);
+                            }
+                        });
 
-                foreach (var member in this.members)
-                {
-                    var memberControlToken = member.TakeControl(priority, name);
+                // Push current owner
+                this.owners.Push(this.currentOwner);
 
-                    this.memberControlTokens.Add(member, memberControlToken);
-                }
+                this.currentOwner = newOwner;
+
+                Executor.Current.SetControlToken(this, newOwner);
 
                 return this.currentOwner;
-            }*/
+            }
+        }
+
+        public bool HasControl(IControlToken checkOwner)
+        {
+            var test = Executor.Current.GetControlToken(this);
+
+            return this.currentOwner == null || checkOwner == this.currentOwner;
+        }
+
+        public bool IsOwned
+        {
+            get { return this.currentOwner != null; }
         }
     }
 }

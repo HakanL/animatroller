@@ -8,13 +8,12 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class ControlledDevice : IControlToken
     {
-        private static ControlledDevice empty = new ControlledDevice(string.Empty, false, -1, null);
+        private static ControlledDevice empty = new ControlledDevice(string.Empty, -1, null);
         private Action dispose;
 
-        public ControlledDevice(string name, bool hasControl, int priority, Action dispose)
+        public ControlledDevice(string name, int priority, Action dispose)
         {
             this.Name = name;
-            this.HasControl = hasControl;
             this.Priority = priority;
             this.dispose = dispose;
         }
@@ -36,7 +35,5 @@ namespace Animatroller.Framework.LogicalDevice
         public string Name { get; private set; }
 
         public int Priority { get; private set; }
-
-        public bool HasControl { get; private set; }
     }
 }

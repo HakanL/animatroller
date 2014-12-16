@@ -118,6 +118,9 @@ namespace Animatroller.SceneRunner
         MovingHead movingHead = new MovingHead();
         GroupDimmer allLights = new GroupDimmer();
 
+        AnalogInput3 blackOut = new AnalogInput3();
+        AnalogInput3 whiteOut = new AnalogInput3();
+
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
         Expander.MidiInput2 midiInput = new Expander.MidiInput2(true);
@@ -138,6 +141,12 @@ namespace Animatroller.SceneRunner
             //            hours.SetForced(true);
 
             //acnOutput.Muted = true;
+
+            blackOut.ConnectTo(Exec.Blackout);
+            whiteOut.ConnectTo(Exec.Whiteout);
+
+            midiInput.Controller(midiChannel, 1).Controls(blackOut.Control);
+            midiInput.Controller(midiChannel, 2).Controls(whiteOut.Control);
 
             inflatablesRunning.Subscribe(x =>
                 {
@@ -227,8 +236,6 @@ namespace Animatroller.SceneRunner
                                         lightX7.Brightness = x ? 1.0 : 0.0;
                                         lightBushes.Brightness = x ? 1.0 : 0.0;*/
                 });
-
-            lightSanta.SetOutputFilter(new Effect.Blackout());
 
             acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 4, 1);
             acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 5, 1);

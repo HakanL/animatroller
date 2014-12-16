@@ -72,9 +72,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
             set
             {
-                if (HasControl())
-                    // Only allow if nobody is controlling us
-                    this.brightness.OnNext(value, Executor.Current.GetControlToken(this));
+                this.brightness.OnNext(value, Executor.Current.GetControlToken(this));
             }
         }
 

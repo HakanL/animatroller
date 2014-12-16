@@ -29,8 +29,6 @@ namespace Animatroller.SceneRunner
         {
             lightGroup.Add(lightA, lightB);
 
-            lightA.SetOutputFilter(new Effect.Blackout());
-
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 2), 20);
         }

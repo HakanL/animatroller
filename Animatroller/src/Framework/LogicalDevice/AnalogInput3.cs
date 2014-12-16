@@ -68,6 +68,11 @@ namespace Animatroller.Framework.LogicalDevice
             this.outputValue.Subscribe(component);
         }
 
+        public void ConnectTo(Action<double> component)
+        {
+            this.outputValue.Subscribe(component);
+        }
+
         public double Value
         {
             get { return this.currentValue; }

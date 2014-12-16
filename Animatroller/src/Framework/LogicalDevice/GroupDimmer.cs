@@ -25,31 +25,31 @@ namespace Animatroller.Framework.LogicalDevice
             this.brightness = new ReplaySubject<double>(1);
         }
 
-        public ControlledObserver<double> GetBrightnessObserver(IControlToken controlToken)
+        public ControlledObserver<double> GetBrightnessObserver()
         {
+            var controlToken = GetCurrentOrNewToken();
+
             var observers = new List<ControlledObserver<double>>();
             lock (this.members)
             {
                 foreach (var member in this.members)
                 {
                     IControlToken memberControlToken;
-                    if (!this.memberControlTokens.TryGetValue(member, out memberControlToken))
+                    if (this.currentOwner == null || !this.currentOwner.MemberTokens.TryGetValue(member, out memberControlToken))
                         // No lock/control token
                         continue;
-                    //FIXME: memberControlToken
+
                     observers.Add(member.GetBrightnessObserver());
                 }
             }
 
-            var groupObserver = Observer.Create<double>(
-                onNext: x =>
+            var groupObserver = new ControlSubject<double, IControlToken>(0, HasControl);
+            groupObserver.Subscribe(x =>
                 {
                     foreach (var observer in observers)
                         observer.OnNext(x);
                 });
-            throw new NotImplementedException();
-            //FIXME
-//            return new ControlledObserver<double>(controlToken, this, groupObserver);
+            return new ControlledObserver<double>(controlToken, groupObserver);
         }
 
         public double Brightness
@@ -60,16 +60,14 @@ namespace Animatroller.Framework.LogicalDevice
             }
             set
             {
-                if (HasControl(null))
-                    // Only allow if nobody is controlling us
-                    this.brightness.OnNext(value);
+                lock (this.members)
+                {
+                    foreach (var member in this.members)
+                    {
+                        member.Brightness = value;
+                    }
+                }
             }
-        }
-
-
-        public ControlledObserver<double> GetBrightnessObserver()
-        {
-            throw new NotImplementedException();
         }
     }
 }

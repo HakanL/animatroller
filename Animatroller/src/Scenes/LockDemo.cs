@@ -18,9 +18,13 @@ namespace Animatroller.SceneRunner
 
         GroupDimmer lightGroup = new GroupDimmer();
 
-        DigitalInput2 testButton = new DigitalInput2();
+        DigitalInput2 button1 = new DigitalInput2();
+        DigitalInput2 button2 = new DigitalInput2();
         AnalogInput3 blackOut = new AnalogInput3();
         AnalogInput3 whiteOut = new AnalogInput3();
+        AnalogInput3 testLightA = new AnalogInput3();
+
+        IControlToken testLock = null;
 
         Controller.Subroutine sub = new Controller.Subroutine();
 
@@ -33,6 +37,8 @@ namespace Animatroller.SceneRunner
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 2), 20);
+
+            testLightA.ConnectTo(x => lightA.Brightness = x);
 
             lightA.SetOnlyColor(Color.Red);
             lightB.SetOnlyColor(Color.Blue);
@@ -47,17 +53,44 @@ namespace Animatroller.SceneRunner
                     lightB.Brightness = 0.5;
                     i.WaitFor(S(0.5));
 
-                    Exec.MasterEffect.Fade(lightA, 1.0, 0.0, 3000);
+                    Exec.MasterEffect.Fade(lightGroup, 1.0, 0.0, 3000);
+
+                    i.WaitFor(S(1));
+
+                    using (var takeOver = lightGroup.TakeControl(5))
+                    {
+                        lightGroup.Brightness = 1;
+                        i.WaitFor(S(1));
+                    }
+
+                    lightGroup.Brightness = 1;
+
+                    i.WaitFor(S(2));
                 });
 
-            // Run
-            testButton.Output.Subscribe(value =>
+            button1.Output.Subscribe(value =>
             {
                 if (value)
                 {
-                    log.Info("Button pressed!");
+                    log.Info("Button 1 pressed!");
 
                     sub.Run();
+                }
+            });
+
+            button2.Output.Subscribe(value =>
+            {
+                if (value)
+                {
+                    log.Info("Button 2 pressed!");
+
+                    if (testLock != null)
+                    {
+                        testLock.Dispose();
+                        testLock = null;
+                    }
+                    else
+                        testLock = lightA.TakeControl();
                 }
             });
         }

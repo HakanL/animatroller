@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 
 namespace Animatroller.Framework.Effect
 {
+    [Obsolete("No need for this any more")]
     public class Blackout : ISubject<double>
     {
         private double lastValue;

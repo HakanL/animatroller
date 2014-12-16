@@ -477,12 +477,17 @@ namespace Animatroller.Simulator
 
         public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput(AnalogInput3 logicalDevice)
         {
+            var moduleControl = new Control.ModuleControl();
+            moduleControl.Text = logicalDevice.Name;
+            moduleControl.Size = new System.Drawing.Size(80, 80);
+
             var control = new TrackBar();
-            control.Text = logicalDevice.Name;
+            moduleControl.ChildControl = control;
             control.Size = new System.Drawing.Size(80, 80);
             control.Maximum = 255;
+            control.TickFrequency = 26;
 
-            flowLayoutPanelLights.Controls.Add(control);
+            flowLayoutPanelLights.Controls.Add(moduleControl);
 
             var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
 

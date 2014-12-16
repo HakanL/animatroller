@@ -25,7 +25,7 @@ namespace Animatroller.Framework.LogicalDevice
                     // Already owned (by us or someone else)
                     return ControlledDevice.Empty;
 
-                var newOwner = new ControlledDevice(name, true, priority, () =>
+                var newOwner = new ControlledDevice(name, priority, () =>
                 {
                     lock (this)
                     {
