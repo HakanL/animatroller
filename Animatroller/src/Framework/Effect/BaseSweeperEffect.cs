@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Reactive;
 using System.Reactive.Subjects;
 using NLog;
 
@@ -188,6 +189,16 @@ namespace Animatroller.Framework.Effect
             lock (lockObject)
             {
                 this.devices.Add(device);
+            }
+
+            return this;
+        }
+
+        public BaseSweeperEffect ConnectTo(Action<double> action)
+        {
+            lock (lockObject)
+            {
+                this.devices.Add(Observer.Create(action));
             }
 
             return this;

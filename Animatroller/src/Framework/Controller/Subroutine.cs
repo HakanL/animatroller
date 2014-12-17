@@ -7,12 +7,11 @@ using NLog;
 
 namespace Animatroller.Framework.Controller
 {
-    public class Subroutine : ICanExecute, ISequenceInstance2
+    public class Subroutine : LockHolder, ICanExecute, ISequenceInstance2
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
         private string name;
-        private List<IOwnedDevice> handleLocks;
         private object lockObject = new object();
         private string id;
         protected Action setUpAction;
@@ -89,26 +88,14 @@ namespace Animatroller.Framework.Controller
                 if (this.setUpAction != null)
                     this.setUpAction.Invoke();
 
-                var heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
-                foreach (var handleLock in this.handleLocks)
-                {
-                    var control = handleLock.TakeControl(LockPriority, Name);
-
-                    Executor.Current.SetControlToken(handleLock, control);
-
-                    heldLocks.Add(handleLock, control);
-                }
+                Lock();
 
                 if (this.mainAction != null)
                     this.mainAction(this);
 
-                Executor.Current.WaitForManagedTasks();
+                Executor.Current.WaitForManagedTasks(true);
 
-                foreach (var kvp in heldLocks)
-                {
-                    Executor.Current.RemoveControlToken(kvp.Key);
-                    kvp.Value.Dispose();
-                }
+                Release();
 
                 if (this.tearDownAction != null)
                     this.tearDownAction.Invoke();
@@ -126,22 +113,13 @@ namespace Animatroller.Framework.Controller
         }
 
         public Subroutine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(name)
         {
-            this.name = name;
-
-            this.handleLocks = new List<IOwnedDevice>();
             this.id = Guid.NewGuid().GetHashCode().ToString();
 
             // Default
             this.LockPriority = 1;
         }
-
-        public string Name
-        {
-            get { return this.name; }
-        }
-
-        public int LockPriority { get; set; }
 
         public bool IsMultiInstance { get; set; }
 
@@ -152,9 +130,10 @@ namespace Animatroller.Framework.Controller
 
         public Subroutine LockWhenRunning(params IOwnedDevice[] devices)
         {
-            this.handleLocks.AddRange(devices);
+            AddHandleLocks(devices);
 
             return this;
         }
+
     }
 }

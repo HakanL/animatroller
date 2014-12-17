@@ -100,10 +100,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controller\CueList.cs" />
     <Compile Include="Controller\HighPrecisionTimer2.cs" />
     <Compile Include="Controller\IntStateMachine.cs" />
+    <Compile Include="Controller\LockHolder.cs" />
     <Compile Include="Controller\Subroutine.cs" />
     <Compile Include="Controller\ITimeline.cs" />
+    <Compile Include="Controller\CuelistX.cs" />
     <Compile Include="Controller\Timeline2.cs" />
     <Compile Include="ControlSubject.cs" />
     <Compile Include="DoubleZeroToOne.cs" />
@@ -145,6 +148,8 @@
     <Compile Include="LogicalDevice\ControlledDevice.cs" />
     <Compile Include="LogicalDevice\ControlledObserverRGB.cs" />
     <Compile Include="LogicalDevice\ControlTokenValue.cs" />
+    <Compile Include="LogicalDevice\CuePart.cs" />
+    <Compile Include="LogicalDevice\CuePoint\PanTiltBrightnessColorCuePoint.cs" />
     <Compile Include="LogicalDevice\DigitalInput2.cs" />
     <Compile Include="LogicalDevice\ControlledObserver.cs" />
     <Compile Include="LogicalDevice\Group.cs" />
@@ -152,7 +157,10 @@
     <Compile Include="LogicalDevice\Dimmer3.cs" />
     <Compile Include="LogicalDevice\Interface\IHasMasterPower.cs" />
     <Compile Include="LogicalDevice\OperatingHours2.cs" />
+    <Compile Include="LogicalDevice\CuePoint\PanTiltCuePoint.cs" />
     <Compile Include="LogicalDevice\PixelMapper2D.cs" />
+    <Compile Include="LogicalDevice\Cue.cs" />
+    <Compile Include="LogicalDevice\Preset.cs" />
     <Compile Include="LogicalDevice\SingleOwnerOutputDevice.cs" />
     <Compile Include="LogicalDevice\SingleOwnerDevice.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />

@@ -25,6 +25,19 @@ namespace Animatroller.Framework
         Animatroller.Framework.LogicalDevice.ControlledObserver<Color> GetColorObserver();
 
         Animatroller.Framework.LogicalDevice.ControlledObserverRGB GetRgbObsserver();
+
+        Color Color { get; set; }
+    }
+
+    public interface IReceivesPanTilt : IOwnedDevice
+    {
+        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetPanObserver();
+
+        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetTiltObserver();
+
+        double Pan { get; set; }
+
+        double Tilt { get; set; }
     }
 
     public interface ISendsBrightness

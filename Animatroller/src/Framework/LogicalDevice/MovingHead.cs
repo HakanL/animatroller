@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,84 +14,72 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class MovingHead : StrobeColorDimmer2
+    public class MovingHead : StrobeColorDimmer3, IReceivesPanTilt
     {
-        protected double currentPan;
-        protected double currentTilt;
-        protected ISubject<double> inputPan;
-        protected ISubject<double> inputTilt;
+        protected ControlSubject<double, IControlToken> pan;
+        protected ControlSubject<double, IControlToken> tilt;
 
         public MovingHead([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.inputPan = new Subject<double>();
-            this.inputTilt = new Subject<double>();
-
-            this.inputPan.Subscribe(x =>
-                {
-                    if (this.currentPan != x)
-                    {
-                        this.currentPan = x;
-                    }
-                });
-
-            this.inputTilt.Subscribe(x =>
-            {
-                if (this.currentTilt != x)
-                {
-                    this.currentTilt = x;
-                }
-            });
+            this.pan = new ControlSubject<double, IControlToken>(0, HasControl);
+            this.tilt = new ControlSubject<double, IControlToken>(0, HasControl);
         }
 
-        public override void SetInitialState()
+        public ControlledObserver<double> GetPanObserver()
         {
-            base.SetInitialState();
-
-            inputPan.OnNext(0);
-            inputTilt.OnNext(0);
+            return new ControlledObserver<double>(GetCurrentOrNewToken(), this.pan);
         }
 
-        public ISubject<double> InputPan
+        public ControlledObserver<double> GetTiltObserver()
         {
-            get
-            {
-                return this.inputPan;
-            }
-        }
-
-        public ISubject<double> InputTilt
-        {
-            get
-            {
-                return this.inputTilt;
-            }
+            return new ControlledObserver<double>(GetCurrentOrNewToken(), this.tilt);
         }
 
         public double Pan
         {
-            get { return this.currentPan; }
+            get
+            {
+                return this.pan.Value;
+            }
             set
             {
-                this.inputPan.OnNext(value);
+                this.pan.OnNext(value, Executor.Current.GetControlToken(this));
+            }
+        }
+
+        public IObservable<double> OutputPan
+        {
+            get
+            {
+                return this.pan.DistinctUntilChanged();
+            }
+        }
+
+        public IObservable<double> OutputTilt
+        {
+            get
+            {
+                return this.tilt.DistinctUntilChanged();
             }
         }
 
         public double Tilt
         {
-            get { return this.currentTilt; }
+            get
+            {
+                return this.tilt.Value;
+            }
             set
             {
-                this.inputTilt.OnNext(value);
+                this.tilt.OnNext(value, Executor.Current.GetControlToken(this));
             }
         }
 
-        public override void TurnOff()
+        protected override void UpdateOutput()
         {
-            base.TurnOff();
-
-            Pan = 0;
-            Tilt = 0;
+            this.pan.OnNext(this.pan.Value);
+            this.tilt.OnNext(this.tilt.Value);
         }
     }
 }

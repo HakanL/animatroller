@@ -16,12 +16,12 @@ namespace Animatroller.Framework
         {
             public Dictionary<IOwnedDevice, IControlToken> ControlTokens { get; private set; }
 
-            public List<Task> ManagedTasks { get; private set; }
+            public List<Tuple<Task, CancellationTokenSource>> ManagedTasks { get; private set; }
 
             public ThreadLocalStorage()
             {
                 this.ControlTokens = new Dictionary<IOwnedDevice, IControlToken>();
-                this.ManagedTasks = new List<Task>();
+                this.ManagedTasks = new List<Tuple<Task, CancellationTokenSource>>();
             }
         }
 
@@ -45,6 +45,7 @@ namespace Animatroller.Framework
         private List<Animatroller.Framework.Effect.IEffect> effects;
         private List<ExecuteInstance> executingTasks;
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
+        private Dictionary<Task, CancellationTokenSource> cancelSourceForManagedTask;
         private Controller.HighPrecisionTimer masterTimer;
         private Controller.HighPrecisionTimer2 masterTimer2;
         private Effect2.TimerJobRunner timerJobRunner;
@@ -64,6 +65,7 @@ namespace Animatroller.Framework
             this.scenes = new List<IScene>();
             this.executingTasks = new List<ExecuteInstance>();
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
+            this.cancelSourceForManagedTask = new Dictionary<Task, CancellationTokenSource>();
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
             this.masterTimer2 = new Controller.HighPrecisionTimer2(MasterTimerIntervalMs);
@@ -110,14 +112,33 @@ namespace Animatroller.Framework
                 RemoveControlToken(device);
         }
 
-        public void SetManagedTask(Task task)
+        public void SetManagedTask(Task task, CancellationTokenSource cancelSource)
         {
-            ThreadStorage.ManagedTasks.Add(task);
+            var tuple = Tuple.Create(task, cancelSource);
+            ThreadStorage.ManagedTasks.Add(tuple);
+
+            task.ContinueWith(x =>
+            {
+                ThreadStorage.ManagedTasks.Remove(tuple);
+                this.cancelSourceForManagedTask.Remove(task);
+            });
+
+            this.cancelSourceForManagedTask[task] = cancelSource;
         }
 
-        public void WaitForManagedTasks()
+        public void WaitForManagedTasks(bool cancel)
         {
-            Task.WaitAll(ThreadStorage.ManagedTasks.ToArray());
+            log.Debug("WaitForManagedTasks...");
+
+            if (cancel)
+            {
+                // Cancel
+                ThreadStorage.ManagedTasks.ForEach(x => x.Item2.Cancel());
+            }
+
+            Task.WaitAll(ThreadStorage.ManagedTasks.Select(x => x.Item1).ToArray());
+
+            log.Debug("WaitForManagedTasks...Done");
         }
 
         public void Sleep(TimeSpan value)
@@ -380,6 +401,15 @@ namespace Animatroller.Framework
             lock (lockObject)
             {
                 this.cancellable.Add(Guid.NewGuid(), new Tuple<CancellationTokenSource, Task, string>(tokenSource, task, name));
+            }
+        }
+
+        internal void StopManagedTask(Task task)
+        {
+            CancellationTokenSource cancelSource;
+            if (this.cancelSourceForManagedTask.TryGetValue(task, out cancelSource))
+            {
+                cancelSource.Cancel();
             }
         }
 

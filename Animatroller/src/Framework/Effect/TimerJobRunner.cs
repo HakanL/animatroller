@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Reactive.Subjects;
 using NLog;
 using Animatroller.Framework.Effect;
@@ -11,13 +12,11 @@ namespace Animatroller.Framework.Effect2
 {
     public class TimerJobRunner
     {
-        protected class TimerJob
+        protected abstract class TimerJob
         {
             private long lastDuration;
 
             public bool Running { get; private set; }
-
-            public IObserver<long> Observer { get; private set; }
 
             public long DurationMs { get; private set; }
 
@@ -25,9 +24,10 @@ namespace Animatroller.Framework.Effect2
 
             public long StartDurationMs { get; private set; }
 
-            public void Init(IObserver<long> observer, long durationMs, long startDurationMs)
+            private CancellationTokenSource cancelSource;
+
+            protected CancellationTokenSource Init(long durationMs, long startDurationMs)
             {
-                this.Observer = observer;
                 this.DurationMs = durationMs;
 
                 this.StartDurationMs = startDurationMs;
@@ -36,31 +36,94 @@ namespace Animatroller.Framework.Effect2
                 this.lastDuration = -1;
                 this.Running = true;
 
+                this.cancelSource = new CancellationTokenSource();
+
                 // Start
                 Update(startDurationMs);
+
+                return this.cancelSource;
             }
 
             public void Update(long elapsedMs)
             {
-                if (elapsedMs >= EndDurationMs)
-                {
-                    if (this.lastDuration != this.DurationMs)
-                        this.Observer.OnNext(this.DurationMs);
+                long currentElapsedMs = elapsedMs - this.StartDurationMs;
 
+                if (currentElapsedMs <= this.DurationMs)
+                {
+                    ObserverNext(currentElapsedMs);
+
+                    this.lastDuration = currentElapsedMs;
+                }
+                else
+                    ObserverNext(this.DurationMs);
+
+                if (elapsedMs >= EndDurationMs || this.cancelSource.IsCancellationRequested)
+                {
                     this.Running = false;
 
-                    this.Observer.OnCompleted();
+                    ObserverCompleted();
 
                     return;
                 }
+            }
 
-                long currentElapsedMs = elapsedMs - this.StartDurationMs;
+            protected abstract void ObserverNext(long elapsedMs);
 
-                this.Observer.OnNext(currentElapsedMs);
-                this.lastDuration = currentElapsedMs;
+            protected abstract void ObserverCompleted();
+        }
+
+        protected class TimerJobMs : TimerJob
+        {
+            private IObserver<long> observer;
+
+            public CancellationTokenSource Init(IObserver<long> observer, long durationMs, long startDurationMs)
+            {
+                this.observer = observer;
+
+                return base.Init(durationMs, startDurationMs);
+            }
+
+            protected override void ObserverNext(long elapsedMs)
+            {
+                this.observer.OnNext(elapsedMs);
+            }
+
+            protected override void ObserverCompleted()
+            {
+                this.observer.OnCompleted();
             }
         }
 
+        protected class TimerJobPos : TimerJob
+        {
+            private IObserver<double> observer;
+
+            public CancellationTokenSource Init(IObserver<double> observer, long durationMs, long startDurationMs)
+            {
+                this.observer = observer;
+
+                return base.Init(durationMs, startDurationMs);
+            }
+
+            protected override void ObserverNext(long elapsedMs)
+            {
+                double pos;
+
+                if (this.DurationMs == 0)
+                    pos = 1.0;
+                else
+                    pos = (double)elapsedMs / (double)this.DurationMs;
+
+                this.observer.OnNext(pos);
+            }
+
+            protected override void ObserverCompleted()
+            {
+                this.observer.OnCompleted();
+            }
+        }
+
+        private object lockObject = new object();
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private List<TimerJob> timerJobs = new List<TimerJob>();
         private Animatroller.Framework.Controller.HighPrecisionTimer2 timer;
@@ -71,7 +134,7 @@ namespace Animatroller.Framework.Effect2
 
             this.timer.Output.Subscribe(x =>
                 {
-                    lock (this.timerJobs)
+                    lock (this.lockObject)
                     {
                         foreach (var timerJob in this.timerJobs)
                         {
@@ -82,32 +145,68 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        public void AddTimerJob(IObserver<long> observer, long durationMs)
+        private CancellationTokenSource AddTimerJob<T>(
+            long durationMs,
+            Action finishAction,
+            Func<T, long, long, CancellationTokenSource> initAction) where T : TimerJob, new()
         {
-            lock (this.timerJobs)
+            if (durationMs <= 5)
             {
-                TimerJob timerJob = null;
+                // No need to spin up a job, just set the destination
+
+                finishAction();
+
+                return new CancellationTokenSource();
+            }
+
+            lock (this.lockObject)
+            {
+                T timerJob = default(T);
 
                 foreach (var existingTimerJob in this.timerJobs)
                 {
                     if (!existingTimerJob.Running)
                     {
                         // Reuse
-                        timerJob = existingTimerJob;
+                        timerJob = (T)existingTimerJob;
                         break;
                     }
                 }
 
                 if (timerJob == null)
                 {
-                    timerJob = new TimerJob();
+                    timerJob = new T();
                     this.timerJobs.Add(timerJob);
 
                     log.Debug("Total {0} timer jobs", this.timerJobs.Count);
                 }
 
-                timerJob.Init(observer, durationMs, this.timer.ElapsedMs);
+                return initAction(timerJob, durationMs, this.timer.ElapsedMs);
             }
+        }
+
+        public CancellationTokenSource AddTimerJobMs(IObserver<long> observer, long durationMs)
+        {
+            return AddTimerJob<TimerJobMs>(
+                durationMs: durationMs,
+                finishAction: new Action(() =>
+                    {
+                        observer.OnNext(durationMs);
+                        observer.OnCompleted();
+                    }),
+                initAction: (job, dMs, startDurationMs) => job.Init(observer, dMs, startDurationMs));
+        }
+
+        public CancellationTokenSource AddTimerJobPos(IObserver<double> observer, long durationMs)
+        {
+            return AddTimerJob<TimerJobPos>(
+                durationMs: durationMs,
+                finishAction: new Action(() =>
+                {
+                    observer.OnNext(1.0);
+                    observer.OnCompleted();
+                }),
+                initAction: (job, dMs, startDurationMs) => job.Init(observer, dMs, startDurationMs));
         }
     }
 }

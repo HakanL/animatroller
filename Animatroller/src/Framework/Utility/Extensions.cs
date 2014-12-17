@@ -64,6 +64,13 @@ namespace Animatroller.Framework.Extensions
             return input;
         }
 
+        public static IObservable<T> Controls<T>(this IObservable<T> input, Action<T> control)
+        {
+            input.Subscribe(control);
+
+            return input;
+        }
+
         public static IObservable<DoubleZeroToOne> Controls(this IObservable<DoubleZeroToOne> input, IObserver<double> control)
         {
             input.Subscribe(x =>

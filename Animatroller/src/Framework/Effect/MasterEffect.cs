@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 using System.Text;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
@@ -26,75 +27,37 @@ namespace Animatroller.Framework.Effect2
         {
         }
 
-        //public Task Fade(IReceivesBrightness device, double startBrightness, double endBrightness, int durationMs, int priority = 1)
-        //{
-        //    var taskSource = new TaskCompletionSource<bool>();
-
-        //    IControlToken newToken = null;
-
-        //    IControlToken control = Executor.Current.GetControlToken(device);
-
-        //    if (control == null)
-        //    {
-        //        newToken =
-        //        control = device.TakeControl(priority);
-
-        //        Executor.Current.SetControlToken(device, control);
-        //    }
-
-        //    var deviceObserver = device.GetBrightnessObserver(control);
-
-        //    double brightnessRange = endBrightness - startBrightness;
-
-        //    var observer = Observer.Create<long>(
-        //        onNext: currentElapsedMs =>
-        //        {
-        //            double pos = (double)currentElapsedMs / (double)durationMs;
-
-        //            double brightness = startBrightness + (pos * brightnessRange);
-
-        //            deviceObserver.OnNext(brightness);
-        //        },
-        //        onCompleted: () =>
-        //        {
-        //            if (newToken != null)
-        //            {
-        //                Executor.Current.RemoveControlToken(device);
-
-        //                newToken.Dispose();
-        //            }
-
-        //            taskSource.SetResult(true);
-        //        });
-
-        //    this.timerJobRunner.AddTimerJob(observer, durationMs);
-
-        //    return taskSource.Task;
-        //}
-
-        public Task Fade(IReceivesBrightness device, double startBrightness, double endBrightness, int durationMs, int priority = 1)
+        public Task Fade(IReceivesBrightness device, double start, double end, int durationMs, int priority = 1, ITransformer transformer = null)
         {
             var controlToken = device.TakeControl(priority);
 
-            return Fade(device.GetBrightnessObserver(), startBrightness, endBrightness, durationMs)
+            return Fade(device.GetBrightnessObserver(), start, end, durationMs, transformer)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
                 });
         }
 
-        public Task Fade(IObserver<double> deviceObserver, double startBrightness, double endBrightness, int durationMs)
+        public Task Fade(IObserver<double> deviceObserver, double start, double end, int durationMs, ITransformer transformer = null)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
-            double brightnessRange = endBrightness - startBrightness;
+            double brightnessRange = end - start;
 
-            var observer = Observer.Create<long>(
-                onNext: currentElapsedMs =>
+            if (brightnessRange == 0)
+            {
+                taskSource.SetResult(true);
+
+                return taskSource.Task;
+            }
+
+            var observer = Observer.Create<double>(
+                onNext: pos =>
                 {
-                    double pos = (double)currentElapsedMs / (double)durationMs;
+                    if (transformer != null)
+                        pos = transformer.Transform(pos);
 
-                    double brightness = startBrightness + (pos * brightnessRange);
+                    double brightness = start + (pos * brightnessRange);
 
                     deviceObserver.OnNext(brightness);
                 },
@@ -103,9 +66,52 @@ namespace Animatroller.Framework.Effect2
                     taskSource.SetResult(true);
                 });
 
-            this.timerJobRunner.AddTimerJob(observer, durationMs);
+            var cancelSource = this.timerJobRunner.AddTimerJobPos(observer, durationMs);
 
-            Executor.Current.SetManagedTask(taskSource.Task);
+            Executor.Current.SetManagedTask(taskSource.Task, cancelSource);
+
+            return taskSource.Task;
+        }
+
+        public Task Fade(IObserver<Color> deviceObserver, Color start, Color end, int durationMs, ITransformer transformer = null)
+        {
+            var taskSource = new TaskCompletionSource<bool>();
+
+            if (start == end)
+            {
+                taskSource.SetResult(true);
+
+                return taskSource.Task;
+            }
+
+            var startHSV = new HSV(start);
+            var endHSV = new HSV(end);
+
+            if (startHSV.Value == 0)
+                startHSV = new HSV(endHSV.Hue, endHSV.Saturation, 0);
+
+            var observer = Observer.Create<double>(
+                onNext: pos =>
+                {
+                    if (transformer != null)
+                        pos = transformer.Transform(pos);
+
+                    double hue = startHSV.Hue + (endHSV.Hue - startHSV.Hue) * pos;
+                    double sat = startHSV.Saturation + (endHSV.Saturation - startHSV.Saturation) * pos;
+                    double val = startHSV.Value + (endHSV.Value - startHSV.Value) * pos;
+
+                    Color newColor = HSV.ColorFromHSV(hue, sat, val);
+
+                    deviceObserver.OnNext(newColor);
+                },
+                onCompleted: () =>
+                {
+                    taskSource.SetResult(true);
+                });
+
+            var cancelSource = this.timerJobRunner.AddTimerJobPos(observer, durationMs);
+
+            Executor.Current.SetManagedTask(taskSource.Task, cancelSource);
 
             return taskSource.Task;
         }
@@ -128,7 +134,9 @@ namespace Animatroller.Framework.Effect2
                     taskSource.SetResult(true);
                 });
 
-            this.timerJobRunner.AddTimerJob(observer, durationMs);
+            var cancelSource = this.timerJobRunner.AddTimerJobMs(observer, durationMs);
+
+            Executor.Current.SetManagedTask(taskSource.Task, cancelSource);
 
             return taskSource.Task;
         }

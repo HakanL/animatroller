@@ -159,8 +159,8 @@ namespace Animatroller.SceneRunner
             inflatablesRunning.OnNext(Exec.GetSetKey("InflatablesRunning", false));
 
             hours.Output.Log("Hours inside");
-            movingHead.InputPan.Log("Pan");
-            movingHead.InputTilt.Log("Tilt");
+            movingHead.OutputPan.Log("Pan");
+            movingHead.OutputTilt.Log("Tilt");
 
             raspberryDarth.Connect(audioDarthVader);
 

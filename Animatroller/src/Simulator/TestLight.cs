@@ -62,6 +62,7 @@ namespace Animatroller.Simulator
                     break;
                 }
             }
+
             this.control.Text = string.Format("{1}{0:0%}", GetMonochromeBrightnessFromColorBrightness(), ownedStatus);
         }
 

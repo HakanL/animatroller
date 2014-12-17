@@ -75,6 +75,10 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer)fieldValue));
                 else if (field.FieldType == typeof(StrobeColorDimmer2))
                     this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer2)fieldValue));
+                else if (field.FieldType == typeof(StrobeColorDimmer3))
+                    this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer3)fieldValue));
+                else if (field.FieldType == typeof(MovingHead))
+                    this.Connect(new Animatroller.Simulator.TestLight((MovingHead)fieldValue));
                 else if (field.FieldType == typeof(Pixel1D))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer))
@@ -228,6 +232,23 @@ namespace Animatroller.Simulator
                                 control.Text = e.NewState;
                         });
                     };
+                }
+                else if (field.FieldType == typeof(Animatroller.Framework.Controller.CueList))
+                {
+                    var cueList = (Animatroller.Framework.Controller.CueList)fieldValue;
+
+                    var control = AddLabel(cueList.Name);
+
+                    cueList.CurrentCueId.Subscribe(x =>
+                        {
+                            this.UIThread(delegate
+                            {
+                                if (x.HasValue)
+                                    control.Text = x.ToString();
+                                else
+                                    control.Text = "<idle>";
+                            });
+                        });
                 }
             }
 

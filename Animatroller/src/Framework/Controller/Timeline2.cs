@@ -12,20 +12,6 @@ namespace Animatroller.Framework.Controller
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
-        public class TimelineEventArgs : EventArgs
-        {
-            public int ElapsedMs { get; private set; }
-            public T Code { get; private set; }
-            public int Step { get; private set; }
-
-            public TimelineEventArgs(int elapsedMs, T code, int step)
-            {
-                this.ElapsedMs = elapsedMs;
-                this.Code = code;
-                this.Step = step;
-            }
-        }
-
         public class MultiTimelineEventArgs : EventArgs
         {
             public int ElapsedMs { get; private set; }
@@ -47,12 +33,11 @@ namespace Animatroller.Framework.Controller
         private int? iterationsLeft;
         private int? iterations;
 
-        public event EventHandler<TimelineEventArgs> TimelineTrigger;
         public event EventHandler<MultiTimelineEventArgs> MultiTimelineTrigger;
         protected Action setupAction;
         protected Action tearDownAction;
 
-        public Timeline2(int? iterations)
+        public Timeline2(int? iterations = null)
         {
             this.timeline = new SortedList<int, HashSet<T>>();
             this.iterations = iterations;
@@ -166,15 +151,6 @@ namespace Animatroller.Framework.Controller
                                 string.Join(",", codes));
                         log.Debug(string.Format("Invoking {1} at {0:N2} s   (pos {2})", elapsed, debugStr, currentPos + 1));
 #endif
-
-                        var handler = TimelineTrigger;
-                        if (handler != null)
-                        {
-                            foreach (var code in codes)
-                            {
-                                handler(this, new TimelineEventArgs(elapsed, code, currentPos + 1));
-                            }
-                        }
 
                         var multiHandler = MultiTimelineTrigger;
                         if (multiHandler != null)

@@ -82,12 +82,12 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 catMotion = new DigitalInput2();
         private DigitalInput2 finalBeam = new DigitalInput2();
         private DigitalInput2 firstBeam = new DigitalInput2();
-        private AnalogInput2 inputBrightness = new AnalogInput2(name: "Brightness");
+        private AnalogInput3 inputBrightness = new AnalogInput3(name: "Brightness");
         private AnalogInput2 inputH = new AnalogInput2(true, "Hue");
         private AnalogInput2 inputS = new AnalogInput2(true, "Saturation");
-        private AnalogInput2 inputStrobe = new AnalogInput2(true, "Strobe");
-        private AnalogInput2 inputPan = new AnalogInput2(true, "Pan");
-        private AnalogInput2 inputTilt = new AnalogInput2(true, "Tilt");
+        private AnalogInput3 inputStrobe = new AnalogInput3(true, "Strobe");
+        private AnalogInput3 inputPan = new AnalogInput3(true, "Pan");
+        private AnalogInput3 inputTilt = new AnalogInput3(true, "Tilt");
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
         private DigitalOutput2 catLights = new DigitalOutput2();
@@ -136,8 +136,8 @@ namespace Animatroller.SceneRunner
             // Logging
             hoursSmall.Output.Log("Hours small");
             hoursInside.Output.Log("Hours inside");
-            movingHead.InputPan.Log("Pan");
-            movingHead.InputTilt.Log("Tilt");
+            movingHead.OutputPan.Log("Pan");
+            movingHead.OutputTilt.Log("Tilt");
 
 
             hoursSmall
@@ -202,7 +202,7 @@ namespace Animatroller.SceneRunner
             raspberryGeorge.DigitalOutputs[7].Connect(fog);
             raspberryGeorge.Connect(audioGeorge);
 
-            inputBrightness.ConnectTo(movingHead.InputBrightness);
+            inputBrightness.ConnectTo(x => movingHead.Brightness = x);
 
             // Map Physical lights
             acnOutput.Connect(new Physical.SmallRGBStrobe(reaperLight, 1), 20);
@@ -413,7 +413,7 @@ namespace Animatroller.SceneRunner
                 movingHead.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x.Value, 1.0));
             });
 
-            inputStrobe.Output.Controls(movingHead.InputStrobeSpeed);
+            inputStrobe.Output.Controls(x => movingHead.StrobeSpeed = x);
 
             //midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
             //midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
@@ -449,8 +449,8 @@ namespace Animatroller.SceneRunner
                 {
                     if (x)
                     {
-                        inputPan.Output.Controls(movingHead.InputPan);
-                        inputTilt.Output.Controls(movingHead.InputTilt);
+                        inputPan.Output.Controls(p => movingHead.Pan = p);
+                        inputTilt.Output.Controls(t => movingHead.Tilt = t);
                     }
                     else
                     {
@@ -620,8 +620,8 @@ namespace Animatroller.SceneRunner
                     var controlPan = new Effect.Fader(S(3.8), 106, 150, false);
                     var controlTilt = new Effect.Fader(S(3.8), 231.8823531, 168.3529407, false);
 
-                    controlPan.ConnectTo(movingHead.InputPan);
-                    controlTilt.ConnectTo(movingHead.InputTilt);
+                    controlPan.ConnectTo(x => movingHead.Pan = x);
+                    controlTilt.ConnectTo(x => movingHead.Tilt = x);
 
                     controlPan.Prime();
                     controlTilt.Prime();

@@ -17,14 +17,14 @@ namespace Animatroller.Framework.PhysicalDevice
         public MonopriceMovingHeadLight12chn(MovingHead logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {
-            logicalDevice.InputPan.Subscribe(x =>
+            logicalDevice.OutputPan.Subscribe(x =>
                 {
                     this.pan = x.Limit(0, 540);
 
                     Output();
                 });
 
-            logicalDevice.InputTilt.Subscribe(x =>
+            logicalDevice.OutputTilt.Subscribe(x =>
             {
                 this.tilt = x.Limit(0, 270);
 
