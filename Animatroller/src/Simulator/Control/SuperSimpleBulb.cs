@@ -19,9 +19,14 @@ namespace Animatroller.Simulator.Control.Bulb
         #region Public and Private Members
 
         private Color _color;
+        private Color _colorGel;
         private bool _on = true;
         private string text;
         private Bitmap offScreenBitmap;
+        private double _intensity;
+        private double? _pan;
+        private double? _tilt;
+        private Font _tinyFont;
 
         /// <summary>
         /// Gets or Sets the color of the LED light
@@ -33,6 +38,46 @@ namespace Animatroller.Simulator.Control.Bulb
             set
             {
                 _color = value;
+                this.Invalidate();	// Redraw the control
+            }
+        }
+
+        public Color ColorGel
+        {
+            get { return _colorGel; }
+            set
+            {
+                _colorGel = value;
+                this.Invalidate();	// Redraw the control
+            }
+        }
+
+        public double Intensity
+        {
+            get { return _intensity; }
+            set
+            {
+                _intensity = value;
+                this.Invalidate();	// Redraw the control
+            }
+        }
+
+        public double? Pan
+        {
+            get { return _pan; }
+            set
+            {
+                _pan = value;
+                this.Invalidate();	// Redraw the control
+            }
+        }
+
+        public double? Tilt
+        {
+            get { return _tilt; }
+            set
+            {
+                _tilt = value;
                 this.Invalidate();	// Redraw the control
             }
         }
@@ -60,6 +105,8 @@ namespace Animatroller.Simulator.Control.Bulb
         {
             //            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             this.Color = Color.FromArgb(255, 153, 255, 54);
+
+            this._tinyFont = new Font(Font.FontFamily, 6);
         }
 
         #endregion
@@ -106,7 +153,7 @@ namespace Animatroller.Simulator.Control.Bulb
             // Create an offscreen graphics object for double buffering
             using (System.Drawing.Graphics g = Graphics.FromImage(this.offScreenBitmap))
             {
-                g.SmoothingMode = SmoothingMode.HighQuality;
+                g.SmoothingMode = SmoothingMode.HighSpeed;
                 // Draw the control
                 drawControl(g);
                 // Draw the image to the screen
@@ -120,31 +167,63 @@ namespace Animatroller.Simulator.Control.Bulb
         /// <param name="g"></param>
         private void drawControl(Graphics g)
         {
+            const int intensityColumnWidth = 3;
+
             var drawColor = this.On ? this.Color : Color.Black;
 
             Rectangle paddedRectangle = new Rectangle(this.Padding.Left, this.Padding.Top, this.Width - (this.Padding.Left + this.Padding.Right) - 1, this.Height - (this.Padding.Top + this.Padding.Bottom) - 1);
             int width = (paddedRectangle.Width < paddedRectangle.Height) ? paddedRectangle.Width : paddedRectangle.Height;
             int offsetX = (paddedRectangle.Width - width) / 2;
             int offsetY = (paddedRectangle.Height - width) / 2;
-            Rectangle drawRectangle = new Rectangle(paddedRectangle.X + offsetX, paddedRectangle.Y + offsetY, width, width);
+            Rectangle drawRectangle = new Rectangle(paddedRectangle.X + offsetX + intensityColumnWidth, paddedRectangle.Y + offsetY, width - intensityColumnWidth, width);
 
             g.FillRectangle(new SolidBrush(drawColor), drawRectangle);
 
+            Color invertedColor;
+            double brightness = Math.Max(Math.Max(drawColor.R, drawColor.G), drawColor.B) / 255.0;
+            if (brightness < 0.5)
+                invertedColor = Color.White;
+            else
+                invertedColor = Color.Black;
+
             if (!string.IsNullOrEmpty(Text))
             {
-                double brightness = Math.Max(Math.Max(drawColor.R, drawColor.G), drawColor.B) / 255.0;
-
-                Color fontColor;
-                if (brightness < 0.5)
-                    fontColor = Color.White;
-                else
-                    fontColor = Color.Black;
-
                 var textSize = g.MeasureString(Text, Font);
                 var pos = new PointF((Width - textSize.Width) / 2, (Height - textSize.Height) / 2);
 
-                g.DrawString(Text, Font, new SolidBrush(fontColor), pos);
+                g.DrawString(Text, Font, new SolidBrush(invertedColor), pos);
             }
+
+            if (_pan.HasValue)
+            {
+                string text = string.Format("P: {0:F0}", _pan.Value);
+
+                var textSize = g.MeasureString(text, _tinyFont);
+                var pos = new PointF(drawRectangle.Right - textSize.Width, 2);
+
+                g.DrawString(text, _tinyFont, new SolidBrush(invertedColor), pos);
+            }
+
+            if (_tilt.HasValue)
+            {
+                string text = string.Format("T: {0:F0}", _tilt.Value);
+
+                var textSize = g.MeasureString(text, _tinyFont);
+                var pos = new PointF(drawRectangle.Right - textSize.Width, 10);
+
+                g.DrawString(text, _tinyFont, new SolidBrush(invertedColor), pos);
+            }
+
+            // Draw Color Gel
+            Rectangle gelRectangle = new Rectangle(drawRectangle.Right - 16, drawRectangle.Bottom - 16, 16, 16);
+            g.FillRectangle(new SolidBrush(this.ColorGel), gelRectangle);
+
+            // Draw intensity
+            Rectangle intensityRectangle1 = new Rectangle(paddedRectangle.X + offsetX, drawRectangle.Top, intensityColumnWidth, (int)(drawRectangle.Height * (1.0 - Intensity)));
+            g.FillRectangle(new SolidBrush(Color.Black), intensityRectangle1);
+
+            Rectangle intensityRectangle2 = new Rectangle(intensityRectangle1.Left, intensityRectangle1.Bottom, intensityColumnWidth, drawRectangle.Height - intensityRectangle1.Height);
+            g.FillRectangle(new SolidBrush(Color.White), intensityRectangle2);
         }
 
         #endregion

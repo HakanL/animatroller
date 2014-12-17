@@ -13,6 +13,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         public T Destination { get; set; }
 
+        public bool MoveInBlack { get; set; }
+
         public int FadeMs
         {
             get { return this.fade ?? this.parent.FadeMs; }

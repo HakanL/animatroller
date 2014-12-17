@@ -14,7 +14,8 @@ namespace Animatroller.SceneRunner
     {
         //        Expander.AcnStream acnOutput = new Expander.AcnStream();
 
-        MovingHead light = new MovingHead();
+        MovingHead lightA = new MovingHead();
+        ColorDimmer3 lightB = new ColorDimmer3();
 
         //        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 button1 = new DigitalInput2();
@@ -29,10 +30,10 @@ namespace Animatroller.SceneRunner
             //            acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(light, 200), 20);
 
             // Logging
-            light.OutputPan.Log("Pan");
-            light.OutputTilt.Log("Tilt");
+            lightA.OutputPan.Log("Pan");
+            lightA.OutputTilt.Log("Tilt");
 
-            // Build preset/cues
+            // Build preset
             var preset1 = new Preset
             {
                 Brightness = 0.5,
@@ -45,28 +46,27 @@ namespace Animatroller.SceneRunner
             {
                 Brightness = 1.0,
                 Color = Color.Yellow,
-                Pan = 100,
-                Tilt = 300
+                Pan = 300,
+                Tilt = 200
             };
 
+            // Cues
             cueList.AddCue(new Cue
             {
                 Preset = preset1,
-                FadeS = 4.0,
-                AddDevice = light
-            });
+                FadeS = 4.0
+            }, lightA, lightB);
 
             cueList.AddCue(new Cue
             {
                 Preset = preset2,
-                FadeS = 2.0,
-                AddDevice = light
-            });
+                FadeS = 2.0
+            }, lightA, lightB);
 
             cueList.AddCue(new Cue
                 {
                     Color = Color.Green,
-                    AddDevice = light,
+                    AddDevice = lightA,
                     FadeS = 2,
                     Trigger = Cue.Triggers.Follow,
                     TriggerTimeS = 6
@@ -75,12 +75,24 @@ namespace Animatroller.SceneRunner
             // BO
             cueList.AddCue(new Cue
             {
-                Color = Color.Black,
-                AddDevice = light,
+                Intensity = 0,
+                AddDevice = lightA,
                 FadeS = 1,
                 Pan = 0,
                 Tilt = 0
-            });
+            }, lightB);
+
+            cueList.AddCue(new Cue
+            {
+                Preset = preset2,
+                FadeS = 2.0
+            }, lightA, lightB);
+
+
+            cueList.CueCompleted.Subscribe(x =>
+                {
+                    log.Debug("Cue {0} processing time: {1:N0}", x.Item1, x.Item2);
+                });
 
             // Inputs
             button1.Output.Subscribe(x =>
@@ -91,7 +103,7 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
-            test1.ConnectTo(light);
+            test1.ConnectTo(lightA);
         }
 
         public override void Run()

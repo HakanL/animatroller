@@ -74,7 +74,7 @@ namespace Animatroller.Framework.LogicalDevice
             return controlToken;
         }
 
-        public IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public IControlToken TakeControl(int priority = 1, bool executeReleaseAction = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this.members)
             {
@@ -84,24 +84,24 @@ namespace Animatroller.Framework.LogicalDevice
 
                 var memberTokens = new Dictionary<T, IControlToken>();
                 foreach (var device in this.members)
-                    memberTokens.Add(device, device.TakeControl(priority, name));
+                    memberTokens.Add(device, device.TakeControl(priority, executeReleaseAction, name));
 
                 var newOwner = new GroupControlToken(
                     memberTokens,
                     () =>
+                    {
+                        lock (this.members)
                         {
-                            lock (this.members)
+                            if (this.owners.Count > 0)
                             {
-                                if (this.owners.Count > 0)
-                                {
-                                    this.currentOwner = this.owners.Pop();
-                                }
-                                else
-                                    this.currentOwner = null;
-
-                                Executor.Current.SetControlToken(this, this.currentOwner);
+                                this.currentOwner = this.owners.Pop();
                             }
-                        });
+                            else
+                                this.currentOwner = null;
+
+                            Executor.Current.SetControlToken(this, this.currentOwner);
+                        }
+                    });
 
                 // Push current owner
                 this.owners.Push(this.currentOwner);

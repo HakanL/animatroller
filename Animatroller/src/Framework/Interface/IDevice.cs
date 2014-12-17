@@ -62,7 +62,7 @@ namespace Animatroller.Framework
 
     public interface IOwnedDevice : IDevice
     {
-        IControlToken TakeControl(int priority, string name = "");
+        IControlToken TakeControl(int priority, bool executeReleaseAction = true, string name = "");
 
         bool HasControl(IControlToken checkOwner);
 

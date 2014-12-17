@@ -38,7 +38,7 @@ namespace Animatroller.Framework.Controller
                 }
             }
 
-            public void AddNewTask(ILogicalDevice device, Cue.CueParts cuePart, Task task)
+            public void AddNewTask(ILogicalDevice device, Cue.CueParts cuePart, Task task, Action mibCheck = null)
             {
                 var key = Tuple.Create(device, cuePart);
 
@@ -48,11 +48,20 @@ namespace Animatroller.Framework.Controller
                     {
                         this.tasks.Remove(key);
                     });
+
+                if (mibCheck != null)
+                {
+                    task.ContinueWith(x =>
+                        {
+                            if (!x.IsCanceled)
+                                mibCheck();
+                        });
+                }
             }
 
             public Task[] GetAllTasks()
             {
-                return this.tasks.Values.ToArray();
+                return this.tasks.Values.Where(x => x != null).ToArray();
             }
 
             public void StopAllExistingTasks()
@@ -70,10 +79,10 @@ namespace Animatroller.Framework.Controller
         private int? iterations;
         private int? iterationsLeft;
         private List<Cue> cues;
-        private Dictionary<ILogicalDevice, ControlledObserver<double>> deviceObserversBrightness;
-        private Dictionary<ILogicalDevice, ControlledObserver<Color>> deviceObserversColor;
-        private Dictionary<ILogicalDevice, ControlledObserver<double>> deviceObserversPan;
-        private Dictionary<ILogicalDevice, ControlledObserver<double>> deviceObserversTilt;
+        private Dictionary<IReceivesBrightness, ControlledObserver<double>> deviceObserversBrightness;
+        private Dictionary<IReceivesColor, ControlledObserver<Color>> deviceObserversColor;
+        private Dictionary<IReceivesPanTilt, ControlledObserver<double>> deviceObserversPan;
+        private Dictionary<IReceivesPanTilt, ControlledObserver<double>> deviceObserversTilt;
         private int currentCuePos;
         private int? nextCuePos;
         private int direction;
@@ -88,6 +97,7 @@ namespace Animatroller.Framework.Controller
         private Stopwatch cueListTime;
         private int? requestedCueId;
         private ReplaySubject<int?> currentCueId;
+        private Subject<Tuple<int, long>> cueCompleted;
 
         public int LockPriority { get; set; }
 
@@ -99,6 +109,11 @@ namespace Animatroller.Framework.Controller
         public IObservable<int?> CurrentCueId
         {
             get { return this.currentCueId.AsObservable(); }
+        }
+
+        public IObservable<Tuple<int, long>> CueCompleted
+        {
+            get { return this.cueCompleted.AsObservable(); }
         }
 
         private void LockAllUsedDevices()
@@ -115,7 +130,7 @@ namespace Animatroller.Framework.Controller
                         // Already locked
                         continue;
 
-                    var token = ownedDevice.TakeControl(LockPriority, Name);
+                    var token = ownedDevice.TakeControl(LockPriority, false, Name);
 
                     this.heldLocks.Add(ownedDevice, token);
                 }
@@ -128,10 +143,20 @@ namespace Animatroller.Framework.Controller
             {
                 foreach (var kvp in this.heldLocks)
                 {
-                    this.deviceObserversBrightness.Remove((ILogicalDevice)kvp.Key);
-                    this.deviceObserversColor.Remove((ILogicalDevice)kvp.Key);
-                    this.deviceObserversPan.Remove((ILogicalDevice)kvp.Key);
-                    this.deviceObserversTilt.Remove((ILogicalDevice)kvp.Key);
+                    var brightnessDevice = kvp.Key as IReceivesBrightness;
+                    if (brightnessDevice != null)
+                        this.deviceObserversBrightness.Remove(brightnessDevice);
+
+                    var colorDevice = kvp.Key as IReceivesColor;
+                    if (colorDevice != null)
+                        this.deviceObserversColor.Remove(colorDevice);
+
+                    var panTiltDevice = kvp.Key as IReceivesPanTilt;
+                    if (panTiltDevice != null)
+                    {
+                        this.deviceObserversPan.Remove(panTiltDevice);
+                        this.deviceObserversTilt.Remove(panTiltDevice);
+                    }
 
                     kvp.Value.Dispose();
                 }
@@ -374,15 +399,112 @@ namespace Animatroller.Framework.Controller
             return newPos;
         }
 
-        private void RunCue(int id, Cue cue, bool snap, bool lastCue)
+        private void MibCheck(int cueId, ILogicalDevice device)
         {
+            //FIXME: Doesn't check for bounce/loop
+
+            var brightnessDevice = device as IReceivesBrightness;
+            if (brightnessDevice == null)
+                return;
+
+            if (brightnessDevice.Brightness > 0)
+                // Not black
+                return;
+
+            for (int i = cueId + 1; i < this.cues.Count; i++)
+            {
+                var cue = this.cues[i];
+
+                var panTiltDevice = device as IReceivesPanTilt;
+
+                bool moved = false;
+                if (panTiltDevice != null)
+                {
+                    if (cue.PartPan != null && cue.PartPan.MoveInBlack)
+                    {
+                        GetControlledObserverPan(panTiltDevice).OnNext(cue.PartPan.Destination);
+                        moved = true;
+                    }
+
+                    if (cue.PartTilt != null && cue.PartTilt.MoveInBlack)
+                    {
+                        GetControlledObserverTilt(panTiltDevice).OnNext(cue.PartTilt.Destination);
+                        moved = true;
+                    }
+                }
+
+                if (moved)
+                    break;
+            }
+        }
+
+        private ControlledObserver<double> GetControlledObserverBrightness(IReceivesBrightness device)
+        {
+            ControlledObserver<double> observer;
+
+            if (!this.deviceObserversBrightness.TryGetValue(device, out observer))
+            {
+                observer = device.GetBrightnessObserver();
+
+                this.deviceObserversBrightness.Add(device, observer);
+            }
+
+            return observer;
+        }
+
+        private ControlledObserver<Color> GetControlledObserverColor(IReceivesColor device)
+        {
+            ControlledObserver<Color> observer;
+
+            if (!this.deviceObserversColor.TryGetValue(device, out observer))
+            {
+                observer = device.GetColorObserver();
+
+                this.deviceObserversColor.Add(device, observer);
+            }
+
+            return observer;
+        }
+
+        private ControlledObserver<double> GetControlledObserverPan(IReceivesPanTilt device)
+        {
+            ControlledObserver<double> observer;
+
+            if (!this.deviceObserversPan.TryGetValue(device, out observer))
+            {
+                observer = device.GetPanObserver();
+
+                this.deviceObserversPan.Add(device, observer);
+            }
+
+            return observer;
+        }
+
+        private ControlledObserver<double> GetControlledObserverTilt(IReceivesPanTilt device)
+        {
+            ControlledObserver<double> observer;
+
+            if (!this.deviceObserversTilt.TryGetValue(device, out observer))
+            {
+                observer = device.GetTiltObserver();
+
+                this.deviceObserversTilt.Add(device, observer);
+            }
+
+            return observer;
+        }
+
+        private void RunCue(int cueId, Cue cue, bool snap, bool lastCue)
+        {
+            var watch = Stopwatch.StartNew();
+
             CancellationTokenSource cancelSource;
             if (this.triggerCancelSources.TryGetValue(cue, out cancelSource))
             {
                 cancelSource.Cancel();
             }
 
-            this.currentCueId.OnNext(id);
+            this.currentCueId.OnNext(cueId);
 
             var cueInstance = new CueInstance();
 
@@ -394,14 +516,7 @@ namespace Animatroller.Framework.Controller
                     if (brightnessDevice == null)
                         continue;
 
-                    ControlledObserver<double> observer;
-
-                    if (!this.deviceObserversBrightness.TryGetValue(device, out observer))
-                    {
-                        observer = brightnessDevice.GetBrightnessObserver();
-
-                        this.deviceObserversBrightness.Add(device, observer);
-                    }
+                    var observer = GetControlledObserverBrightness(brightnessDevice);
 
                     StopCurrentTask(device, Cue.CueParts.Intensity);
 
@@ -411,7 +526,7 @@ namespace Animatroller.Framework.Controller
                         cue.PartIntensity.Destination,
                         snap ? 0 : cue.PartIntensity.FadeMs);
 
-                    cueInstance.AddNewTask(device, Cue.CueParts.Intensity, fadeTask);
+                    cueInstance.AddNewTask(device, Cue.CueParts.Intensity, fadeTask, () => MibCheck(cueId, device));
                 }
             }
 
@@ -423,14 +538,7 @@ namespace Animatroller.Framework.Controller
                     if (colorDevice == null)
                         continue;
 
-                    ControlledObserver<Color> observer;
-
-                    if (!this.deviceObserversColor.TryGetValue(device, out observer))
-                    {
-                        observer = colorDevice.GetColorObserver();
-
-                        this.deviceObserversColor.Add(device, observer);
-                    }
+                    var observer = GetControlledObserverColor(colorDevice);
 
                     StopCurrentTask(device, Cue.CueParts.Color);
 
@@ -452,14 +560,7 @@ namespace Animatroller.Framework.Controller
                     if (panTiltDevice == null)
                         continue;
 
-                    ControlledObserver<double> observer;
-
-                    if (!this.deviceObserversPan.TryGetValue(device, out observer))
-                    {
-                        observer = panTiltDevice.GetPanObserver();
-
-                        this.deviceObserversPan.Add(device, observer);
-                    }
+                    var observer = GetControlledObserverPan(panTiltDevice);
 
                     StopCurrentTask(device, Cue.CueParts.Pan);
 
@@ -481,14 +582,7 @@ namespace Animatroller.Framework.Controller
                     if (panTiltDevice == null)
                         continue;
 
-                    ControlledObserver<double> observer;
-
-                    if (!this.deviceObserversTilt.TryGetValue(device, out observer))
-                    {
-                        observer = panTiltDevice.GetTiltObserver();
-
-                        this.deviceObserversTilt.Add(device, observer);
-                    }
+                    var observer = GetControlledObserverTilt(panTiltDevice);
 
                     StopCurrentTask(device, Cue.CueParts.Tilt);
 
@@ -503,15 +597,30 @@ namespace Animatroller.Framework.Controller
 
             this.currentInstance = cueInstance;
 
-            if (!snap && lastCue)
+            var allTasks = cueInstance.GetAllTasks();
+
+            if (allTasks.Length > 0)
             {
-                Task.WhenAll(cueInstance.GetAllTasks()).ContinueWith(x =>
+                Task.WhenAll(allTasks).ContinueWith(x =>
+                {
+                    watch.Stop();
+
+                    this.cueCompleted.OnNext(Tuple.Create(cueId, watch.ElapsedMilliseconds));
+
+                    if (!snap && lastCue)
                     {
                         this.currentCueId.OnNext(null);
                         this.currentInstance = null;
 
                         ReleaseLocks();
-                    });
+                    }
+                });
+            }
+            else
+            {
+                watch.Stop();
+
+                this.cueCompleted.OnNext(Tuple.Create(cueId, watch.ElapsedMilliseconds));
             }
         }
 
@@ -531,10 +640,10 @@ namespace Animatroller.Framework.Controller
             this.name = name;
 
             this.cues = new List<Cue>();
-            this.deviceObserversBrightness = new Dictionary<ILogicalDevice, ControlledObserver<double>>();
-            this.deviceObserversColor = new Dictionary<ILogicalDevice, ControlledObserver<Color>>();
-            this.deviceObserversPan = new Dictionary<ILogicalDevice, ControlledObserver<double>>();
-            this.deviceObserversTilt = new Dictionary<ILogicalDevice, ControlledObserver<double>>();
+            this.deviceObserversBrightness = new Dictionary<IReceivesBrightness, ControlledObserver<double>>();
+            this.deviceObserversColor = new Dictionary<IReceivesColor, ControlledObserver<Color>>();
+            this.deviceObserversPan = new Dictionary<IReceivesPanTilt, ControlledObserver<double>>();
+            this.deviceObserversTilt = new Dictionary<IReceivesPanTilt, ControlledObserver<double>>();
             this.direction = 1;
             this.currentCuePos = -1;
             this.heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
@@ -543,6 +652,7 @@ namespace Animatroller.Framework.Controller
             this.cueListTime = new Stopwatch();
             this.currentCueId = new ReplaySubject<int?>(1);
             this.currentCueId.OnNext(null);
+            this.cueCompleted = new Subject<Tuple<int, long>>();
 
             this.LockPriority = 1;
 
@@ -575,6 +685,20 @@ namespace Animatroller.Framework.Controller
             this.cues.Add(cue);
 
             return this;
+        }
+
+        public CueList AddCue(Cue cue, params ILogicalDevice[] devices)
+        {
+            cue.Devices.AddRange(devices);
+
+            this.cues.Add(cue);
+
+            return this;
+        }
+
+        public long CueListTimeMs
+        {
+            get { return this.cueListTime.ElapsedMilliseconds; }
         }
 
         public void Start()

@@ -17,7 +17,7 @@ namespace Animatroller.Framework.LogicalDevice
             this.releaseActions = new List<Action>();
         }
 
-        public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public virtual IControlToken TakeControl(int priority = 1, bool executeReleaseAction = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this)
             {
@@ -39,7 +39,8 @@ namespace Animatroller.Framework.LogicalDevice
                         Executor.Current.SetControlToken(this, this.currentOwner);
                     }
 
-                    this.releaseActions.ForEach(x => x());
+                    if (executeReleaseAction)
+                        this.releaseActions.ForEach(x => x());
                 });
 
                 // Push current owner

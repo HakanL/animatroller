@@ -33,7 +33,7 @@ namespace Animatroller.Framework.Controller
             this.heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var handleLock in this.handleLocks)
             {
-                var control = handleLock.TakeControl(LockPriority, Name);
+                var control = handleLock.TakeControl(priority: LockPriority, name: Name);
 
                 Executor.Current.SetControlToken(handleLock, control);
 

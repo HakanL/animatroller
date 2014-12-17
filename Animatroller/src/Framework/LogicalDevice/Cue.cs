@@ -47,7 +47,8 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.PartPan = new CuePart<double>(this)
                     {
-                        Destination = value.Pan.Value
+                        Destination = value.Pan.Value,
+                        MoveInBlack = true
                     };
                 }
 
@@ -55,7 +56,8 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.PartTilt = new CuePart<double>(this)
                     {
-                        Destination = value.Tilt.Value
+                        Destination = value.Tilt.Value,
+                        MoveInBlack = true
                     };
                 }
             }

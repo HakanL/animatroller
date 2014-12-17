@@ -13,6 +13,8 @@ namespace Animatroller.Simulator
     public class TestLight : Animatroller.Framework.PhysicalDevice.BaseStrobeLight, INeedsLabelLight, IUpdateableControl
     {
         private Control.StrobeBulb control;
+        private double? pan;
+        private double? tilt;
 
         public Control.StrobeBulb LabelLightControl
         {
@@ -47,6 +49,13 @@ namespace Animatroller.Simulator
         public TestLight(ILogicalDevice logicalDevice)
             : base(logicalDevice)
         {
+            var movingHeadDevice = logicalDevice as MovingHead;
+
+            if(movingHeadDevice != null)
+            {
+                movingHeadDevice.OutputPan.Subscribe(x => this.pan = x);
+                movingHeadDevice.OutputTilt.Subscribe(x => this.tilt = x);
+            }
         }
 
         protected override void Output()
@@ -64,6 +73,12 @@ namespace Animatroller.Simulator
             }
 
             this.control.Text = string.Format("{1}{0:0%}", GetMonochromeBrightnessFromColorBrightness(), ownedStatus);
+
+            this.control.ColorGel = this.colorBrightness.Color;
+            this.control.Intensity = this.colorBrightness.Brightness;
+
+            this.control.Pan = this.pan;
+            this.control.Tilt = this.tilt;
         }
 
         public void Update()
