@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading.Tasks;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 using Animatroller.Framework.LogicalDevice;
@@ -12,7 +13,7 @@ namespace Animatroller.SceneRunner
 {
     internal class PanTiltDemo : BaseScene
     {
-        //        Expander.AcnStream acnOutput = new Expander.AcnStream();
+        Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         MovingHead lightA = new MovingHead();
         ColorDimmer3 lightB = new ColorDimmer3();
@@ -27,7 +28,7 @@ namespace Animatroller.SceneRunner
         public PanTiltDemo(IEnumerable<string> args)
         {
             // Patch physical
-            //            acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(light, 200), 20);
+            acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(lightA, 200), 54);
 
             // Logging
             lightA.OutputPan.Log("Pan");
@@ -100,6 +101,35 @@ namespace Animatroller.SceneRunner
                     if (x)
                     {
                         cueList.Go();
+                    }
+                });
+
+            button2.Output.Subscribe(x =>
+                {
+                    if (x)
+                    {
+                        double[] testListP = new double[1000];
+                        for (int i = 0; i < testListP.Length; i++)
+                            testListP[i] = 200 * Math.Sin(Math.PI * i / testListP.Length);
+
+                        double[] testListT = new double[1000];
+                        for (int i = 0; i < testListP.Length; i++)
+                            testListT[i] = 270 * Math.Sin(Math.PI * i / testListP.Length);
+
+                        var token = lightA.TakeControl();
+
+                        lightA.SetOnlyColor(Color.Violet);
+
+                        var tasks = new List<Task>();
+
+                        tasks.Add(Exec.MasterEffect.Fade(lightA.GetBrightnessObserver(), 0.0, 1.0, 2000));
+
+                        tasks.Add(Exec.MasterEffect.Custom(testListP, lightA.GetPanObserver(), 5000, 1));
+
+                        tasks.Add(Exec.MasterEffect.Custom(testListT, lightA.GetTiltObserver(), 10000, 3));
+
+                        Task.WhenAll(tasks.ToArray())
+                            .ContinueWith(_ => token.Dispose());
                     }
                 });
 

@@ -106,7 +106,6 @@
     <Compile Include="Controller\LockHolder.cs" />
     <Compile Include="Controller\Subroutine.cs" />
     <Compile Include="Controller\ITimeline.cs" />
-    <Compile Include="Controller\CuelistX.cs" />
     <Compile Include="Controller\Timeline2.cs" />
     <Compile Include="ControlSubject.cs" />
     <Compile Include="DoubleZeroToOne.cs" />

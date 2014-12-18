@@ -18,20 +18,21 @@ namespace Animatroller.Framework.Effect2
 
             public bool Running { get; private set; }
 
-            public long DurationMs { get; private set; }
+            public long? DurationMs { get; private set; }
 
-            public long EndDurationMs { get; private set; }
+            public long? EndDurationMs { get; private set; }
 
             public long StartDurationMs { get; private set; }
 
             private CancellationTokenSource cancelSource;
 
-            protected CancellationTokenSource Init(long durationMs, long startDurationMs)
+            protected CancellationTokenSource Init(long? durationMs, long startDurationMs)
             {
                 this.DurationMs = durationMs;
 
                 this.StartDurationMs = startDurationMs;
-                this.EndDurationMs = startDurationMs + durationMs;
+                if (durationMs.HasValue)
+                    this.EndDurationMs = startDurationMs + durationMs;
 
                 this.lastDuration = -1;
                 this.Running = true;
@@ -48,14 +49,14 @@ namespace Animatroller.Framework.Effect2
             {
                 long currentElapsedMs = elapsedMs - this.StartDurationMs;
 
-                if (currentElapsedMs <= this.DurationMs)
+                if (!this.DurationMs.HasValue || currentElapsedMs <= this.DurationMs)
                 {
                     ObserverNext(currentElapsedMs);
 
                     this.lastDuration = currentElapsedMs;
                 }
                 else
-                    ObserverNext(this.DurationMs);
+                    ObserverNext(this.DurationMs.Value);
 
                 if (elapsedMs >= EndDurationMs || this.cancelSource.IsCancellationRequested)
                 {
@@ -76,7 +77,7 @@ namespace Animatroller.Framework.Effect2
         {
             private IObserver<long> observer;
 
-            public CancellationTokenSource Init(IObserver<long> observer, long durationMs, long startDurationMs)
+            public CancellationTokenSource Init(IObserver<long> observer, long? durationMs, long startDurationMs)
             {
                 this.observer = observer;
 
@@ -146,9 +147,9 @@ namespace Animatroller.Framework.Effect2
         }
 
         private CancellationTokenSource AddTimerJob<T>(
-            long durationMs,
+            long? durationMs,
             Action finishAction,
-            Func<T, long, long, CancellationTokenSource> initAction) where T : TimerJob, new()
+            Func<T, long?, long, CancellationTokenSource> initAction) where T : TimerJob, new()
         {
             if (durationMs <= 5)
             {
@@ -165,7 +166,7 @@ namespace Animatroller.Framework.Effect2
 
                 foreach (var existingTimerJob in this.timerJobs)
                 {
-                    if (!existingTimerJob.Running)
+                    if (!existingTimerJob.Running && existingTimerJob is T)
                     {
                         // Reuse
                         timerJob = (T)existingTimerJob;
@@ -185,13 +186,12 @@ namespace Animatroller.Framework.Effect2
             }
         }
 
-        public CancellationTokenSource AddTimerJobMs(IObserver<long> observer, long durationMs)
+        public CancellationTokenSource AddTimerJobMs(IObserver<long> observer, long? durationMs)
         {
             return AddTimerJob<TimerJobMs>(
                 durationMs: durationMs,
                 finishAction: new Action(() =>
                     {
-                        observer.OnNext(durationMs);
                         observer.OnCompleted();
                     }),
                 initAction: (job, dMs, startDurationMs) => job.Init(observer, dMs, startDurationMs));
@@ -206,7 +206,7 @@ namespace Animatroller.Framework.Effect2
                     observer.OnNext(1.0);
                     observer.OnCompleted();
                 }),
-                initAction: (job, dMs, startDurationMs) => job.Init(observer, dMs, startDurationMs));
+                initAction: (job, dMs, startDurationMs) => job.Init(observer, dMs.Value, startDurationMs));
         }
     }
 }

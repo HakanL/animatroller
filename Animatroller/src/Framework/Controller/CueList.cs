@@ -61,7 +61,7 @@ namespace Animatroller.Framework.Controller
 
             public Task[] GetAllTasks()
             {
-                return this.tasks.Values.Where(x => x != null).ToArray();
+                return this.tasks.Values.ToList().Where(x => x != null).ToArray();
             }
 
             public void StopAllExistingTasks()

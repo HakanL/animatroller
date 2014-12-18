@@ -11,7 +11,6 @@ namespace Animatroller.Framework.Controller
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
-        private string name;
         private object lockObject = new object();
         private string id;
         protected Action setUpAction;
@@ -81,7 +80,7 @@ namespace Animatroller.Framework.Controller
             // Can only execute one at a time
             lock (lockObject)
             {
-                log.Info("Starting Subroutine {0}", this.name);
+                log.Info("Starting Subroutine {0}", Name);
 
                 this.cancelToken = cancelToken;
 
@@ -101,9 +100,9 @@ namespace Animatroller.Framework.Controller
                     this.tearDownAction.Invoke();
 
                 if (cancelToken.IsCancellationRequested)
-                    log.Info("SequenceJob {0} canceled and stopped", this.name);
+                    log.Info("SequenceJob {0} canceled and stopped", Name);
                 else
-                    log.Info("SequenceJob {0} completed", this.name);
+                    log.Info("SequenceJob {0} completed", Name);
             }
         }
 
