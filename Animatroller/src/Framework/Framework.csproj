@@ -115,6 +115,7 @@
     <Compile Include="Effect\MasterEffect.cs" />
     <Compile Include="Effect\TimerJobRunner.cs" />
     <Compile Include="Effect\Effects2.cs" />
+    <Compile Include="Expander\MidiOutput.cs" />
     <Compile Include="Expander\MidiInput2.cs" />
     <Compile Include="Expander\MidiInput.cs" />
     <Compile Include="Effect\SweeperTables.cs" />

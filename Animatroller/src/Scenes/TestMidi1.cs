@@ -27,6 +27,7 @@ namespace Animatroller.SceneRunner
         private PhysicalDevices p;
 
         private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
+        private Expander.MidiOutput midiOutput = new Expander.MidiOutput();
         private ColorDimmer2 testLight1 = new ColorDimmer2("Test 1");
         private Dimmer2 testLight2 = new Dimmer2("Test 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -74,7 +75,12 @@ namespace Animatroller.SceneRunner
                 testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), inputS.Value, x.Value));
             });
 
+            inputBrightness.Output.Subscribe(x =>
+                {
+                    midiOutput.Send(0, 81, x.Value.GetByteScale(127));
+                });
             midiInput.Controller(1, 1).Controls(inputBrightness.Control);
+            midiInput.Controller(0, 81).Controls(inputBrightness.Control);
             midiInput.Controller(1, 2).Controls(inputH.Control);
             midiInput.Controller(1, 3).Controls(inputS.Control);
             midiInput.Controller(1, 4).Controls(inputV.Control);
