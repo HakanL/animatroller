@@ -120,10 +120,16 @@ namespace Animatroller.Framework
             task.ContinueWith(x =>
             {
                 ThreadStorage.ManagedTasks.Remove(tuple);
-                this.cancelSourceForManagedTask.Remove(task);
+                lock (this.cancelSourceForManagedTask)
+                {
+                    this.cancelSourceForManagedTask.Remove(task);
+                }
             });
 
-            this.cancelSourceForManagedTask[task] = cancelSource;
+            lock (this.cancelSourceForManagedTask)
+            {
+                this.cancelSourceForManagedTask[task] = cancelSource;
+            }
         }
 
         public void WaitForManagedTasks(bool cancel)
@@ -407,9 +413,12 @@ namespace Animatroller.Framework
         internal void StopManagedTask(Task task)
         {
             CancellationTokenSource cancelSource;
-            if (this.cancelSourceForManagedTask.TryGetValue(task, out cancelSource))
+            lock (this.cancelSourceForManagedTask)
             {
-                cancelSource.Cancel();
+                if (this.cancelSourceForManagedTask.TryGetValue(task, out cancelSource))
+                {
+                    cancelSource.Cancel();
+                }
             }
         }
 

@@ -151,17 +151,17 @@ namespace Animatroller.Framework.Expander
         public OscServer RegisterAction<T>(string address, Action<Message, IEnumerable<T>> action)
         {
             Action<Message> invokeAction = msg =>
+            {
+                try
                 {
-                    try
-                    {
-                        var list = msg.Data.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
-                        action(msg, list);
-                    }
-                    catch
-                    {
+                    var list = msg.Data.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
+                    action(msg, list);
+                }
+                catch
+                {
 
-                    }
-                };
+                }
+            };
 
             if (address.EndsWith("*"))
                 this.dispatchPartial[address.Substring(0, address.Length - 1)] = invokeAction;

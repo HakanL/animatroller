@@ -127,7 +127,9 @@ namespace Animatroller.SceneRunner
 
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
-        Expander.MidiInput2 midiInput = new Expander.MidiInput2(true);
+        Expander.MidiInput2 midiAkai = new Expander.MidiInput2(true);
+        Expander.MidiInput2 midiBCF = new Expander.MidiInput2(true);
+        Expander.MidiOutput midiBcfOutput = new Expander.MidiOutput(true);
         Controller.Sequence candyCane = new Controller.Sequence();
         Controller.Sequence fatherSeq = new Controller.Sequence();
         Controller.Sequence starwarsCane = new Controller.Sequence();
@@ -149,8 +151,20 @@ namespace Animatroller.SceneRunner
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            midiInput.Controller(midiChannel, 1).Controls(blackOut.Control);
-            midiInput.Controller(midiChannel, 2).Controls(whiteOut.Control);
+            midiAkai.Controller(midiChannel, 1).Controls(blackOut.Control);
+            midiAkai.Controller(midiChannel, 2).Controls(whiteOut.Control);
+
+            midiBCF.Controller(0, 87).Controls(blackOut.Control);
+            midiBCF.Controller(0, 88).Controls(whiteOut.Control);
+
+            blackOut.ConnectTo(x =>
+                {
+                    midiBcfOutput.Send(0, 87, x.GetByteScale(127));
+                });
+            whiteOut.ConnectTo(x =>
+            {
+                midiBcfOutput.Send(0, 88, x.GetByteScale(127));
+            });
 
             inflatablesRunning.Subscribe(x =>
                 {
@@ -163,8 +177,8 @@ namespace Animatroller.SceneRunner
             inflatablesRunning.OnNext(Exec.GetSetKey("InflatablesRunning", false));
 
             hours.Output.Log("Hours inside");
-            movingHead.OutputPan.Log("Pan");
-            movingHead.OutputTilt.Log("Tilt");
+            //            movingHead.Pan.Log("Pan");
+            //            movingHead.Tilt.Log("Tilt");
 
             raspberryDarth.Connect(audioDarthVader);
             raspberrySnow.DigitalOutputs[0].Connect(snowMachine);

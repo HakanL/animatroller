@@ -17,9 +17,11 @@ namespace Animatroller.Framework.Expander
         private InputDevice inputDevice;
         private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
         private ISubject<ChannelMessage> midiMessages;
+        private string name;
 
         public MidiInput2(bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.name = name;
             int deviceId = Executor.Current.GetSetKey(this, name + ".DeviceId", 0);
 
             this.messageMapper = new Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>>();
@@ -50,11 +52,12 @@ namespace Animatroller.Framework.Expander
 
         private void inputDevice_ChannelMessageReceived(object sender, ChannelMessageEventArgs e)
         {
-            log.Trace("Recv midi cmd {0}, chn: {1}   data1: {2}   data2: {3}",
+            log.Trace("Recv {4} midi cmd {0}, chn: {1}   data1: {2}   data2: {3}",
                 e.Message.Command,
                 e.Message.MidiChannel,
                 e.Message.Data1,
-                e.Message.Data2);
+                e.Message.Data2,
+                Name);
 
             this.midiMessages.OnNext(e.Message);
 
@@ -174,5 +177,8 @@ namespace Animatroller.Framework.Expander
 
             return device;
         }
+
+        public string Name
+        { get { return this.name; } }
     }
 }
