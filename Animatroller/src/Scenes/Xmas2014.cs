@@ -46,12 +46,15 @@ namespace Animatroller.SceneRunner
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         AudioPlayer audioDarthVader = new AudioPlayer();
         Expander.Raspberry raspberryDarth = new Expander.Raspberry("192.168.240.115:5005", 3333);
+        Expander.Raspberry raspberrySnow = new Expander.Raspberry("192.168.240.131:5005", 3336);
 
         VirtualPixel1D pixelsRoofEdge = new VirtualPixel1D(150);
         VirtualPixel1D saberPixels = new VirtualPixel1D(32);
         VirtualPixel1D saberSidePixels = new VirtualPixel1D(18);
         DigitalInput2 buttonTest = new DigitalInput2();
         DigitalInput2 buttonTest2 = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 buttonSnowMachine = new DigitalInput2();
         DigitalInput buttonStartInflatables = new DigitalInput();
 
         //        Dimmer3 lightSpiral1 = new Dimmer3();
@@ -77,6 +80,7 @@ namespace Animatroller.SceneRunner
         DigitalOutput2 airSanta = new DigitalOutput2();
         DigitalOutput2 airReindeer = new DigitalOutput2();
         DigitalOutput2 packages = new DigitalOutput2();
+        DigitalOutput2 snowMachine = new DigitalOutput2();
         Dimmer3 lightHat1 = new Dimmer3();
         Dimmer3 lightHat2 = new Dimmer3();
         Dimmer3 lightHat3 = new Dimmer3();
@@ -137,7 +141,7 @@ namespace Animatroller.SceneRunner
 
         public Xmas2014(IEnumerable<string> args)
         {
-            hours.AddRange("5:00 pm", "9:00 pm");
+            hours.AddRange("4:30 pm", "9:00 pm");
             //            hours.SetForced(true);
 
             //acnOutput.Muted = true;
@@ -163,6 +167,7 @@ namespace Animatroller.SceneRunner
             movingHead.OutputTilt.Log("Tilt");
 
             raspberryDarth.Connect(audioDarthVader);
+            raspberrySnow.DigitalOutputs[0].Connect(snowMachine);
 
             packages.Power = true;
             airSnowman.Power = true;
@@ -175,8 +180,8 @@ namespace Animatroller.SceneRunner
                 .ControlsMasterPower(airR2D2)
                 .ControlsMasterPower(airSanta);
 
-            midiInput.Controller(midiChannel, 1).Controls(
-                Observer.Create<double>(x => { allLights.Brightness = x; }));
+            //midiInput.Controller(midiChannel, 1).Controls(
+            //    Observer.Create<double>(x => { allLights.Brightness = x; }));
 
             //            pulsatingEffect1.ConnectTo(lightStar.GetBrightnessObserver());
 
@@ -1186,8 +1191,21 @@ namespace Animatroller.SceneRunner
                 if (!x)
                     return;
 
-                stateMachine.SetState(States.Music2);
+                for (int sab = 00; sab < 32; sab++)
+                {
+                    saberPixels.Inject(Color.Red, 0.5);
+                    Exec.Sleep(S(0.01));
+                }
+                Exec.Sleep(S(1));
+
+                saberPixels.SetAll(Color.Black, 0);
+                //                stateMachine.SetState(States.Music2);
             });
+
+            buttonSnowMachine.Output.Subscribe(x =>
+                {
+                    snowMachine.Power = x;
+                });
 
             buttonTest2.Output.Subscribe(x =>
                 {
