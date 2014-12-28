@@ -135,7 +135,7 @@ namespace Animatroller.Simulator
                         switch (buttonType.Type)
                         {
                             case Framework.SimulatorButtonTypes.FlipFlop:
-                                AddDigitalInput_FlipFlop((DigitalInput2)fieldValue);
+                                AddDigitalInput_FlipFlop((DigitalInput2)fieldValue, buttonType.ShowOutput);
                                 break;
 
                             case Framework.SimulatorButtonTypes.Momentarily:
@@ -423,11 +423,23 @@ namespace Animatroller.Simulator
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_FlipFlop(DigitalInput2 logicalDevice)
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_FlipFlop(DigitalInput2 logicalDevice, bool showOutput)
         {
             var control = new CheckBox();
             control.Text = logicalDevice.Name;
-            control.Size = new System.Drawing.Size(80, 80);
+            control.Size = new System.Drawing.Size(80, 60);
+            control.ImageAlign = ContentAlignment.TopLeft;
+
+            var indicator = new Animatroller.Simulator.Control.Bulb.LedBulb();
+            indicator.On = false;
+            indicator.Size = new System.Drawing.Size(12, 12);
+            indicator.Left = 0;
+            indicator.Top = 0;
+            var imageOff = new Bitmap(12, 12);
+            indicator.DrawToBitmap(imageOff, new Rectangle(0, 0, 12, 12));
+            var imageOn = new Bitmap(12, 12);
+            indicator.On = true;
+            indicator.DrawToBitmap(imageOn, new Rectangle(0, 0, 12, 12));
 
             flowLayoutPanelLights.Controls.Add(control);
 
@@ -441,6 +453,14 @@ namespace Animatroller.Simulator
             device.Connect(logicalDevice);
 
             control.Checked = logicalDevice.Value;
+
+            if (showOutput)
+            {
+                logicalDevice.Output.Subscribe(x =>
+                    {
+                        control.Image = x ? imageOn : imageOff;
+                    });
+            }
 
             return device;
         }

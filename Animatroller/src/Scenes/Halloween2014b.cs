@@ -266,7 +266,7 @@ namespace Animatroller.SceneRunner
             {
                 if (data.First() != 0)
                 {
-                    catLights.Power = true;
+                    catLights.Value = true;
                     switch (random.Next(3))
                     {
                         case 0:
@@ -280,7 +280,7 @@ namespace Animatroller.SceneRunner
                             break;
                     }
                     Thread.Sleep(2000);
-                    catLights.Power = false;
+                    catLights.Value = false;
                 }
             });
 
@@ -459,7 +459,7 @@ namespace Animatroller.SceneRunner
                 });
 
             //            buttonTest2.Output.Subscribe(reaperPopUp.PowerControl);
-            catMotion.Output.Subscribe(catLights.ControlValue);
+            catMotion.Output.Subscribe(catLights.Control);
 
             /*
                         finalBeam.Output.Subscribe(x =>
@@ -497,7 +497,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (x)
                     {
-                        catLights.Power = true;
+                        catLights.Value = true;
                         switch (random.Next(3))
                         {
                             case 0:
@@ -511,7 +511,7 @@ namespace Animatroller.SceneRunner
                                 break;
                         }
                         Thread.Sleep(2000);
-                        catLights.Power = false;
+                        catLights.Value = false;
                     }
                 });
 
@@ -530,7 +530,7 @@ namespace Animatroller.SceneRunner
             //            hoursSmall.Output.Subscribe(flickerEffect.InputRun);
             //hoursSmall.Output.Subscribe(pulsatingEffect1.InputRun);
             //hoursSmall.Output.Subscribe(pulsatingEffect2.InputRun);
-            hoursSmall.Output.Subscribe(lightTree.ControlValue);
+            hoursSmall.Output.Subscribe(lightTree.Control);
 
             hoursSmall.Output.Subscribe(x =>
                 {
@@ -696,20 +696,20 @@ namespace Animatroller.SceneRunner
 
                     movingHead.Pan = 106;
                     movingHead.Tilt = 31;
-                    fog.Power = true;
+                    fog.Value = true;
                     this.lastFogRun = DateTime.Now;
                     instance.WaitFor(S(0.05));
                     audioReaper.PlayEffect("348 Spider Hiss", 1.0, 0.0);
                     instance.WaitFor(S(0.05));
-                    spiderEyes1.Power = true;
+                    spiderEyes1.Value = true;
                     instance.WaitFor(S(0.5));
 
                     movingHead.SetColor(Color.Turquoise, 0.2);
                     movingHead.StrobeSpeed = 0.8;
 
-                    deadEnd.Power = true;
+                    deadEnd.Value = true;
                     instance.WaitFor(S(0.3));
-                    deadEnd.Power = false;
+                    deadEnd.Value = false;
 
                     instance.WaitFor(S(2.5));
                     movingHead.StrobeSpeed = 0;
@@ -720,24 +720,24 @@ namespace Animatroller.SceneRunner
                     instance.WaitFor(S(1.0));
                     audioReaper.PlayNewEffect("laugh", 0.0, 1.0);
                     instance.WaitFor(S(0.1));
-                    spiderEyes1.Power = false;
-                    reaperPopUp.Power = true;
+                    spiderEyes1.Value = false;
+                    reaperPopUp.Value = true;
                     reaperLight.Color = Color.Red;
                     reaperLight.Brightness = 1;
                     reaperLight.StrobeSpeed = 1;
                     instance.WaitFor(S(0.5));
-                    reaperEyes.Power = true;
+                    reaperEyes.Value = true;
                     instance.WaitFor(S(2.0));
 
-                    reaperPopUp.Power = false;
-                    reaperEyes.Power = false;
+                    reaperPopUp.Value = false;
+                    reaperEyes.Value = false;
                     reaperLight.TurnOff();
                     instance.WaitFor(S(2.0));
                     audioOla.PlayEffect("424 Coyote Howling", 0.0, 1.0);
                     audioGeorge.PlayEffect("424 Coyote Howling");
                     movingHead.SetColor(Color.Orange, 0.2);
                     instance.WaitFor(S(2.0));
-                    spiderEyes2.Power = true;
+                    spiderEyes2.Value = true;
                     popOut2.Pop(0.4);
                     audioGeorge.PlayEffect("348 Spider Hiss");
                     audioReaper.PlayEffect("348 Spider Hiss");
@@ -750,7 +750,7 @@ namespace Animatroller.SceneRunner
                     instance.WaitFor(S(2.0));
                     movingHead.StrobeSpeed = 0.0;
                     movingHead.Brightness = 0;
-                    spiderEyes2.Power = false;
+                    spiderEyes2.Value = false;
                     instance.WaitFor(S(2.0));
 
                     movingHead.Pan = 106;
@@ -762,7 +762,7 @@ namespace Animatroller.SceneRunner
                 {
                     flickerEffect.Start();
                     pulsatingEffect2.Start();
-                    fog.Power = false;
+                    fog.Value = false;
                 });
 
             reaperPopSeq.WhenExecuted
@@ -770,16 +770,16 @@ namespace Animatroller.SceneRunner
                 {
                     audioReaper.PlayNewEffect("laugh", 0.0, 1.0);
                     instance.WaitFor(S(0.1));
-                    reaperPopUp.Power = true;
+                    reaperPopUp.Value = true;
                     reaperLight.Color = Color.Red;
                     reaperLight.Brightness = 1;
                     reaperLight.StrobeSpeed = 1;
                     instance.WaitFor(S(0.5));
-                    reaperEyes.Power = true;
+                    reaperEyes.Value = true;
                     instance.WaitFor(S(2.0));
 
-                    reaperPopUp.Power = false;
-                    reaperEyes.Power = false;
+                    reaperPopUp.Value = false;
+                    reaperEyes.Value = false;
                     reaperLight.TurnOff();
                     instance.WaitFor(S(0.5));
                 });
@@ -793,7 +793,7 @@ namespace Animatroller.SceneRunner
                 })
                 .Execute(i =>
                 {
-                    skullEyes.Power = true;
+                    skullEyes.Value = true;
                     candySpot.SetColor(Color.Red);
 
                     i.WaitFor(S(1.0));
@@ -805,7 +805,7 @@ namespace Animatroller.SceneRunner
                 .TearDown(() =>
                 {
                     audioOla.PlayBackground();
-                    skullEyes.Power = false;
+                    skullEyes.Value = false;
                     candySpot.SetOnlyColor(Color.Green);
                     pulsatingEffect1.Start();
                     pulsatingEffect2.Start();
@@ -857,9 +857,9 @@ namespace Animatroller.SceneRunner
                         if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 10)
                         {
                             // Run the fog for a little while
-                            fog.Power = true;
+                            fog.Value = true;
                             i.WaitFor(S(4));
-                            fog.Power = false;
+                            fog.Value = false;
                             this.lastFogRun = DateTime.Now;
                         }
                     }
@@ -878,7 +878,7 @@ namespace Animatroller.SceneRunner
                 {
                     var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
-                    catLights.Power = true;
+                    catLights.Value = true;
 
                     while (true)
                     {
@@ -913,7 +913,7 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                 {
-                    catLights.Power = false;
+                    catLights.Value = false;
                 });
         }
 

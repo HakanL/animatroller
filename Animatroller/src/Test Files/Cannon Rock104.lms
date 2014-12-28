@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<sequence saveFileVersion="7" author="Mike" createdAt="8/18/2008 8:01:27 PM" musicFilename="Trans-Siberian Orchestra - Christmas Canon Rock.mp3">
+<sequence saveFileVersion="7" author="Mike" createdAt="8/18/2008 8:01:27 PM" musicFilename="C:\Projects\Other\ChristmasSounds\trk\21. Christmas Canon Rock.wav">
 	<channels>
 		<channel name="Bush Right" color="12615744" centiseconds="30264" deviceType="LOR" unit="1" circuit="1" savedIndex="0">
 			<effect type="intensity" startCentisecond="3100" endCentisecond="3120" intensity="100"/>

@@ -13,28 +13,38 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class DigitalOutput2 : SingleOwnerOutputDevice
+    public class DigitalOutput2 : SingleOwnerOutputDevice, ILogicalOutputDevice<bool>, ILogicalControlDevice<bool>
     {
         private bool currentValue;
-        protected IObserver<bool> controlValue;
+        protected ISubject<bool> controlValue;
         protected ISubject<bool> outputValue;
 
-        public DigitalOutput2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool initial = false)
+        public DigitalOutput2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool initial = false, TimeSpan? autoResetDelay = null)
             : base(name)
         {
             this.currentValue = initial;
 
-            this.controlValue = Observer.Create<bool>(x =>
-                {
-                    if (this.currentValue != x)
-                    {
-                        this.currentValue = x;
-
-                        UpdateOutput();
-                    }
-                });
-
             this.outputValue = new Subject<bool>();
+            this.controlValue = new Subject<bool>();
+
+            IObservable<bool> control = this.controlValue;
+
+            if (autoResetDelay.HasValue && autoResetDelay.Value.TotalMilliseconds > 0)
+            {
+                control = this.controlValue
+                    .Buffer(autoResetDelay.Value, 1)
+                    .Select(s => s.Count == 0 ? false : s.Single());
+            }
+
+            control.Subscribe(x =>
+            {
+                if (this.currentValue != x)
+                {
+                    this.currentValue = x;
+
+                    UpdateOutput();
+                }
+            });
         }
 
         //public Switch Follow(OperatingHours source)
@@ -50,11 +60,11 @@ namespace Animatroller.Framework.LogicalDevice
         //    return this;
         //}
 
-        public IObserver<bool> ControlValue
+        public IObserver<bool> Control
         {
             get
             {
-                return this.controlValue;
+                return this.controlValue.AsObserver();
             }
         }
 
@@ -62,41 +72,19 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get
             {
-                return this.outputValue;
+                return this.outputValue.AsObservable();
             }
         }
 
-        public bool Power
+        public bool Value
         {
             get { return this.currentValue; }
-            set
-            {
-                if (this.currentValue != value)
-                {
-                    this.currentValue = value;
-
-                    UpdateOutput();
-                }
-            }
+            set { this.controlValue.OnNext(value); }
         }
 
         protected override void UpdateOutput()
         {
             this.outputValue.OnNext(this.currentValue && this.MasterPower);
         }
-
-        //public virtual Switch SetPower(bool value)
-        //{
-        //    this.Power = value;
-
-        //    return this;
-        //}
-
-        //public virtual Switch TurnOff()
-        //{
-        //    this.Power = false;
-
-        //    return this;
-        //}
     }
 }

@@ -11,18 +11,30 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class DigitalInput2 : BaseDevice, ISupportsPersistence
+    public class DigitalInput2 : BaseDevice, ISupportsPersistence, ILogicalOutputDevice<bool>, ILogicalControlDevice<bool>
     {
         protected bool currentValue;
-        protected IObserver<bool> controlValue;
+        protected ISubject<bool> controlValue;
         protected ISubject<bool> outputValue;
 
-        public DigitalInput2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool persistState = false)
+        public DigitalInput2([System.Runtime.CompilerServices.CallerMemberName] string name = "",
+            bool persistState = false,
+            TimeSpan? autoResetDelay = null)
             : base(name, persistState)
         {
             this.outputValue = new Subject<bool>();
+            this.controlValue = new Subject<bool>();
 
-            this.controlValue = Observer.Create<bool>(x =>
+            IObservable<bool> control = this.controlValue;
+
+            if (autoResetDelay.HasValue && autoResetDelay.Value.TotalMilliseconds > 0)
+            {
+                control = this.controlValue
+                    .Buffer(autoResetDelay.Value, 1)
+                    .Select(s => s.Count == 0 ? false : s.Single());
+            }
+
+            control.Subscribe(x =>
             {
                 if (this.currentValue != x)
                 {
@@ -37,7 +49,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get
             {
-                return this.controlValue;
+                return this.controlValue.AsObserver();
             }
         }
 
@@ -45,27 +57,14 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get
             {
-                return this.outputValue;
+                return this.outputValue.AsObservable();
             }
-        }
-
-        public void ConnectTo(ISubject<bool> component)
-        {
-            this.outputValue.Subscribe(component);
         }
 
         public bool Value
         {
             get { return this.currentValue; }
-            set
-            {
-                if (this.currentValue != value)
-                {
-                    this.currentValue = value;
-
-                    UpdateOutput();
-                }
-            }
+            set { this.controlValue.OnNext(value); }
         }
 
         public void SetValueFromPersistence(Func<string, string, string> getKeyFunc)
@@ -86,11 +85,6 @@ namespace Animatroller.Framework.LogicalDevice
         protected override void UpdateOutput()
         {
             this.outputValue.NotifyOn(TaskPoolScheduler.Default).OnNext(this.currentValue);
-        }
-
-        public void WhenOutputChanges(Action<bool> action)
-        {
-            Output.Subscribe(action);
         }
     }
 }

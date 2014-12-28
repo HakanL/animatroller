@@ -156,6 +156,8 @@
     <Compile Include="LogicalDevice\GroupDimmer.cs" />
     <Compile Include="LogicalDevice\Dimmer3.cs" />
     <Compile Include="LogicalDevice\Interface\IHasMasterPower.cs" />
+    <Compile Include="LogicalDevice\Interface\ILogicalControlDevice.cs" />
+    <Compile Include="LogicalDevice\Interface\ILogicalOutputDevice.cs" />
     <Compile Include="LogicalDevice\OperatingHours2.cs" />
     <Compile Include="LogicalDevice\CuePoint\PanTiltCuePoint.cs" />
     <Compile Include="LogicalDevice\PixelMapper2D.cs" />

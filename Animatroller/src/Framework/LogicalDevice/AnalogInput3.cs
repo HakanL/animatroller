@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class AnalogInput3 : BaseDevice, ISupportsPersistence
+    public class AnalogInput3 : BaseDevice, ISupportsPersistence, ILogicalOutputDevice<double>
     {
         protected double currentValue;
         protected ISubject<double> control;

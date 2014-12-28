@@ -26,13 +26,13 @@ namespace Animatroller.SceneRunner
 
         private PhysicalDevices p;
 
-        private Expander.MidiInput2 midiInput = new Expander.MidiInput2();
-        private Expander.MidiOutput midiOutput = new Expander.MidiOutput();
+        private Expander.MidiInput2 midiInput = new Expander.MidiInput2(true);
+        private Expander.MidiOutput midiOutput = new Expander.MidiOutput(true);
         private ColorDimmer2 testLight1 = new ColorDimmer2("Test 1");
         private Dimmer2 testLight2 = new Dimmer2("Test 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonTest1 = new DigitalInput2("Test 1");
-        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop, showOutput: true)]
         private DigitalInput2 buttonTest2 = new DigitalInput2("Test 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonTest3 = new DigitalInput2("Test 3");
@@ -41,7 +41,7 @@ namespace Animatroller.SceneRunner
         private AnalogInput2 inputS = new AnalogInput2(true, "Saturation");
         private AnalogInput2 inputV = new AnalogInput2(true, "Value");
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
-        private DigitalOutput2 catAir = new DigitalOutput2();
+        private DigitalOutput2 catAir = new DigitalOutput2(autoResetDelay: S(1));
         private DigitalOutput2 catLight = new DigitalOutput2();
 
         public TestMidi1(IEnumerable<string> args)
@@ -59,6 +59,8 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(p.SmallLED, 20);
             acnOutput.Connect(p.CatAir, 20);
             acnOutput.Connect(p.CatLight, 20);
+
+            buttonTest2.ConnectTo(catAir.Control);
 
             inputH.Output.Subscribe(x =>
             {
@@ -90,8 +92,8 @@ namespace Animatroller.SceneRunner
             midiInput.Note(1, 38).Controls(buttonTest3.Control);
 
 
-            buttonTest2.Output.Subscribe(catAir.ControlValue);
-            buttonTest3.Output.Subscribe(catLight.ControlValue);
+            buttonTest2.Output.Subscribe(catAir.Control);
+            buttonTest3.Output.Subscribe(catLight.Control);
 
             buttonTest1.Output.Subscribe(x =>
             {

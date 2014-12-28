@@ -100,11 +100,11 @@ namespace Animatroller.SceneRunner
         {
             hours.AddRange("5:00 pm", "9:00 pm");
 
-            reindeer.Power = true;
-            airSnowman.Power = true;
-            airR2D2.Power = true;
-            airSanta.Power = true;
-            packages.Power = true;
+            reindeer.Value = true;
+            airSnowman.Value = true;
+            airR2D2.Value = true;
+            airSanta.Value = true;
+            packages.Value = true;
 
             hours
                 .ControlsMasterPower(packages)

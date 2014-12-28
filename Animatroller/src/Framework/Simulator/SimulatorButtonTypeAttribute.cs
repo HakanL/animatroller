@@ -10,9 +10,12 @@ namespace Animatroller.Framework
     {
         public SimulatorButtonTypes Type { get; private set; }
 
-        public SimulatorButtonTypeAttribute(SimulatorButtonTypes type)
+        public bool ShowOutput { get; private set; }
+
+        public SimulatorButtonTypeAttribute(SimulatorButtonTypes type = SimulatorButtonTypes.Momentarily, bool showOutput = false)
         {
             Type = type;
+            ShowOutput = showOutput;
         }
     }
 }

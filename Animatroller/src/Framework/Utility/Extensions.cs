@@ -109,5 +109,26 @@ namespace Animatroller.Framework.Extensions
         {
             return subject.MostRecent(defaultValue).First();
         }
+
+        public static void ConnectTo<T>(this Animatroller.Framework.LogicalDevice.ILogicalOutputDevice<T> device, IObserver<T> component)
+        {
+            device.Output.Subscribe(component);
+        }
+
+        public static void WhenOutputChanges<T>(this Animatroller.Framework.LogicalDevice.ILogicalOutputDevice<T> device, Action<T> onNext)
+        {
+            device.Output.Subscribe(onNext);
+        }
+
+        public static void Follow(this Animatroller.Framework.LogicalDevice.ILogicalControlDevice<bool> device, Animatroller.Framework.LogicalDevice.OperatingHours2 operatingHours)
+        {
+            // Initially turned on
+            device.Control.OnNext(true);
+
+            operatingHours.Output.Subscribe(x =>
+                {
+                    device.Control.OnNext(x);
+                });
+        }
     }
 }
