@@ -31,6 +31,11 @@ namespace Animatroller.Framework.PhysicalDevice
         {
         }
 
+        public MonopriceRGBWPinSpot(ILogicalDevice logicalDevice, int dmxChannel)
+            : base(logicalDevice, dmxChannel)
+        {
+        }
+
         protected override void Output()
         {
             byte function = (byte)(this.strobeSpeed == 0 ? 255 : this.strobeSpeed.GetByteScale(104) + 135);

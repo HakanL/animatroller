@@ -72,6 +72,7 @@ namespace Animatroller.SceneRunner
         //ColorDimmer3 lightNote8 = new ColorDimmer3();
         //ColorDimmer3 lightNote9 = new ColorDimmer3();
         ColorDimmer3 lightVader = new ColorDimmer3();
+        ColorDimmer3 lightSnow = new ColorDimmer3();
         //ColorDimmer3 lightNote11 = new ColorDimmer3();
         //ColorDimmer3 lightNote12 = new ColorDimmer3();
 
@@ -143,7 +144,7 @@ namespace Animatroller.SceneRunner
 
         public Xmas2014(IEnumerable<string> args)
         {
-            hours.AddRange("4:30 pm", "9:00 pm");
+            hours.AddRange("4:00 pm", "9:00 pm");
             //            hours.SetForced(true);
 
             //acnOutput.Muted = true;
@@ -156,6 +157,22 @@ namespace Animatroller.SceneRunner
 
             midiBCF.Controller(0, 87).Controls(blackOut.Control);
             midiBCF.Controller(0, 88).Controls(whiteOut.Control);
+
+            midiBCF.Controller(0, 91).Controls(x =>
+                {
+                    if (x.Value == 1)
+                    {
+                        if (hours.IsOpen)
+                        {
+                            inflatablesRunning.OnNext(true);
+                        }
+                    }
+                });
+
+            midiBCF.Controller(0, 92).Controls(x =>
+                {
+                    buttonSnowMachine.Control.OnNext(x.Value == 1);
+                });
 
             blackOut.ConnectTo(x =>
                 {
@@ -277,6 +294,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.RGBStrobe(lightRightColumn, 80), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightUpTree, 40), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightVader, 70), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(lightSnow, 20), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 1), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 2), SacnUniverseRenard2);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 3), SacnUniverseRenard2);
@@ -327,7 +345,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (data == 1)
                     {
-                        stateMachine.SetState(States.DarthVader);
+//                        stateMachine.SetState(States.DarthVader);
                     }
                 });
 
@@ -335,7 +353,7 @@ namespace Animatroller.SceneRunner
             {
                 if (data == 1)
                 {
-                    stateMachine.SetState(States.Music1);
+//                    stateMachine.SetState(States.Music1);
                 }
             });
 
@@ -343,8 +361,13 @@ namespace Animatroller.SceneRunner
             {
                 if (data == 1)
                 {
-                    stateMachine.SetState(States.Music2);
+//                    stateMachine.SetState(States.Music2);
                 }
+            });
+
+            oscServer.RegisterActionSimple<int>("/2/toggle4", (msg, data) =>
+            {
+                buttonSnowMachine.Control.OnNext(data == 1);
             });
 
             music1Seq
@@ -1220,8 +1243,17 @@ namespace Animatroller.SceneRunner
 
             buttonSnowMachine.Output.Subscribe(x =>
                 {
+                    lightSnow.SetColor(Color.White, x ? 1.0 : 0.0);
+
                     snowMachine.Value = x;
+
+                    midiBcfOutput.Send(0, 92, (byte)(x ? 127 : 0));
                 });
+
+            snowMachine.Output.Subscribe(x =>
+            {
+                // TODO: Turn off after X period of time
+            });
 
             buttonTest2.Output.Subscribe(x =>
                 {

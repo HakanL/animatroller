@@ -54,7 +54,7 @@ namespace Animatroller.Framework.Expander
 
         private void inputDevice_ChannelMessageReceived(object sender, ChannelMessageEventArgs e)
         {
-            log.Trace("Recv {4} midi cmd {0}, chn: {1}   data1: {2}   data2: {3}",
+            log.Trace("Recv {4} cmd {0}, chn: {1}  data1: {2}  data2: {3}",
                 e.Message.Command,
                 e.Message.MidiChannel,
                 e.Message.Data1,
