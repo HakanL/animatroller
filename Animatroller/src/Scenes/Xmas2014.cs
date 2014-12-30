@@ -137,6 +137,7 @@ namespace Animatroller.SceneRunner
         Controller.Sequence music1Seq = new Controller.Sequence();
         Controller.Sequence music2Seq = new Controller.Sequence();
         Controller.Sequence backgroundLoop = new Controller.Sequence();
+        Controller.Sequence backgroundLights = new Controller.Sequence();
         Subject<bool> inflatablesRunning = new Subject<bool>();
 
         Import.LorImport2 lorCarolBells = new Import.LorImport2();
@@ -144,7 +145,7 @@ namespace Animatroller.SceneRunner
 
         public Xmas2014(IEnumerable<string> args)
         {
-            hours.AddRange("4:00 pm", "9:00 pm");
+            hours.AddRange("5:00 pm", "10:00 pm");
             //            hours.SetForced(true);
 
             //acnOutput.Muted = true;
@@ -211,7 +212,7 @@ namespace Animatroller.SceneRunner
                 .ControlsMasterPower(airR2D2)
                 .ControlsMasterPower(airSanta);
 
-//TODO            airSanta.Follow(hours);
+            //TODO            airSanta.Follow(hours);
 
             //midiInput.Controller(midiChannel, 1).Controls(
             //    Observer.Create<double>(x => { allLights.Brightness = x; }));
@@ -326,7 +327,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 1), SacnUniverseArduino);
             acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 2), SacnUniverseArduino);
 
-            stateMachine.ForFromSequence(States.Background, backgroundLoop);
+            stateMachine.ForFromSequence(States.Background, backgroundLights);
             stateMachine.ForFromSequence(States.Music1, music1Seq);
             stateMachine.ForFromSequence(States.Music2, music2Seq);
             stateMachine.ForFromSequence(States.DarthVader, fatherSeq);
@@ -345,7 +346,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (data == 1)
                     {
-//                        stateMachine.SetState(States.DarthVader);
+                        //                        stateMachine.SetState(States.DarthVader);
                     }
                 });
 
@@ -353,7 +354,7 @@ namespace Animatroller.SceneRunner
             {
                 if (data == 1)
                 {
-//                    stateMachine.SetState(States.Music1);
+                    //                    stateMachine.SetState(States.Music1);
                 }
             });
 
@@ -361,7 +362,7 @@ namespace Animatroller.SceneRunner
             {
                 if (data == 1)
                 {
-//                    stateMachine.SetState(States.Music2);
+                    //                    stateMachine.SetState(States.Music2);
                 }
             });
 
@@ -433,6 +434,73 @@ namespace Animatroller.SceneRunner
                 {
                     lorCoke.Stop();
                     soundOut.Stop();
+                });
+
+            backgroundLights
+                .WhenExecuted
+                .SetUp(() =>
+                {
+                    saberPixels.SetAll(Color.Red, 0.1);
+                    pulsatingStar.Start();
+                    lightUpTree.SetColor(Color.Red, 0.5);
+                    lightHat1.Brightness = 1;
+                    lightHat2.Brightness = 1;
+                    lightHat3.Brightness = 1;
+                    lightHat4.Brightness = 1;
+                    snowmanKaggen.Brightness = 1;
+                    lightR2D2.Brightness = 1;
+                    lightSnowman.Brightness = 1;
+                    lightSanta.Brightness = 1;
+                    lightNet1.Brightness = 1;
+                    lightNet2.Brightness = 1;
+                    lightNet3.Brightness = 1;
+                    lightNet4.Brightness = 1;
+                    lightNet5.Brightness = 1;
+                    lightNet6.Brightness = 1;
+                    lightNet7.Brightness = 1;
+                    lightNet8.Brightness = 1;
+                    lightNet9.Brightness = 1;
+                    lightNet10.Brightness = 1;
+                    lightNet11.Brightness = 1;
+                    lightStairsLeft.Brightness = 1;
+                    lightFenceLeft.Brightness = 1;
+                    lightFenceMid.Brightness = 1;
+                    lightFenceRight.Brightness = 1;
+                    lightStairsRight.Brightness = 1;
+                    lightBushes.Brightness = 1;
+                    lightMetalReindeer.Brightness = 1;
+                })
+                .TearDown(() =>
+                {
+                    saberPixels.TurnOff();
+                    pulsatingStar.Stop();
+                    lightUpTree.Brightness = 0;
+                    lightHat1.Brightness = 0;
+                    lightHat2.Brightness = 0;
+                    lightHat3.Brightness = 0;
+                    lightHat4.Brightness = 0;
+                    snowmanKaggen.Brightness = 0;
+                    lightR2D2.Brightness = 0;
+                    lightSnowman.Brightness = 0;
+                    lightSanta.Brightness = 0;
+                    lightNet1.Brightness = 0;
+                    lightNet2.Brightness = 0;
+                    lightNet3.Brightness = 0;
+                    lightNet4.Brightness = 0;
+                    lightNet5.Brightness = 0;
+                    lightNet6.Brightness = 0;
+                    lightNet7.Brightness = 0;
+                    lightNet8.Brightness = 0;
+                    lightNet9.Brightness = 0;
+                    lightNet10.Brightness = 0;
+                    lightNet11.Brightness = 0;
+                    lightStairsLeft.Brightness = 0;
+                    lightFenceLeft.Brightness = 0;
+                    lightFenceMid.Brightness = 0;
+                    lightFenceRight.Brightness = 0;
+                    lightStairsRight.Brightness = 0;
+                    lightBushes.Brightness = 0;
+                    lightMetalReindeer.Brightness = 0;
                 });
 
             backgroundLoop

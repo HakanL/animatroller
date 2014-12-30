@@ -206,6 +206,11 @@ namespace Animatroller.Framework
             return GetSetKey(string.Format("{0}.{1}", typeObject.GetType().Name, subKey), defaultValue);
         }
 
+        internal void SetKey<T>(object typeObject, string subKey, T value)
+        {
+            SetKey(string.Format("{0}.{1}", typeObject.GetType().Name, subKey), value.ToString());
+        }
+
         public T GetSetKey<T>(string key, T defaultValue)
         {
             string value = GetKey(key, defaultValue.ToString(), true);

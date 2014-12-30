@@ -24,21 +24,35 @@ namespace Animatroller.Framework.Expander
         public MidiInput2(bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
-            int deviceId = Executor.Current.GetSetKey(this, name + ".DeviceId", 0);
+            string deviceName = Executor.Current.GetSetKey(this, name + ".DeviceName", string.Empty);
 
             this.messageMapper = new Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>>();
 
             this.midiMessages = new Subject<ChannelMessage>();
 
-            if (InputDevice.DeviceCount <= deviceId)
+            int selectedDeviceId = -1;
+            for (int i = 0; i < InputDevice.DeviceCount; i++)
+            {
+                var midiCap = InputDevice.GetDeviceCapabilities(i);
+
+                if (midiCap.name == deviceName)
+                {
+                    selectedDeviceId = i;
+                    break;
+                }
+            }
+
+            if (selectedDeviceId == -1)
             {
                 if (!ignoreMissingDevice)
                     throw new ArgumentException("Midi device not detected");
             }
             else
             {
-                this.inputDevice = new InputDevice(deviceId);
+                this.inputDevice = new InputDevice(selectedDeviceId);
                 this.inputDevice.ChannelMessageReceived += inputDevice_ChannelMessageReceived;
+
+                Executor.Current.SetKey(this, name + ".DeviceName", deviceName);
             }
 
             Executor.Current.Register(this);
@@ -89,8 +103,14 @@ namespace Animatroller.Framework.Expander
         {
             if (this.inputDevice != null)
             {
-                this.inputDevice.StopRecording();
-                this.inputDevice.Close();
+                try
+                {
+                    this.inputDevice.StopRecording();
+                    this.inputDevice.Close();
+                }
+                catch
+                {
+                }
             }
         }
 

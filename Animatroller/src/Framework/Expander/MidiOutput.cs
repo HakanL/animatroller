@@ -18,18 +18,32 @@ namespace Animatroller.Framework.Expander
 
         public MidiOutput(bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            int deviceId = Executor.Current.GetSetKey(this, name + ".DeviceId", 1);
+            string deviceName = Executor.Current.GetSetKey(this, name + ".DeviceName", string.Empty);
 
-            if (OutputDevice.DeviceCount <= deviceId)
+            int selectedDeviceId = -1;
+            for (int i = 0; i < OutputDevice.DeviceCount; i++)
+            {
+                var midiCap = OutputDevice.GetDeviceCapabilities(i);
+
+                if (midiCap.name == deviceName)
+                {
+                    selectedDeviceId = i;
+                    break;
+                }
+            }
+
+            if (selectedDeviceId == -1)
             {
                 if (!ignoreMissingDevice)
                     throw new ArgumentException("Midi device not detected");
             }
             else
             {
-                this.outputDevice = new OutputDevice(deviceId);
+                this.outputDevice = new OutputDevice(selectedDeviceId);
 
                 this.outputDevice.Error += outputDevice_Error;
+
+                Executor.Current.SetKey(this, name + ".DeviceName", deviceName);
             }
 
             Executor.Current.Register(this);
