@@ -40,6 +40,7 @@ namespace Animatroller.MonoExpander
             catch (Exception ex)
             {
                 log.Error(ex, "Unhandled exception");
+                Console.WriteLine("Unhandled exception: {0}", ex);
             }
 
             log.Info("Closing");

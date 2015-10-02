@@ -17,11 +17,19 @@ namespace Animatroller.MonoExpander
         [ArgDescription("Path to sound effects, relative or absolute")]
         public string SoundEffectPath { get; set; }
 
+        [ArgShortcut("trk")]
+        [ArgDescription("Path to tracks, relative or absolute")]
+        public string TrackPath { get; set; }
+
         [ArgRequired()]
         [ArgRange(1, 65535)]
         [ArgShortcut("ol")]
         [ArgDescription("Port to listen for OSC commands")]
         public int OscListenPort { get; set; }
+
+        [ArgShortcut("bgas")]
+        [ArgDescription("Auto-start background tracks")]
+        public bool BackgroundTrackAutoStart { get; set; }
 
         [ArgShortcut("os")]
         [ArgDescription("OSC Hostname:Port to send OSC commands to. Supports comma-separated entries")]

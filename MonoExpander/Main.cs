@@ -10,6 +10,7 @@ using Raspberry.IO.Components.Devices.PiFaceDigital;
 using SupersonicSound.LowLevel;
 using NLog;
 using Rug.Osc;
+using SupersonicSound.Exceptions;
 
 namespace Animatroller.MonoExpander
 {
@@ -19,30 +20,44 @@ namespace Animatroller.MonoExpander
         private Rug.Osc.OscReceiver receiver;
         private List<Rug.Osc.OscSender> senders;
         private PiFaceDigitalDevice piFace;
-        private SupersonicSound.Studio.System fmodSystem;
+        private SupersonicSound.LowLevel.LowLevelSystem fmodSystem;
         private Task receiverTask;
         private CancellationTokenSource cancelSource;
         private List<string> backgroundAudioTracks;
         private string instanceId;
         private Dictionary<string, Sound> loadedSounds;
         private string soundEffectPath;
+        private string trackPath;
         private ChannelGroup fxGroup;
         private ChannelGroup bgGroup;
         private Channel? currentFxChannel;
         private Channel? currentBgChannel;
+        private Channel? currentTrkChannel;
         private Sound? currentBgSound;
+        private Sound? currentTrkSound;
+        private string currentTrack;
         private int currentBgTrack;
+        private string currentBgTrackName;
+        private Random random;
+        private bool autoStartBackgroundTrack;
 
         public Main(Arguments args)
         {
             this.log = LogManager.GetLogger("Main");
 
+            this.loadedSounds = new Dictionary<string, Sound>();
+            this.currentBgTrack = -1;
+            this.random = new Random();
+
             if (string.IsNullOrEmpty(args.SoundEffectPath))
                 this.soundEffectPath = Directory.GetCurrentDirectory();
             else
                 this.soundEffectPath = Path.GetFullPath(args.SoundEffectPath);
-            this.loadedSounds = new Dictionary<string, Sound>();
-            this.currentBgTrack = -1;
+            if (string.IsNullOrEmpty(args.TrackPath))
+                this.trackPath = Directory.GetCurrentDirectory();
+            else
+                this.trackPath = Path.GetFullPath(args.TrackPath);
+            this.autoStartBackgroundTrack = args.BackgroundTrackAutoStart;
 
             // Try to read instance id from disk
             string tempPath = Path.GetTempPath();
@@ -79,12 +94,12 @@ namespace Animatroller.MonoExpander
             }
 
             this.log.Info("Initializing FMOD sound system");
-            this.fmodSystem = new SupersonicSound.Studio.System();
+            this.fmodSystem = new LowLevelSystem();
 
-            this.fxGroup = this.fmodSystem.LowLevelSystem.CreateChannelGroup("FX");
-            this.bgGroup = this.fmodSystem.LowLevelSystem.CreateChannelGroup("Background");
+            this.fxGroup = this.fmodSystem.CreateChannelGroup("FX");
+            this.bgGroup = this.fmodSystem.CreateChannelGroup("Background");
 
-            if (SupersonicSound.Wrapper.Util.IsLinux)
+            if (SupersonicSound.Wrapper.Util.IsUnix)
             {
                 this.log.Info("Initializing PiFace");
 
@@ -152,7 +167,7 @@ namespace Animatroller.MonoExpander
                 }
                 catch (Exception ex)
                 {
-                    if (this.receiver.State == Rug.Osc.OscSocketState.Closed)
+                    if (ex.Message == "The receiver socket has been disconnected")
                         // Ignore
                         return;
 
@@ -176,45 +191,120 @@ namespace Animatroller.MonoExpander
             });
         }
 
-        private void PlayBackground()
+        private void LoadTrack(string fileName)
         {
-            var rnd = new Random();
+            if (!Path.HasExtension(fileName))
+                fileName += ".wav";
+
+            this.log.Info("Play track {0}", Path.GetFileName(fileName));
+
+            var sound = fmodSystem.CreateStream(Path.Combine(this.trackPath, fileName), Mode.Default);
+
+            this.currentTrkSound?.Dispose();
+            this.currentTrkSound = null;
+            this.currentTrack = Path.GetFileName(fileName);
+            this.currentTrkSound = sound;
+        }
+
+        private void PlayTrack()
+        {
+            var sound = this.currentTrkSound;
+            if (!sound.HasValue)
+                return;
+
+            try
+            {
+                var chn = this.currentTrkChannel;
+                if (chn.HasValue)
+                {
+                    // Make sure we reset this first so we can ignore the callback
+                    this.currentTrkChannel = null;
+                    chn?.Stop();
+                }
+            }
+            catch (FmodInvalidHandleException)
+            {
+                // Ignore
+            }
+
+            var channel = this.fmodSystem.PlaySound(sound.Value, null, true);
+
+            channel.SetCallback((type, data1, data2) =>
+            {
+                if (type == ChannelControlCallbackType.End)
+                {
+                    this.senders.ForEach(x => x.Send(new OscMessage("/audio/trk/done", this.instanceId)));
+                }
+            });
+
+            this.currentTrkChannel = channel;
+
+            // Play
+            channel.Pause = false;
+
+            // Send OSC message
+            senders.ForEach(x => x.Send(new OscMessage("/audio/trk/start", this.instanceId, this.currentTrack)));
+        }
+
+        private void PlayNextBackground()
+        {
             // Find next background track
             int index;
             while (true)
             {
-                index = rnd.Next(this.backgroundAudioTracks.Count - 1);
+                index = this.random.Next(this.backgroundAudioTracks.Count - 1);
                 if (this.backgroundAudioTracks.Count > 1 && this.currentBgTrack == index)
                     continue;
                 break;
             }
             this.currentBgTrack = index;
             string fileName = this.backgroundAudioTracks[index];
+            this.currentBgTrackName = Path.GetFileName(fileName);
 
             this.log.Info("Play background track {0}", Path.GetFileName(fileName));
 
-            var sound = this.fmodSystem.LowLevelSystem.CreateStream(fileName, Mode.Default);
+            var sound = this.fmodSystem.CreateStream(fileName, Mode.Default);
 
-            if (this.currentBgChannel.HasValue)
+            try
             {
-                this.currentBgChannel.Value.Stop();
+                var chn = this.currentBgChannel;
+                if (chn.HasValue)
+                {
+                    // Make sure we reset this first so we can ignore the callback
+                    this.currentBgChannel = null;
+                    chn?.Stop();
+                }
             }
-            if (this.currentBgSound.HasValue)
+            catch (FmodInvalidHandleException)
             {
-                this.currentBgSound.Value.Dispose();
-                this.currentBgSound = null;
+                // Ignore
             }
 
-            var channel = this.fmodSystem.LowLevelSystem.PlaySound(sound, this.bgGroup, true);
+            this.currentBgSound?.Dispose();
+            this.currentBgSound = null;
+
+            var channel = this.fmodSystem.PlaySound(sound, this.bgGroup, true);
+
+            channel.SetCallback((type, data1, data2) =>
+            {
+                if (type == ChannelControlCallbackType.End)
+                {
+                    if (this.currentBgChannel.HasValue)
+                        PlayNextBackground();
+                }
+            });
 
             this.currentBgSound = sound;
             this.currentBgChannel = channel;
 
             // Play
             channel.Pause = false;
+
+            // Send OSC message
+            senders.ForEach(x => x.Send(new OscMessage("/audio/bg/start", this.instanceId, Path.GetFileName(fileName))));
         }
 
-        private void PlaySound(string fileName, bool playOnNewChannel, float leftVol = 1.0f, float? rightVol = null)
+        private Sound LoadSound(string fileName)
         {
             if (!Path.HasExtension(fileName))
                 fileName += ".wav";
@@ -223,17 +313,31 @@ namespace Animatroller.MonoExpander
             if (!this.loadedSounds.TryGetValue(fileName, out sound))
             {
                 // Load
-                sound = fmodSystem.LowLevelSystem.CreateSound(Path.Combine(this.soundEffectPath, fileName), Mode.Default);
+                sound = fmodSystem.CreateSound(Path.Combine(this.soundEffectPath, fileName), Mode.Default);
 
                 this.loadedSounds.Add(fileName, sound);
             }
 
-            if (!playOnNewChannel && this.currentFxChannel.HasValue)
+            return sound;
+        }
+
+        private void PlaySound(string fileName, bool playOnNewChannel, float leftVol = 1.0f, float? rightVol = null)
+        {
+            var sound = LoadSound(fileName);
+
+            if (!playOnNewChannel)
             {
-                this.currentFxChannel.Value.Stop();
+                try
+                {
+                    this.currentFxChannel?.Stop();
+                }
+                catch (FmodInvalidHandleException)
+                {
+                    // Ignore
+                }
             }
 
-            var channel = this.fmodSystem.LowLevelSystem.PlaySound(sound, this.fxGroup, true);
+            var channel = this.fmodSystem.PlaySound(sound, this.fxGroup, true);
 
             if (!rightVol.HasValue)
                 rightVol = leftVol;
@@ -281,6 +385,18 @@ namespace Animatroller.MonoExpander
                         }
                         break;
 
+                    case "/audio/fx/cue":
+                        switch (msg.Count)
+                        {
+                            case 1:
+                                LoadSound((string)msg[0]);
+                                break;
+
+                            default:
+                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
+                        }
+                        break;
+
                     case "/audio/fx/play":
                     case "/audio/fx/playnew":
                         bool playOnNewChannel = msg.Address == "/audio/fx/playnew";
@@ -320,13 +436,21 @@ namespace Animatroller.MonoExpander
                         }
                         break;
 
+                    case "/audio/fx/volume":
+                        if (msg.Count == 0)
+                            throw new ArgumentException("Missing volume argument");
+
+                        this.fxGroup.Volume = (float)msg[0];
+                        break;
+
                     case "/audio/bg/volume":
                         if (msg.Count == 0)
                             throw new ArgumentException("Missing volume argument");
 
-                        this.bgGroup.FmodGroup.setVolume((float)msg[0]);
+                        this.bgGroup.Volume = (float)msg[0];
                         break;
 
+                    case "/audio/bg/resume":
                     case "/audio/bg/play":
                         if (this.currentBgChannel.HasValue)
                         {
@@ -334,11 +458,60 @@ namespace Animatroller.MonoExpander
                             chn.Pause = false;
                         }
                         else
-                            PlayBackground();
+                            PlayNextBackground();
+                        break;
+
+                    case "/audio/bg/pause":
+                        if (this.currentBgChannel.HasValue)
+                        {
+                            var chn = this.currentBgChannel.Value;
+                            chn.Pause = true;
+                        }
                         break;
 
                     case "/audio/bg/next":
-                        PlayBackground();
+                        PlayNextBackground();
+                        break;
+
+                    case "/audio/trk/play":
+                        switch (msg.Count)
+                        {
+                            case 1:
+                                LoadTrack((string)msg[0]);
+                                PlayTrack();
+                                break;
+
+                            default:
+                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
+                        }
+                        break;
+
+                    case "/audio/trk/cue":
+                        switch (msg.Count)
+                        {
+                            case 1:
+                                LoadTrack((string)msg[0]);
+                                break;
+
+                            default:
+                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
+                        }
+                        break;
+
+                    case "/audio/trk/pause":
+                        if (this.currentTrkChannel.HasValue)
+                        {
+                            var chn = this.currentTrkChannel.Value;
+                            chn.Pause = true;
+                        }
+                        break;
+
+                    case "/audio/trk/resume":
+                        if (this.currentTrkChannel.HasValue)
+                        {
+                            var chn = this.currentTrkChannel.Value;
+                            chn.Pause = false;
+                        }
                         break;
                 }
             }
@@ -352,6 +525,29 @@ namespace Animatroller.MonoExpander
         {
             this.receiver.Dispose();
             this.fmodSystem.Dispose();
+        }
+
+        private void ReportChannelPosition(Channel? channel, string oscAddress, string trackId)
+        {
+            if (channel.HasValue)
+            {
+                var chn = channel.Value;
+
+                try
+                {
+                    if (chn.IsPlaying)
+                    {
+                        int pos = (int)chn.GetPosition(TimeUnit.Milliseconds);
+
+                        var msg = new OscMessage(oscAddress, this.instanceId, trackId, pos);
+                        this.senders.ForEach(x => x.Send(msg));
+                    }
+                }
+                catch (FmodInvalidHandleException)
+                {
+                    // Ignore
+                }
+            }
         }
 
         public void Execute(CancellationToken cancel)
@@ -370,12 +566,28 @@ namespace Animatroller.MonoExpander
 
             this.log.Info("Running");
 
+            if (this.autoStartBackgroundTrack)
+                PlayNextBackground();
+
+            int reportCounter = 0;
             while (!cancel.IsCancellationRequested)
             {
                 if (this.piFace != null)
                     this.piFace.PollInputPins();
 
                 this.fmodSystem.Update();
+
+                reportCounter++;
+
+                if (reportCounter % 5 == 0)
+                {
+                    ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack);
+                }
+
+                if (reportCounter % 10 == 0)
+                {
+                    ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName);
+                }
 
                 Thread.Sleep(50);
             }
