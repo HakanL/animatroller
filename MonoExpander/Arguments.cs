@@ -9,6 +9,14 @@ namespace Animatroller.MonoExpander
 {
     public class Arguments
     {
+        [ArgShortcut("a")]
+        [ArgDescription("Activate audio system")]
+        public bool AudioSystem { get; set; }
+
+        [ArgShortcut("v")]
+        [ArgDescription("Activate video system")]
+        public string VideoSystem { get; set; }
+
         [ArgShortcut("bg")]
         [ArgDescription("Path to background tracks, relative or absolute")]
         public string BackgroundTracksPath { get; set; }
@@ -21,7 +29,11 @@ namespace Animatroller.MonoExpander
         [ArgDescription("Path to tracks, relative or absolute")]
         public string TrackPath { get; set; }
 
-        [ArgRequired()]
+        [ArgShortcut("vid")]
+        [ArgDescription("Path to video files, relative or absolute")]
+        public string VideoPath { get; set; }
+
+        [ArgDefaultValue(5005)]
         [ArgRange(1, 65535)]
         [ArgShortcut("ol")]
         [ArgDescription("Port to listen for OSC commands")]
@@ -54,5 +66,10 @@ namespace Animatroller.MonoExpander
 
         [ArgIgnore]
         public System.Net.IPEndPoint[] OscServers { get; private set; }
+
+        public Arguments()
+        {
+            OscServers = new System.Net.IPEndPoint[0];
+        }
     }
 }

@@ -27,7 +27,8 @@ namespace OscTestSender
         {
             InitializeComponent();
 
-            this.sender = new OscSender(System.Net.IPAddress.Loopback, 0, 9998);
+//            this.sender = new OscSender(System.Net.IPAddress.Loopback, 0, 9998);
+            this.sender = new OscSender(System.Net.IPAddress.Parse("192.168.240.226"), 0, 9998);
             this.sender.Connect();
         }
 
@@ -42,7 +43,12 @@ namespace OscTestSender
 
         private void button2_Click(object sender, RoutedEventArgs e)
         {
-            var msg = new OscMessage("/audio/bg/next");
+            if (comboBoxVideo.SelectedValue == null)
+                return;
+
+            var item = (ListBoxItem)comboBoxVideo.SelectedValue;
+            //            var msg = new OscMessage("/audio/bg/next");
+            var msg = new OscMessage("/video/play", item.Content);
 
             this.sender.Send(msg);
         }

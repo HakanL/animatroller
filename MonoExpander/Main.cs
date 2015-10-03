@@ -11,11 +11,18 @@ using SupersonicSound.LowLevel;
 using NLog;
 using Rug.Osc;
 using SupersonicSound.Exceptions;
+using System.Diagnostics;
 
 namespace Animatroller.MonoExpander
 {
     public class Main : IDisposable
     {
+        public enum VideoSystems
+        {
+            None,
+            OMX
+        }
+
         private Logger log;
         private Rug.Osc.OscReceiver receiver;
         private List<Rug.Osc.OscSender> senders;
@@ -28,6 +35,7 @@ namespace Animatroller.MonoExpander
         private Dictionary<string, Sound> loadedSounds;
         private string soundEffectPath;
         private string trackPath;
+        private string videoPath;
         private ChannelGroup fxGroup;
         private ChannelGroup bgGroup;
         private Channel? currentFxChannel;
@@ -40,10 +48,56 @@ namespace Animatroller.MonoExpander
         private string currentBgTrackName;
         private Random random;
         private bool autoStartBackgroundTrack;
+        private VideoSystems videoSystem;
+        private bool videoPlaying;
 
         public Main(Arguments args)
         {
             this.log = LogManager.GetLogger("Main");
+
+            if (!string.IsNullOrEmpty(args.VideoSystem))
+            {
+                switch (args.VideoSystem.ToLower())
+                {
+                    case "omx":
+                        this.videoSystem = VideoSystems.OMX;
+                        break;
+
+                    default:
+                        throw new ArgumentException("Invalid video system type");
+                }
+            }
+            else
+                this.videoSystem = VideoSystems.None;
+
+            if (args.AudioSystem && this.videoSystem != VideoSystems.None)
+                throw new ArgumentException("Cannot support both audio and video system concurrently");
+
+            if (this.videoSystem != VideoSystems.None)
+            {
+                // Disable console log output
+                this.log.Info("Video System, turning off console logging and cursor");
+
+                var config = LogManager.Configuration;
+                var consoleTargets = new List<string>();
+                consoleTargets.AddRange(config.AllTargets
+                    .OfType<NLog.Targets.ColoredConsoleTarget>()
+                    .Select(x => x.Name));
+                consoleTargets.AddRange(config.AllTargets
+                    .OfType<NLog.Targets.ConsoleTarget>()
+                    .Select(x => x.Name));
+                foreach (var loggingRule in config.LoggingRules)
+                {
+                    loggingRule.Targets
+                        .Where(x => consoleTargets.Contains(x.Name) || consoleTargets.Contains(x.Name + "_wrapped"))
+                        .ToList()
+                        .ForEach(x => loggingRule.Targets.Remove(x));
+                }
+                LogManager.Configuration = config;
+
+                Console.CursorVisible = false;
+                Console.Clear();
+            }
 
             this.loadedSounds = new Dictionary<string, Sound>();
             this.currentBgTrack = -1;
@@ -57,6 +111,10 @@ namespace Animatroller.MonoExpander
                 this.trackPath = Directory.GetCurrentDirectory();
             else
                 this.trackPath = Path.GetFullPath(args.TrackPath);
+            if (string.IsNullOrEmpty(args.VideoPath))
+                this.videoPath = Directory.GetCurrentDirectory();
+            else
+                this.videoPath = Path.GetFullPath(args.VideoPath);
             this.autoStartBackgroundTrack = args.BackgroundTrackAutoStart;
 
             // Try to read instance id from disk
@@ -80,6 +138,11 @@ namespace Animatroller.MonoExpander
                 }
             }
 
+            this.log.Info("Instance Id {0}", this.instanceId);
+            this.log.Info("Video Path {0}", this.videoPath);
+            this.log.Info("Track Path {0}", this.trackPath);
+            this.log.Info("FX Path {0}", this.soundEffectPath);
+
             this.senders = new List<Rug.Osc.OscSender>();
             foreach (var endpoint in args.OscServers)
             {
@@ -93,11 +156,14 @@ namespace Animatroller.MonoExpander
                 this.backgroundAudioTracks.AddRange(Directory.GetFiles(args.BackgroundTracksPath, "*.mp3"));
             }
 
-            this.log.Info("Initializing FMOD sound system");
-            this.fmodSystem = new LowLevelSystem();
+            if (args.AudioSystem)
+            {
+                this.log.Info("Initializing FMOD sound system");
+                this.fmodSystem = new LowLevelSystem();
 
-            this.fxGroup = this.fmodSystem.CreateChannelGroup("FX");
-            this.bgGroup = this.fmodSystem.CreateChannelGroup("Background");
+                this.fxGroup = this.fmodSystem.CreateChannelGroup("FX");
+                this.bgGroup = this.fmodSystem.CreateChannelGroup("Background");
+            }
 
             if (SupersonicSound.Wrapper.Util.IsUnix)
             {
@@ -193,12 +259,15 @@ namespace Animatroller.MonoExpander
 
         private void LoadTrack(string fileName)
         {
+            if (this.fmodSystem == null)
+                return;
+
             if (!Path.HasExtension(fileName))
                 fileName += ".wav";
 
             this.log.Info("Play track {0}", Path.GetFileName(fileName));
 
-            var sound = fmodSystem.CreateStream(Path.Combine(this.trackPath, fileName), Mode.Default);
+            var sound = this.fmodSystem.CreateStream(Path.Combine(this.trackPath, fileName), Mode.Default);
 
             this.currentTrkSound?.Dispose();
             this.currentTrkSound = null;
@@ -206,10 +275,46 @@ namespace Animatroller.MonoExpander
             this.currentTrkSound = sound;
         }
 
+        private void PlayVideo(string fileName)
+        {
+            if (this.videoPlaying)
+            {
+                this.log.Warn("Already playing a video");
+                return;
+            }
+
+            this.log.Info("Play video {0}", fileName);
+
+            var processStart = new ProcessStartInfo
+            {
+                FileName = "/usr/bin/omxplayer",
+                Arguments = "-o local -w -b -z --no-osd --no-keys " + Path.Combine(this.videoPath, fileName),
+                CreateNoWindow = false,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true
+            };
+
+            this.videoPlaying = true;
+            var process = Process.Start(processStart);
+
+            process.EnableRaisingEvents = true;
+            process.Exited += (o, e) =>
+            {
+                this.videoPlaying = false;
+                this.log.Info("Done playing video");
+                process.Dispose();
+            };
+        }
+
         private void PlayTrack()
         {
+            if (this.fmodSystem == null)
+                return;
+
             var sound = this.currentTrkSound;
             if (!sound.HasValue)
+                // No sound loaded
                 return;
 
             try
@@ -248,6 +353,9 @@ namespace Animatroller.MonoExpander
 
         private void PlayNextBackground()
         {
+            if (this.fmodSystem == null)
+                return;
+
             // Find next background track
             int index;
             while (true)
@@ -306,6 +414,9 @@ namespace Animatroller.MonoExpander
 
         private Sound LoadSound(string fileName)
         {
+            if (this.fmodSystem == null)
+                return new Sound();
+
             if (!Path.HasExtension(fileName))
                 fileName += ".wav";
 
@@ -313,7 +424,7 @@ namespace Animatroller.MonoExpander
             if (!this.loadedSounds.TryGetValue(fileName, out sound))
             {
                 // Load
-                sound = fmodSystem.CreateSound(Path.Combine(this.soundEffectPath, fileName), Mode.Default);
+                sound = this.fmodSystem.CreateSound(Path.Combine(this.soundEffectPath, fileName), Mode.Default);
 
                 this.loadedSounds.Add(fileName, sound);
             }
@@ -323,6 +434,9 @@ namespace Animatroller.MonoExpander
 
         private void PlaySound(string fileName, bool playOnNewChannel, float leftVol = 1.0f, float? rightVol = null)
         {
+            if (this.fmodSystem == null)
+                return;
+
             var sound = LoadSound(fileName);
 
             if (!playOnNewChannel)
@@ -513,6 +627,18 @@ namespace Animatroller.MonoExpander
                             chn.Pause = false;
                         }
                         break;
+
+                    case "/video/play":
+                        switch (msg.Count)
+                        {
+                            case 1:
+                                PlayVideo((string)msg[0]);
+                                break;
+
+                            default:
+                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
+                        }
+                        break;
                 }
             }
             catch (Exception ex)
@@ -524,7 +650,9 @@ namespace Animatroller.MonoExpander
         public void Dispose()
         {
             this.receiver.Dispose();
-            this.fmodSystem.Dispose();
+
+            if (this.fmodSystem != null)
+                this.fmodSystem.Dispose();
         }
 
         private void ReportChannelPosition(Channel? channel, string oscAddress, string trackId)
@@ -552,51 +680,59 @@ namespace Animatroller.MonoExpander
 
         public void Execute(CancellationToken cancel)
         {
-            this.log.Info("Starting up listeners, etc");
-
-            this.receiverTask.Start();
-            this.receiver.Connect();
-
-            this.senders.ForEach(x =>
+            try
             {
-                x.Connect();
+                this.log.Info("Starting up listeners, etc");
 
-                x.Send(new OscMessage("/init", this.instanceId));
-            });
+                this.receiverTask.Start();
+                this.receiver.Connect();
 
-            this.log.Info("Running");
-
-            if (this.autoStartBackgroundTrack)
-                PlayNextBackground();
-
-            int reportCounter = 0;
-            while (!cancel.IsCancellationRequested)
-            {
-                if (this.piFace != null)
-                    this.piFace.PollInputPins();
-
-                this.fmodSystem.Update();
-
-                reportCounter++;
-
-                if (reportCounter % 5 == 0)
+                this.senders.ForEach(x =>
                 {
-                    ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack);
+                    x.Connect();
+
+                    x.Send(new OscMessage("/init", this.instanceId));
+                });
+
+                this.log.Info("Running");
+
+                if (this.autoStartBackgroundTrack)
+                    PlayNextBackground();
+
+                int reportCounter = 0;
+                while (!cancel.IsCancellationRequested)
+                {
+                    if (this.piFace != null)
+                        this.piFace.PollInputPins();
+
+                    if (this.fmodSystem != null)
+                        this.fmodSystem.Update();
+
+                    reportCounter++;
+
+                    if (reportCounter % 5 == 0)
+                    {
+                        ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack);
+                    }
+
+                    if (reportCounter % 10 == 0)
+                    {
+                        ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName);
+                    }
+
+                    Thread.Sleep(50);
                 }
 
-                if (reportCounter % 10 == 0)
-                {
-                    ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName);
-                }
+                this.log.Info("Shutting down");
 
-                Thread.Sleep(50);
+                this.senders.ForEach(x => x.Close());
+                this.cancelSource.Cancel();
+                this.receiver.Close();
             }
-
-            this.log.Info("Shutting down");
-
-            this.senders.ForEach(x => x.Close());
-            this.cancelSource.Cancel();
-            this.receiver.Close();
+            finally
+            {
+                Console.CursorVisible = true;
+            }
         }
     }
 }
