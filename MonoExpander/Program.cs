@@ -26,9 +26,16 @@ namespace Animatroller.MonoExpander
                     cts.Cancel();
                 };
 
-                using (var main = new Main(arguments))
+                try
                 {
-                    main.Execute(cts.Token);
+                    using (var main = new Main(arguments))
+                    {
+                        main.Execute(cts.Token);
+                    }
+                }
+                finally
+                {
+                    Console.CursorVisible = true;
                 }
 
             }

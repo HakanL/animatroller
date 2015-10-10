@@ -12,6 +12,7 @@ using NLog;
 using Rug.Osc;
 using SupersonicSound.Exceptions;
 using System.Diagnostics;
+using org.freedesktop.DBus;
 
 namespace Animatroller.MonoExpander
 {
@@ -50,6 +51,7 @@ namespace Animatroller.MonoExpander
         private bool autoStartBackgroundTrack;
         private VideoSystems videoSystem;
         private bool videoPlaying;
+        private List<IDisposable> disposeList;
 
         public Main(Arguments args)
         {
@@ -102,6 +104,7 @@ namespace Animatroller.MonoExpander
             this.loadedSounds = new Dictionary<string, Sound>();
             this.currentBgTrack = -1;
             this.random = new Random();
+            this.disposeList = new List<IDisposable>();
 
             if (string.IsNullOrEmpty(args.SoundEffectPath))
                 this.soundEffectPath = Directory.GetCurrentDirectory();
@@ -269,7 +272,8 @@ namespace Animatroller.MonoExpander
 
             var sound = this.fmodSystem.CreateStream(Path.Combine(this.trackPath, fileName), Mode.Default);
 
-            this.currentTrkSound?.Dispose();
+            if (this.currentTrkSound.HasValue)
+                this.disposeList.Add(this.currentTrkSound);
             this.currentTrkSound = null;
             this.currentTrack = Path.GetFileName(fileName);
             this.currentTrkSound = sound;
@@ -305,6 +309,26 @@ namespace Animatroller.MonoExpander
                 this.log.Info("Done playing video");
                 process.Dispose();
             };
+
+            this.log.Warn("1");
+            var bus = DBus.Bus.System;
+            this.log.Warn("1.5");
+            this.log.Warn("2 {0}", bus.UniqueName);
+            var objPath = new DBus.ObjectPath("/org/mpris/MediaPlayer2");
+            this.log.Warn("3");
+            var dbusConnection = bus.GetObject<ITest>("org.mpris.MediaPlayer2.omxplayer", objPath);
+            this.log.Warn("4");
+
+            Thread.Sleep(5000);
+            dbusConnection.Quit();
+
+            bus.Close();
+        }
+
+        [DBus.Interface("omxplayer.root")]
+        public interface ITest
+        {
+            void Quit();
         }
 
         private void PlayTrack()
@@ -333,12 +357,15 @@ namespace Animatroller.MonoExpander
             }
 
             var channel = this.fmodSystem.PlaySound(sound.Value, null, true);
+            string trackName = this.currentTrack;
 
             channel.SetCallback((type, data1, data2) =>
             {
                 if (type == ChannelControlCallbackType.End)
                 {
-                    this.senders.ForEach(x => x.Send(new OscMessage("/audio/trk/done", this.instanceId)));
+                    this.log.Debug("Track {0} ended", trackName);
+
+                    this.senders.ForEach(x => x.Send(new OscMessage("/audio/trk/done", this.instanceId, trackName)));
                 }
             });
 
@@ -348,7 +375,7 @@ namespace Animatroller.MonoExpander
             channel.Pause = false;
 
             // Send OSC message
-            senders.ForEach(x => x.Send(new OscMessage("/audio/trk/start", this.instanceId, this.currentTrack)));
+            senders.ForEach(x => x.Send(new OscMessage("/audio/trk/start", this.instanceId, trackName)));
         }
 
         private void PlayNextBackground()
@@ -357,6 +384,10 @@ namespace Animatroller.MonoExpander
                 return;
 
             // Find next background track
+            if (this.backgroundAudioTracks.Count == 0)
+                // No tracks
+                return;
+
             int index;
             while (true)
             {
@@ -388,15 +419,21 @@ namespace Animatroller.MonoExpander
                 // Ignore
             }
 
-            this.currentBgSound?.Dispose();
+            if (this.currentBgSound.HasValue)
+                this.disposeList.Add(this.currentBgSound);
             this.currentBgSound = null;
 
             var channel = this.fmodSystem.PlaySound(sound, this.bgGroup, true);
 
+            string bgName = this.currentBgTrackName;
             channel.SetCallback((type, data1, data2) =>
             {
                 if (type == ChannelControlCallbackType.End)
                 {
+                    this.log.Debug("Background {0} ended", bgName);
+
+                    this.senders.ForEach(x => x.Send(new OscMessage("/audio/bg/done", this.instanceId, bgName)));
+
                     if (this.currentBgChannel.HasValue)
                         PlayNextBackground();
                 }
@@ -409,7 +446,7 @@ namespace Animatroller.MonoExpander
             channel.Pause = false;
 
             // Send OSC message
-            senders.ForEach(x => x.Send(new OscMessage("/audio/bg/start", this.instanceId, Path.GetFileName(fileName))));
+            senders.ForEach(x => x.Send(new OscMessage("/audio/bg/start", this.instanceId, bgName)));
         }
 
         private Sound LoadSound(string fileName)
@@ -655,27 +692,24 @@ namespace Animatroller.MonoExpander
                 this.fmodSystem.Dispose();
         }
 
-        private void ReportChannelPosition(Channel? channel, string oscAddress, string trackId)
+        private bool ReportChannelPosition(Channel? channel, string oscAddress, string trackId)
         {
             if (channel.HasValue)
             {
                 var chn = channel.Value;
 
-                try
-                {
-                    if (chn.IsPlaying)
-                    {
-                        int pos = (int)chn.GetPosition(TimeUnit.Milliseconds);
+                int? pos = (int?)chn.GetPosition(TimeUnit.Milliseconds);
 
-                        var msg = new OscMessage(oscAddress, this.instanceId, trackId, pos);
-                        this.senders.ForEach(x => x.Send(msg));
-                    }
-                }
-                catch (FmodInvalidHandleException)
+                if (pos.HasValue)
                 {
-                    // Ignore
+                    var msg = new OscMessage(oscAddress, this.instanceId, trackId, pos.Value);
+                    this.senders.ForEach(x => x.Send(msg));
+
+                    return true;
                 }
             }
+
+            return false;
         }
 
         public void Execute(CancellationToken cancel)
@@ -684,8 +718,8 @@ namespace Animatroller.MonoExpander
             {
                 this.log.Info("Starting up listeners, etc");
 
-                this.receiverTask.Start();
                 this.receiver.Connect();
+                this.receiverTask.Start();
 
                 this.senders.ForEach(x =>
                 {
@@ -699,6 +733,7 @@ namespace Animatroller.MonoExpander
                 if (this.autoStartBackgroundTrack)
                     PlayNextBackground();
 
+                var watch = Stopwatch.StartNew();
                 int reportCounter = 0;
                 while (!cancel.IsCancellationRequested)
                 {
@@ -708,16 +743,31 @@ namespace Animatroller.MonoExpander
                     if (this.fmodSystem != null)
                         this.fmodSystem.Update();
 
+                    this.disposeList.ForEach(x => x.Dispose());
+                    this.disposeList.Clear();
+
                     reportCounter++;
 
                     if (reportCounter % 5 == 0)
                     {
-                        ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack);
+                        if (ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack))
+                            watch.Restart();
                     }
 
                     if (reportCounter % 10 == 0)
                     {
-                        ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName);
+                        if (ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName))
+                            watch.Restart();
+                    }
+
+                    if (reportCounter % 10 == 0 && watch.ElapsedMilliseconds > 5000)
+                    {
+                        // Send ping
+                        this.log.Trace("Send ping");
+
+                        this.senders.ForEach(x => x.Send(new OscMessage("/ping")));
+
+                        watch.Restart();
                     }
 
                     Thread.Sleep(50);

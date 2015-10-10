@@ -5,12 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OscTestSender"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Width="800" Height="500" Closed="Window_Closed">
     <Grid>
-        <Button x:Name="button1" Content="Button" HorizontalAlignment="Left" Margin="82,47,0,0" VerticalAlignment="Top" Width="75" Click="button1_Click" RenderTransformOrigin="-0.325,-0.833"/>
-        <Button x:Name="button2" Content="Button" HorizontalAlignment="Left" Margin="179,47,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.325,-0.833" Click="button2_Click"/>
-        <Button x:Name="button3" Content="Button" HorizontalAlignment="Left" Margin="301,47,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.325,-0.833" Click="button3_Click"/>
-        <ComboBox x:Name="comboBoxVideo" HorizontalAlignment="Left" Margin="82,129,0,0" VerticalAlignment="Top" Width="330">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid VerticalAlignment="Top">
+        <Button x:Name="button1" Content="Button" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="75" Click="button1_Click" RenderTransformOrigin="-0.325,-0.833"/>
+        <Button x:Name="buttonPlayVideo" Content="Play" HorizontalAlignment="Left" Margin="362,54,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.325,-0.833" Click="button2_Click"/>
+        <Button x:Name="button3" Content="Button" HorizontalAlignment="Left" Margin="109,10,0,0" VerticalAlignment="Top" Width="75" RenderTransformOrigin="-0.325,-0.833" Click="button3_Click"/>
+        <ComboBox x:Name="comboBoxVideo" HorizontalAlignment="Left" Margin="10,54,0,0" VerticalAlignment="Top" Width="330">
             <ListBoxItem Content="PHA_Poltergeist_HighVoltage_3DFX_H.mp4"/>
             <ListBoxItem Content="PHA_Poltergeist_StartleScare_3DFX_H.mp4"/>
             <ListBoxItem Content="PHA_Poltergeist_StaticErratic_3DFX_H.mp4"/>
@@ -23,6 +28,7 @@
             <ListBoxItem Content="PHA_Wraith_SoulCrusher_3DFX_H.mp4"/>
             <ListBoxItem Content="PHA_Wraith_StartleScare_3DFX_H.mp4"/>
         </ComboBox>
-
+        </Grid>
+        <ListBox x:Name="listBoxLog" HorizontalAlignment="Stretch" Margin="10,10,10,10" VerticalAlignment="Stretch" Grid.Row="1" MouseDoubleClick="listBoxLog_MouseDoubleClick"/>
     </Grid>
 </Window>
