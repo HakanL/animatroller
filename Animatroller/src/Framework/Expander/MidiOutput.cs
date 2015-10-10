@@ -8,6 +8,7 @@ using NLog;
 using Sanford.Multimedia.Midi;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Diagnostics;
 
 namespace Animatroller.Framework.Expander
 {
@@ -16,16 +17,18 @@ namespace Animatroller.Framework.Expander
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private OutputDevice outputDevice;
 
-        public MidiOutput(bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public MidiOutput(string deviceName = null, bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            string deviceName = Executor.Current.GetSetKey(this, name + ".DeviceName", string.Empty);
+            string midiDeviceName = deviceName;
+            if (string.IsNullOrEmpty(deviceName))
+                midiDeviceName = Executor.Current.GetSetKey(this, name + ".DeviceName", string.Empty);
 
             int selectedDeviceId = -1;
             for (int i = 0; i < OutputDevice.DeviceCount; i++)
             {
                 var midiCap = OutputDevice.GetDeviceCapabilities(i);
 
-                if (midiCap.name == deviceName)
+                if (midiCap.name == midiDeviceName)
                 {
                     selectedDeviceId = i;
                     break;
@@ -36,6 +39,8 @@ namespace Animatroller.Framework.Expander
             {
                 if (!ignoreMissingDevice)
                     throw new ArgumentException("Midi device not detected");
+                else
+                    Debug.Assert(false, "Midi device not detected");
             }
             else
             {
@@ -43,7 +48,8 @@ namespace Animatroller.Framework.Expander
 
                 this.outputDevice.Error += outputDevice_Error;
 
-                Executor.Current.SetKey(this, name + ".DeviceName", deviceName);
+                if (string.IsNullOrEmpty(deviceName))
+                    Executor.Current.SetKey(this, name + ".DeviceName", midiDeviceName);
             }
 
             Executor.Current.Register(this);

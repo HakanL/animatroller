@@ -26,8 +26,8 @@ namespace Animatroller.SceneRunner
 
         private PhysicalDevices p;
 
-        private Expander.MidiInput2 midiInput = new Expander.MidiInput2(true);
-        private Expander.MidiOutput midiOutput = new Expander.MidiOutput(true);
+        private Expander.MidiInput2 midiInput = new Expander.MidiInput2("BCF2000", true);
+        private Expander.MidiOutput midiOutput = new Expander.MidiOutput("BCF2000", true);
         private ColorDimmer2 testLight1 = new ColorDimmer2("Test 1");
         private Dimmer2 testLight2 = new Dimmer2("Test 2");
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]

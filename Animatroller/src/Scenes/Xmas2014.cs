@@ -128,9 +128,9 @@ namespace Animatroller.SceneRunner
 
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
-        Expander.MidiInput2 midiAkai = new Expander.MidiInput2(true);
-        Expander.MidiInput2 midiBCF = new Expander.MidiInput2(true);
-        Expander.MidiOutput midiBcfOutput = new Expander.MidiOutput(true);
+        Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
+        Expander.MidiInput2 midiBCF = new Expander.MidiInput2("BCF2000", true);
+        Expander.MidiOutput midiBcfOutput = new Expander.MidiOutput("BCF2000", true);
         Controller.Sequence candyCane = new Controller.Sequence();
         Controller.Sequence fatherSeq = new Controller.Sequence();
         Controller.Sequence starwarsCane = new Controller.Sequence();
@@ -346,7 +346,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (data == 1)
                     {
-                        //                        stateMachine.SetState(States.DarthVader);
+                        stateMachine.SetState(States.DarthVader);
                     }
                 });
 
@@ -354,7 +354,7 @@ namespace Animatroller.SceneRunner
             {
                 if (data == 1)
                 {
-                    //                    stateMachine.SetState(States.Music1);
+                    stateMachine.SetState(States.Music1);
                 }
             });
 

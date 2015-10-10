@@ -10,6 +10,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Concurrency;
+using System.Diagnostics;
 
 namespace Animatroller.Framework.Expander
 {
@@ -21,10 +22,12 @@ namespace Animatroller.Framework.Expander
         private ISubject<ChannelMessage> midiMessages;
         private string name;
 
-        public MidiInput2(bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public MidiInput2(string deviceName = null, bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
-            string deviceName = Executor.Current.GetSetKey(this, name + ".DeviceName", string.Empty);
+            string midiDeviceName = deviceName;
+            if (string.IsNullOrEmpty(deviceName))
+                midiDeviceName = Executor.Current.GetSetKey(this, name + ".DeviceName", string.Empty);
 
             this.messageMapper = new Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>>();
 
@@ -35,7 +38,7 @@ namespace Animatroller.Framework.Expander
             {
                 var midiCap = InputDevice.GetDeviceCapabilities(i);
 
-                if (midiCap.name == deviceName)
+                if (midiCap.name == midiDeviceName)
                 {
                     selectedDeviceId = i;
                     break;
@@ -46,13 +49,16 @@ namespace Animatroller.Framework.Expander
             {
                 if (!ignoreMissingDevice)
                     throw new ArgumentException("Midi device not detected");
+                else
+                    Debug.Assert(false, "Midi device not detected");
             }
             else
             {
                 this.inputDevice = new InputDevice(selectedDeviceId);
                 this.inputDevice.ChannelMessageReceived += inputDevice_ChannelMessageReceived;
 
-                Executor.Current.SetKey(this, name + ".DeviceName", deviceName);
+                if (string.IsNullOrEmpty(deviceName))
+                    Executor.Current.SetKey(this, name + ".DeviceName", midiDeviceName);
             }
 
             Executor.Current.Register(this);
@@ -75,7 +81,8 @@ namespace Animatroller.Framework.Expander
                 e.Message.Data2,
                 Name);
 
-            this.midiMessages.NotifyOn(TaskPoolScheduler.Default).OnNext(e.Message);
+            this.midiMessages.OnNext(e.Message);
+            //this.midiMessages.NotifyOn(TaskPoolScheduler.Default).OnNext(e.Message);
 
             try
             {
@@ -120,7 +127,8 @@ namespace Animatroller.Framework.Expander
 
             this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.Controller, controller), m =>
             {
-                result.NotifyOn(TaskPoolScheduler.Default).OnNext(new DoubleZeroToOne(m.Data2 / 127.0));
+                result.OnNext(new DoubleZeroToOne(m.Data2 / 127.0));
+                //result.NotifyOn(TaskPoolScheduler.Default).OnNext(new DoubleZeroToOne(m.Data2 / 127.0));
             });
 
             return result;
@@ -132,12 +140,14 @@ namespace Animatroller.Framework.Expander
 
             this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOn, note), m =>
             {
-                result.NotifyOn(TaskPoolScheduler.Default).OnNext(true);
+                result.OnNext(true);
+                //result.NotifyOn(TaskPoolScheduler.Default).OnNext(true);
             });
 
             this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOff, note), m =>
             {
-                result.NotifyOn(TaskPoolScheduler.Default).OnNext(false);
+                //result.NotifyOn(TaskPoolScheduler.Default).OnNext(false);
+                result.OnNext(false);
             });
 
             return result;
