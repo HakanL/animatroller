@@ -148,6 +148,15 @@ namespace Animatroller.Framework.Expander
             return this;
         }
 
+        public OscServer RegisterAction<T>(string address, Func<IEnumerable<T>, bool> predicate, Action<Message, IEnumerable<T>> action)
+        {
+            return RegisterAction<T>(address, (m, d) =>
+            {
+                if (predicate(d))
+                    action(m, d);
+            });
+        }
+
         public OscServer RegisterAction<T>(string address, Action<Message, IEnumerable<T>> action)
         {
             Action<Message> invokeAction = msg =>
@@ -163,12 +172,29 @@ namespace Animatroller.Framework.Expander
                 }
             };
 
-            if (address.EndsWith("*"))
-                this.dispatchPartial[address.Substring(0, address.Length - 1)] = invokeAction;
-            else
-                this.dispatch[address] = invokeAction;
+            return RegisterAction(address, invokeAction);
+        }
 
-            return this;
+        public OscServer RegisterAction<T1, T2>(string address, Action<Message, T1, IEnumerable<T2>> action)
+        {
+            Action<Message> invokeAction = msg =>
+            {
+                try
+                {
+                    T1 value1 = (T1)Convert.ChangeType(msg.Data.First(), typeof(T1));
+
+                    var list = msg.Data
+                        .Skip(1).ToList()
+                        .ConvertAll<T2>(y => (T2)Convert.ChangeType(y, typeof(T2)));
+                    action(msg, value1, list);
+                }
+                catch
+                {
+
+                }
+            };
+
+            return RegisterAction(address, invokeAction);
         }
 
         public OscServer RegisterActionSimple<T>(string address, Action<Message, T> action)

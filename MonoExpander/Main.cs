@@ -521,7 +521,11 @@ namespace Animatroller.MonoExpander
                         {
                             case 2:
                                 int output = (int)msg[0];
-                                bool state = (bool)msg[1];
+                                bool state;
+                                if (msg[1] is bool)
+                                    state = (bool)msg[1];
+                                else
+                                    state = (int)msg[1] != 0;
                                 this.log.Info("Set output {0} to {1}", output, state);
 
                                 if (this.piFace != null)

@@ -32,8 +32,9 @@ namespace OscTestSender
             InitializeComponent();
 
             //            this.sender = new OscSender(System.Net.IPAddress.Loopback, 0, 5005);
-//            this.sender = new OscSender(System.Net.IPAddress.Parse("192.168.240.123"), 0, 5005);
-            this.sender = new OscSender(System.Net.IPAddress.Parse("192.168.240.226"), 0, 5005);
+            //            this.sender = new OscSender(System.Net.IPAddress.Parse("192.168.240.123"), 0, 5005);
+//            this.sender = new OscSender(System.Net.IPAddress.Parse("192.168.240.226"), 0, 5005);
+            this.sender = new OscSender(System.Net.IPAddress.Parse("192.168.240.115"), 0, 5005);
 //            this.sender = new OscSender(System.Net.IPAddress.Parse("192.168.1.106"), 0, 5005);
             this.sender.Connect();
 
@@ -77,10 +78,10 @@ namespace OscTestSender
 
         private void button1_Click(object sender, RoutedEventArgs e)
         {
-            var msg = new OscMessage("/audio/bg/next");
-            //var msg = new OscMessage("/output",
-            //    3,
-            //    false);
+//            var msg = new OscMessage("/audio/bg/next");
+            var msg = new OscMessage("/output",
+                7,
+                false);
 
             this.sender.Send(msg);
         }

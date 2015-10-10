@@ -107,7 +107,7 @@ namespace Animatroller.Framework.Expander
                 }
             });
 
-            this.oscServer.RegisterAction<int>("/input", (msg, data) =>
+            this.oscServer.RegisterAction<string, int>("/input", (msg, id, data) =>
                 {
                     if (!CheckIdempotence(msg))
                         return;
@@ -226,18 +226,18 @@ namespace Animatroller.Framework.Expander
                     {
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayFX:
                             if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
-                                this.oscClient.Send("/audio/fx/play", e.AudioFile, e.LeftVolume.Value.ToString("F2"), e.RightVolume.Value.ToString("F2"));
+                                this.oscClient.Send("/audio/fx/play", e.AudioFile, (float)e.LeftVolume.Value, (float)e.RightVolume.Value);
                             else if (e.LeftVolume.HasValue)
-                                this.oscClient.Send("/audio/fx/play", e.AudioFile, e.LeftVolume.Value.ToString("F2"));
+                                this.oscClient.Send("/audio/fx/play", e.AudioFile, (float)e.LeftVolume.Value);
                             else
                                 this.oscClient.Send("/audio/fx/play", e.AudioFile);
                             break;
 
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX:
                             if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
-                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile, e.LeftVolume.Value.ToString("F2"), e.RightVolume.Value.ToString("F2"));
+                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile, (float)e.LeftVolume.Value, (float)e.RightVolume.Value);
                             else if (e.LeftVolume.HasValue)
-                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile, e.LeftVolume.Value.ToString("F2"));
+                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile, (float)e.LeftVolume.Value);
                             else
                                 this.oscClient.Send("/audio/fx/playnew", e.AudioFile);
                             break;
@@ -276,7 +276,7 @@ namespace Animatroller.Framework.Expander
                             this.oscClient.Send("/audio/bg/next");
                             break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.BackgroundVolume:
-                            this.oscClient.Send("/audio/bg/volume", ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value.ToString("f2"));
+                            this.oscClient.Send("/audio/bg/volume", (float)((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value);
                             break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeTrack:
                             this.oscClient.Send("/audio/trk/resume");
