@@ -18,6 +18,11 @@ namespace Animatroller.Framework.Expander
         private int destinationPort;
         private object lockObject = new object();
 
+        public OscClient(string destination, int destinationPort)
+            : this(IPAddress.Parse(destination), destinationPort)
+        {
+        }
+
         public OscClient(IPAddress destination, int destinationPort)
         {
             this.destination = destination;
@@ -48,7 +53,7 @@ namespace Animatroller.Framework.Expander
 
         public OscClient Send(string address, params object[] data)
         {
-//            this.sender.WaitForAllMessagesToComplete();
+            //            this.sender.WaitForAllMessagesToComplete();
 
             log.Info("Sending to {0}", address);
 

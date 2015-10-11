@@ -17,6 +17,7 @@ namespace Animatroller.Framework.Expander
         private string hostName;
         private int hostPort;
         private event EventHandler<EventArgs> AudioTrackDone;
+        private event EventHandler<EventArgs> VideoTrackDone;
         private ISubject<string> audioTrackStart;
         private List<string> lastMessageIds = new List<string>();
 
@@ -34,6 +35,9 @@ namespace Animatroller.Framework.Expander
 
         private bool CheckIdempotence(OscServer.Message msg)
         {
+            return true;
+
+            // We don't have the message id in there any more...
             if (!msg.Data.Any())
                 return true;
 
@@ -94,6 +98,15 @@ namespace Animatroller.Framework.Expander
                     log.Debug("Audio track done");
                     RaiseAudioTrackDone();
                 });
+
+            this.oscServer.RegisterAction("/video/done", msg =>
+            {
+                if (!CheckIdempotence(msg))
+                    return;
+
+                log.Debug("Video done");
+                RaiseVideoTrackDone();
+            });
 
             this.oscServer.RegisterAction<string>("/audio/bg/start", (msg, data) =>
             {
@@ -187,6 +200,13 @@ namespace Animatroller.Framework.Expander
         protected virtual void RaiseAudioTrackDone()
         {
             var handler = AudioTrackDone;
+            if (handler != null)
+                handler(this, EventArgs.Empty);
+        }
+
+        protected virtual void RaiseVideoTrackDone()
+        {
+            var handler = VideoTrackDone;
             if (handler != null)
                 handler(this, EventArgs.Empty);
         }
@@ -286,6 +306,26 @@ namespace Animatroller.Framework.Expander
                             break;
                     }
                 };
+
+            return this;
+        }
+
+        public Raspberry Connect(LogicalDevice.VideoPlayer logicalDevice)
+        {
+            this.VideoTrackDone += (o, e) =>
+            {
+                logicalDevice.RaiseVideoTrackDone();
+            };
+
+            logicalDevice.ExecuteCommand += (sender, e) =>
+            {
+                switch (e.Command)
+                {
+                    case LogicalDevice.Event.VideoCommandEventArgs.Commands.PlayVideo:
+                        this.oscClient.Send("/video/play", e.VideoFile);
+                        break;
+                }
+            };
 
             return this;
         }

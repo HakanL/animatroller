@@ -307,9 +307,12 @@ namespace Animatroller.MonoExpander
             {
                 this.videoPlaying = false;
                 this.log.Info("Done playing video");
+
+                this.senders.ForEach(x => x.Send(new OscMessage("/video/done", this.instanceId, fileName)));
+
                 process.Dispose();
             };
-
+/*
             this.log.Warn("1");
             var bus = DBus.Bus.System;
             this.log.Warn("1.5");
@@ -322,7 +325,7 @@ namespace Animatroller.MonoExpander
             Thread.Sleep(5000);
             dbusConnection.Quit();
 
-            bus.Close();
+            bus.Close();*/
         }
 
         [DBus.Interface("omxplayer.root")]
