@@ -24,38 +24,64 @@ namespace Animatroller.SceneRunner
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioMain = new AudioPlayer();
+        private AudioPlayer audioPop = new AudioPlayer();
         private VideoPlayer video3dfx = new VideoPlayer();
+        private VideoPlayer video2 = new VideoPlayer();
         private Expander.Raspberry raspberryCat = new Expander.Raspberry("192.168.240.115:5005", 3333);
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
         private Expander.Raspberry raspberryLocal = new Expander.Raspberry("127.0.0.1:5005", 3339);
+        private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
+        private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
 
         private DigitalOutput2 spiderCeiling = new DigitalOutput2("Spider Ceiling");
         private DigitalOutput2 spiderCeilingDrop = new DigitalOutput2("Spider Ceiling Drop");
         private DigitalInput2 catMotion = new DigitalInput2();
         private DigitalInput2 firstBeam = new DigitalInput2();
+        private DigitalInput2 finalBeam = new DigitalInput2();
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
         private DigitalOutput2 catLights = new DigitalOutput2();
+        private DigitalOutput2 george1 = new DigitalOutput2();
+        private DigitalOutput2 george2 = new DigitalOutput2();
+        private DigitalOutput2 popper = new DigitalOutput2();
+        private DigitalOutput2 dropSpiderEyes = new DigitalOutput2();
+
+        private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
 
         private Controller.Sequence catSeq = new Controller.Sequence();
 
         public Halloween2015Manual(IEnumerable<string> args)
         {
+            hoursSmall.AddRange("5:00 pm", "9:00 pm");
+
+            // Logging
+            hoursSmall.Output.Log("Hours small");
+
+            hoursSmall
+                .ControlsMasterPower(catAir);
+            //                .ControlsMasterPower(eyes);
+
             raspberryCat.DigitalInputs[4].Connect(catMotion, false);
             raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
+            raspberryCat.DigitalInputs[6].Connect(finalBeam, false);
             raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
             raspberryCat.Connect(audioCat);
             raspberryLocal.Connect(audioMain);
             raspberry3dfx.Connect(video3dfx);
+            raspberryVideo2.Connect(video2);
+            raspberryPop.Connect(audioPop);
+            raspberryPop.DigitalOutputs[7].Connect(george1);
+            raspberryPop.DigitalOutputs[6].Connect(george2);
+            raspberryPop.DigitalOutputs[5].Connect(popper);
+            raspberryPop.DigitalOutputs[2].Connect(dropSpiderEyes);
 
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), 1);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 11), 1);
 
             oscServer.RegisterAction<int>("/1/push1", d => d.First() != 0, (msg, data) =>
             {
-                //                audioCat.PlayEffect("266 Monster Growl 7", 1.0, 1.0);
-                video3dfx.PlayVideo("PHA_Siren_ComeHither_3DFX_H.mp4");
+                audioCat.PlayEffect("266 Monster Growl 7", 1.0, 1.0);
             });
 
             oscServer.RegisterAction<int>("/1/push2", d => d.First() != 0, (msg, data) =>
@@ -73,6 +99,57 @@ namespace Animatroller.SceneRunner
                 audioCat.PlayEffect("287 Monster Snarl 4", 1.0, 1.0);
             });
 
+
+            oscServer.RegisterAction<int>("/1/push5", (msg, data) =>
+            {
+                george1.Value = data.First() != 0;
+            });
+
+            oscServer.RegisterAction<int>("/1/push6", (msg, data) =>
+            {
+                george2.Value = data.First() != 0;
+            });
+
+            oscServer.RegisterAction<int>("/1/push7", (msg, data) =>
+            {
+                popper.Value = data.First() != 0;
+            });
+
+            oscServer.RegisterAction<int>("/1/push8", d => d.First() != 0, (msg, data) =>
+            {
+                audioPop.PlayEffect("laugh.wav", 1.0, 0.0);
+            });
+
+            oscServer.RegisterAction<int>("/1/spiderEyes", (msg, data) =>
+            {
+                dropSpiderEyes.Value = data.First() != 0;
+            });
+
+            oscServer.RegisterAction<int>("/1/push10", d => d.First() != 0, (msg, data) =>
+            {
+                audioPop.PlayEffect("348 Spider Hiss.wav", 0.0, 1.0);
+            });
+
+            oscServer.RegisterAction<int>("/1/push11", (msg, data) =>
+            {
+                spiderCeilingDrop.Value = data.First() != 0;
+            });
+
+            oscServer.RegisterAction<int>("/1/push20", d => d.First() != 0, (msg, data) =>
+            {
+                video3dfx.PlayVideo("PHA_Siren_ComeHither_3DFX_H.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/1/push21", d => d.First() != 0, (msg, data) =>
+            {
+                //               video2.PlayVideo("SkeletonSurprise_Door_Horz_HD.mp4");
+                video2.PlayVideo("Beauty_Startler_TVHolo_Hor_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/1/push22", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("FearTheReaper_Door_Horz_HD.mp4");
+            });
 
             //            midiInput.Note(midiChannel, 40).Controls(catMotion.Control);
             midiInput.Note(midiChannel, 36).Subscribe(x =>
@@ -110,11 +187,11 @@ namespace Animatroller.SceneRunner
                 spiderCeilingDrop.Value = x;
             });
 
-            catMotion.Output.Subscribe(catLights.Control);
+            //            catMotion.Output.Subscribe(catLights.Control);
 
             catMotion.Output.Subscribe(x =>
             {
-                if (x)
+                if (x && hoursSmall.IsOpen)
                     Executor.Current.Execute(catSeq);
 
                 touchOSC.Send("/1/led1", x ? 1 : 0);
@@ -123,6 +200,11 @@ namespace Animatroller.SceneRunner
             firstBeam.Output.Subscribe(x =>
             {
                 touchOSC.Send("/1/led2", x ? 1 : 0);
+            });
+
+            finalBeam.Output.Subscribe(x =>
+            {
+                touchOSC.Send("/1/led3", x ? 1 : 0);
             });
 
             catSeq.WhenExecuted
