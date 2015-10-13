@@ -25,12 +25,14 @@ namespace Animatroller.SceneRunner
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioMain = new AudioPlayer();
         private AudioPlayer audioPop = new AudioPlayer();
+        private AudioPlayer audioDIN = new AudioPlayer();
         private VideoPlayer video3dfx = new VideoPlayer();
         private VideoPlayer video2 = new VideoPlayer();
         private Expander.Raspberry raspberryCat = new Expander.Raspberry("192.168.240.115:5005", 3333);
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
         private Expander.Raspberry raspberryLocal = new Expander.Raspberry("127.0.0.1:5005", 3339);
         private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
+        private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
 
@@ -39,8 +41,10 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 catMotion = new DigitalInput2();
         private DigitalInput2 firstBeam = new DigitalInput2();
         private DigitalInput2 finalBeam = new DigitalInput2();
+        private DigitalInput2 motion2 = new DigitalInput2();
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
-        private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
+        private DigitalOutput2 catAir = new DigitalOutput2(/*initial: true*/);
+        private DigitalOutput2 fog = new DigitalOutput2();
         private DigitalOutput2 catLights = new DigitalOutput2();
         private DigitalOutput2 george1 = new DigitalOutput2();
         private DigitalOutput2 george2 = new DigitalOutput2();
@@ -71,6 +75,9 @@ namespace Animatroller.SceneRunner
             raspberry3dfx.Connect(video3dfx);
             raspberryVideo2.Connect(video2);
             raspberryPop.Connect(audioPop);
+            raspberryDIN.Connect(audioDIN);
+            raspberryDIN.DigitalInputs[7].Connect(motion2);
+            raspberryDIN.DigitalOutputs[0].Connect(fog);
             raspberryPop.DigitalOutputs[7].Connect(george1);
             raspberryPop.DigitalOutputs[6].Connect(george2);
             raspberryPop.DigitalOutputs[5].Connect(popper);
@@ -135,6 +142,11 @@ namespace Animatroller.SceneRunner
                 spiderCeilingDrop.Value = data.First() != 0;
             });
 
+            oscServer.RegisterAction<int>("/1/push12", (msg, data) =>
+            {
+                fog.Value = data.First() != 0;
+            });
+
             oscServer.RegisterAction<int>("/1/push20", d => d.First() != 0, (msg, data) =>
             {
                 video3dfx.PlayVideo("PHA_Siren_ComeHither_3DFX_H.mp4");
@@ -151,7 +163,16 @@ namespace Animatroller.SceneRunner
                 video2.PlayVideo("FearTheReaper_Door_Horz_HD.mp4");
             });
 
-            //            midiInput.Note(midiChannel, 40).Controls(catMotion.Control);
+            oscServer.RegisterAction<int>("/1/push23", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("SkeletonSurprise_Door_Horz_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/1/push24", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("PHA_Wraith_StartleScare_Holl_H.mp4");
+            });
+
             midiInput.Note(midiChannel, 36).Subscribe(x =>
             {
                 if (x)
@@ -205,6 +226,11 @@ namespace Animatroller.SceneRunner
             finalBeam.Output.Subscribe(x =>
             {
                 touchOSC.Send("/1/led3", x ? 1 : 0);
+            });
+
+            motion2.Output.Subscribe(x =>
+            {
+                touchOSC.Send("/1/led4", x ? 1 : 0);
             });
 
             catSeq.WhenExecuted

@@ -249,6 +249,8 @@ namespace Animatroller.MonoExpander
 
         private void SendInputMessage(int input, bool state)
         {
+            this.log.Debug("Input {0} set to {1}", input, state ? 1 : 0);
+
             this.senders.ForEach(x =>
             {
                 var msg = new OscMessage("/input",
@@ -312,20 +314,20 @@ namespace Animatroller.MonoExpander
 
                 process.Dispose();
             };
-/*
-            this.log.Warn("1");
-            var bus = DBus.Bus.System;
-            this.log.Warn("1.5");
-            this.log.Warn("2 {0}", bus.UniqueName);
-            var objPath = new DBus.ObjectPath("/org/mpris/MediaPlayer2");
-            this.log.Warn("3");
-            var dbusConnection = bus.GetObject<ITest>("org.mpris.MediaPlayer2.omxplayer", objPath);
-            this.log.Warn("4");
+            /*
+                        this.log.Warn("1");
+                        var bus = DBus.Bus.System;
+                        this.log.Warn("1.5");
+                        this.log.Warn("2 {0}", bus.UniqueName);
+                        var objPath = new DBus.ObjectPath("/org/mpris/MediaPlayer2");
+                        this.log.Warn("3");
+                        var dbusConnection = bus.GetObject<ITest>("org.mpris.MediaPlayer2.omxplayer", objPath);
+                        this.log.Warn("4");
 
-            Thread.Sleep(5000);
-            dbusConnection.Quit();
+                        Thread.Sleep(5000);
+                        dbusConnection.Quit();
 
-            bus.Close();*/
+                        bus.Close();*/
         }
 
         [DBus.Interface("omxplayer.root")]
