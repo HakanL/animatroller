@@ -36,6 +36,13 @@ namespace Animatroller.SceneRunner
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
 
+        private VirtualPixel1D pixelsRoofEdge = new VirtualPixel1D(150);
+        private AnalogInput2 faderR = new AnalogInput2(persistState: true);
+        private AnalogInput2 faderG = new AnalogInput2(persistState: true);
+        private AnalogInput2 faderB = new AnalogInput2(persistState: true);
+        private AnalogInput2 faderBright = new AnalogInput2(persistState: true);
+        private DigitalInput2 manualFader = new DigitalInput2(persistState: true);
+
         private DigitalOutput2 spiderCeiling = new DigitalOutput2("Spider Ceiling");
         private DigitalOutput2 spiderCeilingDrop = new DigitalOutput2("Spider Ceiling Drop");
         private DigitalInput2 catMotion = new DigitalInput2();
@@ -43,7 +50,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 finalBeam = new DigitalInput2();
         private DigitalInput2 motion2 = new DigitalInput2();
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
-        private DigitalOutput2 catAir = new DigitalOutput2(/*initial: true*/);
+        private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
         private DigitalOutput2 fog = new DigitalOutput2();
         private DigitalOutput2 catLights = new DigitalOutput2();
         private DigitalOutput2 george1 = new DigitalOutput2();
@@ -54,6 +61,7 @@ namespace Animatroller.SceneRunner
         private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
 
         private Controller.Sequence catSeq = new Controller.Sequence();
+        private Controller.Sequence motionSeq = new Controller.Sequence();
 
         public Halloween2015Manual(IEnumerable<string> args)
         {
@@ -66,6 +74,9 @@ namespace Animatroller.SceneRunner
                 .ControlsMasterPower(catAir);
             //                .ControlsMasterPower(eyes);
 
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 6, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 5, 1);
+
             raspberryCat.DigitalInputs[4].Connect(catMotion, false);
             raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
             raspberryCat.DigitalInputs[6].Connect(finalBeam, false);
@@ -76,7 +87,7 @@ namespace Animatroller.SceneRunner
             raspberryVideo2.Connect(video2);
             raspberryPop.Connect(audioPop);
             raspberryDIN.Connect(audioDIN);
-            raspberryDIN.DigitalInputs[7].Connect(motion2);
+            raspberryDIN.DigitalInputs[4].Connect(motion2);
             raspberryDIN.DigitalOutputs[0].Connect(fog);
             raspberryPop.DigitalOutputs[7].Connect(george1);
             raspberryPop.DigitalOutputs[6].Connect(george2);
@@ -170,8 +181,55 @@ namespace Animatroller.SceneRunner
 
             oscServer.RegisterAction<int>("/1/push24", d => d.First() != 0, (msg, data) =>
             {
-                video2.PlayVideo("PHA_Wraith_StartleScare_Holl_H.mp4");
+                video2.PlayVideo("DancingDead_Wall_HD.mp4");
             });
+
+
+            oscServer.RegisterAction("/1", msg =>
+            {
+                log.Info("Page 1");
+                manualFader.Value = false;
+
+                SetPixelColor();
+            });
+
+            oscServer.RegisterAction("/2", msg =>
+            {
+                log.Info("Page 2");
+                manualFader.Value = true;
+
+                SetPixelColor();
+            });
+
+            oscServer.RegisterAction<float>("/2/faderBright", (msg, data) =>
+            {
+                faderBright.Value = data.First();
+
+                SetPixelColor();
+            });
+
+            oscServer.RegisterAction<float>("/2/faderR", (msg, data) =>
+            {
+                faderR.Value = data.First();
+
+                SetPixelColor();
+            });
+
+            oscServer.RegisterAction<float>("/2/faderG", (msg, data) =>
+            {
+                faderG.Value = data.First();
+
+                SetPixelColor();
+            });
+
+            oscServer.RegisterAction<float>("/2/faderB", (msg, data) =>
+            {
+                faderB.Value = data.First();
+
+                SetPixelColor();
+            });
+
+
 
             midiInput.Note(midiChannel, 36).Subscribe(x =>
             {
@@ -230,6 +288,9 @@ namespace Animatroller.SceneRunner
 
             motion2.Output.Subscribe(x =>
             {
+                if (x && hoursSmall.IsOpen)
+                    Executor.Current.Execute(motionSeq);
+
                 touchOSC.Send("/1/led4", x ? 1 : 0);
             });
 
@@ -275,10 +336,46 @@ namespace Animatroller.SceneRunner
                 {
                     catLights.Value = false;
                 });
+
+            motionSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    video2.PlayVideo("DancingDead_Wall_HD.mp4");
+
+                    instance.WaitFor(S(10));
+                })
+                .TearDown(() =>
+                {
+                });
+        }
+
+        private Color GetFaderColor()
+        {
+            return HSV.ColorFromRGB(faderR.Value, faderG.Value, faderB.Value);
+        }
+
+        private void SetPixelColor()
+        {
+            if (manualFader.Value)
+                pixelsRoofEdge.SetAll(GetFaderColor(), faderBright.Value);
+            else
+            {
+                if (hoursSmall.IsOpen)
+                {
+                    pixelsRoofEdge.SetAll(
+                        HSV.ColorFromRGB(0.73333333333333328, 0, 1),
+                        0.16470588235294117);
+                }
+                else
+                {
+                    pixelsRoofEdge.SetAll(Color.Black, 0.0);
+                }
+            }
         }
 
         public override void Start()
         {
+            SetPixelColor();
         }
 
         public override void Run()
