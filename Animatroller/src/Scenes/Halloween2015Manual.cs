@@ -74,6 +74,11 @@ namespace Animatroller.SceneRunner
                 .ControlsMasterPower(catAir);
             //                .ControlsMasterPower(eyes);
 
+            hoursSmall.Output.Subscribe(x =>
+            {
+                SetPixelColor();
+            });
+
             acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 6, 1);
             acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 5, 1);
 
