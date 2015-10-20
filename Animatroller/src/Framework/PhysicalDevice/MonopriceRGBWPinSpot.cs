@@ -11,27 +11,7 @@ namespace Animatroller.Framework.PhysicalDevice
 {
     public class MonopriceRGBWPinSpot : BaseDMXStrobeLight
     {
-        public MonopriceRGBWPinSpot(ColorDimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public MonopriceRGBWPinSpot(ColorDimmer2 logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public MonopriceRGBWPinSpot(StrobeColorDimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public MonopriceRGBWPinSpot(StrobeColorDimmer2 logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public MonopriceRGBWPinSpot(ILogicalDevice logicalDevice, int dmxChannel)
+        public MonopriceRGBWPinSpot(IApiVersion3 logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {
         }

@@ -194,6 +194,17 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
+        public BaseSweeperEffect ConnectTo(IReceivesBrightness device)
+        {
+            lock (lockObject)
+            {
+                //FIXME is this right?
+                this.devices.Add(device.GetBrightnessObserver());
+            }
+
+            return this;
+        }
+
         public BaseSweeperEffect ConnectTo(Action<double> action)
         {
             lock (lockObject)

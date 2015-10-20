@@ -96,7 +96,7 @@ namespace Animatroller.Framework.Expander
             }
             catch (Exception ex)
             {
-                log.Error("Failed to invoke action", ex);
+                log.Error(ex, "Failed to invoke action");
             }
         }
 
@@ -166,51 +166,6 @@ namespace Animatroller.Framework.Expander
                 });
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Note(DigitalInput logicalDevice, int midiChannel, int note)
-        {
-            var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
-
-            WireUpDevice_Note(device, midiChannel, note);
-
-            device.Connect(logicalDevice);
-
-            return device;
-        }
-
-        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput_Note(AnalogInput logicalDevice, int midiChannel, int note)
-        {
-            var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
-
-            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOn, note), m =>
-            {
-                device.Trigger(m.Data2 / 127.0);
-            });
-
-            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOff, note), m =>
-            {
-                device.Trigger(0);
-            });
-
-            device.Connect(logicalDevice);
-
-            return device;
-        }
-
-        public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput_Controller(AnalogInput logicalDevice, int midiChannel, int controller)
-        {
-            var device = new Animatroller.Framework.PhysicalDevice.AnalogInput();
-
-            this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.Controller, controller), m =>
-            {
-                device.Trigger(m.Data2 / 127.0);
-            });
-
-            device.Connect(logicalDevice);
-
-            return device;
-        }
-
-        public string Name
-        { get { return this.name; } }
+        public string Name { get { return this.name; } }
     }
 }

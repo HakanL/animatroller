@@ -15,7 +15,7 @@ namespace Animatroller.Framework
 
     public interface IReceivesBrightness : IOwnedDevice
     {
-        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver();
+        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken token = null);
 
         double Brightness { get; set; }
     }
@@ -73,6 +73,7 @@ namespace Animatroller.Framework
     {
         string Name { get; }
 
+        [Obsolete]
         int Priority { get; }
     }
 

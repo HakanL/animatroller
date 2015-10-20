@@ -12,66 +12,6 @@ namespace Animatroller.Framework.PhysicalDevice
     {
         protected double strobeSpeed;
 
-        public BaseStrobeLight(ColorDimmer logicalDevice)
-            : base(logicalDevice)
-        {
-            var strobe = logicalDevice as StrobeColorDimmer;
-            if (strobe != null)
-            {
-                strobe.StrobeSpeedChanged += (sender, e) =>
-                {
-                    this.strobeSpeed = e.NewSpeed;
-
-                    Output();
-                };
-            }
-        }
-
-        public BaseStrobeLight(Dimmer logicalDevice)
-            : base(logicalDevice)
-        {
-            var strobe = logicalDevice as StrobeDimmer;
-            if (strobe != null)
-            {
-                strobe.StrobeSpeedChanged += (sender, e) =>
-                {
-                    this.strobeSpeed = e.NewSpeed;
-
-                    Output();
-                };
-            }
-        }
-
-        public BaseStrobeLight(ColorDimmer2 logicalDevice)
-            : base(logicalDevice)
-        {
-            var strobe = logicalDevice as StrobeColorDimmer2;
-            if (strobe != null)
-            {
-                strobe.InputStrobeSpeed.Subscribe(x =>
-                {
-                    this.strobeSpeed = x.Value;
-
-                    Output();
-                });
-            }
-        }
-
-        public BaseStrobeLight(ILogicalDevice logicalDevice)
-            : base(logicalDevice)
-        {
-            // Not likely to work
-            //if (logicalDevice is ISendsStrobeSpeed)
-            //{
-            //    ((ISendsStrobeSpeed)logicalDevice).OutputStrobeSpeed.Subscribe(x =>
-            //    {
-            //        this.strobeSpeed = x;
-
-            //        Output();
-            //    });
-            //}
-        }
-
         public BaseStrobeLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {

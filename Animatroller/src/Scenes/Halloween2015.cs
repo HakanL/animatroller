@@ -13,6 +13,7 @@ using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
+using System.Threading.Tasks;
 
 namespace Animatroller.SceneRunner
 {
@@ -46,6 +47,7 @@ namespace Animatroller.SceneRunner
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
 
+        private IControlToken testToken = null;
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         private Effect.PopOut popOut1 = new Effect.PopOut(S(0.3));
         private Effect.PopOut popOut2 = new Effect.PopOut(S(0.3));
@@ -70,15 +72,15 @@ namespace Animatroller.SceneRunner
 
         private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
 
-        private StrobeColorDimmer2 spiderLight = new StrobeColorDimmer2("Spider");
-        private StrobeColorDimmer2 wall1Light = new StrobeColorDimmer2("Wall 1");
-        private StrobeColorDimmer2 wall2Light = new StrobeColorDimmer2("Wall 2");
-        private StrobeColorDimmer2 wall3Light = new StrobeColorDimmer2("Wall 3");
-        private StrobeColorDimmer2 wall4Light = new StrobeColorDimmer2("Wall 4");
-        private Dimmer2 stairs1Light = new Dimmer2("Stairs 1");
-        private Dimmer2 stairs2Light = new Dimmer2("Stairs 2");
+        private StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
+        private StrobeColorDimmer3 wall1Light = new StrobeColorDimmer3("Wall 1");
+        private StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2");
+        private StrobeColorDimmer3 wall3Light = new StrobeColorDimmer3("Wall 3");
+        private StrobeColorDimmer3 wall4Light = new StrobeColorDimmer3("Wall 4");
+        private Dimmer3 stairs1Light = new Dimmer3("Stairs 1");
+        private Dimmer3 stairs2Light = new Dimmer3("Stairs 2");
         private StrobeDimmer3 underGeorge = new StrobeDimmer3("ADJ Flash");
-        private StrobeColorDimmer2 pinSpot = new StrobeColorDimmer2("Pin Spot");
+        private StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence welcomeSeq = new Controller.Sequence();
@@ -121,14 +123,14 @@ namespace Animatroller.SceneRunner
                 SetPixelColor();
             });
 
-            popOut1.ConnectTo(wall1Light.InputBrightness);
-            popOut2.ConnectTo(wall2Light.InputBrightness);
-            popOut3.ConnectTo(wall3Light.InputBrightness);
-            popOut4.ConnectTo(wall4Light.InputBrightness);
-//            popOut4.ConnectTo(underGeorge.InputBrightness);
+            popOut1.ConnectTo(wall1Light);
+            popOut2.ConnectTo(wall2Light);
+            popOut3.ConnectTo(wall3Light);
+            popOut4.ConnectTo(wall4Light);
+            //            popOut4.ConnectTo(underGeorge.InputBrightness);
 
-            flickerEffect.ConnectTo(stairs1Light.InputBrightness);
-            flickerEffect.ConnectTo(stairs2Light.InputBrightness);
+            flickerEffect.ConnectTo(stairs1Light);
+            flickerEffect.ConnectTo(stairs2Light);
 
 
             raspberryLocal.AudioTrackStart.Subscribe(x =>
@@ -311,6 +313,11 @@ namespace Animatroller.SceneRunner
                 fog.Value = data.First() != 0;
             });
 
+            oscServer.RegisterAction<int>("/1/push13", d => d.First() != 0, (msg, data) =>
+            {
+                Exec.MasterEffect.Fade(stairs1Light, 1.0, 0.0, 2000, token: testToken);
+            });
+
             oscServer.RegisterAction<int>("/1/toggle1", (msg, data) =>
             {
                 //                candyEyes.Value = data.First() != 0;
@@ -323,6 +330,30 @@ namespace Animatroller.SceneRunner
             oscServer.RegisterAction<int>("/1/toggle2", (msg, data) =>
             {
                 underGeorge.Brightness = data.First();
+            });
+
+            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
+            {
+                if (data.First() != 0)
+                    flickerEffect.Start();
+                else
+                    flickerEffect.Stop();
+            });
+
+            oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
+            {
+                if (data.First() != 0)
+                {
+                    testToken = stairs1Light.TakeControl(5);
+                }
+                else
+                {
+                    if(testToken != null)
+                    {
+                        testToken.Dispose();
+                        testToken = null;
+                    }
+                }
             });
 
             oscServer.RegisterAction<int>("/1/push14", (msg, data) =>
@@ -589,13 +620,9 @@ namespace Animatroller.SceneRunner
             }
         }
 
-        public override void Start()
-        {
-            SetPixelColor();
-        }
-
         public override void Run()
         {
+            SetPixelColor();
         }
 
         public override void Stop()

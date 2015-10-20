@@ -17,11 +17,6 @@ namespace Animatroller.SceneRunner
         {
             // Variables for al types of IO expanders, etc
             Animatroller.Simulator.SimulatorForm simForm = null;
-            Animatroller.Framework.Expander.DMXPro dmxPro = null;
-            Animatroller.Framework.Expander.Renard renard = null;
-            Animatroller.Framework.Expander.IOExpander ioExpander = null;
-            Animatroller.Framework.Expander.AcnStream acnOutput = null;
-            Animatroller.Framework.Expander.MidiInput midiInput = null;
 
             // Figure out which IO expanders to use, taken from command line (space-separated)
             var sceneArgs = new List<string>();
@@ -40,31 +35,6 @@ namespace Animatroller.SceneRunner
                     case "SIM":
                         // WinForms simulator
                         simForm = new Animatroller.Simulator.SimulatorForm();
-                        break;
-
-                    case "DMXPRO":
-                        // Enttec DMX USB Pro or DMXLink (specify virtual COM port in config file)
-                        dmxPro = new Animatroller.Framework.Expander.DMXPro(parts[1]);
-                        break;
-
-                    case "RENARD":
-                        // Renard (specify virtual COM port in config file)
-                        renard = new Animatroller.Framework.Expander.Renard(parts[1]);
-                        break;
-
-                    case "IOEXP":
-                        // Propeller-based expansion board for input/output/dmx/GECE-pixels/motor, etc
-                        ioExpander = new Animatroller.Framework.Expander.IOExpander(parts[1]);
-                        break;
-
-                    case "MIDI":
-                        // Midi input (like Akai LPD-8)
-                        midiInput = new Animatroller.Framework.Expander.MidiInput();
-                        break;
-
-                    case "ACN":
-                        // ACN E1.31 streaming output. Will pick first non-loopback network card to bind to
-                        acnOutput = new Framework.Expander.AcnStream();
                         break;
 
                     default:
@@ -86,13 +56,13 @@ namespace Animatroller.SceneRunner
                     !p.IsAbstract);
 
             var sceneType = sceneTypes.SingleOrDefault(x => x.Name.Equals(sceneName, StringComparison.OrdinalIgnoreCase));
-            if(sceneType == null)
+            if (sceneType == null)
                 throw new ArgumentException("Missing start scene");
 
             Executor.Current.KeyStoragePrefix = sceneType.Name;
 
             IScene scene = (IScene)Activator.CreateInstance(sceneType, sceneArgs);
- 
+
 
             // Register the scene (so it can be properly stopped)
             Executor.Current.Register(scene);
@@ -101,41 +71,6 @@ namespace Animatroller.SceneRunner
             if (simForm != null)
             {
                 simForm.AutoWireUsingReflection(scene);
-            }
-
-            if (scene is ISceneRequiresDMXPro)
-            {
-                if (dmxPro == null)
-                    throw new ArgumentNullException("DMXpro not configured");
-                ((ISceneRequiresDMXPro)scene).WireUp(dmxPro);
-            }
-
-            if (scene is ISceneRequiresRenard)
-            {
-                if (renard == null)
-                    throw new ArgumentNullException("Renard not configured");
-                ((ISceneRequiresRenard)scene).WireUp(renard);
-            }
-
-            if (scene is ISceneRequiresIOExpander)
-            {
-                if (ioExpander == null)
-                    throw new ArgumentNullException("IOExpander not configured");
-                ((ISceneRequiresIOExpander)scene).WireUp(ioExpander);
-            }
-
-            if (scene is ISceneRequiresMidiInput)
-            {
-                if (midiInput == null)
-                    throw new ArgumentNullException("MidiInput not configured");
-                ((ISceneRequiresMidiInput)scene).WireUp(midiInput);
-            }
-
-            if (scene is ISceneRequiresAcnStream)
-            {
-                if (acnOutput == null)
-                    throw new ArgumentNullException("AcnOutput not configured");
-                ((ISceneRequiresAcnStream)scene).WireUp(acnOutput);
             }
 
             // Run

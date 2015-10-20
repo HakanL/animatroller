@@ -6,31 +6,6 @@ namespace Animatroller.Framework.PhysicalDevice
 {
     public class AmericanDJStrobe : BaseDMXStrobeLight, INeedsDmxOutput
     {
-        public AmericanDJStrobe(Dimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        //public AmericanDJStrobe(Dimmer2 logicalDevice, int dmxChannel)
-        //    : base(logicalDevice, dmxChannel)
-        //{
-        //}
-
-        //public AmericanDJStrobe(StrobeDimmer3 logicalDevice, int dmxChannel)
-        //    : base(logicalDevice, dmxChannel)
-        //{
-        //}
-
-        public AmericanDJStrobe(StrobeDimmer logicalDevice, int dmxChannel)
-            : this((Dimmer)logicalDevice, dmxChannel)
-        {
-        }
-
-        public AmericanDJStrobe(ILogicalDevice logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
         public AmericanDJStrobe(IApiVersion3 logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {

@@ -112,12 +112,12 @@
     <Compile Include="Effect\BaseSweeperEffect.cs" />
     <Compile Include="Effect\Blackout.cs" />
     <Compile Include="Effect\EffectAction.cs" />
+    <Compile Include="Effect\Flicker.cs" />
     <Compile Include="Effect\MasterEffect.cs" />
     <Compile Include="Effect\TimerJobRunner.cs" />
     <Compile Include="Effect\Effects2.cs" />
     <Compile Include="Expander\MidiOutput.cs" />
     <Compile Include="Expander\MidiInput2.cs" />
-    <Compile Include="Expander\MidiInput.cs" />
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
@@ -139,7 +139,6 @@
     <Compile Include="Interface\IRunnable.cs" />
     <Compile Include="Controller\ChannelIdentity.cs" />
     <Compile Include="Interface\ISupportsPersistence.cs" />
-    <Compile Include="Interface\SceneInterfaces.cs" />
     <Compile Include="LogicalDevice\AnalogInput3.cs" />
     <Compile Include="LogicalDevice\AnalogInput2.cs" />
     <Compile Include="LogicalDevice\Event\VideoChanged.cs" />
@@ -169,7 +168,6 @@
     <Compile Include="LogicalDevice\SingleOwnerOutputDevice.cs" />
     <Compile Include="LogicalDevice\SingleOwnerDevice.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
-    <Compile Include="LogicalDevice\AnalogInput.cs" />
     <Compile Include="LogicalDevice\BaseDevice.cs" />
     <Compile Include="LogicalDevice\Dimmer2.cs" />
     <Compile Include="LogicalDevice\Event\AudioChanged.cs" />
@@ -212,9 +210,6 @@
     <Compile Include="Utility\Enum.cs" />
     <Compile Include="Interface\IScene.cs" />
     <Compile Include="LogicalDevice\AudioPlayer.cs" />
-    <Compile Include="LogicalDevice\ColorDimmer.cs" />
-    <Compile Include="LogicalDevice\DigitalInput.cs" />
-    <Compile Include="LogicalDevice\Dimmer.cs" />
     <Compile Include="LogicalDevice\Event\SpeedTargetChanged.cs" />
     <Compile Include="LogicalDevice\Interface\DeviceTypes.cs" />
     <Compile Include="LogicalDevice\Motor.cs" />
@@ -235,8 +230,6 @@
     <Compile Include="LogicalDevice\Event\StrobeSpeedChanged.cs" />
     <Compile Include="LogicalDevice\Switch.cs" />
     <Compile Include="LogicalDevice\Interface\IStrobe.cs" />
-    <Compile Include="LogicalDevice\StrobeColorDimmer.cs" />
-    <Compile Include="LogicalDevice\StrobeDimmer.cs" />
     <Compile Include="LogicalDevice\Interface\IOutput.cs" />
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="PhysicalDevice\AmericanDJStrobe.cs" />

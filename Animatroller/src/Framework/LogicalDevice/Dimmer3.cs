@@ -32,9 +32,10 @@ namespace Animatroller.Framework.LogicalDevice
             this.releaseActions.Add(() => this.brightness.OnNext(0));
         }
 
-        public ControlledObserver<double> GetBrightnessObserver()
+        public ControlledObserver<double> GetBrightnessObserver(IControlToken token = null)
         {
-            return new ControlledObserver<double>(GetCurrentOrNewToken(), this.brightness);
+            // This will return an observer that will work on any thread
+            return new ControlledObserver<double>(token ?? GetCurrentOrNewToken(), this.brightness);
         }
 
         public void SetOutputFilter(ISubject<double> outputFilter)
@@ -72,6 +73,8 @@ namespace Animatroller.Framework.LogicalDevice
             }
             set
             {
+                // Note that this will only match the token when called on the same thread as
+                // where control was taken (TakeControl)
                 this.brightness.OnNext(value, Executor.Current.GetControlToken(this));
             }
         }

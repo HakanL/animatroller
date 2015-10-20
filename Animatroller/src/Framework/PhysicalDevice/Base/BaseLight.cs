@@ -42,17 +42,6 @@ namespace Animatroller.Framework.PhysicalDevice
             return Math.Max(Math.Max(color.R, color.G), color.B) / 255.0;
         }
 
-        public BaseLight(Dimmer logicalDevice)
-            : base(logicalDevice)
-        {
-            logicalDevice.BrightnessChanged += (sender, e) =>
-            {
-                this.colorBrightness.Brightness = e.NewBrightness;
-
-                Output();
-            };
-        }
-
         public BaseLight(Switch logicalDevice)
             : base(logicalDevice)
         {
@@ -73,40 +62,6 @@ namespace Animatroller.Framework.PhysicalDevice
 
                 Output();
             });
-        }
-
-        public BaseLight(Dimmer2 logicalDevice)
-            : base(logicalDevice)
-        {
-            logicalDevice.InputBrightness.Subscribe(x =>
-            {
-                this.colorBrightness.Brightness = x.Value;
-
-                Output();
-            });
-        }
-
-        public BaseLight(ColorDimmer2 logicalDevice)
-            : base(logicalDevice)
-        {
-            logicalDevice.InputBrightness.Subscribe(x =>
-            {
-                this.colorBrightness.Brightness = x.Value;
-
-                Output();
-            });
-
-            logicalDevice.InputColor.Subscribe(x =>
-            {
-                this.colorBrightness.Color = x;
-
-                Output();
-            });
-        }
-        public BaseLight(ILogicalDevice logicalDevice)
-            : base(logicalDevice)
-        {
-            // Not likely to work
         }
 
         public BaseLight(IApiVersion3 logicalDevice)

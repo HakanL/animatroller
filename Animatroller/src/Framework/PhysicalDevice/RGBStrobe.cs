@@ -5,31 +5,6 @@ namespace Animatroller.Framework.PhysicalDevice
 {
     public class RGBStrobe : BaseDMXStrobeLight
     {
-        public RGBStrobe(ColorDimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public RGBStrobe(ColorDimmer2 logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public RGBStrobe(StrobeColorDimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public RGBStrobe(StrobeColorDimmer2 logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
-        public RGBStrobe(ILogicalDevice logicalDevice, int dmxChannel)
-            : base(logicalDevice, dmxChannel)
-        {
-        }
-
         public RGBStrobe(IApiVersion3 logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {

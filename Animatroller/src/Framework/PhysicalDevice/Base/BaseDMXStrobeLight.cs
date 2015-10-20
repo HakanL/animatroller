@@ -14,24 +14,6 @@ namespace Animatroller.Framework.PhysicalDevice
 
         public IDmxOutput DmxOutputPort { protected get; set; }
 
-        public BaseDMXStrobeLight(ColorDimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice)
-        {
-            this.baseDmxChannel = dmxChannel;
-        }
-
-        public BaseDMXStrobeLight(ColorDimmer2 logicalDevice, int dmxChannel)
-            : base(logicalDevice)
-        {
-            this.baseDmxChannel = dmxChannel;
-        }
-
-        public BaseDMXStrobeLight(ILogicalDevice logicalDevice, int dmxChannel)
-            : base(logicalDevice)
-        {
-            this.baseDmxChannel = dmxChannel;
-        }
-
         public BaseDMXStrobeLight(IApiVersion3 logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {

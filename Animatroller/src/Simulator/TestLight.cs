@@ -21,32 +21,12 @@ namespace Animatroller.Simulator
             set { this.control = value; }
         }
 
-        public TestLight(Switch logicalDevice)
-            : base(logicalDevice)
-        {
-        }
+        //public TestLight(Switch logicalDevice)
+        //    : base(logicalDevice)
+        //{
+        //}
 
-        public TestLight(Dimmer logicalDevice)
-            : base(logicalDevice)
-        {
-        }
-
-        public TestLight(Dimmer2 logicalDevice)
-            : base(logicalDevice)
-        {
-        }
-
-        public TestLight(ColorDimmer logicalDevice)
-            : base(logicalDevice)
-        {
-        }
-
-        public TestLight(ColorDimmer2 logicalDevice)
-            : base(logicalDevice)
-        {
-        }
-
-        public TestLight(ILogicalDevice logicalDevice)
+        public TestLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {
             var movingHeadDevice = logicalDevice as MovingHead;

@@ -28,11 +28,14 @@ namespace Animatroller.Framework.Effect2
         {
         }
 
-        public Task Fade(IReceivesBrightness device, double start, double end, int durationMs, int priority = 1, ITransformer transformer = null)
+        public Task Fade(IReceivesBrightness device, double start, double end, int durationMs, int priority = 1, ITransformer transformer = null, IControlToken token = null)
         {
+            if (token != null)
+                return Fade(device.GetBrightnessObserver(token), start, end, durationMs, transformer);
+
             var controlToken = device.TakeControl(priority);
 
-            return Fade(device.GetBrightnessObserver(), start, end, durationMs, transformer)
+            return Fade(device.GetBrightnessObserver(controlToken), start, end, durationMs, transformer)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
@@ -78,7 +81,7 @@ namespace Animatroller.Framework.Effect2
         {
             var controlToken = device.TakeControl(priority);
 
-            return Custom(customList, device.GetBrightnessObserver(), durationMs, loop)
+            return Custom(customList, device.GetBrightnessObserver(controlToken), durationMs, loop)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();

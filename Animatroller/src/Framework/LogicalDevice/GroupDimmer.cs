@@ -25,9 +25,9 @@ namespace Animatroller.Framework.LogicalDevice
             this.brightness = new ReplaySubject<double>(1);
         }
 
-        public ControlledObserver<double> GetBrightnessObserver()
+        public ControlledObserver<double> GetBrightnessObserver(IControlToken token = null)
         {
-            var controlToken = GetCurrentOrNewToken();
+            var controlToken = token ?? GetCurrentOrNewToken();
 
             var observers = new List<ControlledObserver<double>>();
             lock (this.members)
@@ -39,7 +39,7 @@ namespace Animatroller.Framework.LogicalDevice
                         // No lock/control token
                         continue;
 
-                    observers.Add(member.GetBrightnessObserver());
+                    observers.Add(member.GetBrightnessObserver(controlToken));
                 }
             }
 
