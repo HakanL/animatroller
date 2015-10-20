@@ -52,6 +52,8 @@ namespace Animatroller.MonoExpander
         private VideoSystems videoSystem;
         private bool videoPlaying;
         private List<IDisposable> disposeList;
+        private int? lastPosBg;
+        private int? lastPosTrk;
 
         public Main(Arguments args)
         {
@@ -701,13 +703,18 @@ namespace Animatroller.MonoExpander
                 this.fmodSystem.Dispose();
         }
 
-        private bool ReportChannelPosition(Channel? channel, string oscAddress, string trackId)
+        private bool ReportChannelPosition(Channel? channel, string oscAddress, string trackId, ref int? lastPos)
         {
             if (channel.HasValue)
             {
                 var chn = channel.Value;
 
                 int? pos = (int?)chn.GetPosition(TimeUnit.Milliseconds);
+
+                if (pos == lastPos)
+                    return false;
+
+                lastPos = pos;
 
                 if (pos.HasValue)
                 {
@@ -717,6 +724,8 @@ namespace Animatroller.MonoExpander
                     return true;
                 }
             }
+
+            lastPos = null;
 
             return false;
         }
@@ -759,13 +768,13 @@ namespace Animatroller.MonoExpander
 
                     if (reportCounter % 5 == 0)
                     {
-                        if (ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack))
+                        if (ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack, ref this.lastPosTrk))
                             watch.Restart();
                     }
 
                     if (reportCounter % 10 == 0)
                     {
-                        if (ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName))
+                        if (ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName, ref this.lastPosBg))
                             watch.Restart();
                     }
 
