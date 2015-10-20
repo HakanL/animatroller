@@ -26,14 +26,14 @@ namespace Animatroller.Framework.LogicalDevice
             this.tilt = new ControlSubject<double, IControlToken>(0, HasControl);
         }
 
-        public ControlledObserver<double> GetPanObserver()
+        public ControlledObserver<double> GetPanObserver(IControlToken token = null)
         {
-            return new ControlledObserver<double>(GetCurrentOrNewToken(), this.pan);
+            return new ControlledObserver<double>(token ?? GetCurrentOrNewToken(), this.pan);
         }
 
-        public ControlledObserver<double> GetTiltObserver()
+        public ControlledObserver<double> GetTiltObserver(IControlToken token = null)
         {
-            return new ControlledObserver<double>(GetCurrentOrNewToken(), this.tilt);
+            return new ControlledObserver<double>(token ?? GetCurrentOrNewToken(), this.tilt);
         }
 
         public double Pan

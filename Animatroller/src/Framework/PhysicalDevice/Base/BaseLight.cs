@@ -42,17 +42,6 @@ namespace Animatroller.Framework.PhysicalDevice
             return Math.Max(Math.Max(color.R, color.G), color.B) / 255.0;
         }
 
-        public BaseLight(Switch logicalDevice)
-            : base(logicalDevice)
-        {
-            logicalDevice.PowerChanged += (sender, e) =>
-                {
-                    this.colorBrightness.Brightness = e.NewState ? 1.0 : 0.0;
-
-                    Output();
-                };
-        }
-
         public BaseLight(DigitalOutput2 logicalDevice)
             : base(logicalDevice)
         {

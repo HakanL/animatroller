@@ -22,10 +22,11 @@ namespace Animatroller.Framework.LogicalDevice
             internal Dictionary<T, IControlToken> MemberTokens { get; set; }
             private Action dispose;
 
-            public GroupControlToken(Dictionary<T, IControlToken> memberTokens, Action dispose)
+            public GroupControlToken(Dictionary<T, IControlToken> memberTokens, Action dispose, int priority = 1)
             {
                 MemberTokens = memberTokens;
                 this.dispose = dispose;
+                Priority = priority;
             }
 
             public int Priority { get; set; }
@@ -101,7 +102,8 @@ namespace Animatroller.Framework.LogicalDevice
 
                             Executor.Current.SetControlToken(this, this.currentOwner);
                         }
-                    });
+                    },
+                    priority);
 
                 // Push current owner
                 this.owners.Push(this.currentOwner);

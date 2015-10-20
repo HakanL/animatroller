@@ -12,13 +12,14 @@ namespace Animatroller.Framework.Effect
 {
     public class Flicker : IEffect
     {
-        public class HeldDevice
+        protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
         {
-            public IReceivesBrightness Device { get; set; }
-
-            public int Priority { get; set; }
-
             public ControlledObserver<double> BrightnessOwner { get; set; }
+
+            public DeviceController(IReceivesBrightness device, int priority)
+                : base(device, priority)
+            {
+            }
         }
 
         protected bool isRunning;
@@ -27,7 +28,7 @@ namespace Animatroller.Framework.Effect
         private Random random = new Random();
         protected object lockObject = new object();
         protected Timer timer;
-        protected List<HeldDevice> devices;
+        protected List<DeviceController> devices;
         protected ISubject<bool> inputRun;
         private double minBrightness;
         private double maxBrightness;
@@ -40,7 +41,7 @@ namespace Animatroller.Framework.Effect
             this.minBrightness = minBrightness;
             this.maxBrightness = maxBrightness;
 
-            this.devices = new List<HeldDevice>();
+            this.devices = new List<DeviceController>();
             this.timer = new Timer(new TimerCallback(TimerCallback));
 
             this.inputRun = new Subject<bool>();
@@ -152,11 +153,7 @@ namespace Animatroller.Framework.Effect
         {
             lock (lockObject)
             {
-                this.devices.Add(new HeldDevice
-                {
-                    Device = device,
-                    Priority = priority
-                });
+                this.devices.Add(new DeviceController(device, priority));
             }
 
             return this;

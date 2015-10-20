@@ -22,16 +22,6 @@ namespace Animatroller.Framework.PhysicalDevice
                 });
         }
 
-        public AnalogInput Connect(LogicalDevice.AnalogInput2 logicalDevice)
-        {
-            ValueChanged += (sender, e) =>
-            {
-                logicalDevice.Value = e.NewBrightness;
-            };
-
-            return this;
-        }
-
         public AnalogInput Connect(LogicalDevice.AnalogInput3 logicalDevice)
         {
             ValueChanged += (sender, e) =>

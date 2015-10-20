@@ -96,7 +96,7 @@ namespace Animatroller.Framework.Import
                     {
                         if (!this.rgbObservers.ContainsKey(device))
                         {
-                            var observer = device.GetRgbObsserver();
+                            var observer = device.GetRgbObserver();
 
                             this.rgbObservers.Add(device, observer);
                         }

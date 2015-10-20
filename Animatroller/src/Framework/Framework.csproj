@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controller\CueList.cs" />
+    <Compile Include="Controller\BaseDeviceController.cs" />
     <Compile Include="Controller\HighPrecisionTimer2.cs" />
     <Compile Include="Controller\IntStateMachine.cs" />
     <Compile Include="Controller\LockHolder.cs" />
@@ -114,6 +115,7 @@
     <Compile Include="Effect\EffectAction.cs" />
     <Compile Include="Effect\Flicker.cs" />
     <Compile Include="Effect\MasterEffect.cs" />
+    <Compile Include="Effect\PopOut2.cs" />
     <Compile Include="Effect\TimerJobRunner.cs" />
     <Compile Include="Effect\Effects2.cs" />
     <Compile Include="Expander\MidiOutput.cs" />
@@ -140,13 +142,11 @@
     <Compile Include="Controller\ChannelIdentity.cs" />
     <Compile Include="Interface\ISupportsPersistence.cs" />
     <Compile Include="LogicalDevice\AnalogInput3.cs" />
-    <Compile Include="LogicalDevice\AnalogInput2.cs" />
     <Compile Include="LogicalDevice\Event\VideoChanged.cs" />
     <Compile Include="LogicalDevice\StrobeDimmer3.cs" />
     <Compile Include="LogicalDevice\VideoPlayer.cs" />
     <Compile Include="LogicalDevice\BrightnessPowerAdapter.cs" />
     <Compile Include="LogicalDevice\ColorDimmer3.cs" />
-    <Compile Include="LogicalDevice\ColorDimmer2.cs" />
     <Compile Include="LogicalDevice\ControlledDevice.cs" />
     <Compile Include="LogicalDevice\ControlledObserverRGB.cs" />
     <Compile Include="LogicalDevice\ControlTokenValue.cs" />
@@ -169,7 +169,6 @@
     <Compile Include="LogicalDevice\SingleOwnerDevice.cs" />
     <Compile Include="LogicalDevice\ColorBrightness.cs" />
     <Compile Include="LogicalDevice\BaseDevice.cs" />
-    <Compile Include="LogicalDevice\Dimmer2.cs" />
     <Compile Include="LogicalDevice\Event\AudioChanged.cs" />
     <Compile Include="LogicalDevice\Interface\IControlData.cs" />
     <Compile Include="LogicalDevice\SinglePixel.cs" />
@@ -177,14 +176,12 @@
     <Compile Include="LogicalDevice\DigitalOutput2.cs" />
     <Compile Include="LogicalDevice\MovingHead.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer3.cs" />
-    <Compile Include="LogicalDevice\StrobeColorDimmer2.cs" />
     <Compile Include="LogicalDevice\VirtualPixel2D.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
     <Compile Include="LogicalDevice\Event\PixelChanged.cs" />
     <Compile Include="LogicalDevice\Pixel1D.cs" />
     <Compile Include="LogicalDevice\Event\OpenHoursChanged.cs" />
-    <Compile Include="LogicalDevice\OperatingHours.cs" />
     <Compile Include="Import\BaseImporter.cs" />
     <Compile Include="PhysicalDevice\AnalogInput.cs" />
     <Compile Include="PhysicalDevice\Base\BaseStrobeLight.cs" />
@@ -228,7 +225,6 @@
     <Compile Include="LogicalDevice\Event\ColorChanged.cs" />
     <Compile Include="LogicalDevice\Event\StateChanged.cs" />
     <Compile Include="LogicalDevice\Event\StrobeSpeedChanged.cs" />
-    <Compile Include="LogicalDevice\Switch.cs" />
     <Compile Include="LogicalDevice\Interface\IStrobe.cs" />
     <Compile Include="LogicalDevice\Interface\IOutput.cs" />
     <Compile Include="Utility\Extensions.cs" />

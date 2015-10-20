@@ -38,10 +38,10 @@ namespace Animatroller.SceneRunner
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
 
         private VirtualPixel1D pixelsRoofEdge = new VirtualPixel1D(150);
-        private AnalogInput2 faderR = new AnalogInput2(persistState: true);
-        private AnalogInput2 faderG = new AnalogInput2(persistState: true);
-        private AnalogInput2 faderB = new AnalogInput2(persistState: true);
-        private AnalogInput2 faderBright = new AnalogInput2(persistState: true);
+        private AnalogInput3 faderR = new AnalogInput3(persistState: true);
+        private AnalogInput3 faderG = new AnalogInput3(persistState: true);
+        private AnalogInput3 faderB = new AnalogInput3(persistState: true);
+        private AnalogInput3 faderBright = new AnalogInput3(persistState: true);
         private DigitalInput2 manualFader = new DigitalInput2(persistState: true);
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -49,10 +49,10 @@ namespace Animatroller.SceneRunner
 
         private IControlToken testToken = null;
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
-        private Effect.PopOut popOut1 = new Effect.PopOut(S(0.3));
-        private Effect.PopOut popOut2 = new Effect.PopOut(S(0.3));
-        private Effect.PopOut popOut3 = new Effect.PopOut(S(0.5));
-        private Effect.PopOut popOut4 = new Effect.PopOut(S(1.2));
+        private Effect.PopOut2 popOut1 = new Effect.PopOut2(S(0.3));
+        private Effect.PopOut2 popOut2 = new Effect.PopOut2(S(0.3));
+        private Effect.PopOut2 popOut3 = new Effect.PopOut2(S(0.5));
+        private Effect.PopOut2 popOut4 = new Effect.PopOut2(S(1.2));
 
         private DigitalOutput2 spiderCeiling = new DigitalOutput2("Spider Ceiling");
         private DigitalOutput2 spiderCeilingDrop = new DigitalOutput2("Spider Ceiling Drop");
@@ -127,7 +127,7 @@ namespace Animatroller.SceneRunner
             popOut2.ConnectTo(wall2Light);
             popOut3.ConnectTo(wall3Light);
             popOut4.ConnectTo(wall4Light);
-            //            popOut4.ConnectTo(underGeorge.InputBrightness);
+            popOut4.ConnectTo(underGeorge);
 
             flickerEffect.ConnectTo(stairs1Light);
             flickerEffect.ConnectTo(stairs2Light);
@@ -315,7 +315,11 @@ namespace Animatroller.SceneRunner
 
             oscServer.RegisterAction<int>("/1/push13", d => d.First() != 0, (msg, data) =>
             {
-                Exec.MasterEffect.Fade(stairs1Light, 1.0, 0.0, 2000, token: testToken);
+                //                Exec.MasterEffect.Fade(stairs1Light, 1.0, 0.0, 2000, token: testToken);
+                //popOut1.Pop();
+                //popOut2.Pop();
+                //popOut3.Pop();
+                popOut4.Pop();
             });
 
             oscServer.RegisterAction<int>("/1/toggle1", (msg, data) =>
@@ -627,6 +631,7 @@ namespace Animatroller.SceneRunner
 
         public override void Stop()
         {
+            audioMain.PauseBackground();
         }
     }
 }

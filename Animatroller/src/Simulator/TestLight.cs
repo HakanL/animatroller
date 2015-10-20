@@ -21,11 +21,6 @@ namespace Animatroller.Simulator
             set { this.control = value; }
         }
 
-        //public TestLight(Switch logicalDevice)
-        //    : base(logicalDevice)
-        //{
-        //}
-
         public TestLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {

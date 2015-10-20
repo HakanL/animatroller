@@ -10,12 +10,6 @@ namespace Animatroller.Framework.PhysicalDevice
 
         public IDmxOutput DmxOutputPort { protected get; set; }
 
-        public GenericDimmer(Switch logicalDevice, int dmxChannel)
-            : base(logicalDevice)
-        {
-            this.baseDmxChannel = dmxChannel;
-        }
-
         public GenericDimmer(DigitalOutput2 logicalDevice, int dmxChannel)
             : base(logicalDevice)
         {

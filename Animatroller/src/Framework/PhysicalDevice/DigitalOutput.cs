@@ -15,16 +15,6 @@ namespace Animatroller.Framework.PhysicalDevice
             this.physicalTrigger = physicalTrigger;
         }
 
-        public DigitalOutput Connect(LogicalDevice.Switch logicalDevice)
-        {
-            logicalDevice.PowerChanged += (sender, e) =>
-                {
-                    this.physicalTrigger.Invoke(e.NewState);
-                };
-
-            return this;
-        }
-
         public DigitalOutput Connect(LogicalDevice.DigitalOutput2 logicalDevice)
         {
             logicalDevice.Output.Subscribe(x =>

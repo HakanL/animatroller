@@ -22,17 +22,17 @@ namespace Animatroller.Framework.LogicalDevice
             this.color = new ControlSubject<Color, IControlToken>(Color.White, HasControl);
         }
 
-        public ControlledObserver<Color> GetColorObserver()
+        public ControlledObserver<Color> GetColorObserver(IControlToken token = null)
         {
-            return new ControlledObserver<Color>(GetCurrentOrNewToken(), this.color);
+            return new ControlledObserver<Color>(token ?? GetCurrentOrNewToken(), this.color);
         }
 
-        public ControlledObserverRGB GetRgbObsserver()
+        public ControlledObserverRGB GetRgbObserver(IControlToken token = null)
         {
             this.color.OnNext(Color.Black);
             this.brightness.OnNext(1.0);
 
-            return new ControlledObserverRGB(GetCurrentOrNewToken(), this.color);
+            return new ControlledObserverRGB(token ?? GetCurrentOrNewToken(), this.color);
         }
 
         public IObservable<Color> OutputColor
@@ -48,9 +48,9 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.color.Value; }
             set
             {
-                if (HasControl(null))
-                    // Only allow if nobody is controlling us
-                    this.color.OnNext(value);
+                // Note that this will only match the token when called on the same thread as
+                // where control was taken (TakeControl)
+                this.color.OnNext(value, Executor.Current.GetControlToken(this));
             }
         }
 

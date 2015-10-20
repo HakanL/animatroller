@@ -15,25 +15,25 @@ namespace Animatroller.Framework
 
     public interface IReceivesBrightness : IOwnedDevice
     {
-        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken token = null);
+        LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken token = null);
 
         double Brightness { get; set; }
     }
 
     public interface IReceivesColor : IOwnedDevice
     {
-        Animatroller.Framework.LogicalDevice.ControlledObserver<Color> GetColorObserver();
+        LogicalDevice.ControlledObserver<Color> GetColorObserver(IControlToken token = null);
 
-        Animatroller.Framework.LogicalDevice.ControlledObserverRGB GetRgbObsserver();
+        LogicalDevice.ControlledObserverRGB GetRgbObserver(IControlToken token = null);
 
         Color Color { get; set; }
     }
 
     public interface IReceivesPanTilt : IOwnedDevice
     {
-        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetPanObserver();
+        LogicalDevice.ControlledObserver<double> GetPanObserver(IControlToken token = null);
 
-        Animatroller.Framework.LogicalDevice.ControlledObserver<double> GetTiltObserver();
+        LogicalDevice.ControlledObserver<double> GetTiltObserver(IControlToken token = null);
 
         double Pan { get; set; }
 
