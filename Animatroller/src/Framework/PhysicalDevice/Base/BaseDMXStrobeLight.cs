@@ -31,5 +31,11 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             this.baseDmxChannel = dmxChannel;
         }
+
+        public BaseDMXStrobeLight(IApiVersion3 logicalDevice, int dmxChannel)
+            : base(logicalDevice)
+        {
+            this.baseDmxChannel = dmxChannel;
+        }
     }
 }

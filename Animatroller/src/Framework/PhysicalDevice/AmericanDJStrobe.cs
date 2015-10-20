@@ -4,34 +4,36 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class AmericanDJStrobe : BaseStrobeLight, INeedsDmxOutput
+    public class AmericanDJStrobe : BaseDMXStrobeLight, INeedsDmxOutput
     {
-        protected int baseDmxChannel;
-
-        public IDmxOutput DmxOutputPort { protected get; set; }
-
         public AmericanDJStrobe(Dimmer logicalDevice, int dmxChannel)
-            : base(logicalDevice)
+            : base(logicalDevice, dmxChannel)
         {
-            this.baseDmxChannel = dmxChannel;
         }
 
-        public AmericanDJStrobe(Dimmer2 logicalDevice, int dmxChannel)
-            : base(logicalDevice)
-        {
-            this.baseDmxChannel = dmxChannel;
-        }
+        //public AmericanDJStrobe(Dimmer2 logicalDevice, int dmxChannel)
+        //    : base(logicalDevice, dmxChannel)
+        //{
+        //}
+
+        //public AmericanDJStrobe(StrobeDimmer3 logicalDevice, int dmxChannel)
+        //    : base(logicalDevice, dmxChannel)
+        //{
+        //}
 
         public AmericanDJStrobe(StrobeDimmer logicalDevice, int dmxChannel)
             : this((Dimmer)logicalDevice, dmxChannel)
         {
-            this.baseDmxChannel = dmxChannel;
         }
 
         public AmericanDJStrobe(ILogicalDevice logicalDevice, int dmxChannel)
-            : base(logicalDevice)
+            : base(logicalDevice, dmxChannel)
         {
-            this.baseDmxChannel = dmxChannel;
+        }
+
+        public AmericanDJStrobe(IApiVersion3 logicalDevice, int dmxChannel)
+            : base(logicalDevice, dmxChannel)
+        {
         }
 
         protected override void Output()

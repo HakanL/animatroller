@@ -95,6 +95,10 @@ namespace Animatroller.Framework
     {
     }
 
+    public interface IApiVersion3 : ILogicalDevice
+    {
+    }
+
     public interface IPhysicalDevice : IRunningDevice
     {
     }

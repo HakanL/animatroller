@@ -86,7 +86,30 @@ namespace Animatroller.Framework.PhysicalDevice
             });
         }
 
+        public BaseLight(ColorDimmer2 logicalDevice)
+            : base(logicalDevice)
+        {
+            logicalDevice.InputBrightness.Subscribe(x =>
+            {
+                this.colorBrightness.Brightness = x.Value;
+
+                Output();
+            });
+
+            logicalDevice.InputColor.Subscribe(x =>
+            {
+                this.colorBrightness.Color = x;
+
+                Output();
+            });
+        }
         public BaseLight(ILogicalDevice logicalDevice)
+            : base(logicalDevice)
+        {
+            // Not likely to work
+        }
+
+        public BaseLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {
             if (logicalDevice is ISendsBrightness)

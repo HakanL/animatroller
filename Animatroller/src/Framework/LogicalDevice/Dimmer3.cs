@@ -16,7 +16,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Dimmer3 : SingleOwnerDevice, IReceivesBrightness, ISendsBrightness
+    public class Dimmer3 : SingleOwnerDevice, IApiVersion3, IReceivesBrightness, ISendsBrightness
     {
         protected ControlSubject<double, IControlToken> brightness;
         private ISubject<double> outputFilter;

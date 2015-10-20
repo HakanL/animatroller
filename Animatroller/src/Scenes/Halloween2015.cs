@@ -16,7 +16,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.SceneRunner
 {
-    internal class Halloween2015Manual : BaseScene
+    internal class Halloween2015 : BaseScene
     {
         private const int midiChannel = 0;
 
@@ -47,6 +47,10 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
 
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
+        private Effect.PopOut popOut1 = new Effect.PopOut(S(0.3));
+        private Effect.PopOut popOut2 = new Effect.PopOut(S(0.3));
+        private Effect.PopOut popOut3 = new Effect.PopOut(S(0.5));
+        private Effect.PopOut popOut4 = new Effect.PopOut(S(1.2));
 
         private DigitalOutput2 spiderCeiling = new DigitalOutput2("Spider Ceiling");
         private DigitalOutput2 spiderCeilingDrop = new DigitalOutput2("Spider Ceiling Drop");
@@ -73,14 +77,23 @@ namespace Animatroller.SceneRunner
         private StrobeColorDimmer2 wall4Light = new StrobeColorDimmer2("Wall 4");
         private Dimmer2 stairs1Light = new Dimmer2("Stairs 1");
         private Dimmer2 stairs2Light = new Dimmer2("Stairs 2");
-        private StrobeDimmer strobeDimmer = new StrobeDimmer("ADJ Flash");
+        private StrobeDimmer3 underGeorge = new StrobeDimmer3("ADJ Flash");
         private StrobeColorDimmer2 pinSpot = new StrobeColorDimmer2("Pin Spot");
 
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence welcomeSeq = new Controller.Sequence();
         private Controller.Sequence motionSeq = new Controller.Sequence();
 
-        public Halloween2015Manual(IEnumerable<string> args)
+        private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder2 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder3 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder4 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder5 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder6 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
+        private Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
+
+        public Halloween2015(IEnumerable<string> args)
         {
             hoursSmall.AddRange("5:00 pm", "9:00 pm");
 
@@ -108,9 +121,99 @@ namespace Animatroller.SceneRunner
                 SetPixelColor();
             });
 
+            popOut1.ConnectTo(wall1Light.InputBrightness);
+            popOut2.ConnectTo(wall2Light.InputBrightness);
+            popOut3.ConnectTo(wall3Light.InputBrightness);
+            popOut4.ConnectTo(wall4Light.InputBrightness);
+//            popOut4.ConnectTo(underGeorge.InputBrightness);
+
             flickerEffect.ConnectTo(stairs1Light.InputBrightness);
             flickerEffect.ConnectTo(stairs2Light.InputBrightness);
 
+
+            raspberryLocal.AudioTrackStart.Subscribe(x =>
+            {
+                // Next track
+                switch (x)
+                {
+                    case "Thunder1.wav":
+                        timelineThunder1.Start();
+                        break;
+
+                    case "Thunder2.wav":
+                        timelineThunder2.Start();
+                        break;
+
+                    case "Thunder3.wav":
+                        timelineThunder3.Start();
+                        break;
+
+                    case "Thunder4.wav":
+                        timelineThunder4.Start();
+                        break;
+
+                    case "Thunder5.wav":
+                        timelineThunder5.Start();
+                        break;
+
+                    case "Thunder6.wav":
+                        timelineThunder6.Start();
+                        break;
+
+                    case "Thunder7.wav":
+                        timelineThunder7.Start();
+                        break;
+
+                    case "Thunder8.wav":
+                        timelineThunder8.Start();
+                        break;
+
+                    default:
+                        log.Debug("Unknown track {0}", x);
+                        break;
+                }
+            });
+
+            timelineThunder1.AddMs(500, "A");
+            timelineThunder1.AddMs(3500, "B");
+            timelineThunder1.AddMs(4500, "C");
+            timelineThunder1.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder2.AddMs(500, "A");
+            timelineThunder2.AddMs(1500, "B");
+            timelineThunder2.AddMs(1600, "C");
+            timelineThunder2.AddMs(3700, "C");
+            timelineThunder2.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder3.AddMs(100, "A");
+            timelineThunder3.AddMs(200, "B");
+            timelineThunder3.AddMs(300, "C");
+            timelineThunder3.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder4.AddMs(0, "A");
+            timelineThunder4.AddMs(3500, "B");
+            timelineThunder4.AddMs(4500, "C");
+            timelineThunder4.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder5.AddMs(1100, "A");
+            timelineThunder5.AddMs(3500, "B");
+            timelineThunder5.AddMs(4700, "C");
+            timelineThunder5.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder6.AddMs(1000, "A");
+            timelineThunder6.AddMs(1800, "B");
+            timelineThunder6.AddMs(6200, "C");
+            timelineThunder6.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder7.AddMs(0, "A");
+            timelineThunder7.AddMs(200, "B");
+            timelineThunder7.AddMs(300, "C");
+            timelineThunder7.TimelineTrigger += TriggerThunderTimeline;
+
+            timelineThunder8.AddMs(500, "A");
+            timelineThunder8.AddMs(4000, "B");
+            timelineThunder8.AddMs(4200, "C");
+            timelineThunder8.TimelineTrigger += TriggerThunderTimeline;
 
             acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 6, 1);
             acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 5, 1);
@@ -122,7 +225,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.RGBStrobe(wall4Light, 80), 1);
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 50), 1);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 51), 1);
-            acnOutput.Connect(new Physical.AmericanDJStrobe(strobeDimmer, 100), 1);
+            acnOutput.Connect(new Physical.AmericanDJStrobe(underGeorge, 100), 1);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
 
@@ -208,9 +311,18 @@ namespace Animatroller.SceneRunner
                 fog.Value = data.First() != 0;
             });
 
-            oscServer.RegisterAction<int>("/1/push13", (msg, data) =>
+            oscServer.RegisterAction<int>("/1/toggle1", (msg, data) =>
             {
-                candyEyes.Value = data.First() != 0;
+                //                candyEyes.Value = data.First() != 0;
+                if (data.First() != 0)
+                    audioMain.PlayBackground();
+                else
+                    audioMain.PauseBackground();
+            });
+
+            oscServer.RegisterAction<int>("/1/toggle2", (msg, data) =>
+            {
+                underGeorge.Brightness = data.First();
             });
 
             oscServer.RegisterAction<int>("/1/push14", (msg, data) =>
@@ -220,7 +332,7 @@ namespace Animatroller.SceneRunner
                 spiderLight.Brightness = data.First();
                 pinSpot.Color = Color.Purple;
                 pinSpot.Brightness = data.First();
-                strobeDimmer.Brightness = data.First();
+                underGeorge.Brightness = data.First();
                 wall1Light.Color = Color.Purple;
                 wall1Light.Brightness = data.First();
                 wall2Light.Color = Color.Purple;
@@ -455,6 +567,25 @@ namespace Animatroller.SceneRunner
                 {
                     pixelsRoofEdge.SetAll(Color.Black, 0.0);
                 }
+            }
+        }
+
+        private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
+        {
+            switch (e.Code)
+            {
+                case "A":
+                    popOut3.Pop(1.0);
+                    popOut4.Pop(1.0);
+                    break;
+
+                case "B":
+                    popOut2.Pop(0.5);
+                    break;
+
+                case "C":
+                    popOut1.Pop(1.0);
+                    break;
             }
         }
 

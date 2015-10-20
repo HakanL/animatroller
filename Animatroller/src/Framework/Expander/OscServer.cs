@@ -1,4 +1,4 @@
-﻿//#define DEBUG_OSC
+﻿#define DEBUG_OSC
 
 using System;
 using System.Collections.Generic;
@@ -56,9 +56,6 @@ namespace Animatroller.Framework.Expander
                             if (this.receiver.State == Rug.Osc.OscSocketState.Connected)
                             {
                                 var packet = this.receiver.Receive();
-#if DEBUG_OSC
-                                log.Debug("Received OSC message: {0}", packet);
-#endif
 
                                 if (packet is Rug.Osc.OscBundle)
                                 {
@@ -70,6 +67,11 @@ namespace Animatroller.Framework.Expander
                                             var oscMessage = bundle as Rug.Osc.OscMessage;
                                             if (oscMessage != null)
                                             {
+#if DEBUG_OSC
+                                                if (oscMessage.Address != "/ping")
+                                                    log.Debug("Received OSC message: {0}", oscMessage);
+#endif
+
                                                 Invoke(oscMessage);
                                             }
                                         }
@@ -79,6 +81,12 @@ namespace Animatroller.Framework.Expander
                                 if (packet is Rug.Osc.OscMessage)
                                 {
                                     var msg = (Rug.Osc.OscMessage)packet;
+
+#if DEBUG_OSC
+                                    if (msg.Address != "/ping")
+                                        log.Debug("Received OSC message: {0}", msg);
+#endif
+
                                     Invoke(msg);
                                 }
                             }

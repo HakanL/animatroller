@@ -36,6 +36,11 @@ namespace Animatroller.Framework.PhysicalDevice
         {
         }
 
+        public SmallRGBStrobe(IApiVersion3 logicalDevice, int dmxChannel)
+            : base(logicalDevice, dmxChannel)
+        {
+        }
+
         protected override void Output()
         {
             var color = GetColorFromColorBrightness();

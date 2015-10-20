@@ -60,6 +60,21 @@ namespace Animatroller.Framework.PhysicalDevice
         public BaseStrobeLight(ILogicalDevice logicalDevice)
             : base(logicalDevice)
         {
+            // Not likely to work
+            //if (logicalDevice is ISendsStrobeSpeed)
+            //{
+            //    ((ISendsStrobeSpeed)logicalDevice).OutputStrobeSpeed.Subscribe(x =>
+            //    {
+            //        this.strobeSpeed = x;
+
+            //        Output();
+            //    });
+            //}
+        }
+
+        public BaseStrobeLight(IApiVersion3 logicalDevice)
+            : base(logicalDevice)
+        {
             if (logicalDevice is ISendsStrobeSpeed)
             {
                 ((ISendsStrobeSpeed)logicalDevice).OutputStrobeSpeed.Subscribe(x =>

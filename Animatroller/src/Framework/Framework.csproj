@@ -143,6 +143,7 @@
     <Compile Include="LogicalDevice\AnalogInput3.cs" />
     <Compile Include="LogicalDevice\AnalogInput2.cs" />
     <Compile Include="LogicalDevice\Event\VideoChanged.cs" />
+    <Compile Include="LogicalDevice\StrobeDimmer3.cs" />
     <Compile Include="LogicalDevice\VideoPlayer.cs" />
     <Compile Include="LogicalDevice\BrightnessPowerAdapter.cs" />
     <Compile Include="LogicalDevice\ColorDimmer3.cs" />

@@ -113,10 +113,11 @@ namespace Animatroller.Framework.Expander
                 if (!CheckIdempotence(msg))
                     return;
 
-                if (data.Count() >= 1)
+                if (data.Count() >= 2)
                 {
-                    log.Debug("Playing background track {0}", data.First());
-                    this.audioTrackStart.OnNext(data.First());
+                    string track = data.Skip(1).First();
+                    log.Debug("Playing background track {0}", track);
+                    this.audioTrackStart.OnNext(track);
                 }
             });
 
