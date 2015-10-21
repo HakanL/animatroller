@@ -326,7 +326,7 @@ namespace Animatroller.Framework
                             }
                             catch (Exception ex)
                             {
-                                log.Error("Error in persistence task", ex);
+                                log.Error(ex, "Error in persistence task");
                             }
 
                             // Execute every second

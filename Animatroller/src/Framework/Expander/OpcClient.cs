@@ -102,7 +102,7 @@ namespace Animatroller.Framework.Expander
                         }
                         catch (Exception ex)
                         {
-                            log.Warn("Failed to send OPC data", ex);
+                            log.Warn(ex, "Failed to send OPC data");
 
                             if (this.socket != null && this.socket.Connected)
                                 this.socket.Close();
@@ -120,7 +120,7 @@ namespace Animatroller.Framework.Expander
                         }
                         catch (Exception ex)
                         {
-                            log.Warn("Failed to close socket", ex);
+                            log.Warn(ex, "Failed to close socket");
                         }
 
                         this.socket = null;

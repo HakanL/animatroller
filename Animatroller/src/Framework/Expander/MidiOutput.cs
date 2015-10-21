@@ -57,7 +57,7 @@ namespace Animatroller.Framework.Expander
 
         private void outputDevice_Error(object sender, Sanford.Multimedia.ErrorEventArgs e)
         {
-            log.Trace("Got error from midi output {0}", e.Error);
+            log.Trace(e.Error, "Got error from midi output {0}");
         }
 
         public void Start()
