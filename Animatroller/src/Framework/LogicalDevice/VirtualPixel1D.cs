@@ -33,7 +33,6 @@ namespace Animatroller.Framework.LogicalDevice
         public VirtualPixel1D(int pixels, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.name = name;
             if (pixels <= 0)
                 throw new ArgumentOutOfRangeException("pixels");
 
@@ -43,8 +42,6 @@ namespace Animatroller.Framework.LogicalDevice
             this.devices = new List<PixelDevice>();
             this.brightness = new double[pixels];
             this.color = new Color[pixels];
-
-            Executor.Current.Register(this);
         }
 
         public VirtualPixel1D AddPixelDevice(int startVirtualPosition, int positions, EventHandler<PixelChangedEventArgs> pixelChanged,
