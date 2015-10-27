@@ -350,9 +350,6 @@ namespace Animatroller.Framework
                 runnable.Start();
 
             foreach (var scene in this.scenes)
-                scene.Start();
-
-            foreach (var scene in this.scenes)
                 scene.Run();
 
             return this;

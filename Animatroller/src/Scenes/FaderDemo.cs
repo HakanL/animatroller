@@ -31,10 +31,7 @@ namespace Animatroller.SceneRunner
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 2), 20);
-        }
 
-        public override void Start()
-        {
             // Set color
             testButton.Output.Subscribe(button =>
             {
@@ -81,17 +78,17 @@ namespace Animatroller.SceneRunner
                         .ContinueWith(b =>
                         {
                             Task.Delay(2000).ContinueWith(c =>
-                                {
-                                    Exec.Blackout.OnNext(0);
-                                });
+                            {
+                                Exec.Blackout.OnNext(0);
+                            });
                         });
 
                     faderTask.ContinueWith(x =>
-                        {
-                            control1.Dispose();
+                    {
+                        control1.Dispose();
 
-                            Exec.MasterEffect.Fade(observer1, 1.0, 0.0, 5000);
-                        });
+                        Exec.MasterEffect.Fade(observer1, 1.0, 0.0, 5000);
+                    });
 
 
 

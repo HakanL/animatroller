@@ -59,15 +59,8 @@ namespace Animatroller.SceneRunner
             raspberry.DigitalOutputs[7].Connect(switchTest1);
 
             raspberry.Connect(audioPlayer);
-        }
 
-        public void WireUp(Expander.DMXPro port)
-        {
-            port.Connect(new Physical.SmallRGBStrobe(light1, 50));
-        }
 
-        public override void Start()
-        {
             var demoSeq = new Controller.Sequence("Demo Sequence");
             demoSeq.WhenExecuted
                 .Execute(instance =>
@@ -136,6 +129,11 @@ namespace Animatroller.SceneRunner
             };
 
             pulsatingEffect1.AddDevice(light1);
+        }
+
+        public void WireUp(Expander.DMXPro port)
+        {
+            port.Connect(new Physical.SmallRGBStrobe(light1, 50));
         }
 
         public override void Run()

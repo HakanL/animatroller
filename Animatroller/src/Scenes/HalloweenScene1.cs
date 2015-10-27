@@ -67,44 +67,7 @@ namespace Animatroller.SceneRunner
             audioPlayer = new Physical.NetworkAudioPlayer(
                 settings["NetworkAudioPlayerIP"],
                 int.Parse(settings["NetworkAudioPlayerPort"]));
-        }
 
-        public void WireUp(Expander.IOExpander port)
-        {
-            port.Connect(new Physical.AmericanDJStrobe(georgeStrobeLight, 5));
-            port.Connect(new Physical.RGBStrobe(spiderLight, 10));
-            port.Connect(new Physical.GenericDimmer(skullsLight, 1));
-            port.Connect(new Physical.GenericDimmer(cobWebLight, 3));
-            port.Connect(new Physical.GenericDimmer(blinkyEyesLight, 4));
-            port.Connect(new Physical.SmallRGBStrobe(candyLight, 16));
-            port.Connect(new Physical.RGBStrobe(rgbLightRight, 20));
-            port.Connect(new Physical.RGBStrobe(georgeLight, 30));
-            port.Connect(new Physical.RGBStrobe(leftSkeletonLight, 40));
-
-            port.Motor.Connect(georgeMotor);
-
-            port.DigitalInputs[0].Connect(pressureMat);
-            port.DigitalInputs[1].Connect(testButton);
-            port.DigitalOutputs[0].Connect(spiderLift);
-            port.DigitalOutputs[1].Connect(smokeMachine);
-            port.DigitalOutputs[2].Connect(spiderEyes);
-        }
-
-        public void WireUp(Expander.DMXPro port)
-        {
-            port.Connect(new Physical.AmericanDJStrobe(georgeStrobeLight, 5));
-            port.Connect(new Physical.RGBStrobe(spiderLight, 10));
-            port.Connect(new Physical.GenericDimmer(skullsLight, 1));
-            port.Connect(new Physical.GenericDimmer(cobWebLight, 3));
-            port.Connect(new Physical.GenericDimmer(blinkyEyesLight, 4));
-            port.Connect(new Physical.SmallRGBStrobe(candyLight, 16));
-            port.Connect(new Physical.RGBStrobe(rgbLightRight, 20));
-            port.Connect(new Physical.RGBStrobe(georgeLight, 30));
-            port.Connect(new Physical.RGBStrobe(leftSkeletonLight, 40));
-        }
-
-        public override void Start()
-        {
             hours.AddRange("6:00 pm", "10:00 pm");
 
             var testSequence = new Controller.Sequence("Test Sequence");
@@ -273,32 +236,32 @@ namespace Animatroller.SceneRunner
             };
 
             testButton.ActiveChanged += (sender, e) =>
-                {
-                    if (e.NewState)
-                        Executor.Current.Execute(mainSequence);
-                };
+            {
+                if (e.NewState)
+                    Executor.Current.Execute(mainSequence);
+            };
 
             hours.OpenHoursChanged += (sender, e) =>
+            {
+                if (e.IsOpenNow)
                 {
-                    if (e.IsOpenNow)
-                    {
-                        pulsatingEffect1.Start();
-                        pulsatingEffect2.Start();
-                        flickerEffect.Start();
-                        candyPulse.Start();
-                        blinkyEyesLight.SetPower(true);
-                        audioPlayer.PlayBackground();
-                    }
-                    else
-                    {
-                        pulsatingEffect1.Stop();
-                        pulsatingEffect2.Stop();
-                        flickerEffect.Stop();
-                        candyPulse.Stop();
-                        blinkyEyesLight.SetPower(false);
-                        audioPlayer.PauseBackground();
-                    }
-                };
+                    pulsatingEffect1.Start();
+                    pulsatingEffect2.Start();
+                    flickerEffect.Start();
+                    candyPulse.Start();
+                    blinkyEyesLight.SetPower(true);
+                    audioPlayer.PlayBackground();
+                }
+                else
+                {
+                    pulsatingEffect1.Stop();
+                    pulsatingEffect2.Stop();
+                    flickerEffect.Stop();
+                    candyPulse.Stop();
+                    blinkyEyesLight.SetPower(false);
+                    audioPlayer.PauseBackground();
+                }
+            };
 
             // Have it turned off, but prepare it with blue color for the effect
             rgbLightRight.SetColor(Color.Blue, 0);
@@ -308,6 +271,40 @@ namespace Animatroller.SceneRunner
             candyPulse.AddDevice(candyLight);
 
             flickerEffect.AddDevice(skullsLight);
+        }
+
+        public void WireUp(Expander.IOExpander port)
+        {
+            port.Connect(new Physical.AmericanDJStrobe(georgeStrobeLight, 5));
+            port.Connect(new Physical.RGBStrobe(spiderLight, 10));
+            port.Connect(new Physical.GenericDimmer(skullsLight, 1));
+            port.Connect(new Physical.GenericDimmer(cobWebLight, 3));
+            port.Connect(new Physical.GenericDimmer(blinkyEyesLight, 4));
+            port.Connect(new Physical.SmallRGBStrobe(candyLight, 16));
+            port.Connect(new Physical.RGBStrobe(rgbLightRight, 20));
+            port.Connect(new Physical.RGBStrobe(georgeLight, 30));
+            port.Connect(new Physical.RGBStrobe(leftSkeletonLight, 40));
+
+            port.Motor.Connect(georgeMotor);
+
+            port.DigitalInputs[0].Connect(pressureMat);
+            port.DigitalInputs[1].Connect(testButton);
+            port.DigitalOutputs[0].Connect(spiderLift);
+            port.DigitalOutputs[1].Connect(smokeMachine);
+            port.DigitalOutputs[2].Connect(spiderEyes);
+        }
+
+        public void WireUp(Expander.DMXPro port)
+        {
+            port.Connect(new Physical.AmericanDJStrobe(georgeStrobeLight, 5));
+            port.Connect(new Physical.RGBStrobe(spiderLight, 10));
+            port.Connect(new Physical.GenericDimmer(skullsLight, 1));
+            port.Connect(new Physical.GenericDimmer(cobWebLight, 3));
+            port.Connect(new Physical.GenericDimmer(blinkyEyesLight, 4));
+            port.Connect(new Physical.SmallRGBStrobe(candyLight, 16));
+            port.Connect(new Physical.RGBStrobe(rgbLightRight, 20));
+            port.Connect(new Physical.RGBStrobe(georgeLight, 30));
+            port.Connect(new Physical.RGBStrobe(leftSkeletonLight, 40));
         }
 
         public override void Run()

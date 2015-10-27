@@ -30,10 +30,6 @@ namespace Animatroller.Framework
             return TimeSpan.FromMilliseconds(seconds);
         }
 
-        public virtual void Start()
-        {
-        }
-
         public virtual void Run()
         {
         }

@@ -432,6 +432,8 @@ namespace Animatroller.SceneRunner
                 .TearDown(() =>
                 {
                 });
+
+            SetPixelColor();
         }
 
         private Color GetFaderColor()
@@ -456,11 +458,6 @@ namespace Animatroller.SceneRunner
                     pixelsRoofEdge.SetAll(Color.Black, 0.0);
                 }
             }
-        }
-
-        public override void Start()
-        {
-            SetPixelColor();
         }
 
         public override void Run()

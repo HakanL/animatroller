@@ -591,29 +591,8 @@ namespace Animatroller.SceneRunner
             stateMachine.ForFromSequence(States.Stair, reaperSeq);
             stateMachine.ForFromSequence(States.George, georgeSeq);
             stateMachine.ForFromSequence(States.StepForward, stepForwardSeq);
-        }
 
-        private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
-        {
-            switch (e.Code)
-            {
-                case "A":
-                    popOut3.Pop(1.0);
-                    popOut4.Pop(1.0);
-                    break;
 
-                case "B":
-                    popOut2.Pop(0.5);
-                    break;
-
-                case "C":
-                    popOut1.Pop(1.0);
-                    break;
-            }
-        }
-
-        public override void Start()
-        {
             georgeSeq.WhenExecuted
                 .Execute(instance =>
                 {
@@ -677,10 +656,10 @@ namespace Animatroller.SceneRunner
 
             reaperSeq.WhenExecuted
             .SetUp(() =>
-                {
-                    flickerEffect.Stop();
-                    pulsatingEffect2.Stop();
-                })
+            {
+                flickerEffect.Stop();
+                pulsatingEffect2.Stop();
+            })
                 .Execute(instance =>
                 {
                     //                    switchFog.SetPower(true);
@@ -819,27 +798,27 @@ namespace Animatroller.SceneRunner
 
             thunderSeq.WhenExecuted
                 .SetUp(() =>
-                    {
-                        audioOla.PauseBackground();
-                        //                        movingHead.Pan = 0.25;
-                        //                        movingHead.Tilt = 0.5;
-                        Thread.Sleep(200);
-                    })
+                {
+                    audioOla.PauseBackground();
+                    //                        movingHead.Pan = 0.25;
+                    //                        movingHead.Tilt = 0.5;
+                    Thread.Sleep(200);
+                })
                 .Execute(i =>
-                    {
-                        audioOla.PlayTrack("08 Weather-lightning-strike2");
-                        //                        movingHead.SetOnlyColor(Color.White);
-                        popOut1.Pop(1.0);
-                        popOut2.Pop(1.0);
-                        popOut3.Pop(1.0);
+                {
+                    audioOla.PlayTrack("08 Weather-lightning-strike2");
+                    //                        movingHead.SetOnlyColor(Color.White);
+                    popOut1.Pop(1.0);
+                    popOut2.Pop(1.0);
+                    popOut3.Pop(1.0);
 
-                        i.WaitFor(S(4));
-                    })
+                    i.WaitFor(S(4));
+                })
                 .TearDown(() =>
-                    {
-                        audioOla.PauseTrack();
-                        audioOla.PlayBackground();
-                    });
+                {
+                    audioOla.PauseTrack();
+                    audioOla.PlayBackground();
+                });
 
             backgroundSeq.WhenExecuted
                 .SetUp(() =>
@@ -915,6 +894,25 @@ namespace Animatroller.SceneRunner
                 {
                     catLights.Value = false;
                 });
+        }
+
+        private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
+        {
+            switch (e.Code)
+            {
+                case "A":
+                    popOut3.Pop(1.0);
+                    popOut4.Pop(1.0);
+                    break;
+
+                case "B":
+                    popOut2.Pop(0.5);
+                    break;
+
+                case "C":
+                    popOut1.Pop(1.0);
+                    break;
+            }
         }
 
         public override void Run()
