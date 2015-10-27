@@ -1,10 +1,10 @@
-﻿using Animatroller.Framework.Controller;
-using Animatroller.Framework.LogicalDevice;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Drawing;
 using System.Threading.Tasks;
+using Animatroller.Framework.Controller;
+using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Effect
 {
@@ -22,7 +22,6 @@ namespace Animatroller.Framework.Effect
 
         private double defaultStartBrightness;
         private TimeSpan defaultSweepDuration;
-        private List<Func<Action>> takeControlActions;
 
         public PopOut2(
             TimeSpan defaultSweepDuration,
@@ -32,17 +31,17 @@ namespace Animatroller.Framework.Effect
         {
             this.defaultStartBrightness = defaultStartBrightness;
             this.defaultSweepDuration = defaultSweepDuration;
-
-            this.takeControlActions = new List<Func<Action>>();
         }
 
-        public Task Pop(double? startBrightness = null, int priority = 1, TimeSpan? sweepDuration = null)
+        public Task Pop(double? startBrightness = null, Color? color = null, int priority = 1, TimeSpan? sweepDuration = null)
         {
             var token = TakeControl(priority: priority, name: Name);
 
-            var disposables = this.takeControlActions
-                .Select(x => x())
-                .ToList();
+            if (color.HasValue)
+            {
+                this.members.OfType<IReceivesColor>().ToList()
+                    .ForEach(x => x.Color = color.Value);
+            }
 
             return Executor.Current.MasterEffect.Fade(
                 device: this,
@@ -53,29 +52,12 @@ namespace Animatroller.Framework.Effect
                 .ContinueWith(x =>
                 {
                     token.Dispose();
-                    disposables.ForEach(d => d());
                 });
         }
 
         public void ConnectTo(IReceivesBrightness device)
         {
             Add(device);
-
-            //var colorDevice = device as IReceivesColor;
-            //if (colorDevice != null)
-            //{
-            //    this.takeControlActions.Add(() =>
-            //    {
-            //        System.Drawing.Color currentColor = colorDevice.Color;
-
-            //        colorDevice.Color = System.Drawing.Color.Purple;
-
-            //        return () =>
-            //        {
-            //            colorDevice.Color = currentColor;
-            //        };
-            //    });
-            //}
         }
     }
 }

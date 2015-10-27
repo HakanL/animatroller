@@ -31,6 +31,8 @@ namespace Animatroller.Framework.LogicalDevice
 
             public int Priority { get; set; }
 
+            public object State { get { return null; } }
+
             public void Dispose()
             {
                 foreach (var memberToken in MemberTokens.Values)

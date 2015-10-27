@@ -75,6 +75,15 @@ namespace Animatroller.Framework.PhysicalDevice
                     Output();
                 });
             }
+            else if (logicalDevice is ISendsColorBrightness)
+            {
+                ((ISendsColorBrightness)logicalDevice).OutputColorBrightness.Subscribe(x =>
+                {
+                    this.colorBrightness = x;
+
+                    Output();
+                });
+            }
             else
                 this.colorBrightness.Color = Color.White;
 

@@ -10,10 +10,9 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class VirtualPixel1D : IPixel1D, IOutput, ILogicalDevice, IHasBrightnessControl, IOwner, IControlledDevice
+    public class VirtualPixel1D : SingleOwnerDevice, IPixel1D, IApiVersion3, IOutput, IHasBrightnessControl, IOwner, IControlledDevice, IReceivesBrightness
     {
         protected object lockObject = new object();
-        protected string name;
         protected IOwner owner;
         protected int pixelCount;
         protected bool suspended;
@@ -32,6 +31,7 @@ namespace Animatroller.Framework.LogicalDevice
 
 
         public VirtualPixel1D(int pixels, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(name)
         {
             this.name = name;
             if (pixels <= 0)
@@ -155,16 +155,6 @@ namespace Animatroller.Framework.LogicalDevice
 
                 RaiseMultiPixelChanged(0, this.pixelCount);
             }
-        }
-
-        public void SetInitialState()
-        {
-            RaiseMultiPixelChanged(0, Pixels);
-        }
-
-        public string Name
-        {
-            get { return this.name; }
         }
 
         protected void CheckBounds(int position)
@@ -587,6 +577,19 @@ namespace Animatroller.Framework.LogicalDevice
             get { return 0; }
         }
 
+        double IReceivesBrightness.Brightness
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public void Suspend()
         {
             lock (this.lockObject)
@@ -637,6 +640,26 @@ namespace Animatroller.Framework.LogicalDevice
 
             if (raiseChangeEvent)
                 RaiseMultiPixelChanged(pixelOffset, pixel - pixelOffset);
+        }
+
+        public override void SaveState(Dictionary<string, object> state)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RestoreState(Dictionary<string, object> state)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void UpdateOutput()
+        {
+            RaiseMultiPixelChanged(0, Pixels);
+        }
+
+        public ControlledObserver<double> GetBrightnessObserver(IControlToken token = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

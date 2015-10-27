@@ -54,5 +54,19 @@ namespace Animatroller.Framework.LogicalDevice
 
             this.strobeSpeed.OnNext(this.strobeSpeed.GetLatestValue());
         }
+
+        public override void SaveState(Dictionary<string, object> state)
+        {
+            base.SaveState(state);
+
+            state["STROBESPEED"] = StrobeSpeed;
+        }
+
+        public override void RestoreState(Dictionary<string, object> state)
+        {
+            base.RestoreState(state);
+
+            StrobeSpeed = (double)state["STROBESPEED"];
+        }
     }
 }

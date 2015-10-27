@@ -77,5 +77,19 @@ namespace Animatroller.Framework.LogicalDevice
             this.Color = color;
             this.Brightness = 1.0;
         }
+
+        public override void SaveState(Dictionary<string, object> state)
+        {
+            base.SaveState(state);
+
+            state["COLOR"] = Color;
+        }
+
+        public override void RestoreState(Dictionary<string, object> state)
+        {
+            base.RestoreState(state);
+
+            Color = (Color)state["COLOR"];
+        }
     }
 }

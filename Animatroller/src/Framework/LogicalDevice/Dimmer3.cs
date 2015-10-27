@@ -83,5 +83,15 @@ namespace Animatroller.Framework.LogicalDevice
         {
             this.brightness.OnNext(this.brightness.Value);
         }
+
+        public override void SaveState(Dictionary<string, object> state)
+        {
+            state["BRIGHTNESS"] = Brightness;
+        }
+
+        public override void RestoreState(Dictionary<string, object> state)
+        {
+            Brightness = (double)state["BRIGHTNESS"];
+        }
     }
 }

@@ -138,5 +138,22 @@ namespace Animatroller.Framework.LogicalDevice
             this.color[x, y] = color;
             this.brightness[x, y] = brightness;
         }
+
+        public override void SaveState(Dictionary<string, object> state)
+        {
+            //FIXME
+            throw new NotImplementedException();
+            var copyColor = new Color[this.color.Length];
+            //            Buffer.BlockCopy(this.color, 0, copyColor, 0, this.color.Length * sizeof(Color));
+
+            //            return Tuple.Create(Brightness, copyColor);
+        }
+
+        public override void RestoreState(Dictionary<string, object> state)
+        {
+//            var stateData = (Tuple<double, Color>)state;
+
+//            SetColor(stateData.Item2, stateData.Item1);
+        }
     }
 }

@@ -50,6 +50,11 @@ namespace Animatroller.Framework
         IObservable<Color> OutputColor { get; }
     }
 
+    public interface ISendsColorBrightness
+    {
+        IObservable<LogicalDevice.ColorBrightness> OutputColorBrightness { get; }
+    }
+
     public interface ISendsStrobeSpeed
     {
         IObservable<double> OutputStrobeSpeed { get; }

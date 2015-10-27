@@ -319,7 +319,7 @@ namespace Animatroller.SceneRunner
                 //popOut1.Pop();
                 //popOut2.Pop();
                 //popOut3.Pop();
-                popOut4.Pop();
+                popOut4.Pop(color: Color.Purple);
             });
 
             oscServer.RegisterAction<int>("/1/toggle1", (msg, data) =>
@@ -352,7 +352,7 @@ namespace Animatroller.SceneRunner
                 }
                 else
                 {
-                    if(testToken != null)
+                    if (testToken != null)
                     {
                         testToken.Dispose();
                         testToken = null;

@@ -26,7 +26,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             throw new NotImplementedException();
             //FIXME
-//            return new ControlledObserver<double>(controlToken, this, this.strobeSpeed);
+            //            return new ControlledObserver<double>(controlToken, this, this.strobeSpeed);
         }
 
         public IObservable<double> OutputStrobeSpeed
@@ -53,6 +53,20 @@ namespace Animatroller.Framework.LogicalDevice
             base.UpdateOutput();
 
             this.strobeSpeed.OnNext(this.strobeSpeed.GetLatestValue());
+        }
+
+        public override void SaveState(Dictionary<string, object> state)
+        {
+            base.SaveState(state);
+
+            state["STROBESPEED"] = StrobeSpeed;
+        }
+
+        public override void RestoreState(Dictionary<string, object> state)
+        {
+            base.RestoreState(state);
+
+            StrobeSpeed = (double)state["STROBESPEED"];
         }
     }
 }

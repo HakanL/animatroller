@@ -17,6 +17,10 @@ namespace Animatroller.Framework.LogicalDevice
             this.releaseActions = new List<Action>();
         }
 
+        public abstract void SaveState(Dictionary<string, object> state);
+
+        public abstract void RestoreState(Dictionary<string, object> state);
+
         public virtual IControlToken TakeControl(int priority = 1, bool executeReleaseAction = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this)
@@ -25,22 +29,30 @@ namespace Animatroller.Framework.LogicalDevice
                     // Already owned (by us or someone else)
                     return ControlledDevice.Empty;
 
-                var newOwner = new ControlledDevice(name, priority, () =>
+                var savedState = new Dictionary<string, object>();
+                SaveState(savedState);
+
+                var newOwner = new ControlledDevice(name, priority, savedState, s =>
                 {
                     lock (this)
                     {
-                        if (this.owners.Count > 0)
-                        {
-                            this.currentOwner = this.owners.Pop();
-                        }
-                        else
-                            this.currentOwner = null;
+                        IControlToken oldOwner;
 
-                        Executor.Current.SetControlToken(this, this.currentOwner);
+                        if (this.owners.Count > 0)
+                            oldOwner = this.owners.Pop();
+                        else
+                            oldOwner = null;
+
+                        this.currentOwner = oldOwner;
+
+                        Executor.Current.SetControlToken(this, oldOwner);
                     }
 
                     if (executeReleaseAction)
                         this.releaseActions.ForEach(x => x());
+
+                    if (s != null)
+                        this.RestoreState(s);
                 });
 
                 // Push current owner
@@ -50,7 +62,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                 Executor.Current.SetControlToken(this, newOwner);
 
-                return this.currentOwner;
+                return newOwner;
             }
         }
 
