@@ -21,7 +21,7 @@ namespace Animatroller.SceneRunner
     {
         private const int midiChannel = 0;
 
-        private Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8");
+        private Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioMain = new AudioPlayer();
@@ -43,6 +43,11 @@ namespace Animatroller.SceneRunner
         private AnalogInput3 faderB = new AnalogInput3(persistState: true);
         private AnalogInput3 faderBright = new AnalogInput3(persistState: true);
         private DigitalInput2 manualFader = new DigitalInput2(persistState: true);
+
+        private AnalogInput3 inputBrightness = new AnalogInput3(true, name: "Brightness");
+        private AnalogInput3 inputH = new AnalogInput3(true, "Hue");
+        private AnalogInput3 inputS = new AnalogInput3(true, "Saturation");
+
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
@@ -81,6 +86,7 @@ namespace Animatroller.SceneRunner
         private Dimmer3 stairs2Light = new Dimmer3("Stairs 2");
         private StrobeDimmer3 underGeorge = new StrobeDimmer3("ADJ Flash");
         private StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
+        private StrobeColorDimmer3 testLight1 = new StrobeColorDimmer3("Test 1");
 
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence welcomeSeq = new Controller.Sequence();
@@ -132,6 +138,24 @@ namespace Animatroller.SceneRunner
             flickerEffect.ConnectTo(stairs1Light);
             flickerEffect.ConnectTo(stairs2Light);
 
+            inputBrightness.Output.Subscribe(x =>
+            {
+                testLight1.Brightness = x;
+            });
+
+            inputH.WhenOutputChanges(x =>
+            {
+                testLight1.SetOnlyColor(HSV.ColorFromHSV(x.GetByteScale(), inputS.Value, 1.0));
+            });
+
+            inputS.Output.Subscribe(x =>
+            {
+                testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x, 1.0));
+            });
+
+            midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
+            midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
+            midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
 
             raspberryLocal.AudioTrackStart.Subscribe(x =>
             {
@@ -229,6 +253,8 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 51), 1);
             acnOutput.Connect(new Physical.AmericanDJStrobe(underGeorge, 100), 1);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
+
+            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
             raspberryCat.DigitalInputs[4].Connect(catMotion, false);
