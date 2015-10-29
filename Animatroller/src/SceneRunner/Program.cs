@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Animatroller.Framework;
 using NLog;
 
@@ -15,6 +16,9 @@ namespace Animatroller.SceneRunner
 
         public static void Main(string[] args)
         {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
             // Variables for al types of IO expanders, etc
             Animatroller.Simulator.SimulatorForm simForm = null;
 
@@ -94,7 +98,7 @@ namespace Animatroller.SceneRunner
                     };
                 // If using the simulator then run it until the form is closed. Otherwise run until NewLine
                 // in command prompt
-                System.Windows.Forms.Application.Run(simForm);
+                Application.Run(simForm);
 
                 Executor.Current.WaitToStop(5000);
             }

@@ -12,7 +12,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class StrobeDimmer3 : Dimmer3, ISendsStrobeSpeed
+    public class StrobeDimmer3 : Dimmer3, IReceivesStrobeSpeed //, ISendsStrobeSpeed
     {
         protected ReplaySubject<double> strobeSpeed;
 
@@ -22,20 +22,20 @@ namespace Animatroller.Framework.LogicalDevice
             this.strobeSpeed = new ReplaySubject<double>(1);
         }
 
-        public ControlledObserver<double> GetStrobeSpeedObserver(IControlToken controlToken)
-        {
-            throw new NotImplementedException();
-            //FIXME
-            //            return new ControlledObserver<double>(controlToken, this, this.strobeSpeed);
-        }
+        //public ControlledObserver<double> GetStrobeSpeedObserver(IControlToken controlToken)
+        //{
+        //    throw new NotImplementedException();
+        //    //FIXME
+        //    //            return new ControlledObserver<double>(controlToken, this, this.strobeSpeed);
+        //}
 
-        public IObservable<double> OutputStrobeSpeed
-        {
-            get
-            {
-                return this.strobeSpeed.DistinctUntilChanged();
-            }
-        }
+        //public IObservable<double> OutputStrobeSpeed
+        //{
+        //    get
+        //    {
+        //        return this.strobeSpeed.DistinctUntilChanged();
+        //    }
+        //}
 
         public double StrobeSpeed
         {
@@ -53,20 +53,6 @@ namespace Animatroller.Framework.LogicalDevice
             base.UpdateOutput();
 
             this.strobeSpeed.OnNext(this.strobeSpeed.GetLatestValue());
-        }
-
-        public override void SaveState(Dictionary<string, object> state)
-        {
-            base.SaveState(state);
-
-            state["STROBESPEED"] = StrobeSpeed;
-        }
-
-        public override void RestoreState(Dictionary<string, object> state)
-        {
-            base.RestoreState(state);
-
-            StrobeSpeed = (double)state["STROBESPEED"];
         }
     }
 }

@@ -8,16 +8,16 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class ControlledDevice : IControlToken
     {
-        private static ControlledDevice empty = new ControlledDevice(string.Empty, -1, null, null);
-        private Action<Dictionary<string, object>> disposeAction;
-        private Dictionary<string, object> state;
+        private static ControlledDevice empty = new ControlledDevice(string.Empty, -1, null);
+        private Action disposeAction;
+        private IData data;
 
-        public ControlledDevice(string name, int priority, Dictionary<string, object> state, Action<Dictionary<string, object>> dispose)
+        public ControlledDevice(string name, int priority, Action dispose)
         {
             this.Name = name;
             this.Priority = priority;
-            this.state = state;
             this.disposeAction = dispose;
+            this.data = new Data();
         }
 
         public static ControlledDevice Empty
@@ -31,7 +31,17 @@ namespace Animatroller.Framework.LogicalDevice
         public void Dispose()
         {
             if (this.disposeAction != null)
-                this.disposeAction(this.state);
+                this.disposeAction();
+        }
+
+        public void PushData(DataElements dataElement, object value)
+        {
+            this.data[dataElement] = value;
+        }
+
+        public IData Data
+        {
+            get { return this.data; }
         }
 
         public string Name { get; private set; }

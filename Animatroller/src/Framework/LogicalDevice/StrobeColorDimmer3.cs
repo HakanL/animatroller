@@ -12,7 +12,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class StrobeColorDimmer3 : ColorDimmer3, ISendsStrobeSpeed
+    public class StrobeColorDimmer3 : ColorDimmer3//, ISendsStrobeSpeed
     {
         protected ReplaySubject<double> strobeSpeed;
 
@@ -53,20 +53,6 @@ namespace Animatroller.Framework.LogicalDevice
             base.UpdateOutput();
 
             this.strobeSpeed.OnNext(this.strobeSpeed.GetLatestValue());
-        }
-
-        public override void SaveState(Dictionary<string, object> state)
-        {
-            base.SaveState(state);
-
-            state["STROBESPEED"] = StrobeSpeed;
-        }
-
-        public override void RestoreState(Dictionary<string, object> state)
-        {
-            base.RestoreState(state);
-
-            StrobeSpeed = (double)state["STROBESPEED"];
         }
     }
 }

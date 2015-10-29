@@ -9,10 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Animatroller.Scenes</RootNamespace>
     <AssemblyName>Scenes</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -74,7 +75,7 @@
     <None Include="HalloweenScene2013b.cs" />
     <None Include="IceBucket.cs" />
     <None Include="ItalianScene1.cs" />
-    <Compile Include="FaderDemo.cs" />
+    <None Include="FaderDemo.cs" />
     <None Include="LORSceneCarol.cs" />
     <None Include="LORScene.cs" />
     <None Include="Nutcracker1Scene.cs" />

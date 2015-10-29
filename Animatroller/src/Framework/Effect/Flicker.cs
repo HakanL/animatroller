@@ -14,7 +14,7 @@ namespace Animatroller.Framework.Effect
     {
         protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
         {
-            public ControlledObserver<double> BrightnessOwner { get; set; }
+            public ControlledObserverData DataOwner { get; set; }
 
             public DeviceController(IReceivesBrightness device, int priority)
                 : base(device, priority)
@@ -69,7 +69,7 @@ namespace Animatroller.Framework.Effect
                 {
                     foreach (var heldDevice in this.devices)
                     {
-                        var deviceOwner = heldDevice.BrightnessOwner;
+                        var deviceOwner = heldDevice.DataOwner;
 
                         if (deviceOwner == null)
                         {
@@ -77,12 +77,12 @@ namespace Animatroller.Framework.Effect
                             var token = heldDevice.Device.TakeControl(priority: heldDevice.Priority, name: Name);
 
                             deviceOwner =
-                            heldDevice.BrightnessOwner = heldDevice.Device.GetBrightnessObserver(token);
+                            heldDevice.DataOwner = heldDevice.Device.GetDataObserver(token);
                         }
 
                         deviceOwner
-                            .OnNext(this.random.NextDouble()
-                                .ScaleToMinMax(this.minBrightness, this.maxBrightness));
+                            .OnNext(new Data(DataElements.Brightness, 
+                                this.random.NextDouble().ScaleToMinMax(this.minBrightness, this.maxBrightness)));
                     }
                 }
                 catch
@@ -125,10 +125,10 @@ namespace Animatroller.Framework.Effect
             {
                 foreach (var heldDevice in this.devices)
                 {
-                    if (heldDevice.BrightnessOwner != null)
+                    if (heldDevice.DataOwner != null)
                     {
-                        heldDevice.BrightnessOwner.Dispose();
-                        heldDevice.BrightnessOwner = null;
+                        heldDevice.DataOwner.Dispose();
+                        heldDevice.DataOwner = null;
                     }
                 }
             }

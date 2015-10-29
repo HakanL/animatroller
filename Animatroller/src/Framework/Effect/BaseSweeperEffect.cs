@@ -199,7 +199,7 @@ namespace Animatroller.Framework.Effect
             lock (lockObject)
             {
                 //FIXME is this right?
-                this.devices.Add(device.GetBrightnessObserver());
+//                this.devices.Add(device.GetBrightnessObserver());
             }
 
             return this;

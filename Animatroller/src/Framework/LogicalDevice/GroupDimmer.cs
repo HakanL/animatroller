@@ -25,11 +25,38 @@ namespace Animatroller.Framework.LogicalDevice
             this.brightness = new ReplaySubject<double>(1);
         }
 
-        public ControlledObserver<double> GetBrightnessObserver(IControlToken token = null)
+        //public ControlledObserver<double> GetBrightnessObserver(IControlToken token = null)
+        //{
+        //    var controlToken = token ?? GetCurrentOrNewToken();
+
+        //    var observers = new List<ControlledObserver<double>>();
+        //    lock (this.members)
+        //    {
+        //        foreach (var member in this.members)
+        //        {
+        //            IControlToken memberControlToken;
+        //            if (this.currentOwner == null || !this.currentOwner.MemberTokens.TryGetValue(member, out memberControlToken))
+        //                // No lock/control token
+        //                continue;
+
+        //            observers.Add(member.GetBrightnessObserver(memberControlToken));
+        //        }
+        //    }
+
+        //    var groupObserver = new ControlSubject<double, IControlToken>(0, HasControl);
+        //    groupObserver.Subscribe(x =>
+        //        {
+        //            foreach (var observer in observers)
+        //                observer.OnNext(x);
+        //        });
+        //    return new ControlledObserver<double>(controlToken, groupObserver);
+        //}
+
+        public ControlledObserverData GetDataObserver(IControlToken token = null)
         {
             var controlToken = token ?? GetCurrentOrNewToken();
 
-            var observers = new List<ControlledObserver<double>>();
+            var observers = new List<ControlledObserverData>();
             lock (this.members)
             {
                 foreach (var member in this.members)
@@ -39,17 +66,22 @@ namespace Animatroller.Framework.LogicalDevice
                         // No lock/control token
                         continue;
 
-                    observers.Add(member.GetBrightnessObserver(memberControlToken));
+                    observers.Add(member.GetDataObserver(memberControlToken));
                 }
             }
 
-            var groupObserver = new ControlSubject<double, IControlToken>(0, HasControl);
+            var groupObserver = new ControlSubject<IData, IControlToken>(null, HasControl);
             groupObserver.Subscribe(x =>
-                {
-                    foreach (var observer in observers)
-                        observer.OnNext(x);
-                });
-            return new ControlledObserver<double>(controlToken, groupObserver);
+            {
+                foreach (var observer in observers)
+                    observer.OnNext(x);
+            }, () =>
+            {
+                // Completed
+                foreach (var observer in observers)
+                    observer.Dispose();
+            });
+            return new ControlledObserverData(controlToken, groupObserver);
         }
 
         public double Brightness

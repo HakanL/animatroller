@@ -11,6 +11,7 @@ using NLog;
 using Animatroller.Framework.Effect;
 using Animatroller.Framework.Extensions;
 using System.Threading.Tasks;
+using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Effect2
 {
@@ -31,18 +32,18 @@ namespace Animatroller.Framework.Effect2
         public Task Fade(IReceivesBrightness device, double start, double end, int durationMs, int priority = 1, ITransformer transformer = null, IControlToken token = null)
         {
             if (token != null)
-                return Fade(device.GetBrightnessObserver(token), start, end, durationMs, transformer);
+                return Fade(device.GetDataObserver(token), start, end, durationMs, transformer);
 
             var controlToken = device.TakeControl(priority);
 
-            return Fade(device.GetBrightnessObserver(controlToken), start, end, durationMs, transformer)
+            return Fade(device.GetDataObserver(controlToken), start, end, durationMs, transformer)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
                 });
         }
 
-        public Task Fade(IObserver<double> deviceObserver, double start, double end, int durationMs, ITransformer transformer = null)
+        public Task Fade(IObserver<IData> deviceObserver, double start, double end, int durationMs, ITransformer transformer = null)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
@@ -63,10 +64,12 @@ namespace Animatroller.Framework.Effect2
 
                     double brightness = start + (pos * brightnessRange);
 
-                    deviceObserver.OnNext(brightness);
+                    deviceObserver.OnNext(new Data(DataElements.Brightness, brightness));
                 },
                 onCompleted: () =>
                 {
+                    deviceObserver.OnCompleted();
+
                     taskSource.SetResult(true);
                 });
 
@@ -81,14 +84,14 @@ namespace Animatroller.Framework.Effect2
         {
             var controlToken = device.TakeControl(priority);
 
-            return Custom(customList, device.GetBrightnessObserver(controlToken), durationMs, loop)
+            return Custom(customList, device.GetDataObserver(controlToken), durationMs, loop)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
                 });
         }
 
-        public Task Custom(double[] customList, IObserver<double> deviceObserver, int durationMs, int? loop)
+        public Task Custom(double[] customList, IObserver<IData> deviceObserver, int durationMs, int? loop)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
@@ -106,7 +109,7 @@ namespace Animatroller.Framework.Effect2
 
                         if (loopCounter >= loop.Value)
                         {
-                            deviceObserver.OnNext(customList[customList.Length - 1]);
+                            deviceObserver.OnNext(new Data(DataElements.Brightness, customList[customList.Length - 1]));
                             cancelSource.Cancel();
                             return;
                         }
@@ -116,10 +119,11 @@ namespace Animatroller.Framework.Effect2
 
                     int pos = (int)(customList.Length * instanceMs / durationMs);
 
-                    deviceObserver.OnNext(customList[pos]);
+                    deviceObserver.OnNext(new Data(DataElements.Brightness, customList[pos]));
                 },
                 onCompleted: () =>
                 {
+                    deviceObserver.OnCompleted();
                     taskSource.SetResult(true);
                 });
 
@@ -163,6 +167,7 @@ namespace Animatroller.Framework.Effect2
                 },
                 onCompleted: () =>
                 {
+                    deviceObserver.OnCompleted();
                     taskSource.SetResult(true);
                 });
 
@@ -188,6 +193,7 @@ namespace Animatroller.Framework.Effect2
                 },
                 onCompleted: () =>
                 {
+                    deviceObserver.OnCompleted();
                     taskSource.SetResult(true);
                 });
 

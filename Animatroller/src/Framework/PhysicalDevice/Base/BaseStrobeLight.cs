@@ -15,15 +15,15 @@ namespace Animatroller.Framework.PhysicalDevice
         public BaseStrobeLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {
-            if (logicalDevice is ISendsStrobeSpeed)
-            {
-                ((ISendsStrobeSpeed)logicalDevice).OutputStrobeSpeed.Subscribe(x =>
-                {
-                    this.strobeSpeed = x;
+        }
 
-                    Output();
-                });
-            }
+        protected override void SetFromIData(IData data)
+        {
+            base.SetFromIData(data);
+
+            object value;
+            if (data.TryGetValue(DataElements.StrobeSpeed, out value))
+                this.strobeSpeed = (double)value;
         }
     }
 }

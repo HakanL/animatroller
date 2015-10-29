@@ -7,9 +7,20 @@ namespace Animatroller.Framework.PhysicalDevice
 {
     public abstract class BaseLight : BaseDevice
     {
-        protected ColorBrightness colorBrightness = new ColorBrightness(Color.White, 0.0);
+        protected ColorBrightness colorBrightness;// = new ColorBrightness(Color.White, 0.0);
 
         protected abstract void Output();
+
+        protected virtual void SetFromIData(IData data)
+        {
+            object value;
+
+            if (data.TryGetValue(DataElements.Brightness, out value))
+                this.colorBrightness.Brightness = (double)value;
+
+            if (data.TryGetValue(DataElements.Color, out value))
+                this.colorBrightness.Color = (Color)value;
+        }
 
         protected System.Drawing.Color GetColorFromColorBrightness()
         {
@@ -45,6 +56,8 @@ namespace Animatroller.Framework.PhysicalDevice
         public BaseLight(DigitalOutput2 logicalDevice)
             : base(logicalDevice)
         {
+            this.colorBrightness = new ColorBrightness(Color.White, 0.0);
+
             logicalDevice.Output.Subscribe(x =>
             {
                 this.colorBrightness.Brightness = x ? 1.0 : 0.0;
@@ -56,36 +69,20 @@ namespace Animatroller.Framework.PhysicalDevice
         public BaseLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {
-            if (logicalDevice is ISendsBrightness)
+            this.colorBrightness = new ColorBrightness(Color.White, 0.0);
+
+            var sendsData = logicalDevice as ISendsData;
+            if (sendsData != null)
             {
-                ((ISendsBrightness)logicalDevice).OutputBrightness.Subscribe(x =>
+                sendsData.OutputData.Subscribe(x =>
                 {
-                    this.colorBrightness.Brightness = x;
+                    SetFromIData(x);
 
                     Output();
                 });
-            }
 
-            if (logicalDevice is ISendsColor)
-            {
-                ((ISendsColor)logicalDevice).OutputColor.Subscribe(x =>
-                {
-                    this.colorBrightness.Color = x;
-
-                    Output();
-                });
+                SetFromIData(sendsData.CurrentData);
             }
-            else if (logicalDevice is ISendsColorBrightness)
-            {
-                ((ISendsColorBrightness)logicalDevice).OutputColorBrightness.Subscribe(x =>
-                {
-                    this.colorBrightness = x;
-
-                    Output();
-                });
-            }
-            else
-                this.colorBrightness.Color = Color.White;
 
             Executor.Current.Blackout.Subscribe(_ => Output());
             Executor.Current.Whiteout.Subscribe(_ => Output());

@@ -114,7 +114,7 @@ namespace Animatroller.Framework.Expander
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error while dispatching OSC message", ex);
+                    log.Error(ex, "Error while dispatching OSC message");
                 }
             }
 
@@ -128,7 +128,7 @@ namespace Animatroller.Framework.Expander
                     }
                     catch (Exception ex)
                     {
-                        log.Error("Error while dispatching OSC message", ex);
+                        log.Error(ex, "Error while dispatching OSC message");
                     }
                 }
             }

@@ -444,9 +444,10 @@ namespace Animatroller.Framework.Controller
 
             if (!this.deviceObserversBrightness.TryGetValue(device, out observer))
             {
-                observer = device.GetBrightnessObserver();
+                //FIXME
+                //observer = device.GetBrightnessObserver();
 
-                this.deviceObserversBrightness.Add(device, observer);
+                //this.deviceObserversBrightness.Add(device, observer);
             }
 
             return observer;

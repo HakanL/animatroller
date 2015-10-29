@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using Controller = Animatroller.Framework.Controller;
@@ -52,7 +53,7 @@ namespace Animatroller.SceneRunner
             pixelsRoofEdge.SetAll(Color.Green, 0.6);
 
             popOut.ConnectTo(lightA);
-            popOut.ConnectTo(pixelsRoofEdge);
+//            popOut.ConnectTo(pixelsRoofEdge);
 
             sub
                 .LockWhenRunning(lightA, lightB)
@@ -112,6 +113,10 @@ namespace Animatroller.SceneRunner
                     log.Info("Button 3 pressed!");
 
                     popOut.Pop(color: Color.Purple);
+
+                    Thread.Sleep(500);
+
+                    testLightA.Value = random.NextDouble();
                 }
             });
         }

@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Reactive.Linq;
+using System.Reactive;
+using System.Reactive.Concurrency;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using Animatroller.Simulator.Extensions;
@@ -184,23 +187,24 @@ namespace Animatroller.Simulator
                         });
                     };
                 }
-                else if (field.FieldType == typeof(Animatroller.Framework.Controller.CueList))
-                {
-                    var cueList = (Animatroller.Framework.Controller.CueList)fieldValue;
+                //FIXME
+                //else if (field.FieldType == typeof(Animatroller.Framework.Controller.CueList))
+                //{
+                //    var cueList = (Animatroller.Framework.Controller.CueList)fieldValue;
 
-                    var control = AddLabel(cueList.Name);
+                //    var control = AddLabel(cueList.Name);
 
-                    cueList.CurrentCueId.Subscribe(x =>
-                        {
-                            this.UIThread(delegate
-                            {
-                                if (x.HasValue)
-                                    control.Text = x.ToString();
-                                else
-                                    control.Text = "<idle>";
-                            });
-                        });
-                }
+                //    cueList.CurrentCueId.Subscribe(x =>
+                //        {
+                //            this.UIThread(delegate
+                //            {
+                //                if (x.HasValue)
+                //                    control.Text = x.ToString();
+                //                else
+                //                    control.Text = "<idle>";
+                //            });
+                //        });
+                //}
             }
 
             return this;
@@ -390,10 +394,12 @@ namespace Animatroller.Simulator
 
             control.Value = logicalDevice.Value.GetByteScale();
 
-            logicalDevice.Output.Subscribe(x =>
-            {
-                control.Value = x.GetByteScale();
-            });
+            logicalDevice.Output
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(x =>
+                {
+                    control.Value = x.GetByteScale();
+                });
 
             return device;
         }

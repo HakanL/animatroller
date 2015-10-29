@@ -13,18 +13,28 @@ namespace Animatroller.Framework
     {
     }
 
-    public interface IReceivesBrightness : IOwnedDevice
+    public interface IReceivesBrightness : IReceivesData
     {
-        LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken token = null);
+        //        LogicalDevice.ControlledObserver<double> GetBrightnessObserver(IControlToken token = null);
 
         double Brightness { get; set; }
     }
 
-    public interface IReceivesColor : IOwnedDevice
+    public interface IReceivesStrobeSpeed : IReceivesData
     {
-        LogicalDevice.ControlledObserver<Color> GetColorObserver(IControlToken token = null);
+        double StrobeSpeed { get; set; }
+    }
 
-        LogicalDevice.ControlledObserverRGB GetRgbObserver(IControlToken token = null);
+    public interface IReceivesData : IOwnedDevice
+    {
+        LogicalDevice.ControlledObserverData GetDataObserver(IControlToken token = null);
+    }
+
+    public interface IReceivesColor : IReceivesData
+    {
+        //        LogicalDevice.ControlledObserver<Color> GetColorObserver(IControlToken token = null);
+
+        //        LogicalDevice.ControlledObserverRGB GetRgbObserver(IControlToken token = null);
 
         Color Color { get; set; }
     }
@@ -40,34 +50,67 @@ namespace Animatroller.Framework
         double Tilt { get; set; }
     }
 
-    public interface ISendsBrightness
+    public interface ISendsData
     {
-        IObservable<double> OutputBrightness { get; }
+        IObservable<IData> OutputData { get; }
+
+        IData CurrentData { get; }
     }
 
-    public interface ISendsColor
+    //    public interface ISendsBrightness : ISendsData
+    //    {
+    ////        IObservable<double> OutputBrightness { get; }
+    //    }
+
+    //    public interface ISendsColor : ISendsData
+    //    {
+    ////        IObservable<Color> OutputColor { get; }
+    //    }
+
+    //    public interface ISendsStrobeSpeed : ISendsData
+    //    {
+    //        //        IObservable<double> OutputStrobeSpeed { get; }
+    //    }
+
+    public enum DataElements
     {
-        IObservable<Color> OutputColor { get; }
+        Unknown = 0,
+        Brightness,
+        Color,
+        StrobeSpeed
     }
 
-    public interface ISendsColorBrightness
+    public interface IData : IDictionary<DataElements, object>
     {
-        IObservable<LogicalDevice.ColorBrightness> OutputColorBrightness { get; }
     }
 
-    public interface ISendsStrobeSpeed
-    {
-        IObservable<double> OutputStrobeSpeed { get; }
-    }
+    //public interface IDataBrightness : IData
+    //{
+    //    double Brightness { get; }
+    //}
+
+    //public interface IDataColor : IData
+    //{
+    //    Color Color { get; }
+    //}
+
+    //public interface IDataStrobeSpeed : IData
+    //{
+    //    double StrobeSpeed { get; }
+    //}
 
     public interface IControlToken : IDisposable
     {
         int Priority { get; }
+
+        void PushData(DataElements dataElement, object value);
+
+        IData Data { get; }
     }
 
     public interface IOwnedDevice : IDevice
     {
-        IControlToken TakeControl(int priority, bool executeReleaseAction = true, string name = "");
+        IControlToken TakeControl(int priority, string name = "");
 
         bool HasControl(IControlToken checkOwner);
 

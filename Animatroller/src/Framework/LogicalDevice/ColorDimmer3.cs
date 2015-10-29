@@ -12,59 +12,57 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class ColorDimmer3 : Dimmer3, IReceivesColor, ISendsColor
+    public class ColorDimmer3 : Dimmer3, IReceivesColor//, ISendsColor
     {
-        protected ControlSubject<Color, IControlToken> color;
+//        protected ControlSubject<Color, IControlToken> color;
 
         public ColorDimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.color = new ControlSubject<Color, IControlToken>(Color.White, HasControl);
+            this.currentData[DataElements.Color] = Color.White;
+            //            this.color = new ControlSubject<Color, IControlToken>(Color.White, HasControl);
         }
 
-        public ControlledObserver<Color> GetColorObserver(IControlToken token = null)
-        {
-            return new ControlledObserver<Color>(token ?? GetCurrentOrNewToken(), this.color);
-        }
+        //public ControlledObserver<Color> GetColorObserver(IControlToken token = null)
+        //{
+        //    return new ControlledObserver<Color>(token ?? GetCurrentOrNewToken(), this.color);
+        //}
 
-        public ControlledObserverRGB GetRgbObserver(IControlToken token = null)
-        {
-            this.color.OnNext(Color.Black);
-            this.brightness.OnNext(1.0);
+        //public ControlledObserverRGB GetRgbObserver(IControlToken token = null)
+        //{
+        //    this.color.OnNext(Color.Black);
+        //    this.brightness.OnNext(1.0);
 
-            return new ControlledObserverRGB(token ?? GetCurrentOrNewToken(), this.color);
-        }
+        //    return new ControlledObserverRGB(token ?? GetCurrentOrNewToken(), this.color);
+        //}
 
-        public IObservable<Color> OutputColor
-        {
-            get
-            {
-                return this.color.DistinctUntilChanged();
-            }
-        }
+        //public IObservable<Color> OutputColor
+        //{
+        //    get
+        //    {
+        //        return this.color.DistinctUntilChanged();
+        //    }
+        //}
 
         public Color Color
         {
-            get { return this.color.Value; }
+            get { return (Color)this.currentData[DataElements.Color]; }
             set
             {
                 // Note that this will only match the token when called on the same thread as
                 // where control was taken (TakeControl)
-                this.color.OnNext(value, Executor.Current.GetControlToken(this));
+//                this.color.OnNext(value, Executor.Current.GetControlToken(this));
+
+                PushData(DataElements.Color, value);
             }
-        }
-
-        protected override void UpdateOutput()
-        {
-            base.UpdateOutput();
-
-            this.color.OnNext(this.color.Value);
         }
 
         public void SetColor(Color color, double brightness)
         {
-            this.Color = color;
-            this.Brightness = brightness;
+            PushData(
+                Tuple.Create(DataElements.Brightness, (object)brightness),
+                Tuple.Create(DataElements.Color, (object)color)
+                );
         }
 
         public void SetOnlyColor(Color color)
@@ -74,22 +72,10 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetColor(Color color)
         {
-            this.Color = color;
-            this.Brightness = 1.0;
-        }
-
-        public override void SaveState(Dictionary<string, object> state)
-        {
-            base.SaveState(state);
-
-            state["COLOR"] = Color;
-        }
-
-        public override void RestoreState(Dictionary<string, object> state)
-        {
-            base.RestoreState(state);
-
-            Color = (Color)state["COLOR"];
+            PushData(
+                Tuple.Create(DataElements.Brightness, (object)1.0),
+                Tuple.Create(DataElements.Color, (object)color)
+                );
         }
     }
 }

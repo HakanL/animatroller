@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public abstract class BaseDevice : ILogicalDevice
+    public abstract class BaseDevice : ILogicalDevice, IApiVersion3
     {
         protected string name;
         protected bool persistState;
+        protected IData currentData;
 
         public BaseDevice(string name, bool persistState = false)
         {
             this.name = name;
             this.persistState = persistState;
+            this.currentData = new Data();
 
             Executor.Current.Register(this);
         }
@@ -19,7 +22,7 @@ namespace Animatroller.Framework.LogicalDevice
         public string Name
         {
             get { return this.name; }
-        }        
+        }
 
         public virtual void SetInitialState()
         {

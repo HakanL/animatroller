@@ -86,15 +86,5 @@ namespace Animatroller.Framework.LogicalDevice
         {
             this.outputValue.OnNext(this.currentValue && this.MasterPower);
         }
-
-        public override void SaveState(Dictionary<string, object> state)
-        {
-            state["POWER"] = Value;
-        }
-
-        public override void RestoreState(Dictionary<string, object> state)
-        {
-            Value = (bool)state["POWER"];
-        }
     }
 }

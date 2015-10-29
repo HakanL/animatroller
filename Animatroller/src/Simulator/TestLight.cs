@@ -26,7 +26,7 @@ namespace Animatroller.Simulator
         {
             var movingHeadDevice = logicalDevice as MovingHead;
 
-            if(movingHeadDevice != null)
+            if (movingHeadDevice != null)
             {
                 movingHeadDevice.OutputPan.Subscribe(x => this.pan = x);
                 movingHeadDevice.OutputTilt.Subscribe(x => this.tilt = x);

@@ -31,7 +31,14 @@ namespace Animatroller.Framework.LogicalDevice
 
             public int Priority { get; set; }
 
-            public object State { get { return null; } }
+            public IData Data
+            {
+                get
+                {
+                    // This shouldn't be used
+                    throw new InvalidOperationException();
+                }
+            }
 
             public void Dispose()
             {
@@ -40,6 +47,12 @@ namespace Animatroller.Framework.LogicalDevice
                 MemberTokens.Clear();
 
                 this.dispose();
+            }
+
+            public void PushData(DataElements dataElement, object value)
+            {
+                foreach (var memberToken in MemberTokens.Values)
+                    memberToken.PushData(dataElement, value);
             }
         }
 
@@ -77,7 +90,7 @@ namespace Animatroller.Framework.LogicalDevice
             return controlToken;
         }
 
-        public IControlToken TakeControl(int priority = 1, bool executeReleaseAction = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this.members)
             {
@@ -87,7 +100,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                 var memberTokens = new Dictionary<T, IControlToken>();
                 foreach (var device in this.members)
-                    memberTokens.Add(device, device.TakeControl(priority, executeReleaseAction, name));
+                    memberTokens.Add(device, device.TakeControl(priority, name));
 
                 var newOwner = new GroupControlToken(
                     memberTokens,

@@ -639,16 +639,6 @@ namespace Animatroller.Framework.LogicalDevice
                 RaiseMultiPixelChanged(pixelOffset, pixel - pixelOffset);
         }
 
-        public override void SaveState(Dictionary<string, object> state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void RestoreState(Dictionary<string, object> state)
-        {
-            throw new NotImplementedException();
-        }
-
         protected override void UpdateOutput()
         {
             RaiseMultiPixelChanged(0, Pixels);
