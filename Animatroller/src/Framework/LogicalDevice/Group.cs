@@ -1,21 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Reactive;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using NLog;
-using Animatroller.Framework.Extensions;
-using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public abstract class Group<T> : BaseDevice, IOwnedDevice where T : IOwnedDevice
+    public abstract class Group<T> : BaseDevice, IOwnedDevice where T : IReceivesData
     {
         protected Util.GroupControlToken currentOwner;
         protected List<T> members;
@@ -39,6 +27,30 @@ namespace Animatroller.Framework.LogicalDevice
         protected override void UpdateOutput()
         {
             // No need to do anything here, each individual member should be started on its own
+        }
+
+        public ControlledObserverData GetDataObserver(IControlToken token)
+        {
+            if (token == null)
+                throw new ArgumentNullException("token");
+
+            var observers = new List<ControlledObserverData>();
+            lock (this.members)
+            {
+                foreach (var member in this.members)
+                {
+                    observers.Add(member.GetDataObserver(token));
+                }
+            }
+
+            var groupObserver = new ControlSubject<IData, IControlToken>(null, HasControl);
+            groupObserver.Subscribe(x =>
+            {
+                foreach (var observer in observers)
+                    observer.OnNext(x);
+            });
+
+            return new ControlledObserverData(token, groupObserver);
         }
 
         //protected IControlToken GetCurrentOrNewToken(out bool ownsToken)

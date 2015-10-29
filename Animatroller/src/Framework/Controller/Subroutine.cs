@@ -3,20 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Animatroller.Framework.LogicalDevice;
+using Animatroller.Framework.LogicalDevice.Util;
 using NLog;
 
 namespace Animatroller.Framework.Controller
 {
-    public class Subroutine : LockHolder, ICanExecute, ISequenceInstance2
+    public class Subroutine : ICanExecute, ISequenceInstance2
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
 
         private object lockObject = new object();
         private string id;
+        private string name;
         protected Action setUpAction;
         protected Action tearDownAction;
         protected Action<ISequenceInstance> mainAction;
         protected System.Threading.CancellationToken cancelToken;
+        private HashSet<IOwnedDevice> handleLocks;
+        protected GroupControlToken groupControlToken;
+        private int lockPriority;
+
+        public Subroutine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            this.name = name;
+            this.id = Guid.NewGuid().GetHashCode().ToString();
+            this.handleLocks = new HashSet<IOwnedDevice>();
+        }
 
         public System.Threading.CancellationToken CancelToken
         {
@@ -83,6 +96,30 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
+        private void Lock()
+        {
+            var heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
+            foreach (var handleLock in this.handleLocks)
+            {
+                var control = handleLock.TakeControl(priority: this.lockPriority, name: Name);
+
+                heldLocks.Add(handleLock, control);
+            }
+
+            this.groupControlToken = new GroupControlToken(heldLocks, () =>
+            {
+            }, this.lockPriority);
+        }
+
+        private void Release()
+        {
+            if (this.groupControlToken != null)
+            {
+                this.groupControlToken.Dispose();
+                this.groupControlToken = null;
+            }
+        }
+
         public void Execute(System.Threading.CancellationToken cancelToken)
         {
             // Can only execute one at a time
@@ -119,28 +156,31 @@ namespace Animatroller.Framework.Controller
             get { return this.id; }
         }
 
-        public Subroutine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
-            : base(name)
-        {
-            this.id = Guid.NewGuid().GetHashCode().ToString();
-
-            // Default
-            this.LockPriority = 1;
-        }
-
         public bool IsMultiInstance { get; set; }
+
+        public string Name
+        {
+            get { return this.name; }
+        }
 
         public void Run()
         {
             Executor.Current.Execute(this);
         }
 
-        public Subroutine LockWhenRunning(params IOwnedDevice[] devices)
+        public Subroutine LockWhenRunning(int lockPriority = 1, params IOwnedDevice[] devices)
         {
-            AddHandleLocks(devices);
+            this.lockPriority = lockPriority;
+
+            foreach (var device in devices)
+                this.handleLocks.Add(device);
 
             return this;
         }
 
+        public Subroutine LockWhenRunning(params IOwnedDevice[] devices)
+        {
+            return LockWhenRunning(1, devices);
+        }
     }
 }
