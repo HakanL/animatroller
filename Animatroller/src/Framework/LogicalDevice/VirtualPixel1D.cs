@@ -10,7 +10,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class VirtualPixel1D : SingleOwnerDevice, IPixel1D, IApiVersion3, IOutput, IHasBrightnessControl, IOwner, IControlledDevice, IReceivesBrightness
+    public class VirtualPixel1D : SingleOwnerDevice, IPixel1D, IApiVersion3, IOutput, IOwner, IControlledDevice, IReceivesBrightness
     {
         protected object lockObject = new object();
         protected IOwner owner;
@@ -177,6 +177,11 @@ namespace Animatroller.Framework.LogicalDevice
             CheckBounds(position);
 
             return new ColorBrightness(this.color[position], this.brightness[position]);
+        }
+
+        public double Brightness
+        {
+            get { return 0; }
         }
 
         public virtual VirtualPixel1D SetBrightness(int position, double brightness)
@@ -483,21 +488,18 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        public double Brightness
+        public void SetBrightness(double brightness, IControlToken token = null)
         {
-            set
+            if (brightness == 0)
+                // Reset owner
+                owner = null;
+
+            for (int i = 0; i < this.brightness.Length; i++)
             {
-                if (value == 0)
-                    // Reset owner
-                    owner = null;
-
-                for (int i = 0; i < this.brightness.Length; i++)
-                {
-                    this.brightness[i] = value;
-                }
-
-                RaiseMultiPixelChanged(0, this.brightness.Length);
+                this.brightness[i] = brightness;
             }
+
+            RaiseMultiPixelChanged(0, this.brightness.Length);
         }
 
         public void SetBrightness(double value, IOwner owner)
@@ -518,7 +520,8 @@ namespace Animatroller.Framework.LogicalDevice
             }
 
             this.owner = owner;
-            this.Brightness = value;
+//            this.Brightness = value;
+//FIXME
         }
 
         public void ReleaseOwner()
@@ -572,19 +575,6 @@ namespace Animatroller.Framework.LogicalDevice
         public int Priority
         {
             get { return 0; }
-        }
-
-        double IReceivesBrightness.Brightness
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
         }
 
         public void Suspend()
@@ -642,11 +632,6 @@ namespace Animatroller.Framework.LogicalDevice
         protected override void UpdateOutput()
         {
             RaiseMultiPixelChanged(0, Pixels);
-        }
-
-        public ControlledObserver<double> GetBrightnessObserver(IControlToken token = null)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Animatroller.Framework.LogicalDevice.Util;
 using NLog;
 
 namespace Animatroller.Framework.Controller
@@ -11,7 +12,7 @@ namespace Animatroller.Framework.Controller
     {
         private string name;
         private HashSet<IOwnedDevice> handleLocks;
-        private Dictionary<IOwnedDevice, IControlToken> heldLocks;
+        protected GroupControlToken groupControlToken;
 
         public LockHolder([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -30,24 +31,25 @@ namespace Animatroller.Framework.Controller
 
         protected void Lock()
         {
-            this.heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
+            var heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var handleLock in this.handleLocks)
             {
                 var control = handleLock.TakeControl(priority: LockPriority, name: Name);
 
-                Executor.Current.SetControlToken(handleLock, control);
-
                 heldLocks.Add(handleLock, control);
             }
+
+            this.groupControlToken = new GroupControlToken(heldLocks, () =>
+            {
+            }, LockPriority);
         }
 
         protected void Release()
         {
-            foreach (var kvp in this.heldLocks)
+            if (this.groupControlToken != null)
             {
-                Executor.Current.RemoveControlToken(kvp.Key);
-
-                kvp.Value.Dispose();
+                this.groupControlToken.Dispose();
+                this.groupControlToken = null;
             }
         }
 

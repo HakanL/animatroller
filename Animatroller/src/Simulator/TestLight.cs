@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define TRACE_IDATA
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,13 +26,27 @@ namespace Animatroller.Simulator
         public TestLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {
-            var movingHeadDevice = logicalDevice as MovingHead;
+        }
 
-            if (movingHeadDevice != null)
+        protected override void SetFromIData(IData data)
+        {
+            base.SetFromIData(data);
+
+            object value;
+            if (data.TryGetValue(DataElements.Pan, out value))
+                this.pan = ((double)value).Limit(0, 540);
+
+            if (data.TryGetValue(DataElements.Tilt, out value))
+                this.tilt = ((double)value).Limit(0, 270);
+
+#if TRACE_IDATA
+            int id = 0;
+            foreach (var kvp in data)
             {
-                movingHeadDevice.OutputPan.Subscribe(x => this.pan = x);
-                movingHeadDevice.OutputTilt.Subscribe(x => this.tilt = x);
+                id++;
+                log.Trace("{3} {0}. {1} = {2}", id, kvp.Key, kvp.Value, this.Name);
             }
+#endif
         }
 
         protected override void Output()

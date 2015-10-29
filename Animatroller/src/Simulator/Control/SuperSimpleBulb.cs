@@ -181,7 +181,7 @@ namespace Animatroller.Simulator.Control.Bulb
 
             Color invertedColor;
             double brightness = Math.Max(Math.Max(drawColor.R, drawColor.G), drawColor.B) / 255.0;
-            if (brightness < 0.5)
+            if (brightness < 0.6)
                 invertedColor = Color.White;
             else
                 invertedColor = Color.Black;

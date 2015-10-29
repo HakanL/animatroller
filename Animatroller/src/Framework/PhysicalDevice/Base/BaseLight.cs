@@ -7,7 +7,7 @@ namespace Animatroller.Framework.PhysicalDevice
 {
     public abstract class BaseLight : BaseDevice
     {
-        protected ColorBrightness colorBrightness;// = new ColorBrightness(Color.White, 0.0);
+        protected ColorBrightness colorBrightness;
 
         protected abstract void Output();
 

@@ -14,22 +14,21 @@ namespace Animatroller.Framework.PhysicalDevice
         protected double pan;
         protected double tilt;
 
-        public MonopriceMovingHeadLight12chn(MovingHead logicalDevice, int dmxChannel)
+        public MonopriceMovingHeadLight12chn(IApiVersion3 logicalDevice, int dmxChannel)
             : base(logicalDevice, dmxChannel)
         {
-            logicalDevice.OutputPan.Subscribe(x =>
-                {
-                    this.pan = x.Limit(0, 540);
+        }
 
-                    Output();
-                });
+        protected override void SetFromIData(IData data)
+        {
+            base.SetFromIData(data);
 
-            logicalDevice.OutputTilt.Subscribe(x =>
-            {
-                this.tilt = x.Limit(0, 270);
+            object value;
+            if (data.TryGetValue(DataElements.Pan, out value))
+                this.pan = ((double)value).Limit(0, 540);
 
-                Output();
-            });
+            if (data.TryGetValue(DataElements.Tilt, out value))
+                this.tilt = ((double)value).Limit(0, 270);
         }
 
         protected override void Output()

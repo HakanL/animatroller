@@ -44,38 +44,38 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 10), 20);
 
-            testLightA.ConnectTo(x => lightA.Brightness = x);
-            testLightB.ConnectTo(x => lightB.Brightness = x);
+            testLightA.ConnectTo(x => lightA.SetBrightness(x));
+            testLightB.ConnectTo(x => lightB.SetBrightness(x));
 
-            lightA.SetOnlyColor(Color.Red);
-            lightB.SetOnlyColor(Color.Blue);
+            lightA.SetColor(Color.Red, null);
+            lightB.SetColor(Color.Blue, null);
 
             pixelsRoofEdge.SetAll(Color.Green, 0.6);
 
             popOut.ConnectTo(lightA);
-//            popOut.ConnectTo(pixelsRoofEdge);
+            //            popOut.ConnectTo(pixelsRoofEdge);
 
             sub
                 .LockWhenRunning(lightA, lightB)
                 .RunAction(i =>
                 {
-                    lightA.Brightness = 1.0;
-                    i.WaitFor(S(0.5));
+                    lightA.SetBrightness(1.0, i.Token);
+                    i.WaitFor(S(2.5));
 
-                    lightB.Brightness = 0.5;
-                    i.WaitFor(S(0.5));
+                    lightB.SetBrightness(0.5, i.Token);
+                    i.WaitFor(S(2.5));
 
-                    Exec.MasterEffect.Fade(lightGroup, 1.0, 0.0, 3000);
+                    Exec.MasterEffect.Fade(lightGroup, 1.0, 0.0, 3000, token: i.Token);
 
                     i.WaitFor(S(1));
 
                     using (var takeOver = lightGroup.TakeControl(5))
                     {
-                        lightGroup.Brightness = 1;
+                        lightGroup.SetBrightness(1, takeOver);
                         i.WaitFor(S(1));
                     }
 
-                    lightGroup.Brightness = 1;
+                    lightGroup.SetBrightness(1, i.Token);
 
                     i.WaitFor(S(2));
                 });
@@ -112,7 +112,7 @@ namespace Animatroller.SceneRunner
                 {
                     log.Info("Button 3 pressed!");
 
-                    popOut.Pop(color: Color.Purple);
+                    popOut.Pop(color: Color.Purple, sweepDuration: S(5));
 
                     Thread.Sleep(500);
 

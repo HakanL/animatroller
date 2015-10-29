@@ -10,16 +10,6 @@ namespace Animatroller.Framework.Effect
 {
     public class PopOut2 : GroupDimmer
     {
-        protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
-        {
-            public ControlledObserver<double> BrightnessOwner { get; set; }
-
-            public DeviceController(IReceivesBrightness device, int priority)
-                : base(device, priority)
-            {
-            }
-        }
-
         private double defaultStartBrightness;
         private TimeSpan defaultSweepDuration;
 
@@ -40,7 +30,7 @@ namespace Animatroller.Framework.Effect
             if (color.HasValue)
             {
                 this.members.OfType<IReceivesColor>().ToList()
-                    .ForEach(x => x.Color = color.Value);
+                    .ForEach(x => x.SetColor(color.Value, null, token));
             }
 
             return Executor.Current.MasterEffect.Fade(

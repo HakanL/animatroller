@@ -1,72 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Drawing;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using NLog;
-using Animatroller.Framework.Extensions;
-using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
     public class GroupDimmer : Group<IReceivesBrightness>, IReceivesBrightness
     {
-        protected ReplaySubject<double> brightness;
-
         public GroupDimmer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.brightness = new ReplaySubject<double>(1);
         }
 
-        //public ControlledObserver<double> GetBrightnessObserver(IControlToken token = null)
-        //{
-        //    var controlToken = token ?? GetCurrentOrNewToken();
-
-        //    var observers = new List<ControlledObserver<double>>();
-        //    lock (this.members)
-        //    {
-        //        foreach (var member in this.members)
-        //        {
-        //            IControlToken memberControlToken;
-        //            if (this.currentOwner == null || !this.currentOwner.MemberTokens.TryGetValue(member, out memberControlToken))
-        //                // No lock/control token
-        //                continue;
-
-        //            observers.Add(member.GetBrightnessObserver(memberControlToken));
-        //        }
-        //    }
-
-        //    var groupObserver = new ControlSubject<double, IControlToken>(0, HasControl);
-        //    groupObserver.Subscribe(x =>
-        //        {
-        //            foreach (var observer in observers)
-        //                observer.OnNext(x);
-        //        });
-        //    return new ControlledObserver<double>(controlToken, groupObserver);
-        //}
-
-        public ControlledObserverData GetDataObserver(IControlToken token = null)
+        public ControlledObserverData GetDataObserver(IControlToken token)
         {
-            var controlToken = token ?? GetCurrentOrNewToken();
+            if (token == null)
+                throw new ArgumentNullException("token");
 
             var observers = new List<ControlledObserverData>();
             lock (this.members)
             {
                 foreach (var member in this.members)
                 {
-                    IControlToken memberControlToken;
-                    if (this.currentOwner == null || !this.currentOwner.MemberTokens.TryGetValue(member, out memberControlToken))
-                        // No lock/control token
-                        continue;
-
-                    observers.Add(member.GetDataObserver(memberControlToken));
+                    observers.Add(member.GetDataObserver(token));
                 }
             }
 
@@ -75,30 +33,28 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 foreach (var observer in observers)
                     observer.OnNext(x);
-            }, () =>
-            {
-                // Completed
-                foreach (var observer in observers)
-                    observer.Dispose();
             });
-            return new ControlledObserverData(controlToken, groupObserver);
+
+            return new ControlledObserverData(token, groupObserver);
+        }
+
+        public void SetBrightness(double brightness, IControlToken token = null)
+        {
+            lock (this.members)
+            {
+                foreach (var member in this.members)
+                {
+                    //TODO: Should this be token here, or the group token?
+                    member.SetBrightness(brightness, token);
+                }
+            }
         }
 
         public double Brightness
         {
             get
             {
-                return this.brightness.GetLatestValue();
-            }
-            set
-            {
-                lock (this.members)
-                {
-                    foreach (var member in this.members)
-                    {
-                        member.Brightness = value;
-                    }
-                }
+                return double.NaN;
             }
         }
     }

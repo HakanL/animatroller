@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class ControlledDevice : IControlToken
+    public class ControlledDevice : IControlTokenDevice
     {
         private static ControlledDevice empty = new ControlledDevice(string.Empty, -1, null);
-        private Action disposeAction;
+        private Action<IControlTokenDevice> disposeAction;
         private IData data;
 
-        public ControlledDevice(string name, int priority, Action dispose)
+        public ControlledDevice(string name, int priority, Action<IControlTokenDevice> dispose)
         {
             this.Name = name;
             this.Priority = priority;
@@ -31,12 +31,17 @@ namespace Animatroller.Framework.LogicalDevice
         public void Dispose()
         {
             if (this.disposeAction != null)
-                this.disposeAction();
+                this.disposeAction(this);
         }
 
         public void PushData(DataElements dataElement, object value)
         {
             this.data[dataElement] = value;
+        }
+
+        public bool IsOwner(IControlToken checkToken)
+        {
+            return this == checkToken;
         }
 
         public IData Data

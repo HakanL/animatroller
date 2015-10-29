@@ -17,54 +17,15 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public abstract class Group<T> : BaseDevice, IOwnedDevice where T : IOwnedDevice
     {
-        public class GroupControlToken : IControlToken
-        {
-            internal Dictionary<T, IControlToken> MemberTokens { get; set; }
-            private Action dispose;
-
-            public GroupControlToken(Dictionary<T, IControlToken> memberTokens, Action dispose, int priority = 1)
-            {
-                MemberTokens = memberTokens;
-                this.dispose = dispose;
-                Priority = priority;
-            }
-
-            public int Priority { get; set; }
-
-            public IData Data
-            {
-                get
-                {
-                    // This shouldn't be used
-                    throw new InvalidOperationException();
-                }
-            }
-
-            public void Dispose()
-            {
-                foreach (var memberToken in MemberTokens.Values)
-                    memberToken.Dispose();
-                MemberTokens.Clear();
-
-                this.dispose();
-            }
-
-            public void PushData(DataElements dataElement, object value)
-            {
-                foreach (var memberToken in MemberTokens.Values)
-                    memberToken.PushData(dataElement, value);
-            }
-        }
-
-        protected GroupControlToken currentOwner;
+        protected Util.GroupControlToken currentOwner;
         protected List<T> members;
-        protected Stack<GroupControlToken> owners;
+        protected Stack<Util.GroupControlToken> owners;
 
         public Group([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.members = new List<T>();
-            this.owners = new Stack<GroupControlToken>();
+            this.owners = new Stack<Util.GroupControlToken>();
         }
 
         public void Add(params T[] devices)
@@ -80,12 +41,17 @@ namespace Animatroller.Framework.LogicalDevice
             // No need to do anything here, each individual member should be started on its own
         }
 
-        protected IControlToken GetCurrentOrNewToken()
+        protected IControlToken GetCurrentOrNewToken(out bool ownsToken)
         {
             var controlToken = Executor.Current.GetControlToken(this);
 
             if (controlToken == null)
+            {
                 controlToken = TakeControl();
+                ownsToken = true;
+            }
+            else
+                ownsToken = false;
 
             return controlToken;
         }
@@ -98,11 +64,11 @@ namespace Animatroller.Framework.LogicalDevice
                     // Already owned (by us or someone else)
                     return ControlledDevice.Empty;
 
-                var memberTokens = new Dictionary<T, IControlToken>();
+                var memberTokens = new Dictionary<IOwnedDevice, IControlToken>();
                 foreach (var device in this.members)
                     memberTokens.Add(device, device.TakeControl(priority, name));
 
-                var newOwner = new GroupControlToken(
+                var newOwner = new Util.GroupControlToken(
                     memberTokens,
                     () =>
                     {
@@ -133,9 +99,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         public bool HasControl(IControlToken checkOwner)
         {
-            var test = Executor.Current.GetControlToken(this);
-
-            return this.currentOwner == null || checkOwner == this.currentOwner;
+            // Checked on an individual level instead
+            return true;
         }
 
         public bool IsOwned

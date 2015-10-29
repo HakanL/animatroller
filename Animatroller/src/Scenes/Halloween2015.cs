@@ -140,17 +140,17 @@ namespace Animatroller.SceneRunner
 
             inputBrightness.Output.Subscribe(x =>
             {
-                testLight1.Brightness = x;
+                testLight1.SetBrightness(x);
             });
 
             inputH.WhenOutputChanges(x =>
             {
-                testLight1.SetOnlyColor(HSV.ColorFromHSV(x.GetByteScale(), inputS.Value, 1.0));
+                testLight1.SetColor(HSV.ColorFromHSV(x.GetByteScale(), inputS.Value, 1.0));
             });
 
             inputS.Output.Subscribe(x =>
             {
-                testLight1.SetOnlyColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x, 1.0));
+                testLight1.SetColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x, 1.0));
             });
 
             midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
@@ -359,7 +359,7 @@ namespace Animatroller.SceneRunner
 
             oscServer.RegisterAction<int>("/1/toggle2", (msg, data) =>
             {
-                underGeorge.Brightness = data.First();
+                underGeorge.SetBrightness(data.First());
             });
 
             oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
@@ -389,19 +389,15 @@ namespace Animatroller.SceneRunner
             oscServer.RegisterAction<int>("/1/push14", (msg, data) =>
             {
                 //                flickerEffect.Start();
-                spiderLight.Color = Color.Red;
-                spiderLight.Brightness = data.First();
-                pinSpot.Color = Color.Purple;
-                pinSpot.Brightness = data.First();
-                underGeorge.Brightness = data.First();
-                wall1Light.Color = Color.Purple;
-                wall1Light.Brightness = data.First();
-                wall2Light.Color = Color.Purple;
-                wall2Light.Brightness = data.First();
-                wall3Light.Color = Color.Purple;
-                wall3Light.Brightness = data.First();
-                wall4Light.Color = Color.Purple;
-                wall4Light.Brightness = data.First();
+                double brightness = data.First();
+
+                spiderLight.SetColor(Color.Red, brightness);
+                pinSpot.SetColor(Color.Purple, brightness);
+                underGeorge.SetBrightness(brightness);
+                wall1Light.SetColor(Color.Purple, brightness);
+                wall2Light.SetColor(Color.Purple, brightness);
+                wall3Light.SetColor(Color.Purple, brightness);
+                wall4Light.SetColor(Color.Purple, brightness);
                 //                audioDIN.PlayEffect("gollum_precious1.wav");
             });
 

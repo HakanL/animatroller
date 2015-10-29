@@ -10,7 +10,7 @@ namespace Animatroller.Framework.LogicalDevice
     {
         public delegate void PushDataDelegate(DataElements dataElements, object value);
 
-        protected Stack<IControlToken> owners;
+        protected List<IControlTokenDevice> owners;
         protected IControlToken currentOwner;
         protected ControlSubject<IData, IControlToken> outputData;
         private IData ownerlessData;
@@ -18,7 +18,7 @@ namespace Animatroller.Framework.LogicalDevice
         public SingleOwnerDevice(string name)
             : base(name)
         {
-            this.owners = new Stack<IControlToken>();
+            this.owners = new List<IControlTokenDevice>();
             this.outputData = new ControlSubject<IData, IControlToken>(null, HasControl);
             this.ownerlessData = new Data();
 
@@ -36,26 +36,27 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected override void UpdateOutput()
         {
-            PushData();
+            PushData(Executor.Current.GetControlToken(this));
         }
 
-        public ControlledObserverData GetDataObserver(IControlToken token = null)
+        public ControlledObserverData GetDataObserver(IControlToken token)
         {
-            return new ControlledObserverData(token ?? GetCurrentOrNewToken(), this.outputData);
+            if (token == null)
+                throw new ArgumentNullException("token");
+
+            return new ControlledObserverData(token, this.outputData);
         }
 
-        protected void PushData(DataElements dataElement, object value)
+        protected void PushData(DataElements dataElement, object value, IControlToken token)
         {
-            PushData(Tuple.Create(dataElement, value));
+            PushData(token, Tuple.Create(dataElement, value));
         }
 
-        protected void PushData(params Tuple<DataElements, object>[] values)
+        protected void PushData(IControlToken token, params Tuple<DataElements, object>[] values)
         {
-            var controlToken = Executor.Current.GetControlToken(this);
-
             PushDataDelegate pushDelegate;
-            if (controlToken != null)
-                pushDelegate = controlToken.PushData;
+            if (token != null)
+                pushDelegate = token.PushData;
             else
                 pushDelegate = (d, v) =>
                 {
@@ -71,60 +72,69 @@ namespace Animatroller.Framework.LogicalDevice
                 pushDelegate(kvp.Item1, kvp.Item2);
             }
 
-            this.outputData.OnNext(data, controlToken);
+            this.outputData.OnNext(data, token);
         }
 
         public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this)
             {
-                //FIXME: Not sure if we need this
-                if (this.currentOwner != null && priority <= this.currentOwner.Priority)
-                    // Already owned (by us or someone else)
-                    return ControlledDevice.Empty;
-
-                var newOwner = new ControlledDevice(name, priority, () =>
+                var ownerCandidate = new ControlledDevice(name, priority, cToken =>
                 {
                     IData restoreData;
+                    IControlTokenDevice nextOwner;
 
                     lock (this)
                     {
-                        IControlToken oldOwner;
+                        this.owners.Remove(cToken);
 
-                        if (this.owners.Count > 0)
-                            oldOwner = this.owners.Pop();
-                        else
-                            oldOwner = null;
+                        nextOwner = this.owners.LastOrDefault();
 
-                        if (oldOwner != null)
-                            restoreData = oldOwner.Data;
+                        if (nextOwner != null)
+                            restoreData = nextOwner.Data;
                         else
                             restoreData = ownerlessData;
 
-                        this.currentOwner = oldOwner;
+                        this.currentOwner = nextOwner;
 
-                        Executor.Current.SetControlToken(this, oldOwner);
+                        Executor.Current.SetControlToken(this, nextOwner);
                     }
 
-                    PushData(restoreData.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
+                    PushData(nextOwner, restoreData.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
                 });
 
-                // Push current owner
-                this.owners.Push(this.currentOwner);
+                // Insert new owner
+                lock (this)
+                {
+                    int pos = -1;
+                    for (int i = 0; i < this.owners.Count; i++)
+                    {
+                        if (this.owners[i].Priority < priority)
+                            continue;
+
+                        pos = i;
+                        break;
+                    }
+                    if (pos == -1)
+                        this.owners.Add(ownerCandidate);
+                    else
+                        this.owners.Insert(pos, ownerCandidate);
+                }
+
+                // Grab the owner with the highest priority (doesn't have to be the candidate)
+                var newOwner = this.owners.Last();
 
                 this.currentOwner = newOwner;
 
                 Executor.Current.SetControlToken(this, newOwner);
 
-                return newOwner;
+                return ownerCandidate;
             }
         }
 
         public bool HasControl(IControlToken checkOwner)
         {
-            var test = Executor.Current.GetControlToken(this);
-
-            return this.currentOwner == null || checkOwner == this.currentOwner;
+            return this.currentOwner == null || (checkOwner != null && checkOwner.IsOwner(this.currentOwner));
         }
 
         public bool HasControl()
@@ -145,12 +155,17 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        protected IControlToken GetCurrentOrNewToken()
+        protected IControlToken GetCurrentOrNewToken(out bool ownsToken)
         {
             var controlToken = Executor.Current.GetControlToken(this);
 
             if (controlToken == null)
+            {
                 controlToken = TakeControl();
+                ownsToken = true;
+            }
+            else
+                ownsToken = false;
 
             return controlToken;
         }

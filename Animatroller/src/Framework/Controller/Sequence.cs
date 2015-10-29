@@ -135,6 +135,14 @@ namespace Animatroller.Framework.Controller
             {
                 get { return this.id; }
             }
+
+            public IControlToken Token
+            {
+                get
+                {
+                    return null;
+                }
+            }
         }
 
         private string name;

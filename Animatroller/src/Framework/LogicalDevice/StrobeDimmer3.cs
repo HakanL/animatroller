@@ -12,47 +12,22 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class StrobeDimmer3 : Dimmer3, IReceivesStrobeSpeed //, ISendsStrobeSpeed
+    public class StrobeDimmer3 : Dimmer3, IReceivesStrobeSpeed
     {
-        protected ReplaySubject<double> strobeSpeed;
-
         public StrobeDimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.strobeSpeed = new ReplaySubject<double>(1);
+            this.currentData[DataElements.StrobeSpeed] = 0.0;
         }
-
-        //public ControlledObserver<double> GetStrobeSpeedObserver(IControlToken controlToken)
-        //{
-        //    throw new NotImplementedException();
-        //    //FIXME
-        //    //            return new ControlledObserver<double>(controlToken, this, this.strobeSpeed);
-        //}
-
-        //public IObservable<double> OutputStrobeSpeed
-        //{
-        //    get
-        //    {
-        //        return this.strobeSpeed.DistinctUntilChanged();
-        //    }
-        //}
 
         public double StrobeSpeed
         {
-            get { return this.strobeSpeed.GetLatestValue(); }
-            set
-            {
-                if (HasControl(null))
-                    // Only allow if nobody is controlling us
-                    this.strobeSpeed.OnNext(value);
-            }
+            get { return (double)this.currentData[DataElements.StrobeSpeed]; }
         }
 
-        protected override void UpdateOutput()
+        public void SetStrobeSpeed(double strobeSpeed, IControlToken token)
         {
-            base.UpdateOutput();
-
-            this.strobeSpeed.OnNext(this.strobeSpeed.GetLatestValue());
+            PushData(token, Tuple.Create(DataElements.StrobeSpeed, (object)strobeSpeed));
         }
     }
 }

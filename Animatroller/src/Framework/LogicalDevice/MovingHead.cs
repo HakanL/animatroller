@@ -16,70 +16,29 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class MovingHead : StrobeColorDimmer3, IReceivesPanTilt
     {
-        protected ControlSubject<double, IControlToken> pan;
-        protected ControlSubject<double, IControlToken> tilt;
-
         public MovingHead([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.pan = new ControlSubject<double, IControlToken>(0, HasControl);
-            this.tilt = new ControlSubject<double, IControlToken>(0, HasControl);
-        }
-
-        public ControlledObserver<double> GetPanObserver(IControlToken token = null)
-        {
-            return new ControlledObserver<double>(token ?? GetCurrentOrNewToken(), this.pan);
-        }
-
-        public ControlledObserver<double> GetTiltObserver(IControlToken token = null)
-        {
-            return new ControlledObserver<double>(token ?? GetCurrentOrNewToken(), this.tilt);
+            this.currentData[DataElements.Pan] = 0.0;
+            this.currentData[DataElements.Tilt] = 0.0;
         }
 
         public double Pan
         {
-            get
-            {
-                return this.pan.Value;
-            }
-            set
-            {
-                this.pan.OnNext(value, Executor.Current.GetControlToken(this));
-            }
-        }
-
-        public IObservable<double> OutputPan
-        {
-            get
-            {
-                return this.pan.DistinctUntilChanged();
-            }
-        }
-
-        public IObservable<double> OutputTilt
-        {
-            get
-            {
-                return this.tilt.DistinctUntilChanged();
-            }
+            get { return (double)this.currentData[DataElements.Pan]; }
         }
 
         public double Tilt
         {
-            get
-            {
-                return this.tilt.Value;
-            }
-            set
-            {
-                this.tilt.OnNext(value, Executor.Current.GetControlToken(this));
-            }
+            get { return (double)this.currentData[DataElements.Tilt]; }
         }
 
-        protected override void UpdateOutput()
+        public void SetPanTilt(double pan, double tilt, IControlToken token)
         {
-            this.pan.OnNext(this.pan.Value);
-            this.tilt.OnNext(this.tilt.Value);
+            PushData(token,
+                Tuple.Create(DataElements.Pan, (object)pan),
+                Tuple.Create(DataElements.Tilt, (object)tilt)
+                );
         }
     }
 }

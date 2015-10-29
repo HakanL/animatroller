@@ -43,6 +43,14 @@ namespace Animatroller.Framework.Controller
             this.tearDownAction = action;
         }
 
+        public IControlToken Token
+        {
+            get
+            {
+                return this.groupControlToken;
+            }
+        }
+
         public ISequenceInstance WaitFor(TimeSpan value)
         {
             return WaitFor(value, true);

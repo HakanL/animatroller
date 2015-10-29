@@ -14,7 +14,7 @@ namespace Animatroller.Framework.Effect
     {
         protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
         {
-            public ControlledObserverData DataOwner { get; set; }
+            public IControlToken Token { get; set; }
 
             public DeviceController(IReceivesBrightness device, int priority)
                 : base(device, priority)
@@ -69,19 +69,14 @@ namespace Animatroller.Framework.Effect
                 {
                     foreach (var heldDevice in this.devices)
                     {
-                        var deviceOwner = heldDevice.DataOwner;
+                        // Grab control
+                        var token = heldDevice.Device.TakeControl(priority: heldDevice.Priority, name: Name);
+                        heldDevice.Token = token;
 
-                        if (deviceOwner == null)
-                        {
-                            // Grab control
-                            var token = heldDevice.Device.TakeControl(priority: heldDevice.Priority, name: Name);
-
-                            deviceOwner =
-                            heldDevice.DataOwner = heldDevice.Device.GetDataObserver(token);
-                        }
+                        var deviceOwner = heldDevice.Device.GetDataObserver(token);
 
                         deviceOwner
-                            .OnNext(new Data(DataElements.Brightness, 
+                            .OnNext(new Data(DataElements.Brightness,
                                 this.random.NextDouble().ScaleToMinMax(this.minBrightness, this.maxBrightness)));
                     }
                 }
@@ -125,10 +120,10 @@ namespace Animatroller.Framework.Effect
             {
                 foreach (var heldDevice in this.devices)
                 {
-                    if (heldDevice.DataOwner != null)
+                    if (heldDevice.Token != null)
                     {
-                        heldDevice.DataOwner.Dispose();
-                        heldDevice.DataOwner = null;
+                        heldDevice.Token.Dispose();
+                        heldDevice.Token = null;
                     }
                 }
             }

@@ -17,12 +17,20 @@ namespace Animatroller.Framework
     public interface ISequenceInstance
     {
         string Id { get; }
+
         System.Threading.CancellationToken CancelToken { get; }
+
         bool IsCancellationRequested { get; }
+
         ISequenceInstance WaitFor(TimeSpan value);
+
         ISequenceInstance WaitFor(TimeSpan value, bool throwExceptionIfCanceled);
+
         ISequenceInstance WaitUntilCancel();
+
         ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled);
+
+        IControlToken Token { get; }
     }
 
     public interface ISequenceInstance2 : ISequenceInstance

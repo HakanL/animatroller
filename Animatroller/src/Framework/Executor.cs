@@ -14,13 +14,10 @@ namespace Animatroller.Framework
     {
         public class ThreadLocalStorage
         {
-            public Dictionary<IOwnedDevice, IControlToken> ControlTokens { get; private set; }
-
             public List<Tuple<Task, CancellationTokenSource>> ManagedTasks { get; private set; }
 
             public ThreadLocalStorage()
             {
-                this.ControlTokens = new Dictionary<IOwnedDevice, IControlToken>();
                 this.ManagedTasks = new List<Tuple<Task, CancellationTokenSource>>();
             }
         }
@@ -53,6 +50,7 @@ namespace Animatroller.Framework
         private Effect.MasterSweeper masterSweeper;
         private string keyStoragePath;
         private static ThreadLocal<ThreadLocalStorage> threadStorage;
+        private Dictionary<IOwnedDevice, IControlToken> controlTokens;
         private ControlSubject<double> blackout;
         private ControlSubject<double> whiteout;
 
@@ -70,6 +68,7 @@ namespace Animatroller.Framework
             this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
             this.masterTimer2 = new Controller.HighPrecisionTimer2(MasterTimerIntervalMs);
             this.timerJobRunner = new Effect2.TimerJobRunner(this.masterTimer2);
+            this.controlTokens = new Dictionary<IOwnedDevice, IControlToken>();
 
             this.masterEffect = new Effect2.MasterEffect(this.timerJobRunner);
 
@@ -99,7 +98,7 @@ namespace Animatroller.Framework
         public IControlToken GetControlToken(IOwnedDevice device)
         {
             IControlToken token;
-            ThreadStorage.ControlTokens.TryGetValue(device, out token);
+            this.controlTokens.TryGetValue(device, out token);
 
             return token;
         }
@@ -107,7 +106,7 @@ namespace Animatroller.Framework
         public void SetControlToken(IOwnedDevice device, IControlToken token)
         {
             if (token != null)
-                ThreadStorage.ControlTokens[device] = token;
+                this.controlTokens[device] = token;
             else
                 RemoveControlToken(device);
         }
@@ -154,8 +153,7 @@ namespace Animatroller.Framework
 
         public void RemoveControlToken(IOwnedDevice device)
         {
-            if (ThreadStorage.ControlTokens.ContainsKey(device))
-                ThreadStorage.ControlTokens.Remove(device);
+            this.controlTokens.Remove(device);
         }
 
         public Effect2.TimerJobRunner TimerJobRunner { get { return this.timerJobRunner; } }
