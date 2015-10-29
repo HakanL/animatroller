@@ -41,20 +41,20 @@ namespace Animatroller.Framework.LogicalDevice
             // No need to do anything here, each individual member should be started on its own
         }
 
-        protected IControlToken GetCurrentOrNewToken(out bool ownsToken)
-        {
-            var controlToken = Executor.Current.GetControlToken(this);
+        //protected IControlToken GetCurrentOrNewToken(out bool ownsToken)
+        //{
+        //    var controlToken = Executor.Current.GetControlToken(this);
 
-            if (controlToken == null)
-            {
-                controlToken = TakeControl();
-                ownsToken = true;
-            }
-            else
-                ownsToken = false;
+        //    if (controlToken == null)
+        //    {
+        //        controlToken = TakeControl();
+        //        ownsToken = true;
+        //    }
+        //    else
+        //        ownsToken = false;
 
-            return controlToken;
-        }
+        //    return controlToken;
+        //}
 
         public IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {

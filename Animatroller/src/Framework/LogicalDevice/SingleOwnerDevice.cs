@@ -155,30 +155,30 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        protected IControlToken GetCurrentOrNewToken(out bool ownsToken)
-        {
-            var controlToken = Executor.Current.GetControlToken(this);
+        //protected IControlToken GetCurrentOrNewToken(out bool ownsToken)
+        //{
+        //    var controlToken = Executor.Current.GetControlToken(this);
 
-            if (controlToken == null)
-            {
-                controlToken = TakeControl();
-                ownsToken = true;
-            }
-            else
-                ownsToken = false;
+        //    if (controlToken == null)
+        //    {
+        //        controlToken = TakeControl();
+        //        ownsToken = true;
+        //    }
+        //    else
+        //        ownsToken = false;
 
-            return controlToken;
-        }
+        //    return controlToken;
+        //}
 
-        public void ReleaseOurLock()
-        {
-            var threadControlToken = Executor.Current.GetControlToken(this);
+        //public void ReleaseOurLock()
+        //{
+        //    var threadControlToken = Executor.Current.GetControlToken(this);
 
-            if (threadControlToken == this.currentOwner)
-            {
-                // Release
-                threadControlToken.Dispose();
-            }
-        }
+        //    if (threadControlToken == this.currentOwner)
+        //    {
+        //        // Release
+        //        threadControlToken.Dispose();
+        //    }
+        //}
     }
 }
