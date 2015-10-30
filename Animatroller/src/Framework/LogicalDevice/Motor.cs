@@ -10,7 +10,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Motor : IOutput, ILogicalDevice
+    public class Motor : ILogicalDevice
     {
         protected string name;
         protected double speed;

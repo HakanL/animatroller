@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class PixelRGBByte
+    public struct PixelRGBByte
     {
         public byte R;
         public byte G;

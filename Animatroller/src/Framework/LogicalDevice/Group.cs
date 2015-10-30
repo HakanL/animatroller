@@ -13,6 +13,7 @@ namespace Animatroller.Framework.LogicalDevice
             : base(name)
         {
             this.members = new List<T>();
+            //TODO: Change to list instead of stack, like we do in SingleOwnerDevice
             this.owners = new Stack<Util.GroupControlToken>();
         }
 

@@ -19,10 +19,8 @@ namespace Animatroller.Simulator
         private Task senderTask;
         private System.Threading.CancellationTokenSource cancelSource;
         private int sentUpdates;
-        private int receivedUpdates;
         private ILogicalDevice logicalDevice;
         private Control.MatrixLight control;
-        private int numberOfPixels;
         private int pixelWidth;
         private int pixelHeight;
 

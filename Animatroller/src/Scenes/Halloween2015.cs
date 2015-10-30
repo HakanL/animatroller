@@ -37,7 +37,7 @@ namespace Animatroller.SceneRunner
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
 
-        private VirtualPixel1D pixelsRoofEdge = new VirtualPixel1D(150);
+        private VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
         private AnalogInput3 faderR = new AnalogInput3(persistState: true);
         private AnalogInput3 faderG = new AnalogInput3(persistState: true);
         private AnalogInput3 faderB = new AnalogInput3(persistState: true);
@@ -611,18 +611,18 @@ namespace Animatroller.SceneRunner
         private void SetPixelColor()
         {
             if (manualFader.Value)
-                pixelsRoofEdge.SetAll(GetFaderColor(), faderBright.Value);
+                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
             else
             {
                 if (hoursSmall.IsOpen)
                 {
-                    pixelsRoofEdge.SetAll(
+                    pixelsRoofEdge.SetColor(
                         HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                         0.16470588235294117);
                 }
                 else
                 {
-                    pixelsRoofEdge.SetAll(Color.Black, 0.0);
+                    pixelsRoofEdge.SetColor(Color.Black, 0.0);
                 }
             }
         }

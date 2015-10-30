@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using Animatroller.Framework.Extensions;
 using Animatroller.Framework.LogicalDevice;
 
@@ -7,114 +8,145 @@ namespace Animatroller.Framework.PhysicalDevice
     public class PixelRope : BaseDevice, INeedsPixelOutput
     {
         private object lockObject = new object();
+//        protected ColorBrightness[] pixelData;
 
         public IPixelOutput PixelOutputPort { protected get; set; }
 
-        public PixelRope(Pixel1D logicalDevice)
+        //public PixelRope(Pixel1D logicalDevice)
+        //    : base(logicalDevice)
+        //{
+        //    logicalDevice.PixelChanged += (sender, e) =>
+        //        {
+        //            // Handles brightness as well
+
+        //            var hsv = new HSV(e.NewColor);
+        //            hsv.Value = hsv.Value * e.NewBrightness;
+        //            var color = hsv.Color;
+
+        //            if (System.Threading.Monitor.TryEnter(lockObject))
+        //            {
+        //                try
+        //                {
+        //                    PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
+        //                }
+        //                finally
+        //                {
+        //                    System.Threading.Monitor.Exit(lockObject);
+        //                }
+        //            }
+        //            else
+        //                log.Warn("Missed PixelChanged in PixelRope");
+        //        };
+
+        //    logicalDevice.MultiPixelChanged += (sender, e) =>
+        //        {
+        //            var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
+        //            for (int i = 0; i < e.NewValues.Length; i++)
+        //            {
+        //                var hsv = new HSV(e.NewValues[i].Color);
+        //                hsv.Value = hsv.Value * e.NewValues[i].Brightness;
+        //                var color = hsv.Color;
+
+        //                values[i] = new PixelRGBByte(color.R, color.G, color.B);
+        //            }
+
+        //            if (System.Threading.Monitor.TryEnter(lockObject))
+        //            {
+        //                try
+        //                {
+        //                    PixelOutputPort.SendPixelsValue(e.StartChannel, values);
+        //                }
+        //                finally
+        //                {
+        //                    System.Threading.Monitor.Exit(lockObject);
+        //                }
+        //            }
+        //            else
+        //                log.Warn("Missed send to PixelRope");
+        //        };
+        //}
+
+        public PixelRope(VirtualPixel1D2 logicalDevice, int startVirtualPosition, int positions)
             : base(logicalDevice)
         {
-            logicalDevice.PixelChanged += (sender, e) =>
+//            this.pixelData = new ColorBrightness[positions];
+
+            //logicalDevice.OutputData.Subscribe(x =>
+            //{
+            //    SetFromIData(x);
+
+            //    Output();
+            //});
+
+            //SetFromIData(logicalDevice.CurrentData);
+
+
+            logicalDevice.AddPixelDevice(startVirtualPosition, positions, x =>
+            {
+                var values = new PhysicalDevice.PixelRGBByte[x.Length];
+
+                for (int i = 0; i < x.Length; i++)
                 {
-                    // Handles brightness as well
+                    var color = x[i];
 
-                    var hsv = new HSV(e.NewColor);
-                    hsv.Value = hsv.Value * e.NewBrightness;
-                    var color = hsv.Color;
+                    values[i] = new PixelRGBByte(color.R, color.G, color.B);
+                }
 
-                    if (System.Threading.Monitor.TryEnter(lockObject))
-                    {
-                        try
-                        {
-                            PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
-                        }
-                        finally
-                        {
-                            System.Threading.Monitor.Exit(lockObject);
-                        }
-                    }
-                    else
-                        log.Warn("Missed PixelChanged in PixelRope");
-                };
-
-            logicalDevice.MultiPixelChanged += (sender, e) =>
+                lock (this.lockObject)
                 {
-                    var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
-                    for (int i = 0; i < e.NewValues.Length; i++)
-                    {
-                        var hsv = new HSV(e.NewValues[i].Color);
-                        hsv.Value = hsv.Value * e.NewValues[i].Brightness;
-                        var color = hsv.Color;
+                    PixelOutputPort.SendPixelsValue(0, values);
+                }
+            });
+            //logicalDevice.AddPixelDevice(startVirtualPosition, positions, (sender, e) =>
+            //    {
+            //        // Handles brightness as well
+            //        var color = BaseLight.GetColorFromColorBrightness(e.NewColor, e.NewBrightness);
 
-                        values[i] = new PixelRGBByte(color.R, color.G, color.B);
-                    }
+            //        lock (this.lockObject)
+            //        {
+            //            PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
+            //        }
+            //    }, (sender, e) =>
+            //    {
+            //        var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
+            //        for (int i = 0; i < e.NewValues.Length; i++)
+            //        {
+            //            var color = BaseLight.GetColorFromColorBrightness(e.NewValues[i].Color, e.NewValues[i].Brightness);
 
-                    if (System.Threading.Monitor.TryEnter(lockObject))
-                    {
-                        try
-                        {
-                            PixelOutputPort.SendPixelsValue(e.StartChannel, values);
-                        }
-                        finally
-                        {
-                            System.Threading.Monitor.Exit(lockObject);
-                        }
-                    }
-                    else
-                        log.Warn("Missed send to PixelRope");
-                };
+            //            values[i] = new PixelRGBByte(color.R, color.G, color.B);
+            //        }
+
+            //        lock (this.lockObject)
+            //        {
+            //            PixelOutputPort.SendPixelsValue(e.StartChannel, values);
+            //        }
+            //    });
         }
 
-        protected System.Drawing.Color GetColorFromColorBrightness(System.Drawing.Color color, double brightness)
-        {
-            var hsv = new HSV(color);
+        //public override void SetInitialState()
+        //{
+        //    base.SetInitialState();
 
-            double whiteOut = Executor.Current.Whiteout.Value;
+        //    //Output();
+        //}
 
-            // Adjust brightness
-            double adjustedValue = (hsv.Value * brightness) + whiteOut;
+        //private void SetFromIData(IData data)
+        //{
+        //    object value;
 
-            // Adjust for WhiteOut
-            HSV baseHsv;
-            if (brightness == 0 && whiteOut > 0)
-                // Base it on black instead
-                baseHsv = HSV.Black;
-            else
-                baseHsv = hsv;
+        //    if (data.TryGetValue(DataElements.PixelBrightness, out value))
+        //    {
+        //        double[] pixelBrightness = (double[])value;
+        //        for (int i = 0; i < Math.Min(this.pixelData.Length, pixelBrightness.Length); i++)
+        //            this.pixelData[i].Brightness = pixelBrightness[i];
+        //    }
 
-            hsv.Hue = baseHsv.Hue + (HSV.White.Hue - baseHsv.Hue) * whiteOut;
-            hsv.Saturation = baseHsv.Saturation + (HSV.White.Saturation - baseHsv.Saturation) * whiteOut;
-            hsv.Value = adjustedValue.Limit(0, 1) * (1 - Executor.Current.Blackout.Value);
-
-            return hsv.Color;
-        }
-
-        public PixelRope(VirtualPixel1D logicalDevice, int startVirtualPosition, int positions)
-            : base(logicalDevice)
-        {
-            logicalDevice.AddPixelDevice(startVirtualPosition, positions, (sender, e) =>
-                {
-                    // Handles brightness as well
-                    var color = GetColorFromColorBrightness(e.NewColor, e.NewBrightness);
-
-                    lock (this.lockObject)
-                    {
-                        PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
-                    }
-                }, (sender, e) =>
-                {
-                    var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
-                    for (int i = 0; i < e.NewValues.Length; i++)
-                    {
-                        var color = GetColorFromColorBrightness(e.NewValues[i].Color, e.NewValues[i].Brightness);
-
-                        values[i] = new PixelRGBByte(color.R, color.G, color.B);
-                    }
-
-                    lock (this.lockObject)
-                    {
-                        PixelOutputPort.SendPixelsValue(e.StartChannel, values);
-                    }
-                });
-        }
+        //    if (data.TryGetValue(DataElements.PixelColor, out value))
+        //    {
+        //        Color[] pixelColor = (Color[])value;
+        //        for (int i = 0; i < Math.Min(this.pixelData.Length, pixelColor.Length); i++)
+        //            this.pixelData[i].Color = pixelColor[i];
+        //    }
+        //}
     }
 }

@@ -181,11 +181,12 @@
     <Compile Include="LogicalDevice\DigitalOutput2.cs" />
     <Compile Include="LogicalDevice\MovingHead.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer3.cs" />
+    <Compile Include="LogicalDevice\VirtualPixel1D2.cs" />
     <Compile Include="LogicalDevice\VirtualPixel2D.cs" />
-    <Compile Include="LogicalDevice\VirtualPixel1D.cs" />
+    <None Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
     <Compile Include="LogicalDevice\Event\PixelChanged.cs" />
-    <Compile Include="LogicalDevice\Pixel1D.cs" />
+    <None Include="LogicalDevice\Pixel1D.cs" />
     <Compile Include="LogicalDevice\Event\OpenHoursChanged.cs" />
     <Compile Include="Import\BaseImporter.cs" />
     <Compile Include="PhysicalDevice\AnalogInput.cs" />
@@ -233,7 +234,7 @@
     <Compile Include="LogicalDevice\Event\StateChanged.cs" />
     <Compile Include="LogicalDevice\Event\StrobeSpeedChanged.cs" />
     <Compile Include="LogicalDevice\Interface\IStrobe.cs" />
-    <Compile Include="LogicalDevice\Interface\IOutput.cs" />
+    <None Include="LogicalDevice\Interface\IOutput.cs" />
     <Compile Include="Utility\Extensions.cs" />
     <Compile Include="PhysicalDevice\AmericanDJStrobe.cs" />
     <Compile Include="PhysicalDevice\Motor.cs" />

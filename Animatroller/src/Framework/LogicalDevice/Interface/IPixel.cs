@@ -16,6 +16,11 @@ namespace Animatroller.Framework.LogicalDevice
         event EventHandler<MultiPixelChangedEventArgs> MultiPixelChanged;
     }
 
+    public interface IPixel1D2 : ISendsData
+    {
+        int Pixels { get; }
+    }
+
     public interface IPixel2D : ILogicalDevice
     {
         int PixelWidth { get; }

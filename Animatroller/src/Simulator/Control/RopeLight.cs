@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Simulator.Control
 {
@@ -25,7 +26,7 @@ namespace Animatroller.Simulator.Control
             get { return pixels; }
             set
             {
-                if(value < 1)
+                if (value < 1)
                     throw new ArgumentOutOfRangeException();
 
                 this.pixels = value;
@@ -36,7 +37,7 @@ namespace Animatroller.Simulator.Control
                 tableLayoutPanel.ColumnStyles.Clear();
                 int lastX = 0;
                 float counter = 0;
-                for(int i = 0; i < this.colors.Length; i++)
+                for (int i = 0; i < this.colors.Length; i++)
                 {
                     counter += ((float)tableLayoutPanel.Width / this.pixels);
                     tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, (int)(counter - lastX)));
@@ -71,9 +72,23 @@ namespace Animatroller.Simulator.Control
             tableLayoutPanel.Invalidate();
         }
 
+        public void SetPixels(int startChannel, ColorBrightness[] pixelData)
+        {
+            for (int i = 0; i < pixelData.Length; i++)
+            {
+                int channel = i + startChannel;
+                if (channel < 0 || channel >= this.colors.Length)
+                    continue;
+
+                this.colors[channel] = Framework.PhysicalDevice.BaseLight.GetColorFromColorBrightness(pixelData[i]);
+            }
+
+            tableLayoutPanel.Invalidate();
+        }
+
         private void tableLayoutPanel_CellPaint(object sender, TableLayoutCellPaintEventArgs e)
         {
-            if(e.Column >= 0 && e.Column < this.colors.Length)
+            if (e.Column >= 0 && e.Column < this.colors.Length)
             {
                 var rect = new Rectangle(e.CellBounds.Location, new Size(e.CellBounds.Width, e.CellBounds.Height));
 

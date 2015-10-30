@@ -17,7 +17,7 @@ namespace Animatroller.SceneRunner
 
         ColorDimmer3 lightA = new ColorDimmer3();
         ColorDimmer3 lightB = new ColorDimmer3();
-        VirtualPixel1D pixelsRoofEdge = new VirtualPixel1D(150);
+        VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
 
         GroupDimmer lightGroup = new GroupDimmer();
 
@@ -43,17 +43,20 @@ namespace Animatroller.SceneRunner
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 10), 20);
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 26, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 25, 1);
 
             testLightA.ConnectTo(x => lightA.SetBrightness(x));
+            testLightA.ConnectTo(x => pixelsRoofEdge.SetBrightness(x));
             testLightB.ConnectTo(x => lightB.SetBrightness(x));
 
             lightA.SetColor(Color.Red, null);
             lightB.SetColor(Color.Blue, null);
 
-            pixelsRoofEdge.SetAll(Color.Green, 0.6);
+            pixelsRoofEdge.SetColor(Color.Green, 0.6);
 
             popOut.ConnectTo(lightA);
-            //            popOut.ConnectTo(pixelsRoofEdge);
+            popOut.ConnectTo(pixelsRoofEdge);
 
             sub
                 .LockWhenRunning(lightA, lightB)
@@ -112,7 +115,7 @@ namespace Animatroller.SceneRunner
                 {
                     log.Info("Button 3 pressed!");
 
-                    popOut.Pop(color: Color.Purple, sweepDuration: S(5));
+                    popOut.Pop(color: Color.Purple, sweepDuration: S(2));
 
                     Thread.Sleep(500);
 

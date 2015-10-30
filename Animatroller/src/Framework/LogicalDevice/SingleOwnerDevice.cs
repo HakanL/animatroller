@@ -24,9 +24,15 @@ namespace Animatroller.Framework.LogicalDevice
 
             this.outputData.Subscribe(x =>
             {
+                PreprocessPushData(x);
+
                 foreach (var kvp in x)
                     this.currentData[kvp.Key] = kvp.Value;
             });
+        }
+
+        protected virtual void PreprocessPushData(IData data)
+        {
         }
 
         public IData CurrentData
@@ -52,7 +58,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushData(token, Tuple.Create(dataElement, value));
         }
 
-        protected void PushData(IControlToken token, params Tuple<DataElements, object>[] values)
+        protected void PushData(IControlToken token, IData data)
         {
             PushDataDelegate pushDelegate;
             if (token != null)
@@ -63,16 +69,20 @@ namespace Animatroller.Framework.LogicalDevice
                     ownerlessData[d] = v;
                 };
 
+            foreach (var kvp in data)
+                pushDelegate(kvp.Key, kvp.Value);
+
+            this.outputData.OnNext(data, token);
+        }
+
+        protected void PushData(IControlToken token, params Tuple<DataElements, object>[] values)
+        {
             var data = new Data();
 
             foreach (var kvp in values)
-            {
                 data[kvp.Item1] = kvp.Item2;
 
-                pushDelegate(kvp.Item1, kvp.Item2);
-            }
-
-            this.outputData.OnNext(data, token);
+            PushData(token, data);
         }
 
         public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")

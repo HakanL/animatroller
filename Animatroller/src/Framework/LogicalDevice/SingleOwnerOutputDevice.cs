@@ -5,7 +5,7 @@ using System.Reactive.Subjects;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public abstract class SingleOwnerOutputDevice : SingleOwnerDevice, IOutput, IHasMasterPower
+    public abstract class SingleOwnerOutputDevice : SingleOwnerDevice, IHasMasterPower
     {
         private bool currentMasterPower;
         protected IObserver<bool> inputMasterPower;

@@ -9,6 +9,8 @@ namespace Animatroller.Framework
         Color,
         StrobeSpeed,
         Pan,
-        Tilt
+        Tilt,
+        PixelBrightness,
+        PixelColor
     }
 }

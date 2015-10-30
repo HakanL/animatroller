@@ -70,12 +70,12 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer3)fieldValue));
                 else if (field.FieldType == typeof(MovingHead))
                     this.Connect(new Animatroller.Simulator.TestLight((MovingHead)fieldValue));
-                else if (field.FieldType == typeof(Pixel1D))
-                    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
-                else if (field.FieldType == typeof(Pixel1D))
-                    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
-                else if (field.FieldType == typeof(VirtualPixel1D))
-                    this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D)fieldValue));
+                //else if (field.FieldType == typeof(Pixel1D))
+                //    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
+                //else if (field.FieldType == typeof(Pixel1D))
+                //    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
+                else if (field.FieldType == typeof(VirtualPixel1D2))
+                    this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D2)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel2D))
                     this.Connect(new Animatroller.Simulator.TestPixel2D((VirtualPixel2D)fieldValue));
                 else if (field.FieldType == typeof(AnalogInput3))

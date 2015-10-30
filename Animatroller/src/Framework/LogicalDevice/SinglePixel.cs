@@ -10,18 +10,18 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class SinglePixel : IOutput, ILogicalDevice, IOwner, IHasBrightnessControl, IHasColorControl, IHasControlledDevice
+    public class SinglePixel : ILogicalDevice, IOwner, IHasBrightnessControl, IHasColorControl, IHasControlledDevice
     {
         protected object lockObject = new object();
         protected string name;
         protected IOwner owner;
-        protected VirtualPixel1D pixelDevice;
+        protected VirtualPixel1D2 pixelDevice;
         protected int position;
 
         protected Effect.MasterSweeper.Job effectJob;
 
 
-        public SinglePixel(string name, VirtualPixel1D pixelDevice, int position)
+        public SinglePixel(string name, VirtualPixel1D2 pixelDevice, int position)
         {
             this.name = name;
             this.pixelDevice = pixelDevice;
@@ -41,7 +41,11 @@ namespace Animatroller.Framework.LogicalDevice
 
         public IControlledDevice ControlledDevice
         {
-            get { return this.pixelDevice; }
+            get
+            { //return this.pixelDevice; 
+                //FIXME
+                throw new NotImplementedException();
+            }
         }
 
         public double Brightness

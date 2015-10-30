@@ -10,7 +10,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class Pixel1D : IPixel1D, IOutput, ILogicalDevice, IHasBrightnessControl, IOwner
+    public class Pixel1D : IPixel1D, ILogicalDevice, IHasBrightnessControl, IOwner
     {
         protected object lockObject = new object();
         protected string name;

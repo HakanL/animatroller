@@ -39,7 +39,7 @@ namespace Animatroller.Framework
         void SetPanTilt(double pan, double tilt, IControlToken token);
     }
 
-    public interface ISendsData
+    public interface ISendsData : ILogicalDevice
     {
         IObservable<IData> OutputData { get; }
 
@@ -50,6 +50,7 @@ namespace Animatroller.Framework
     {
     }
 
+    [Obsolete]
     public interface IOwner
     {
         string Name { get; }
