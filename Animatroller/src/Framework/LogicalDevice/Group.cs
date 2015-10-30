@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Animatroller.Framework.LogicalDevice
 {
     public abstract class Group<T> : BaseDevice, IOwnedDevice where T : IReceivesData
     {
-        protected GroupControlToken currentOwner;
+        protected IControlToken currentOwner;
         protected List<T> members;
-        protected Stack<GroupControlToken> owners;
+        protected List<IControlToken> owners;
 
         public Group([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.members = new List<T>();
-            //TODO: Change to list instead of stack, like we do in SingleOwnerDevice
-            this.owners = new Stack<GroupControlToken>();
+            this.owners = new List<IControlToken>();
         }
 
         public void Add(params T[] devices)
@@ -54,62 +54,60 @@ namespace Animatroller.Framework.LogicalDevice
             return new ControlledObserverData(token, groupObserver);
         }
 
-        //protected IControlToken GetCurrentOrNewToken(out bool ownsToken)
-        //{
-        //    var controlToken = Executor.Current.GetControlToken(this);
-
-        //    if (controlToken == null)
-        //    {
-        //        controlToken = TakeControl();
-        //        ownsToken = true;
-        //    }
-        //    else
-        //        ownsToken = false;
-
-        //    return controlToken;
-        //}
-
         public IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this.members)
             {
-                if (currentOwner != null && priority <= this.currentOwner.Priority)
-                    // Already owned (by us or someone else)
-                    return ControlledDevice.Empty;
-
                 var memberTokens = new Dictionary<IOwnedDevice, IControlToken>();
                 foreach (var device in this.members)
                     memberTokens.Add(device, device.TakeControl(priority, name));
 
-                var newOwner = new GroupControlToken(
+                var ownerCandidate = new GroupControlToken(
                     memberTokens,
-                    () =>
+                    true,
+                    cToken =>
                     {
+                        IControlToken nextOwner;
+
                         lock (this.members)
                         {
-                            if (this.owners.Count > 0)
-                            {
-                                this.currentOwner = this.owners.Pop();
-                            }
-                            else
-                                this.currentOwner = null;
+                            this.owners.Remove(cToken);
 
-                            Executor.Current.SetControlToken(this, this.currentOwner);
+                            nextOwner = this.owners.LastOrDefault();
+
+                            this.currentOwner = nextOwner;
+
+                            Executor.Current.SetControlToken(this, nextOwner);
                         }
-
-                        foreach (var token in memberTokens)
-                            token.Value.Dispose();
                     },
                     priority);
 
-                // Push current owner
-                this.owners.Push(this.currentOwner);
+                // Insert new owner
+                lock (this)
+                {
+                    int pos = -1;
+                    for (int i = 0; i < this.owners.Count; i++)
+                    {
+                        if (this.owners[i].Priority < priority)
+                            continue;
+
+                        pos = i;
+                        break;
+                    }
+                    if (pos == -1)
+                        this.owners.Add(ownerCandidate);
+                    else
+                        this.owners.Insert(pos, ownerCandidate);
+                }
+
+                // Grab the owner with the highest priority (doesn't have to be the candidate)
+                var newOwner = this.owners.Last();
 
                 this.currentOwner = newOwner;
 
                 Executor.Current.SetControlToken(this, newOwner);
 
-                return this.currentOwner;
+                return ownerCandidate;
             }
         }
 

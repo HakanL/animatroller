@@ -8,7 +8,6 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class ControlledDevice : IControlTokenDevice
     {
-        private static ControlledDevice empty = new ControlledDevice(string.Empty, -1, null);
         private Action<IControlTokenDevice> disposeAction;
         private IData data;
 
@@ -18,14 +17,6 @@ namespace Animatroller.Framework.LogicalDevice
             this.Priority = priority;
             this.disposeAction = dispose;
             this.data = new Data();
-        }
-
-        public static ControlledDevice Empty
-        {
-            get
-            {
-                return empty;
-            }
         }
 
         public void Dispose()

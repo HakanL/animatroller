@@ -84,7 +84,6 @@ namespace Animatroller.Framework.PhysicalDevice
             else
                 baseHsv = hsv;
 
-            hsv.Hue = baseHsv.Hue + (HSV.White.Hue - baseHsv.Hue) * whiteOut;
             hsv.Saturation = baseHsv.Saturation + (HSV.White.Saturation - baseHsv.Saturation) * whiteOut;
             hsv.Value = adjustedValue.Limit(0, 1) * (1 - Executor.Current.Blackout.Value);
 

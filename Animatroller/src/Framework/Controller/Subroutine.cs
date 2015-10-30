@@ -105,9 +105,7 @@ namespace Animatroller.Framework.Controller
                 heldLocks.Add(handleLock, control);
             }
 
-            this.groupControlToken = new GroupControlToken(heldLocks, () =>
-            {
-            }, this.lockPriority);
+            this.groupControlToken = new GroupControlToken(heldLocks, disposeLocks: true, priority: this.lockPriority);
         }
 
         private void Release()

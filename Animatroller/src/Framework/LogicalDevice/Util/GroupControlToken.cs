@@ -9,18 +9,22 @@ namespace Animatroller.Framework.LogicalDevice
     public class GroupControlToken : IControlToken
     {
         internal Dictionary<IOwnedDevice, IControlToken> MemberTokens { get; private set; }
-        private Action disposeAction;
+        private Action<IControlToken> disposeAction;
         private bool ownsTokens;
 
-        public GroupControlToken(Dictionary<IOwnedDevice, IControlToken> memberTokens, Action disposeAction, int priority = 1)
+        public GroupControlToken(
+            Dictionary<IOwnedDevice, IControlToken> memberTokens,
+            bool disposeLocks = false,
+            Action<IControlToken> disposeAction = null,
+            int priority = 1)
         {
             MemberTokens = memberTokens;
             this.disposeAction = disposeAction;
-            this.ownsTokens = false;
+            this.ownsTokens = disposeLocks;
             Priority = priority;
         }
 
-        public GroupControlToken(IEnumerable<IOwnedDevice> devices, Action disposeAction, string name, int priority = 1)
+        public GroupControlToken(IEnumerable<IOwnedDevice> devices, Action<IControlToken> disposeAction, string name, int priority = 1)
         {
             MemberTokens = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var device in devices)
@@ -45,7 +49,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
 
             if (this.disposeAction != null)
-                this.disposeAction();
+                this.disposeAction(this);
         }
 
         public void PushData(DataElements dataElement, object value)
