@@ -5,16 +5,16 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public abstract class Group<T> : BaseDevice, IOwnedDevice where T : IReceivesData
     {
-        protected Util.GroupControlToken currentOwner;
+        protected GroupControlToken currentOwner;
         protected List<T> members;
-        protected Stack<Util.GroupControlToken> owners;
+        protected Stack<GroupControlToken> owners;
 
         public Group([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.members = new List<T>();
             //TODO: Change to list instead of stack, like we do in SingleOwnerDevice
-            this.owners = new Stack<Util.GroupControlToken>();
+            this.owners = new Stack<GroupControlToken>();
         }
 
         public void Add(params T[] devices)
@@ -81,7 +81,7 @@ namespace Animatroller.Framework.LogicalDevice
                 foreach (var device in this.members)
                     memberTokens.Add(device, device.TakeControl(priority, name));
 
-                var newOwner = new Util.GroupControlToken(
+                var newOwner = new GroupControlToken(
                     memberTokens,
                     () =>
                     {
@@ -96,6 +96,9 @@ namespace Animatroller.Framework.LogicalDevice
 
                             Executor.Current.SetControlToken(this, this.currentOwner);
                         }
+
+                        foreach (var token in memberTokens)
+                            token.Value.Dispose();
                     },
                     priority);
 

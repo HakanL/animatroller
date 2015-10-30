@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice;
-using Animatroller.Framework.LogicalDevice.Util;
 using NLog;
 
 namespace Animatroller.Framework.Controller

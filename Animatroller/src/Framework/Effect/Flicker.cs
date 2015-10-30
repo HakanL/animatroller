@@ -14,10 +14,10 @@ namespace Animatroller.Framework.Effect
     {
         protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
         {
-            public IControlToken Token { get; set; }
+            public ControlledObserverData Observer { get; set; }
 
-            public DeviceController(IReceivesBrightness device, int priority)
-                : base(device, priority)
+            public DeviceController(IReceivesBrightness device)
+                : base(device, 0)
             {
             }
         }
@@ -32,6 +32,7 @@ namespace Animatroller.Framework.Effect
         protected ISubject<bool> inputRun;
         private double minBrightness;
         private double maxBrightness;
+        private GroupControlToken token;
 
         public Flicker(double minBrightness = 0.0, double maxBrightness = 1.0, bool startRunning = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -69,11 +70,9 @@ namespace Animatroller.Framework.Effect
                 {
                     foreach (var heldDevice in this.devices)
                     {
-                        // Grab control
-                        var token = heldDevice.Device.TakeControl(priority: heldDevice.Priority, name: Name);
-                        heldDevice.Token = token;
-
-                        var deviceOwner = heldDevice.Device.GetDataObserver(token);
+                        var deviceOwner = heldDevice.Observer;
+                        if (deviceOwner == null)
+                            continue;
 
                         deviceOwner
                             .OnNext(new Data(DataElements.Brightness,
@@ -105,6 +104,21 @@ namespace Animatroller.Framework.Effect
 
         public IEffect Start()
         {
+            return Start(1);
+        }
+
+        public IEffect Start(int priority = 1)
+        {
+            if (this.token == null)
+            {
+                this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, Name, priority);
+
+                foreach (var device in this.devices)
+                {
+                    device.Observer = device.Device.GetDataObserver(this.token);
+                }
+            }
+
             this.timer.Change(TimeSpan.FromMilliseconds(0), TimeSpan.FromMilliseconds(-1));
             this.isRunning = true;
 
@@ -116,17 +130,28 @@ namespace Animatroller.Framework.Effect
             this.isRunning = false;
             this.timer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
-            lock (lockObject)
+            foreach (var device in this.devices)
             {
-                foreach (var heldDevice in this.devices)
-                {
-                    if (heldDevice.Token != null)
-                    {
-                        heldDevice.Token.Dispose();
-                        heldDevice.Token = null;
-                    }
-                }
+                device.Observer = null;
             }
+
+            if (this.token != null)
+            {
+                this.token.Dispose();
+                this.token = null;
+            }
+
+            //lock (lockObject)
+            //{
+            //    foreach (var heldDevice in this.devices)
+            //    {
+            //        if (heldDevice.Token != null)
+            //        {
+            //            heldDevice.Token.Dispose();
+            //            heldDevice.Token = null;
+            //        }
+            //    }
+            //}
 
             return this;
         }
@@ -144,11 +169,11 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        public Flicker ConnectTo(IReceivesBrightness device, int priority = 1)
+        public Flicker ConnectTo(IReceivesBrightness device)
         {
             lock (lockObject)
             {
-                this.devices.Add(new DeviceController(device, priority));
+                this.devices.Add(new DeviceController(device));
             }
 
             return this;

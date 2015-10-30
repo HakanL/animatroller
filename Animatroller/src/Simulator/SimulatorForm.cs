@@ -375,7 +375,7 @@ namespace Animatroller.Simulator
             moduleControl.Text = logicalDevice.Name;
             moduleControl.Size = new System.Drawing.Size(80, 80);
 
-            var control = new TrackBar();
+            var control = new Control.TrackBarAdv();
             moduleControl.ChildControl = control;
             control.Size = new System.Drawing.Size(80, 80);
             control.Maximum = 255;
@@ -398,7 +398,15 @@ namespace Animatroller.Simulator
                 .ObserveOn(SynchronizationContext.Current)
                 .Subscribe(x =>
                 {
-                    control.Value = x.GetByteScale();
+                    control.SuspendChangedEvents = true;
+                    try
+                    {
+                        control.Value = x.GetByteScale();
+                    }
+                    finally
+                    {
+                        control.SuspendChangedEvents = false;
+                    }
                 });
 
             return device;

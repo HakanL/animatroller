@@ -114,6 +114,9 @@
     <Compile Include="Control\StrobeBulb.Designer.cs">
       <DependentUpon>StrobeBulb.cs</DependentUpon>
     </Compile>
+    <Compile Include="Control\TrackBarAdv.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TestPixel2D.cs" />
     <Compile Include="TestPixel1D.cs" />
     <Compile Include="Extensions.cs" />

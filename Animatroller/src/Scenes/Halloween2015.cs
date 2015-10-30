@@ -134,6 +134,7 @@ namespace Animatroller.SceneRunner
             popOut3.ConnectTo(wall3Light);
             popOut4.ConnectTo(wall4Light);
             popOut4.ConnectTo(underGeorge);
+            popOut4.ConnectTo(pixelsRoofEdge);
 
             flickerEffect.ConnectTo(stairs1Light);
             flickerEffect.ConnectTo(stairs2Light);
@@ -254,7 +255,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.AmericanDJStrobe(underGeorge, 100), 1);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
-            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
+//            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
             raspberryCat.DigitalInputs[4].Connect(catMotion, false);
@@ -345,7 +346,7 @@ namespace Animatroller.SceneRunner
                 //popOut1.Pop();
                 //popOut2.Pop();
                 //popOut3.Pop();
-                popOut4.Pop(color: Color.Purple);
+                popOut4.Pop(color: Color.White);
             });
 
             oscServer.RegisterAction<int>("/1/toggle1", (msg, data) =>
