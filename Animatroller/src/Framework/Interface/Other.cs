@@ -7,6 +7,8 @@ namespace Animatroller.Framework
     public interface IReceivesData : IOwnedDevice
     {
         LogicalDevice.ControlledObserverData GetDataObserver(IControlToken token);
+
+        void PushData(IControlToken token, IData data);
     }
 
     public interface IReceivesBrightness : IReceivesData

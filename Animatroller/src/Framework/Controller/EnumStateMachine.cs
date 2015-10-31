@@ -48,6 +48,7 @@ namespace Animatroller.Framework.Controller
         protected T? nextState;
         private Stack<T> momentaryStates;
         private T? backgroundState;
+        private bool isRunning;
 
         public EnumStateMachine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -313,11 +314,29 @@ namespace Animatroller.Framework.Controller
 
         public void Start()
         {
+            this.isRunning = true;
         }
 
         public void Stop()
         {
+            this.isRunning = false;
             InternalHold();
+        }
+
+        public void StopCurrentJob()
+        {
+            InternalHold();
+
+            T? popState = null;
+            lock (lockObject)
+            {
+                if (this.momentaryStates.Any())
+                {
+                    popState = this.momentaryStates.Pop();
+                }
+            }
+            if (popState.HasValue)
+                InternalSetState(popState.Value);
         }
 
         public string Name

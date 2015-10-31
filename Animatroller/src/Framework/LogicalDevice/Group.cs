@@ -9,6 +9,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected IControlToken currentOwner;
         protected List<T> members;
         protected List<IControlToken> owners;
+        protected IControlToken internalLock;
 
         public Group([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
@@ -52,6 +53,25 @@ namespace Animatroller.Framework.LogicalDevice
             });
 
             return new ControlledObserverData(token, groupObserver);
+        }
+
+        public void TakeAndHoldControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            if (this.internalLock != null)
+            {
+                this.internalLock.Dispose();
+            }
+
+            this.internalLock = TakeControl(priority, name);
+        }
+
+        public void ReleaseControl()
+        {
+            if (this.internalLock != null)
+            {
+                this.internalLock.Dispose();
+                this.internalLock = null;
+            }
         }
 
         public IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")

@@ -68,7 +68,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushData(token, Tuple.Create(dataElement, value));
         }
 
-        protected void PushData(IControlToken token, IData data)
+        public void PushData(IControlToken token, IData data)
         {
             PushDataDelegate pushDelegate;
             if (token != null)

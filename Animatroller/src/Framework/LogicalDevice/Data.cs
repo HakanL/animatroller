@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    internal class Data : Dictionary<DataElements, object>, IData
+    public class Data : Dictionary<DataElements, object>, IData
     {
         public Data()
         {
