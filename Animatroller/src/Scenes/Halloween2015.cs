@@ -673,7 +673,7 @@ namespace Animatroller.SceneRunner
             {
                 touchOSC.Send("/1/led2", x ? 1 : 0);
 
-                if (x)
+                if (x && hoursSmall.IsOpen)
                     subFirst.Run();
             });
 
@@ -681,14 +681,14 @@ namespace Animatroller.SceneRunner
             {
                 touchOSC.Send("/1/led3", x ? 1 : 0);
 
-                if (x)
+                if (x && hoursSmall.IsOpen)
                     subFinal.Run();
             });
 
             motion2.Output.Subscribe(x =>
             {
-                if (x && hoursSmall.IsOpen)
-                    Executor.Current.Execute(motionSeq);
+                //if (x && hoursSmall.IsOpen)
+                //    Executor.Current.Execute(motionSeq);
 
                 touchOSC.Send("/1/led4", x ? 1 : 0);
             });
@@ -718,7 +718,7 @@ namespace Animatroller.SceneRunner
                     i.WaitFor(S(2.0));
                     dropSpiderEyes.Value = false;
                     spiderLight.SetBrightness(0.0, i.Token);
-                    switch(random.Next(4))
+                    switch (random.Next(4))
                     {
                         case 0:
                             video3dfx.PlayVideo("PHA_Wraith_StartleScare_3DFX_H.mp4");
@@ -769,22 +769,22 @@ namespace Animatroller.SceneRunner
                     underGeorge.SetStrobeSpeed(0.0, i.Token);
                     underGeorge.SetBrightness(0.0, i.Token);
 
-//                    popper.Value = true;
+                    //                    popper.Value = true;
                     i.WaitFor(S(2));
                     video2.PlayVideo("Beauty_Startler_TVHolo_Hor_HD.mp4");
                     i.WaitFor(S(1));
-//                    popper.Value = false;
+                    //                    popper.Value = false;
 
                     i.WaitFor(S(8));
 
                     Exec.MasterEffect.Fade(underGeorge, 0.5, 0.0, 1000, token: i.Token);
-//                    underGeorge.SetBrightness(0.3, i.Token);
+                    //                    underGeorge.SetBrightness(0.3, i.Token);
                     i.WaitFor(S(0.5));
                     george2.Value = true;
                     i.WaitFor(S(1.0));
                     george2.Value = false;
                     i.WaitFor(S(1.0));
-//                    underGeorge.SetBrightness(0.0, i.Token);
+                    //                    underGeorge.SetBrightness(0.0, i.Token);
                 })
                 .TearDown(() =>
                 {
@@ -842,7 +842,7 @@ namespace Animatroller.SceneRunner
                 {
                     //video2.PlayVideo("DancingDead_Wall_HD.mp4");
 
-                    instance.WaitFor(S(10));
+                    //                    instance.WaitFor(S(10));
                 })
                 .TearDown(() =>
                 {
