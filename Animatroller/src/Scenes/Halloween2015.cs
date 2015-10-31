@@ -25,17 +25,20 @@ namespace Animatroller.SceneRunner
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioMain = new AudioPlayer();
+        private AudioPlayer audioEeebox = new AudioPlayer();
         private AudioPlayer audioPop = new AudioPlayer();
         private AudioPlayer audioDIN = new AudioPlayer();
         private VideoPlayer video3dfx = new VideoPlayer();
         private VideoPlayer video2 = new VideoPlayer();
         private Expander.Raspberry raspberryCat = new Expander.Raspberry("192.168.240.115:5005", 3333);
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
+        private Expander.Raspberry monoExpanderEeebox = new Expander.Raspberry("192.168.240.237:5005", 3338);
         private Expander.Raspberry raspberryLocal = new Expander.Raspberry("127.0.0.1:5005", 3339);
         private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
         private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
+        private Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         private VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
         private AnalogInput3 faderR = new AnalogInput3(persistState: true);
@@ -48,12 +51,15 @@ namespace Animatroller.SceneRunner
         private AnalogInput3 inputH = new AnalogInput3(true, "Hue");
         private AnalogInput3 inputS = new AnalogInput3(true, "Saturation");
 
+        Controller.Subroutine subFinal = new Controller.Subroutine();
+        Controller.Subroutine subFirst = new Controller.Subroutine();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
 
-        private IControlToken testToken = null;
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
+        private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        private Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
         private Effect.PopOut2 popOut1 = new Effect.PopOut2(S(0.3));
         private Effect.PopOut2 popOut2 = new Effect.PopOut2(S(0.3));
         private Effect.PopOut2 popOut3 = new Effect.PopOut2(S(0.5));
@@ -65,9 +71,9 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 firstBeam = new DigitalInput2();
         private DigitalInput2 finalBeam = new DigitalInput2();
         private DigitalInput2 motion2 = new DigitalInput2();
-        private Expander.AcnStream acnOutput = new Expander.AcnStream();
         private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
         private DigitalOutput2 fog = new DigitalOutput2();
+        private DateTime? lastFogRun = DateTime.Now;
         private DigitalOutput2 candyEyes = new DigitalOutput2();
         private DigitalOutput2 catLights = new DigitalOutput2();
         private DigitalOutput2 george1 = new DigitalOutput2();
@@ -84,9 +90,9 @@ namespace Animatroller.SceneRunner
         private StrobeColorDimmer3 wall4Light = new StrobeColorDimmer3("Wall 4");
         private Dimmer3 stairs1Light = new Dimmer3("Stairs 1");
         private Dimmer3 stairs2Light = new Dimmer3("Stairs 2");
+        private Dimmer3 treeGhosts = new Dimmer3();
         private StrobeDimmer3 underGeorge = new StrobeDimmer3("ADJ Flash");
         private StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
-        private StrobeColorDimmer3 testLight1 = new StrobeColorDimmer3("Test 1");
 
         private Controller.Sequence catSeq = new Controller.Sequence();
         private Controller.Sequence welcomeSeq = new Controller.Sequence();
@@ -123,35 +129,54 @@ namespace Animatroller.SceneRunner
             hoursSmall.Output.Subscribe(x =>
             {
                 if (x)
+                {
                     flickerEffect.Start();
+                    treeGhosts.SetBrightness(1.0);
+                }
                 else
+                {
                     flickerEffect.Stop();
+                    treeGhosts.SetBrightness(0.0);
+                }
                 SetPixelColor();
             });
 
             popOut1.ConnectTo(wall1Light);
+            popOut1.ConnectTo(wall4Light);
             popOut2.ConnectTo(wall2Light);
             popOut3.ConnectTo(wall3Light);
+            popOut4.ConnectTo(wall1Light);
+            popOut4.ConnectTo(wall2Light);
             popOut4.ConnectTo(wall4Light);
             popOut4.ConnectTo(underGeorge);
             popOut4.ConnectTo(pixelsRoofEdge);
+            popOut4.ConnectTo(pinSpot);
+
+            underGeorge.OutputData.Subscribe(x =>
+            {
+
+            }, x =>
+            {
+            });
 
             flickerEffect.ConnectTo(stairs1Light);
             flickerEffect.ConnectTo(stairs2Light);
+            pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
+            pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
             inputBrightness.Output.Subscribe(x =>
             {
-                testLight1.SetBrightness(x);
+                //                testLight1.SetBrightness(x);
             });
 
             inputH.WhenOutputChanges(x =>
             {
-                testLight1.SetColor(HSV.ColorFromHSV(x.GetByteScale(), inputS.Value, 1.0));
+                //                testLight1.SetColor(HSV.ColorFromHSV(x.GetByteScale(), inputS.Value, 1.0));
             });
 
             inputS.Output.Subscribe(x =>
             {
-                testLight1.SetColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x, 1.0));
+                //                testLight1.SetColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x, 1.0));
             });
 
             midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
@@ -165,6 +190,7 @@ namespace Animatroller.SceneRunner
                 {
                     case "Thunder1.wav":
                         timelineThunder1.Start();
+                        audioEeebox.PlayEffect("scream.wav");
                         break;
 
                     case "Thunder2.wav":
@@ -177,10 +203,12 @@ namespace Animatroller.SceneRunner
 
                     case "Thunder4.wav":
                         timelineThunder4.Start();
+                        audioEeebox.PlayEffect("424 Coyote Howling.wav");
                         break;
 
                     case "Thunder5.wav":
                         timelineThunder5.Start();
+                        audioEeebox.PlayEffect("sixthsense-deadpeople.wav");
                         break;
 
                     case "Thunder6.wav":
@@ -252,10 +280,11 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.RGBStrobe(wall4Light, 80), 1);
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 50), 1);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 51), 1);
+            acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), 1);
             acnOutput.Connect(new Physical.AmericanDJStrobe(underGeorge, 100), 1);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
-//            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
+            //            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
             raspberryCat.DigitalInputs[4].Connect(catMotion, false);
@@ -264,6 +293,7 @@ namespace Animatroller.SceneRunner
             raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
             raspberryCat.Connect(audioCat);
             raspberryLocal.Connect(audioMain);
+            monoExpanderEeebox.Connect(audioEeebox);
             raspberry3dfx.Connect(video3dfx);
             raspberryVideo2.Connect(video2);
             raspberryPop.Connect(audioPop);
@@ -278,6 +308,56 @@ namespace Animatroller.SceneRunner
 
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), 1);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 11), 1);
+
+            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("sixthsense-deadpeople.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/6/2", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/6/3", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("424 Coyote Howling.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/6/4", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/6/5", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("242004__junkfood2121__fart-01.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/5/1", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("death-scream.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/5/2", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("scream.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/5/3", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("door-creak.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/5/4", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("violin screech.wav");
+            });
+
+            oscServer.RegisterAction<int>("/3/multipush1/5/5", d => d.First() != 0, (msg, data) =>
+            {
+                audioEeebox.PlayEffect("gollum_precious1.wav");
+            });
 
             oscServer.RegisterAction<int>("/1/push1", d => d.First() != 0, (msg, data) =>
             {
@@ -360,31 +440,22 @@ namespace Animatroller.SceneRunner
 
             oscServer.RegisterAction<int>("/1/toggle2", (msg, data) =>
             {
-                underGeorge.SetBrightness(data.First());
+                pinSpot.SetBrightness(data.First());
             });
 
             oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
             {
                 if (data.First() != 0)
-                    flickerEffect.Start();
+                    audioEeebox.PlayBackground();
                 else
-                    flickerEffect.Stop();
+                    audioEeebox.PauseBackground();
             });
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
             {
+                //                treeGhosts.SetBrightness(data.First() != 0 ? 1.0 : 0.0);
                 if (data.First() != 0)
-                {
-                    testToken = stairs1Light.TakeControl(5);
-                }
-                else
-                {
-                    if (testToken != null)
-                    {
-                        testToken.Dispose();
-                        testToken = null;
-                    }
-                }
+                    popOut4.Pop(1.0);
             });
 
             oscServer.RegisterAction<int>("/1/push14", (msg, data) =>
@@ -404,7 +475,7 @@ namespace Animatroller.SceneRunner
 
             oscServer.RegisterAction<int>("/1/push20", d => d.First() != 0, (msg, data) =>
             {
-                video3dfx.PlayVideo("PHA_Siren_ComeHither_3DFX_H.mp4");
+                video3dfx.PlayVideo("PHA_Wraith_StartleScare_3DFX_H.mp4");
             });
 
             oscServer.RegisterAction<int>("/1/push21", d => d.First() != 0, (msg, data) =>
@@ -413,19 +484,97 @@ namespace Animatroller.SceneRunner
                 video2.PlayVideo("Beauty_Startler_TVHolo_Hor_HD.mp4");
             });
 
-            oscServer.RegisterAction<int>("/1/push22", d => d.First() != 0, (msg, data) =>
+            oscServer.RegisterAction<int>("/4/multipush2/5/1", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("Beauty_Startler_TVHolo_Hor_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/5/2", d => d.First() != 0, (msg, data) =>
+            {
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/5/3", d => d.First() != 0, (msg, data) =>
+            {
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/5/4", d => d.First() != 0, (msg, data) =>
             {
                 video2.PlayVideo("FearTheReaper_Door_Horz_HD.mp4");
             });
 
-            oscServer.RegisterAction<int>("/1/push23", d => d.First() != 0, (msg, data) =>
+            oscServer.RegisterAction<int>("/4/multipush2/4/1", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("GatheringGhouls_Door_Horz_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/4/2", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("Girl_Startler_TVHolo_Hor_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/4/3", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("HeadOfHouse_Startler_TVHolo_Hor_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/4/4", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("JitteryBones_Door_Horz_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/3/1", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("PHA_Poltergeist_StartleScare_Holl_H.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/3/2", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("PHA_Siren_StartleScare_Holl_H.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/3/3", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("PHA_Spinster_StartleScare_Holl_H.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/3/4", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("PHA_Wraith_StartleScare_Holl_H.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/2/1", d => d.First() != 0, (msg, data) =>
+            {
+                video2.PlayVideo("PopUpPanic_Door_Horz_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/2/2", d => d.First() != 0, (msg, data) =>
             {
                 video2.PlayVideo("SkeletonSurprise_Door_Horz_HD.mp4");
             });
 
-            oscServer.RegisterAction<int>("/1/push24", d => d.First() != 0, (msg, data) =>
+            oscServer.RegisterAction<int>("/4/multipush2/2/3", d => d.First() != 0, (msg, data) =>
             {
-                video2.PlayVideo("DancingDead_Wall_HD.mp4");
+                video2.PlayVideo("Wraith_Startler_TVHolo_Hor_HD.mp4");
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/2/4", d => d.First() != 0, (msg, data) =>
+            {
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/1/1", d => d.First() != 0, (msg, data) =>
+            {
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/1/2", d => d.First() != 0, (msg, data) =>
+            {
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/1/3", d => d.First() != 0, (msg, data) =>
+            {
+            });
+
+            oscServer.RegisterAction<int>("/4/multipush2/1/4", d => d.First() != 0, (msg, data) =>
+            {
             });
 
 
@@ -524,13 +673,16 @@ namespace Animatroller.SceneRunner
             {
                 touchOSC.Send("/1/led2", x ? 1 : 0);
 
-                //if (x)
-                //    Executor.Current.Execute(welcomeSeq);
+                if (x)
+                    subFirst.Run();
             });
 
             finalBeam.Output.Subscribe(x =>
             {
                 touchOSC.Send("/1/led3", x ? 1 : 0);
+
+                if (x)
+                    subFinal.Run();
             });
 
             motion2.Output.Subscribe(x =>
@@ -549,48 +701,141 @@ namespace Animatroller.SceneRunner
                     i.WaitFor(S(3));
                 });
 
-            catSeq.WhenExecuted
-                .Execute(instance =>
+            subFirst
+                .LockWhenRunning(10, spiderLight)
+                .RunAction(i =>
                 {
-                    var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
+                    fog.Value = true;
+                    this.lastFogRun = DateTime.Now;
+                    pulsatingEffect2.Start();
+                    i.WaitFor(S(2.0));
 
-                    catLights.Value = true;
+                    spiderLight.SetColor(Color.Red, token: i.Token);
+                    dropSpiderEyes.Value = true;
+                    spiderCeilingDrop.Value = true;
+                    audioPop.PlayEffect("348 Spider Hiss.wav", 1.0, 0.0);
 
-                    while (true)
+                    i.WaitFor(S(2.0));
+                    dropSpiderEyes.Value = false;
+                    spiderLight.SetBrightness(0.0, i.Token);
+                    switch(random.Next(4))
                     {
-                        switch (random.Next(4))
-                        {
-                            case 0:
-                                audioCat.PlayEffect("266 Monster Growl 7", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(2.0));
-                                break;
-                            case 1:
-                                audioCat.PlayEffect("285 Monster Snarl 2", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(3.0));
-                                break;
-                            case 2:
-                                audioCat.PlayEffect("286 Monster Snarl 3", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(2.5));
-                                break;
-                            case 3:
-                                audioCat.PlayEffect("287 Monster Snarl 4", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(1.5));
-                                break;
-                            default:
-                                instance.WaitFor(TimeSpan.FromSeconds(3.0));
-                                break;
-                        }
+                        case 0:
+                            video3dfx.PlayVideo("PHA_Wraith_StartleScare_3DFX_H.mp4");
+                            break;
 
-                        instance.CancelToken.ThrowIfCancellationRequested();
+                        case 1:
+                            video3dfx.PlayVideo("PHA_Spinster_StartleScare_3DFX_H.mp4");
+                            break;
 
-                        if (maxRuntime.Elapsed.TotalSeconds > 10)
+                        case 2:
+                            video3dfx.PlayVideo("PHA_Siren_StartleScare_3DFX_H.mp4");
+                            break;
+
+                        case 3:
+                            video3dfx.PlayVideo("PHA_Poltergeist_StartleScare_3DFX_H.mp4");
                             break;
                     }
+                    fog.Value = false;
+                    i.WaitFor(S(2.0));
+                    spiderCeilingDrop.Value = false;
+                    i.WaitFor(S(3.0));
                 })
                 .TearDown(() =>
                 {
-                    catLights.Value = false;
+                    pulsatingEffect2.Stop();
+                    Thread.Sleep(S(5));
                 });
+
+            subFinal
+                .LockWhenRunning(10, candyEyes, underGeorge)
+                .RunAction(i =>
+                {
+                    pulsatingEffect2.Stop();
+                    pulsatingEffect1.Start();
+                    candyEyes.Value = true;
+                    underGeorge.SetStrobeSpeed(0.5, i.Token);
+                    underGeorge.SetBrightness(1.0, i.Token);
+                    audioPop.PlayEffect("laugh.wav", 1.0, 0.0);
+                    for (int r = 0; r < 2; r++)
+                    {
+                        george1.Value = true;
+                        i.WaitFor(S(0.2));
+                        george1.Value = false;
+                        i.WaitFor(S(0.2));
+                    }
+                    i.WaitFor(S(1));
+                    audioDIN.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+                    underGeorge.SetStrobeSpeed(0.0, i.Token);
+                    underGeorge.SetBrightness(0.0, i.Token);
+
+//                    popper.Value = true;
+                    i.WaitFor(S(2));
+                    video2.PlayVideo("Beauty_Startler_TVHolo_Hor_HD.mp4");
+                    i.WaitFor(S(1));
+//                    popper.Value = false;
+
+                    i.WaitFor(S(8));
+
+                    Exec.MasterEffect.Fade(underGeorge, 0.5, 0.0, 1000, token: i.Token);
+//                    underGeorge.SetBrightness(0.3, i.Token);
+                    i.WaitFor(S(0.5));
+                    george2.Value = true;
+                    i.WaitFor(S(1.0));
+                    george2.Value = false;
+                    i.WaitFor(S(1.0));
+//                    underGeorge.SetBrightness(0.0, i.Token);
+                })
+                .TearDown(() =>
+                {
+                    candyEyes.Value = false;
+                    pulsatingEffect1.Stop();
+                    Thread.Sleep(S(3));
+                });
+
+
+            catSeq.WhenExecuted
+        .Execute(instance =>
+        {
+            var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
+
+            catLights.Value = true;
+
+            while (true)
+            {
+                switch (random.Next(4))
+                {
+                    case 0:
+                        audioCat.PlayEffect("266 Monster Growl 7", 1.0, 1.0);
+                        instance.WaitFor(TimeSpan.FromSeconds(2.0));
+                        break;
+                    case 1:
+                        audioCat.PlayEffect("285 Monster Snarl 2", 1.0, 1.0);
+                        instance.WaitFor(TimeSpan.FromSeconds(3.0));
+                        break;
+                    case 2:
+                        audioCat.PlayEffect("286 Monster Snarl 3", 1.0, 1.0);
+                        instance.WaitFor(TimeSpan.FromSeconds(2.5));
+                        break;
+                    case 3:
+                        audioCat.PlayEffect("287 Monster Snarl 4", 1.0, 1.0);
+                        instance.WaitFor(TimeSpan.FromSeconds(1.5));
+                        break;
+                    default:
+                        instance.WaitFor(TimeSpan.FromSeconds(3.0));
+                        break;
+                }
+
+                instance.CancelToken.ThrowIfCancellationRequested();
+
+                if (maxRuntime.Elapsed.TotalSeconds > 10)
+                    break;
+            }
+        })
+        .TearDown(() =>
+        {
+            catLights.Value = false;
+        });
 
             motionSeq.WhenExecuted
                 .Execute(instance =>
@@ -617,13 +862,19 @@ namespace Animatroller.SceneRunner
             {
                 if (hoursSmall.IsOpen)
                 {
-                    pixelsRoofEdge.SetColor(
-                        HSV.ColorFromRGB(0.73333333333333328, 0, 1),
+                    ColorBrightness purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                         0.16470588235294117);
+
+                    pixelsRoofEdge.SetColor(purpleColor.Color, purpleColor.Brightness);
+
+                    wall1Light.SetColor(purpleColor.Color, purpleColor.Brightness);
+                    wall2Light.SetColor(purpleColor.Color, purpleColor.Brightness);
+                    wall3Light.SetColor(purpleColor.Color, purpleColor.Brightness);
+                    wall4Light.SetColor(purpleColor.Color, purpleColor.Brightness);
                 }
                 else
                 {
-                    pixelsRoofEdge.SetColor(Color.Black, 0.0);
+                    pixelsRoofEdge.SetColor(Color.White, 0.0);
                 }
             }
         }
@@ -633,16 +884,16 @@ namespace Animatroller.SceneRunner
             switch (e.Code)
             {
                 case "A":
-                    popOut3.Pop(1.0);
-                    popOut4.Pop(1.0);
+                    popOut3.Pop(1.0, color: Color.White);
+                    popOut4.Pop(1.0, color: Color.White);
                     break;
 
                 case "B":
-                    popOut2.Pop(0.5);
+                    popOut2.Pop(0.5, color: Color.White);
                     break;
 
                 case "C":
-                    popOut1.Pop(1.0);
+                    popOut1.Pop(1.0, color: Color.White);
                     break;
             }
         }

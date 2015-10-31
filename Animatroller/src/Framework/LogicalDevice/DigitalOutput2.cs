@@ -45,6 +45,8 @@ namespace Animatroller.Framework.LogicalDevice
                     UpdateOutput();
                 }
             });
+
+            this.currentData[DataElements.Power] = initial;
         }
 
         //public Switch Follow(OperatingHours source)
@@ -84,6 +86,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected override void UpdateOutput()
         {
+            // Doesn't seem to use the new IData interface
+//FIXME            base.UpdateOutput();
             this.outputValue.OnNext(this.currentValue && this.MasterPower);
         }
     }

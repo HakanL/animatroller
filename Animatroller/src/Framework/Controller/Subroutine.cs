@@ -45,9 +45,11 @@ namespace Animatroller.Framework.Controller
             this.setUpAction = action;
         }
 
-        public void RunAction(Action<ISequenceInstance> action)
+        public Subroutine RunAction(Action<ISequenceInstance> action)
         {
             this.mainAction = action;
+
+            return this;
         }
 
         public void TearDown(Action action)

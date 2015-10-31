@@ -11,6 +11,7 @@ namespace Animatroller.Framework
         Pan,
         Tilt,
         PixelBrightness,
-        PixelColor
+        PixelColor,
+        Power
     }
 }

@@ -6,19 +6,34 @@ using System.Threading;
 using System.Reactive;
 using System.Reactive.Subjects;
 using NLog;
+using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Effect
 {
     public abstract class BaseSweeperEffect : IEffect
     {
+        protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
+        {
+            public ControlledObserverData Observer { get; set; }
+
+            public IData AdditionalData { get; set; }
+
+            public DeviceController(IReceivesBrightness device, IData additionalData)
+                : base(device, 0)
+            {
+                AdditionalData = additionalData;
+            }
+        }
+
+        protected bool isRunning;
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected int priority;
         protected string name;
         protected object lockObject = new object();
         protected Sweeper sweeper;
-        protected List<IObserver<double>> devices;
-        protected bool isRunning;
+        protected List<DeviceController> devices;
         protected ISubject<bool> inputRun;
+        private GroupControlToken token;
 
         public BaseSweeperEffect(
             TimeSpan sweepDuration,
@@ -42,7 +57,7 @@ namespace Animatroller.Framework.Effect
                 }
             });
 
-            this.devices = new List<IObserver<double>>();
+            this.devices = new List<DeviceController>();
             this.sweeper = new Sweeper(sweepDuration, dataPoints, startRunning);
 
             this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
@@ -87,16 +102,6 @@ namespace Animatroller.Framework.Effect
         {
         }
 
-        public BaseSweeperEffect AddDevice(Animatroller.Framework.LogicalDevice.IHasBrightnessControl device)
-        {
-            ConnectTo(System.Reactive.Observer.Create<double>(x =>
-            {
-                device.Brightness = x;
-            }));
-
-            return this;
-        }
-
         public IObserver<bool> InputRun
         {
             get
@@ -116,7 +121,11 @@ namespace Animatroller.Framework.Effect
             {
                 watches[i] = System.Diagnostics.Stopwatch.StartNew();
 
-                this.devices[i].OnNext(value);
+                var deviceOwner = this.devices[i].Observer;
+                if (deviceOwner == null)
+                    continue;
+
+                deviceOwner.OnNext(new Data(DataElements.Brightness, value));
 
                 watches[i].Stop();
             }
@@ -135,15 +144,21 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        public BaseSweeperEffect SetPriority(int priority)
+        public IEffect Start(int priority = 1)
         {
-            this.priority = priority;
+            if (this.token == null)
+            {
+                this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, Name, priority);
 
-            return this;
-        }
+                foreach (var device in this.devices)
+                {
+                    device.Observer = device.Device.GetDataObserver(this.token);
 
-        public IEffect Start()
-        {
+                    if (device.AdditionalData != null)
+                        device.Observer.OnNext(device.AdditionalData);
+                }
+            }
+
             this.sweeper.Resume();
             this.isRunning = true;
 
@@ -171,6 +186,17 @@ namespace Animatroller.Framework.Effect
             this.sweeper.ForceValue(0, 0, 0, 0);
             this.isRunning = false;
 
+            foreach (var device in this.devices)
+            {
+                device.Observer = null;
+            }
+
+            if (this.token != null)
+            {
+                this.token.Dispose();
+                this.token = null;
+            }
+
             return this;
         }
 
@@ -181,60 +207,27 @@ namespace Animatroller.Framework.Effect
 
         public int Priority
         {
-            get { return this.priority; }
+            get
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        public BaseSweeperEffect ConnectTo(IObserver<double> device)
+        public BaseSweeperEffect ConnectTo(IReceivesBrightness device, params Tuple<DataElements, object>[] additionalData)
         {
             lock (lockObject)
             {
-                this.devices.Add(device);
+                IData data = null;
+                if (additionalData.Any())
+                {
+                    data = new Data();
+                    foreach (var kvp in additionalData)
+                        data[kvp.Item1] = kvp.Item2;
+                }
+
+                this.devices.Add(new DeviceController(device, data));
             }
 
-            return this;
-        }
-
-        public BaseSweeperEffect ConnectTo(IReceivesBrightness device)
-        {
-            lock (lockObject)
-            {
-                //FIXME is this right?
-//                this.devices.Add(device.GetBrightnessObserver());
-            }
-
-            return this;
-        }
-
-        public BaseSweeperEffect ConnectTo(Action<double> action)
-        {
-            lock (lockObject)
-            {
-                this.devices.Add(Observer.Create(action));
-            }
-
-            return this;
-        }
-
-        public BaseSweeperEffect ConnectTo(IObserver<DoubleZeroToOne> device)
-        {
-            lock (lockObject)
-            {
-                this.devices.Add(System.Reactive.Observer.Create<double>(x =>
-                    {
-                        device.OnNext(new DoubleZeroToOne(x));
-                    }));
-            }
-
-            return this;
-        }
-
-        public BaseSweeperEffect Disconnect(ISubject<double> device)
-        {
-            lock (lockObject)
-            {
-                if (this.devices.Contains(device))
-                    this.devices.Remove(device);
-            }
             return this;
         }
     }

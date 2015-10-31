@@ -277,35 +277,41 @@ namespace Animatroller.Framework.LogicalDevice
         //    return this;
         //}
 
-        protected override void PreprocessPushData(IData data)
+        protected override IData PreprocessPushData(IData data)
         {
-            base.PreprocessPushData(data);
+            data = base.PreprocessPushData(data);
 
-            foreach (var kvp in data.ToList())
+            var newData = new Data();
+
+            foreach (var kvp in data)
             {
                 switch (kvp.Key)
                 {
                     case DataElements.Brightness:
                         // Set pixel brightness instead
-                        data.Remove(kvp.Key);
                         var pixelBrightness = new double[this.pixelCount];
                         for (int i = 0; i < pixelBrightness.Length; i++)
                             pixelBrightness[i] = (double)kvp.Value;
 
-                        data[DataElements.PixelBrightness] = pixelBrightness;
+                        newData[DataElements.PixelBrightness] = pixelBrightness;
                         break;
 
                     case DataElements.Color:
                         // Set pixel color instead
-                        data.Remove(kvp.Key);
                         var pixelColor = new Color[this.pixelCount];
                         for (int i = 0; i < pixelColor.Length; i++)
                             pixelColor[i] = (Color)kvp.Value;
 
-                        data[DataElements.PixelColor] = pixelColor;
+                        newData[DataElements.PixelColor] = pixelColor;
+                        break;
+
+                    default:
+                        newData[kvp.Key] = kvp.Value;
                         break;
                 }
             }
+
+            return newData;
         }
 
         public void SetBrightness(double brightness, IControlToken token = null)

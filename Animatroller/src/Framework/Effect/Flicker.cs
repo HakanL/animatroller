@@ -102,11 +102,6 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        public IEffect Start()
-        {
-            return Start(1);
-        }
-
         public IEffect Start(int priority = 1)
         {
             if (this.token == null)
@@ -140,18 +135,6 @@ namespace Animatroller.Framework.Effect
                 this.token.Dispose();
                 this.token = null;
             }
-
-            //lock (lockObject)
-            //{
-            //    foreach (var heldDevice in this.devices)
-            //    {
-            //        if (heldDevice.Token != null)
-            //        {
-            //            heldDevice.Token.Dispose();
-            //            heldDevice.Token = null;
-            //        }
-            //    }
-            //}
 
             return this;
         }

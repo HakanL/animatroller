@@ -24,15 +24,25 @@ namespace Animatroller.Framework.LogicalDevice
 
             this.outputData.Subscribe(x =>
             {
-                PreprocessPushData(x);
+                var data = PreprocessPushData(x);
 
-                foreach (var kvp in x)
+                foreach (var kvp in data)
                     this.currentData[kvp.Key] = kvp.Value;
             });
         }
 
-        protected virtual void PreprocessPushData(IData data)
+        public override void SetInitialState()
         {
+            base.SetInitialState();
+
+            // Copy current data to ownerless for initial state
+            foreach (var kvp in this.currentData)
+                this.ownerlessData[kvp.Key] = kvp.Value;
+        }
+
+        protected virtual IData PreprocessPushData(IData data)
+        {
+            return data;
         }
 
         public IData CurrentData

@@ -53,7 +53,7 @@ namespace Animatroller.Framework.Effect
 
         protected abstract void ExecutePerDevice(T device);
 
-        public IEffect Start()
+        public IEffect Start(int priority = 1)
         {
             this.timer.Change(TimeSpan.FromMilliseconds(0), this.interval);
 

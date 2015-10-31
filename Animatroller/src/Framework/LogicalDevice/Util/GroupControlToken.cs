@@ -44,8 +44,6 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 foreach (var memberToken in MemberTokens.Values)
                     memberToken.Dispose();
-
-                MemberTokens.Clear();
             }
 
             if (this.disposeAction != null)

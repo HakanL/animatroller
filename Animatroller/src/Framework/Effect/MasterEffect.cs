@@ -124,6 +124,7 @@ namespace Animatroller.Framework.Effect2
                 onCompleted: () =>
                 {
                     deviceObserver.OnCompleted();
+
                     taskSource.SetResult(true);
                 });
 
@@ -168,6 +169,7 @@ namespace Animatroller.Framework.Effect2
                 onCompleted: () =>
                 {
                     deviceObserver.OnCompleted();
+
                     taskSource.SetResult(true);
                 });
 
@@ -194,6 +196,7 @@ namespace Animatroller.Framework.Effect2
                 onCompleted: () =>
                 {
                     deviceObserver.OnCompleted();
+
                     taskSource.SetResult(true);
                 });
 

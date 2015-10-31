@@ -15,7 +15,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void OnCompleted()
         {
-            this.control.OnCompleted();
+            // We don't want to end the underlaying IData observer
+//            this.control.OnCompleted();
         }
 
         public void OnError(Exception error)
