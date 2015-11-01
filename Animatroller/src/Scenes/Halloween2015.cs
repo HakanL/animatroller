@@ -67,6 +67,8 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 emergencyStop = new DigitalInput2(persistState: true);
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        private DigitalInput2 block = new DigitalInput2(persistState: true);
 
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
@@ -219,6 +221,7 @@ namespace Animatroller.SceneRunner
                         flickerEffect.Start();
                         treeGhosts.SetBrightness(1.0);
                         audioMain.PlayBackground();
+                        audioEeebox.SetBackgroundVolume(0.6);
                         audioEeebox.PlayBackground();
 
                         ColorBrightness purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
@@ -597,6 +600,7 @@ namespace Animatroller.SceneRunner
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
             {
+                block.Value = data.First() != 0;
                 //                treeGhosts.SetBrightness(data.First() != 0 ? 1.0 : 0.0);
             });
 
@@ -835,7 +839,7 @@ namespace Animatroller.SceneRunner
             {
                 touchOSC.Send("/1/led2", x ? 1 : 0);
 
-                if (x && hoursSmall.IsOpen && !emergencyStop.Value)
+                if (x && hoursSmall.IsOpen && !emergencyStop.Value && !block.Value)
                     subFirst.Run();
             });
 
@@ -843,7 +847,7 @@ namespace Animatroller.SceneRunner
             {
                 touchOSC.Send("/1/led3", x ? 1 : 0);
 
-                if (x && hoursSmall.IsOpen && !emergencyStop.Value)
+                if (x && hoursSmall.IsOpen && !emergencyStop.Value && !block.Value)
                     subFinal.Run();
             });
 
@@ -924,7 +928,7 @@ namespace Animatroller.SceneRunner
 
                         currentVideoFile = videoFile;
                         video2.PlayVideo(videoFile);
-                        i.WaitFor(S(120));
+                        i.WaitFor(S(60));
                     }
                 });
 
