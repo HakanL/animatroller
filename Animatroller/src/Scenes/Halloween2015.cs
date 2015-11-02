@@ -143,7 +143,7 @@ namespace Animatroller.SceneRunner
 
         public Halloween2015(IEnumerable<string> args)
         {
-            hoursSmall.AddRange("5:00 pm", "9:30 pm");
+            hoursSmall.AddRange("5:00 pm", "7:00 pm");
 
             // Logging
             hoursSmall.Output.Log("Hours small");
@@ -229,7 +229,18 @@ namespace Animatroller.SceneRunner
 
                         purpleLights.SetBrightness(purpleColor.Brightness, new Data(DataElements.Color, purpleColor.Color));
 
-                        i.WaitUntilCancel();
+                        while (!i.IsCancellationRequested && stateMachine.CurrentState == States.Background)
+                        {
+                            i.WaitFor(S(0.5));
+                            if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 5)
+                            {
+                                // Run the fog for a little while
+                                fog.Value = true;
+                                i.WaitFor(S(4));
+                                fog.Value = false;
+                                this.lastFogRun = DateTime.Now;
+                            }
+                        }
                     })
                 .TearDown(() =>
                     {
