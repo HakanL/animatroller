@@ -145,7 +145,7 @@ namespace Animatroller.SceneRunner
         public Halloween2015(IEnumerable<string> args)
         {
             hoursSmall.AddRange("5:00 pm", "7:00 pm");
-            hoursFull.SetForced(false);
+//            hoursFull.AddRange("5:00 pm", "7:00 pm");
 
             // Logging
             hoursSmall.Output.Log("Hours small");
@@ -162,7 +162,7 @@ namespace Animatroller.SceneRunner
                 if (x)
                     hoursFull.SetForced(true);
                 else
-                    hoursFull.SetForced(null);
+                    hoursFull.SetForced(false);
             });
 
 
