@@ -94,6 +94,7 @@ namespace Animatroller.SceneRunner
         private DigitalOutput2 dropSpiderEyes = new DigitalOutput2();
 
         private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
+        private OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
 
         private GroupDimmer allLights = new GroupDimmer();
         private GroupDimmer purpleLights = new GroupDimmer();
@@ -144,20 +145,24 @@ namespace Animatroller.SceneRunner
         public Halloween2015(IEnumerable<string> args)
         {
             hoursSmall.AddRange("5:00 pm", "7:00 pm");
+            hoursFull.SetForced(false);
 
             // Logging
             hoursSmall.Output.Log("Hours small");
+            hoursFull.Output.Log("Hours full");
 
             hoursSmall
+                .ControlsMasterPower(catAir);
+            hoursFull
                 .ControlsMasterPower(catAir);
             //                .ControlsMasterPower(eyes);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
                 if (x)
-                    hoursSmall.SetForced(true);
+                    hoursFull.SetForced(true);
                 else
-                    hoursSmall.SetForced(null);
+                    hoursFull.SetForced(null);
             });
 
 
@@ -169,14 +174,14 @@ namespace Animatroller.SceneRunner
                 }
                 else
                 {
-                    if (hoursSmall.IsOpen)
+                    if (hoursFull.IsOpen)
                         stateMachine.SetState(States.Background);
                     else
                         stateMachine.Hold();
                 }
             });
 
-            hoursSmall.Output.Subscribe(x =>
+            hoursFull.Output.Subscribe(x =>
             {
                 if (x)
                 {
@@ -840,7 +845,7 @@ namespace Animatroller.SceneRunner
 
             catMotion.Output.Subscribe(x =>
             {
-                if (x && hoursSmall.IsOpen)
+                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen))
                     Executor.Current.Execute(catSeq);
 
                 touchOSC.Send("/1/led1", x ? 1 : 0);
@@ -850,7 +855,7 @@ namespace Animatroller.SceneRunner
             {
                 touchOSC.Send("/1/led2", x ? 1 : 0);
 
-                if (x && hoursSmall.IsOpen && !emergencyStop.Value && !block.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !block.Value)
                     subFirst.Run();
             });
 
@@ -858,13 +863,13 @@ namespace Animatroller.SceneRunner
             {
                 touchOSC.Send("/1/led3", x ? 1 : 0);
 
-                if (x && hoursSmall.IsOpen && !emergencyStop.Value && !block.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !block.Value)
                     subFinal.Run();
             });
 
             motion2.Output.Subscribe(x =>
             {
-                //if (x && hoursSmall.IsOpen)
+                //if (x && hoursFull.IsOpen)
                 //    Executor.Current.Execute(motionSeq);
 
                 touchOSC.Send("/1/led4", x ? 1 : 0);
