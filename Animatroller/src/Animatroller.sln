@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scenes", "Scenes\Scenes.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FCEA493-3A1C-4328-B8BA-775E771FBACC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoExpanderMessage", "MonoExpanderMessage\MonoExpanderMessage.csproj", "{8A2B3891-435E-454F-8A9E-52A11ED12691}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{60DBA58A-2233-4386-ABDE-C5766CBAC8DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60DBA58A-2233-4386-ABDE-C5766CBAC8DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60DBA58A-2233-4386-ABDE-C5766CBAC8DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A2B3891-435E-454F-8A9E-52A11ED12691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A2B3891-435E-454F-8A9E-52A11ED12691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A2B3891-435E-454F-8A9E-52A11ED12691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A2B3891-435E-454F-8A9E-52A11ED12691}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

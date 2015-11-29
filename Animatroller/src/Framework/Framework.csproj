@@ -43,6 +43,21 @@
     <Reference Include="Acn">
       <HintPath>..\..\lib\Acn.dll</HintPath>
     </Reference>
+    <Reference Include="Akka, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.1.0.4\lib\net45\Akka.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Akka.Logger.NLog, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Logger.NLog.1.0.4\lib\net45\Akka.Logger.NLog.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Akka.Remote, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Remote.1.0.4\lib\net45\Akka.Remote.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="BinaryRage, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\BinaryRage.1.4.0.0\lib\net40\BinaryRage.dll</HintPath>
       <Private>True</Private>
@@ -50,8 +65,24 @@
     <Reference Include="CircularBuffer">
       <HintPath>..\..\lib\CircularBuffer.dll</HintPath>
     </Reference>
+    <Reference Include="Google.ProtocolBuffers, Version=2.4.1.555, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.555\lib\net40\Google.ProtocolBuffers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Google.ProtocolBuffers.Serialization, Version=2.4.1.555, Culture=neutral, PublicKeyToken=55f7125234beb589, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.ProtocolBuffers.2.4.1.555\lib\net40\Google.ProtocolBuffers.Serialization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Helios, Version=1.4.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Helios.1.4.1\lib\net45\Helios.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.2.0\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.2.1\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Rug.Osc, Version=1.2.5.17694, Culture=neutral, processorArchitecture=MSIL">
@@ -100,6 +131,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Controller\CueList.cs" />
     <Compile Include="Controller\BaseDeviceController.cs" />
     <Compile Include="Controller\HighPrecisionTimer2.cs" />
@@ -121,7 +153,10 @@
     <Compile Include="Effect\SweeperTables.cs" />
     <Compile Include="Effect\MasterSweeper.cs" />
     <Compile Include="Expander\AcnStream.cs" />
+    <Compile Include="Expander\MonoExpanderServer.cs" />
+    <Compile Include="Expander\MonoExpanderServerActor.cs" />
     <Compile Include="Expander\OpcClient.cs" />
+    <Compile Include="Expander\MonoExpander.cs" />
     <Compile Include="Expander\Tpm2NetSink.cs" />
     <Compile Include="Expander\Renard.cs" />
     <Compile Include="Expander\OscServer.cs" />
@@ -259,6 +294,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoExpanderMessage\MonoExpanderMessage.csproj">
+      <Project>{8a2b3891-435e-454f-8a9e-52a11ed12691}</Project>
+      <Name>MonoExpanderMessage</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

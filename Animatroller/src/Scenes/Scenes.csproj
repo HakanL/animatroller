@@ -38,7 +38,7 @@
       <HintPath>..\..\lib\CSCore.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.2.0\lib\net45\NLog.dll</HintPath>
+      <HintPath>..\packages\NLog.4.2.1\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -64,10 +64,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="DemoScene1.cs" />
     <Compile Include="Halloween2015.cs" />
     <None Include="Halloween2015Manual.cs" />
     <None Include="PanTiltDemo.cs" />
+    <Compile Include="ExpanderDemo.cs" />
     <Compile Include="LockDemo.cs" />
     <None Include="Halloween2014b.cs" />
     <None Include="HalloweenScene1.cs" />

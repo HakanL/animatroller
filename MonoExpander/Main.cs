@@ -13,6 +13,10 @@ using Rug.Osc;
 using SupersonicSound.Exceptions;
 using System.Diagnostics;
 using org.freedesktop.DBus;
+using Akka.Configuration;
+using Akka.Configuration.Hocon;
+using Akka.Actor;
+using Animatroller.Framework.MonoExpanderMessages;
 
 namespace Animatroller.MonoExpander
 {
@@ -54,6 +58,8 @@ namespace Animatroller.MonoExpander
         private List<IDisposable> disposeList;
         private int? lastPosBg;
         private int? lastPosTrk;
+        private ActorSystem system;
+        private IActorRef clientActor;
 
         public Main(Arguments args)
         {
@@ -82,22 +88,22 @@ namespace Animatroller.MonoExpander
                 // Disable console log output
                 this.log.Info("Video System, turning off console logging and cursor");
 
-                var config = LogManager.Configuration;
+                var logConfig = LogManager.Configuration;
                 var consoleTargets = new List<string>();
-                consoleTargets.AddRange(config.AllTargets
+                consoleTargets.AddRange(logConfig.AllTargets
                     .OfType<NLog.Targets.ColoredConsoleTarget>()
                     .Select(x => x.Name));
-                consoleTargets.AddRange(config.AllTargets
+                consoleTargets.AddRange(logConfig.AllTargets
                     .OfType<NLog.Targets.ConsoleTarget>()
                     .Select(x => x.Name));
-                foreach (var loggingRule in config.LoggingRules)
+                foreach (var loggingRule in logConfig.LoggingRules)
                 {
                     loggingRule.Targets
                         .Where(x => consoleTargets.Contains(x.Name) || consoleTargets.Contains(x.Name + "_wrapped"))
                         .ToList()
                         .ForEach(x => loggingRule.Targets.Remove(x));
                 }
-                LogManager.Configuration = config;
+                LogManager.Configuration = logConfig;
 
                 Console.CursorVisible = false;
                 Console.Clear();
@@ -197,6 +203,71 @@ namespace Animatroller.MonoExpander
             }
 
             this.log.Info("Initializing OSC listener");
+
+            var akkaConfig = ConfigurationFactory.ParseString(@"
+                akka {
+                    loglevel = DEBUG
+                    actor {
+                        provider = ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""
+                        debug {  
+                            receive = on
+                            autoreceive = on
+                            lifecycle = on
+                            event-stream = on
+                            unhandled = on
+                        }
+                    }
+                    remote {
+                        helios.tcp {
+                            transport-class = ""Akka.Remote.Transport.Helios.HeliosTcpTransport, Akka.Remote""
+		                    applied-adapters = []
+		                    transport-protocol = tcp
+		                    port = 0
+		                    hostname = 0.0.0.0
+                        }
+                    }
+                }
+            ");
+
+            this.system = ActorSystem.Create("MonoExpanderClient", akkaConfig);
+
+            this.clientActor = this.system.ActorOf(Props.Create<MonoExpanderClientActor>());
+            foreach (var endpoint in args.OscServers)
+            {
+                var selection = this.system.ActorSelection(string.Format("akka.tcp://Animatroller@{0}:{1}/user/ExpanderServer", /*endpoint.Address*/ "localhost", endpoint.Port));
+
+                selection.Tell(new ConnectRequest()
+                {
+                    Username = "Roggan",
+                }, this.clientActor);
+            }
+
+            while (true)
+            {
+                var input = Console.ReadLine();
+                if (input.StartsWith("/"))
+                {
+                    var parts = input.Split(' ');
+                    var cmd = parts[0].ToLowerInvariant();
+                    var rest = string.Join(" ", parts.Skip(1));
+
+                    if (cmd == "/nick")
+                    {
+                        this.clientActor.Tell(new NickRequest
+                        {
+                            NewUsername = rest
+                        });
+                    }
+                }
+                else
+                {
+                    this.clientActor.Tell(new SayRequest()
+                    {
+                        Text = input,
+                    });
+                }
+            }
+
             this.receiver = new Rug.Osc.OscReceiver(args.OscListenPort);
 
             this.cancelSource = new System.Threading.CancellationTokenSource();
@@ -697,6 +768,12 @@ namespace Animatroller.MonoExpander
 
         public void Dispose()
         {
+            if (this.system != null)
+            {
+                this.system.Dispose();
+                this.system = null;
+            }
+
             this.receiver.Dispose();
 
             if (this.fmodSystem != null)

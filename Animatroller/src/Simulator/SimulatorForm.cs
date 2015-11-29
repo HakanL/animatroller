@@ -106,6 +106,10 @@ namespace Animatroller.Simulator
                     else
                         AddDigitalInput_Momentarily((DigitalInput2)fieldValue);
                 }
+                else if (field.FieldType == typeof(DigitalOutput2))
+                {
+                    this.AddDigitalOutput((DigitalOutput2)fieldValue);
+                }
                 else if (field.FieldType == typeof(AudioPlayer))
                 {
                     // Skip
@@ -163,8 +167,6 @@ namespace Animatroller.Simulator
                         continue;
                 }
 
-                else if (field.FieldType == typeof(DigitalOutput2))
-                    this.AddDigitalOutput((DigitalOutput2)fieldValue);
                 else if (field.FieldType.Name.StartsWith("EnumStateMachine") ||
                     field.FieldType.Name.StartsWith("IntStateMachine"))
                 {
