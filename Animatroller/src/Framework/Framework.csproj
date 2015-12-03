@@ -48,6 +48,10 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Akka.Cluster, Version=1.0.4.12, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Akka.Cluster.1.0.4.12-beta\lib\net45\Akka.Cluster.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Akka.Logger.NLog, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Akka.Logger.NLog.1.0.4\lib\net45\Akka.Logger.NLog.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
@@ -156,7 +160,7 @@
     <Compile Include="Expander\MonoExpanderServer.cs" />
     <Compile Include="Expander\MonoExpanderServerActor.cs" />
     <Compile Include="Expander\OpcClient.cs" />
-    <Compile Include="Expander\MonoExpander.cs" />
+    <Compile Include="Expander\MonoExpanderInstance.cs" />
     <Compile Include="Expander\Tpm2NetSink.cs" />
     <Compile Include="Expander\Renard.cs" />
     <Compile Include="Expander\OscServer.cs" />

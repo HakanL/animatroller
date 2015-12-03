@@ -3,42 +3,74 @@ using System.Collections.Generic;
 
 namespace Animatroller.Framework.MonoExpanderMessages
 {
-    public class ConnectRequest
+    public enum AudioTypes
     {
-        public string Username { get; set; }
+        Background,
+        Track,
+        Effect
     }
 
-    public class ConnectResponse
+    public class WhoAreYouRequest
     {
-        public string Message { get; set; }
     }
 
-    public class NickRequest
+    public class WhoAreYouResponse
     {
-        public string OldUsername { get; set; }
-        public string NewUsername { get; set; }
+        public string InstanceId { get; set; }
     }
 
-    public class NickResponse
+    public class InputChanged
     {
-        public string OldUsername { get; set; }
-        public string NewUsername { get; set; }
+        public string Input { get; set; }
+
+        public double Value { get; set; }
     }
 
-    public class SayRequest
+    public class SetOutputRequest
     {
-        public string Username { get; set; }
-        public string Text { get; set; }
+        public string Output { get; set; }
+
+        public double Value { get; set; }
+
     }
 
-    public class SayResponse
+    public class VideoPositionChanged
     {
-        public string Username { get; set; }
-        public string Text { get; set; }
+        public string Id { get; set; }
+
+        public double Position { get; set; }
     }
 
-    public class Disconnect
+    public class AudioPositionChanged
     {
+        public string Id { get; set; }
+
+        public double Position { get; set; }
+
+        public AudioTypes Type { get; set; }
+    }
+
+    public class VideoStarted
+    {
+        public string Id { get; set; }
+    }
+
+    public class VideoFinished
+    {
+        public string Id { get; set; }
+    }
+
+    public class AudioStarted
+    {
+        public string Id { get; set; }
+
+        public AudioTypes Type { get; set; }
+    }
+
+    public class AudioFinished
+    {
+        public string Id { get; set; }
+
+        public AudioTypes Type { get; set; }
     }
 }
-

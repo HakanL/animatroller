@@ -1,4 +1,4 @@
-﻿#define DEBUG_OSC
+﻿//#define DEBUG_VERBOSE
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Raspberry.IO.Components.Devices.PiFaceDigital;
 using SupersonicSound.LowLevel;
 using NLog;
-using Rug.Osc;
 using SupersonicSound.Exceptions;
 using System.Diagnostics;
 using org.freedesktop.DBus;
@@ -20,7 +19,7 @@ using Animatroller.Framework.MonoExpanderMessages;
 
 namespace Animatroller.MonoExpander
 {
-    public class Main : IDisposable
+    public class Main : IDisposable, IMonoExpanderClientActor
     {
         public enum VideoSystems
         {
@@ -29,12 +28,8 @@ namespace Animatroller.MonoExpander
         }
 
         private Logger log;
-        private Rug.Osc.OscReceiver receiver;
-        private List<Rug.Osc.OscSender> senders;
         private PiFaceDigitalDevice piFace;
         private SupersonicSound.LowLevel.LowLevelSystem fmodSystem;
-        private Task receiverTask;
-        private CancellationTokenSource cancelSource;
         private List<string> backgroundAudioTracks;
         private string instanceId;
         private Dictionary<string, Sound> loadedSounds;
@@ -60,10 +55,12 @@ namespace Animatroller.MonoExpander
         private int? lastPosTrk;
         private ActorSystem system;
         private IActorRef clientActor;
+        private Dictionary<Address, IActorRef> serverActors;
 
         public Main(Arguments args)
         {
             this.log = LogManager.GetLogger("Main");
+            this.serverActors = new Dictionary<Address, IActorRef>();
 
             if (!string.IsNullOrEmpty(args.VideoSystem))
             {
@@ -154,12 +151,6 @@ namespace Animatroller.MonoExpander
             this.log.Info("Track Path {0}", this.trackPath);
             this.log.Info("FX Path {0}", this.soundEffectPath);
 
-            this.senders = new List<Rug.Osc.OscSender>();
-            foreach (var endpoint in args.OscServers)
-            {
-                senders.Add(new Rug.Osc.OscSender(endpoint.Address, 0, endpoint.Port));
-            }
-
             this.backgroundAudioTracks = new List<string>();
             if (!string.IsNullOrEmpty(args.BackgroundTracksPath))
             {
@@ -202,136 +193,70 @@ namespace Animatroller.MonoExpander
                 }
             }
 
-            this.log.Info("Initializing OSC listener");
+            this.log.Info("Initializing Akka listener");
 
             var akkaConfig = ConfigurationFactory.ParseString(@"
                 akka {
-                    loglevel = DEBUG
+                    ##log-config-on-start = on
                     actor {
-                        provider = ""Akka.Remote.RemoteActorRefProvider, Akka.Remote""
-                        debug {  
-                            receive = on
-                            autoreceive = on
-                            lifecycle = on
-                            event-stream = on
-                            unhandled = on
-                        }
+                        provider = ""Akka.Cluster.ClusterActorRefProvider, Akka.Cluster""
                     }
                     remote {
                         helios.tcp {
-                            transport-class = ""Akka.Remote.Transport.Helios.HeliosTcpTransport, Akka.Remote""
-		                    applied-adapters = []
-		                    transport-protocol = tcp
 		                    port = 0
-		                    hostname = 0.0.0.0
+		                    hostname = localhost
                         }
+                    }
+                    cluster {
+                        #seed-nodes = [""akka.tcp://Animatroller@127.0.0.1:8088""]
+                        roles = [expander]
                     }
                 }
             ");
 
-            this.system = ActorSystem.Create("MonoExpanderClient", akkaConfig);
+            string seeds = string.Join(",", args.Servers.Select(x => string.Format("\"akka.tcp://Animatroller@{0}:{1}\"", x.Host, x.Port)));
+            string seedsString = string.Format(@"akka.cluster.seed-nodes = [{0}]", seeds);
 
-            this.clientActor = this.system.ActorOf(Props.Create<MonoExpanderClientActor>());
-            foreach (var endpoint in args.OscServers)
+            var finalConfig = ConfigurationFactory.ParseString("")
+                .WithFallback(ConfigurationFactory.ParseString(seedsString))
+                .WithFallback(akkaConfig);
+
+            this.system = ActorSystem.Create("Animatroller", finalConfig);
+
+            this.clientActor = this.system.ActorOf(Props.Create<MonoExpanderClientActor>(this), "Expander");
+        }
+
+        public void AddServer(Address address, IActorRef sender)
+        {
+            this.serverActors.Add(address, sender);
+        }
+
+        public void RemoveServer(Address address)
+        {
+            this.serverActors.Remove(address);
+        }
+
+        public string InstanceId
+        {
+            get { return this.instanceId; }
+        }
+
+        public void SendMessage(object message)
+        {
+            this.serverActors.Values.ToList().ForEach(x =>
             {
-                var selection = this.system.ActorSelection(string.Format("akka.tcp://Animatroller@{0}:{1}/user/ExpanderServer", /*endpoint.Address*/ "localhost", endpoint.Port));
-
-                selection.Tell(new ConnectRequest()
-                {
-                    Username = "Roggan",
-                }, this.clientActor);
-            }
-
-            while (true)
-            {
-                var input = Console.ReadLine();
-                if (input.StartsWith("/"))
-                {
-                    var parts = input.Split(' ');
-                    var cmd = parts[0].ToLowerInvariant();
-                    var rest = string.Join(" ", parts.Skip(1));
-
-                    if (cmd == "/nick")
-                    {
-                        this.clientActor.Tell(new NickRequest
-                        {
-                            NewUsername = rest
-                        });
-                    }
-                }
-                else
-                {
-                    this.clientActor.Tell(new SayRequest()
-                    {
-                        Text = input,
-                    });
-                }
-            }
-
-            this.receiver = new Rug.Osc.OscReceiver(args.OscListenPort);
-
-            this.cancelSource = new System.Threading.CancellationTokenSource();
-
-            this.receiverTask = new Task(x =>
-            {
-                this.log.Debug("Starting up Receive Task");
-
-                try
-                {
-                    while (!this.cancelSource.IsCancellationRequested)
-                    {
-                        while (this.receiver.State != Rug.Osc.OscSocketState.Closed)
-                        {
-                            if (this.receiver.State == Rug.Osc.OscSocketState.Connected)
-                            {
-                                var packet = this.receiver.Receive();
-#if DEBUG_OSC
-                                this.log.Debug("Received OSC message: {0}", packet);
-#endif
-
-                                if (packet is Rug.Osc.OscBundle)
-                                {
-                                    var bundles = (Rug.Osc.OscBundle)packet;
-                                    bundles
-                                        .OfType<Rug.Osc.OscMessage>()
-                                        .ToList()
-                                        .ForEach(msg => InvokeOSC(msg));
-                                }
-
-                                if (packet is Rug.Osc.OscMessage)
-                                {
-                                    var msg = (Rug.Osc.OscMessage)packet;
-                                    InvokeOSC(msg);
-                                }
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    if (ex.Message == "The receiver socket has been disconnected")
-                        // Ignore
-                        return;
-
-                    this.log.Error(ex, "Unhandled exception in Receive Task");
-                }
-
-                this.log.Debug("Closed down Receive Task");
-            }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
+                x.Tell(message, this.clientActor);
+            });
         }
 
         private void SendInputMessage(int input, bool state)
         {
             this.log.Debug("Input {0} set to {1}", input, state ? 1 : 0);
 
-            this.senders.ForEach(x =>
+            SendMessage(new InputChanged
             {
-                var msg = new OscMessage("/input",
-                    this.instanceId,
-                    input,
-                    state ? 1 : 0);
-
-                x.Send(msg);
+                Input = "d" + input.ToString(),
+                Value = state ? 1.0 : 0.0
             });
         }
 
@@ -383,7 +308,10 @@ namespace Animatroller.MonoExpander
                 this.videoPlaying = false;
                 this.log.Info("Done playing video");
 
-                this.senders.ForEach(x => x.Send(new OscMessage("/video/done", this.instanceId, fileName)));
+                SendMessage(new VideoFinished
+                {
+                    Id = fileName
+                });
 
                 process.Dispose();
             };
@@ -443,7 +371,11 @@ namespace Animatroller.MonoExpander
                 {
                     this.log.Debug("Track {0} ended", trackName);
 
-                    this.senders.ForEach(x => x.Send(new OscMessage("/audio/trk/done", this.instanceId, trackName)));
+                    SendMessage(new AudioFinished
+                    {
+                        Id = trackName,
+                        Type = AudioTypes.Track
+                    });
                 }
             });
 
@@ -452,8 +384,12 @@ namespace Animatroller.MonoExpander
             // Play
             channel.Pause = false;
 
-            // Send OSC message
-            senders.ForEach(x => x.Send(new OscMessage("/audio/trk/start", this.instanceId, trackName)));
+            // Send status message
+            SendMessage(new AudioStarted
+            {
+                Id = trackName,
+                Type = AudioTypes.Track
+            });
         }
 
         private void PlayNextBackground()
@@ -510,7 +446,11 @@ namespace Animatroller.MonoExpander
                 {
                     this.log.Debug("Background {0} ended", bgName);
 
-                    this.senders.ForEach(x => x.Send(new OscMessage("/audio/bg/done", this.instanceId, bgName)));
+                    SendMessage(new AudioFinished
+                    {
+                        Id = bgName,
+                        Type = AudioTypes.Background
+                    });
 
                     if (this.currentBgChannel.HasValue)
                         PlayNextBackground();
@@ -523,8 +463,12 @@ namespace Animatroller.MonoExpander
             // Play
             channel.Pause = false;
 
-            // Send OSC message
-            senders.ForEach(x => x.Send(new OscMessage("/audio/bg/start", this.instanceId, bgName)));
+            SendMessage(new AudioStarted
+            {
+                Id = bgName,
+                Type = AudioTypes.Background
+            });
+
         }
 
         private Sound LoadSound(string fileName)
@@ -592,30 +536,6 @@ namespace Animatroller.MonoExpander
 
                     case "/init":
                         this.log.Info("Received OSC init message {0}", string.Join(",", msg));
-                        break;
-
-                    case "/output":
-                        switch (msg.Count)
-                        {
-                            case 2:
-                                int output = (int)msg[0];
-                                bool state;
-                                if (msg[1] is bool)
-                                    state = (bool)msg[1];
-                                else
-                                    state = (int)msg[1] != 0;
-                                this.log.Info("Set output {0} to {1}", output, state);
-
-                                if (this.piFace != null)
-                                {
-                                    this.piFace.OutputPins[output].State = state;
-                                    this.piFace.UpdatePiFaceOutputPins();
-                                }
-                                break;
-
-                            default:
-                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
-                        }
                         break;
 
                     case "/audio/fx/cue":
@@ -774,13 +694,11 @@ namespace Animatroller.MonoExpander
                 this.system = null;
             }
 
-            this.receiver.Dispose();
-
             if (this.fmodSystem != null)
                 this.fmodSystem.Dispose();
         }
 
-        private bool ReportChannelPosition(Channel? channel, string oscAddress, string trackId, ref int? lastPos)
+        private bool ReportChannelPosition(Channel? channel, string trackId, AudioTypes audioType, ref int? lastPos)
         {
             if (channel.HasValue)
             {
@@ -795,8 +713,12 @@ namespace Animatroller.MonoExpander
 
                 if (pos.HasValue)
                 {
-                    var msg = new OscMessage(oscAddress, this.instanceId, trackId, pos.Value);
-                    this.senders.ForEach(x => x.Send(msg));
+                    SendMessage(new AudioPositionChanged
+                    {
+                        Id = trackId,
+                        Type = audioType,
+                        Position = pos.Value
+                    });
 
                     return true;
                 }
@@ -812,16 +734,6 @@ namespace Animatroller.MonoExpander
             try
             {
                 this.log.Info("Starting up listeners, etc");
-
-                this.receiver.Connect();
-                this.receiverTask.Start();
-
-                this.senders.ForEach(x =>
-                {
-                    x.Connect();
-
-                    x.Send(new OscMessage("/init", this.instanceId));
-                });
 
                 this.log.Info("Running");
 
@@ -845,13 +757,13 @@ namespace Animatroller.MonoExpander
 
                     if (reportCounter % 5 == 0)
                     {
-                        if (ReportChannelPosition(this.currentTrkChannel, "/audio/trk/pos", this.currentTrack, ref this.lastPosTrk))
+                        if (ReportChannelPosition(this.currentTrkChannel, this.currentTrack, AudioTypes.Track, ref this.lastPosTrk))
                             watch.Restart();
                     }
 
                     if (reportCounter % 10 == 0)
                     {
-                        if (ReportChannelPosition(this.currentBgChannel, "/audio/bg/pos", this.currentBgTrackName, ref this.lastPosBg))
+                        if (ReportChannelPosition(this.currentBgChannel, this.currentBgTrackName, AudioTypes.Background, ref this.lastPosBg))
                             watch.Restart();
                     }
 
@@ -860,7 +772,10 @@ namespace Animatroller.MonoExpander
                         // Send ping
                         this.log.Trace("Send ping");
 
-                        this.senders.ForEach(x => x.Send(new OscMessage("/ping")));
+                        SendMessage(new WhoAreYouResponse
+                        {
+                            InstanceId = InstanceId
+                        });
 
                         watch.Restart();
                     }
@@ -870,13 +785,32 @@ namespace Animatroller.MonoExpander
 
                 this.log.Info("Shutting down");
 
-                this.senders.ForEach(x => x.Close());
-                this.cancelSource.Cancel();
-                this.receiver.Close();
+                this.clientActor.GracefulStop(TimeSpan.FromSeconds(1));
             }
             finally
             {
                 Console.CursorVisible = true;
+            }
+        }
+
+        public void Handle(SetOutputRequest message)
+        {
+            this.log.Info("Set output {0} to {1}", message.Output, message.Value);
+
+            if (!message.Output.StartsWith("d"))
+                return;
+
+            int outputId;
+            if (!int.TryParse(message.Output.Substring(1), out outputId))
+                return;
+
+            if (outputId < 0 || outputId > 7)
+                return;
+
+            if (this.piFace != null)
+            {
+                this.piFace.OutputPins[outputId].State = message.Value != 0.0;
+                this.piFace.UpdatePiFaceOutputPins();
             }
         }
     }

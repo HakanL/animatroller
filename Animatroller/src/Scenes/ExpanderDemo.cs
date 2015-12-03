@@ -10,7 +10,7 @@ namespace Animatroller.SceneRunner
 {
     internal class ExpanderDemo : BaseScene
     {
-        Expander.MonoExpander expanderLocal = new Expander.MonoExpander("127.0.0.1:5005", 3333);
+        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(8088);
         AudioPlayer audioLocal = new AudioPlayer();
 
@@ -19,6 +19,8 @@ namespace Animatroller.SceneRunner
 
         public ExpanderDemo(IEnumerable<string> args)
         {
+            expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
+
             expanderLocal.DigitalInputs[6].Connect(in1);
             expanderLocal.DigitalOutputs[7].Connect(out1);
             expanderLocal.Connect(audioLocal);

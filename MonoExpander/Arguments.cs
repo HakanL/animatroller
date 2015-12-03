@@ -33,23 +33,17 @@ namespace Animatroller.MonoExpander
         [ArgDescription("Path to video files, relative or absolute")]
         public string VideoPath { get; set; }
 
-        [ArgDefaultValue(5005)]
-        [ArgRange(1, 65535)]
-        [ArgShortcut("ol")]
-        [ArgDescription("Port to listen for OSC commands")]
-        public int OscListenPort { get; set; }
-
         [ArgShortcut("bgas")]
         [ArgDescription("Auto-start background tracks")]
         public bool BackgroundTrackAutoStart { get; set; }
 
-        [ArgShortcut("os")]
-        [ArgDescription("OSC Hostname:Port to send OSC commands to. Supports comma-separated entries")]
-        public string[] OscServer
+        [ArgShortcut("s")]
+        [ArgDescription("Animatroller Hostname:Port to connect to. Supports comma-separated entries")]
+        public string[] Server
         {
             set
             {
-                var servers = new List<System.Net.IPEndPoint>();
+                var servers = new List<System.Net.DnsEndPoint>();
 
                 foreach (var entry in value)
                 {
@@ -57,19 +51,19 @@ namespace Animatroller.MonoExpander
                     if (parts.Length != 2)
                         throw new ArgumentException("Invalid server entry");
 
-                    servers.Add(new System.Net.IPEndPoint(System.Net.IPAddress.Parse(parts[0]), int.Parse(parts[1])));
+                    servers.Add(new System.Net.DnsEndPoint(parts[0], int.Parse(parts[1])));
                 }
 
-                OscServers = servers.ToArray();
+                Servers = servers.ToArray();
             }
         }
 
         [ArgIgnore]
-        public System.Net.IPEndPoint[] OscServers { get; private set; }
+        public System.Net.DnsEndPoint[] Servers { get; private set; }
 
         public Arguments()
         {
-            OscServers = new System.Net.IPEndPoint[0];
+            Servers = new System.Net.DnsEndPoint[0];
         }
     }
 }

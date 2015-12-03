@@ -3,61 +3,74 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NLog;
 using Akka.Actor;
 using Animatroller.Framework.MonoExpanderMessages;
+using Akka.Cluster;
 
 namespace Animatroller.MonoExpander
 {
-    public class MonoExpanderClientActor : TypedActor,
-            IHandle<ConnectRequest>,
-            IHandle<ConnectResponse>,
-            IHandle<NickRequest>,
-            IHandle<NickResponse>,
-            IHandle<SayRequest>,
-            IHandle<SayResponse>, ILogReceive
+    public interface IMonoExpanderClientActor :
+        IHandle<SetOutputRequest>
     {
-        private string _nick = "Roggan";
-        private readonly ActorSelection _server = Context.ActorSelection("akka.tcp://Animatroller@localhost:8088/user/ExpanderServer");
+    }
 
-        public MonoExpanderClientActor()
+    public class MonoExpanderClientActor : TypedActor,
+        ILogReceive,
+        IHandle<ClusterEvent.IMemberEvent>,
+        IHandle<WhoAreYouRequest>,
+        IHandle<ActorIdentity>,
+        IMonoExpanderClientActor
+    {
+        protected Logger log = LogManager.GetCurrentClassLogger();
+        private Main main;
+
+        public MonoExpanderClientActor(Main main)
         {
+            this.main = main;
 
+            // Subscribe to cluster events
+            Cluster.Get(Context.System).Subscribe(Self, new[] { typeof(ClusterEvent.IMemberEvent) });
         }
 
-        public void Handle(ConnectResponse message)
+        public void Handle(SetOutputRequest message)
         {
-            Console.WriteLine("Connected!");
-            Console.WriteLine(message.Message);
+            this.main.Handle(message);
         }
 
-        public void Handle(NickRequest message)
+        public void Handle(ClusterEvent.IMemberEvent message)
         {
-            message.OldUsername = this._nick;
-            Console.WriteLine("Changing nick to {0}", message.NewUsername);
-            this._nick = message.NewUsername;
-            _server.Tell(message);
+            if (message.Member.Status == MemberStatus.Up && message.Member.Roles.Contains("animatroller"))
+            {
+                // Found a master, ping it
+                var sel = GetServerActorSelection(message.Member.Address);
+                sel.Tell(new Identify("animatroller"), Self);
+            }
+            else
+                // Not valid
+                this.main.RemoveServer(message.Member.Address);
         }
 
-        public void Handle(NickResponse message)
+        private ActorSelection GetServerActorSelection(Address address)
         {
-            Console.WriteLine("{0} is now known as {1}", message.OldUsername, message.NewUsername);
+            return Context.ActorSelection(string.Format("{0}/user/ExpanderServer", address));
         }
 
-        public void Handle(SayResponse message)
+        public void Handle(WhoAreYouRequest message)
         {
-            Console.WriteLine("{0}: {1}", message.Username, message.Text);
+            Sender.Tell(new WhoAreYouResponse
+            {
+                InstanceId = this.main.InstanceId
+            }, Self);
         }
 
-        public void Handle(ConnectRequest message)
+        public void Handle(ActorIdentity message)
         {
-            Console.WriteLine("Connecting....");
-            _server.Tell(message);
-        }
-
-        public void Handle(SayRequest message)
-        {
-            message.Username = this._nick;
-            _server.Tell(message);
+            if (message.MessageId is string && (string)message.MessageId == "animatroller")
+            {
+                // We expected this
+                this.main.AddServer(Sender.Path.Address, Sender);
+            }
         }
     }
 }
