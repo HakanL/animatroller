@@ -48,7 +48,7 @@ namespace Animatroller.Framework.Expander
             this.serverActorRef = serverActorRef;
         }
 
-        private void Send(object message)
+        private void SendMessage(object message)
         {
             this.clientActorRef?.Tell(message, this.serverActorRef);
         }
@@ -62,7 +62,9 @@ namespace Animatroller.Framework.Expander
         }
 
         public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }
+
         public PhysicalDevice.DigitalOutput[] DigitalOutputs { get; private set; }
+
         public PhysicalDevice.MotorWithFeedback Motor { get; private set; }
 
         protected virtual void RaiseAudioTrackDone()
@@ -81,7 +83,6 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
-            //            this.oscClient.Send("/init");
         }
 
         public void Stop()
@@ -92,17 +93,12 @@ namespace Animatroller.Framework.Expander
         {
             this.DigitalOutputs[index] = new PhysicalDevice.DigitalOutput(x =>
             {
-                Send(new SetOutputRequest
+                SendMessage(new SetOutputRequest
                 {
                     Output = string.Format("d{0}", index),
                     Value = x ? 1.0 : 0.0
                 });
             });
-        }
-
-        public void Test(int value)
-        {
-            //            this.oscClient.Send("/test", value.ToString());
         }
 
         public MonoExpanderInstance Connect(LogicalDevice.AudioPlayer logicalDevice)
@@ -112,72 +108,92 @@ namespace Animatroller.Framework.Expander
                     logicalDevice.RaiseAudioTrackDone();
                 };
 
-            //logicalDevice.AudioChanged += (sender, e) =>
-            //    {
-            //        switch (e.Command)
-            //        {
-            //            case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayFX:
-            //                if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
-            //                    this.oscClient.Send("/audio/fx/play", e.AudioFile, (float)e.LeftVolume.Value, (float)e.RightVolume.Value);
-            //                else if (e.LeftVolume.HasValue)
-            //                    this.oscClient.Send("/audio/fx/play", e.AudioFile, (float)e.LeftVolume.Value);
-            //                else
-            //                    this.oscClient.Send("/audio/fx/play", e.AudioFile);
-            //                break;
+            logicalDevice.AudioChanged += (sender, e) =>
+                {
+                    switch (e.Command)
+                    {
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX:
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayFX:
+                            if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
+                                SendMessage(new AudioEffectPlay
+                                {
+                                    FileName = e.AudioFile,
+                                    VolumeLeft = e.LeftVolume.Value,
+                                    VolumeRight = e.RightVolume.Value,
+                                    Simultaneous = e.Command == LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX
+                                });
+                            else if (e.LeftVolume.HasValue)
+                                SendMessage(new AudioEffectPlay
+                                {
+                                    FileName = e.AudioFile,
+                                    VolumeLeft = e.LeftVolume.Value,
+                                    VolumeRight = e.LeftVolume.Value,
+                                    Simultaneous = e.Command == LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX
+                                });
+                            else
+                                SendMessage(new AudioEffectPlay
+                                {
+                                    FileName = e.AudioFile,
+                                    Simultaneous = e.Command == LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX
+                                });
+                            break;
 
-            //            case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX:
-            //                if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
-            //                    this.oscClient.Send("/audio/fx/playnew", e.AudioFile, (float)e.LeftVolume.Value, (float)e.RightVolume.Value);
-            //                else if (e.LeftVolume.HasValue)
-            //                    this.oscClient.Send("/audio/fx/playnew", e.AudioFile, (float)e.LeftVolume.Value);
-            //                else
-            //                    this.oscClient.Send("/audio/fx/playnew", e.AudioFile);
-            //                break;
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueFX:
+                            SendMessage(new AudioEffectCue
+                            {
+                                FileName = e.AudioFile
+                            });
+                            break;
 
-            //            case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueFX:
-            //                this.oscClient.Send("/audio/fx/cue", e.AudioFile);
-            //                break;
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueTrack:
+                            SendMessage(new AudioTrackCue
+                            {
+                                FileName = e.AudioFile
+                            });
+                            break;
 
-            //            case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueTrack:
-            //                this.oscClient.Send("/audio/trk/cue", e.AudioFile);
-            //                break;
+                        case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayTrack:
+                            SendMessage(new AudioTrackPlay
+                            {
+                                FileName = e.AudioFile
+                            });
+                            break;
+                    }
+                };
 
-            //            case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayTrack:
-            //                this.oscClient.Send("/audio/trk/play", e.AudioFile);
-            //                break;
-            //        }
-            //    };
-
-            //logicalDevice.ExecuteCommand += (sender, e) =>
-            //    {
-            //        switch (e.Command)
-            //        {
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.PlayBackground:
-            //                this.oscClient.Send("/audio/bg/play");
-            //                break;
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseBackground:
-            //                this.oscClient.Send("/audio/bg/pause");
-            //                break;
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeFX:
-            //                this.oscClient.Send("/audio/fx/resume");
-            //                break;
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseFX:
-            //                this.oscClient.Send("/audio/fx/pause");
-            //                break;
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.NextBackground:
-            //                this.oscClient.Send("/audio/bg/next");
-            //                break;
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.BackgroundVolume:
-            //                this.oscClient.Send("/audio/bg/volume", (float)((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value);
-            //                break;
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeTrack:
-            //                this.oscClient.Send("/audio/trk/resume");
-            //                break;
-            //            case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseTrack:
-            //                this.oscClient.Send("/audio/trk/pause");
-            //                break;
-            //        }
-            //    };
+            logicalDevice.ExecuteCommand += (sender, e) =>
+                {
+                    switch (e.Command)
+                    {
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.PlayBackground:
+                            SendMessage(new AudioBackgroundResume());
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseBackground:
+                            SendMessage(new AudioBackgroundPause());
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeFX:
+                            SendMessage(new AudioEffectResume());
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseFX:
+                            SendMessage(new AudioEffectPause());
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.NextBackground:
+                            SendMessage(new AudioBackgroundNext());
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.BackgroundVolume:
+                            SendMessage(new AudioBackgroundSetVolume
+                            {
+                                Volume = ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value
+                            });
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeTrack:
+                            SendMessage(new AudioTrackResume());
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseTrack:
+                            SendMessage(new AudioTrackPause());
+                            break;
+                    }
+                };
 
             return this;
         }
@@ -189,15 +205,18 @@ namespace Animatroller.Framework.Expander
                 logicalDevice.RaiseVideoTrackDone();
             };
 
-            //logicalDevice.ExecuteCommand += (sender, e) =>
-            //{
-            //    switch (e.Command)
-            //    {
-            //        case LogicalDevice.Event.VideoCommandEventArgs.Commands.PlayVideo:
-            //            this.oscClient.Send("/video/play", e.VideoFile);
-            //            break;
-            //    }
-            //};
+            logicalDevice.ExecuteCommand += (sender, e) =>
+            {
+                switch (e.Command)
+                {
+                    case LogicalDevice.Event.VideoCommandEventArgs.Commands.PlayVideo:
+                        SendMessage(new VideoPlay
+                        {
+                            FileName = e.VideoFile
+                        });
+                        break;
+                }
+            };
 
             return this;
         }
@@ -219,7 +238,42 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(AudioPositionChanged message)
         {
-            throw new NotImplementedException();
+        }
+
+        public void Handle(VideoPositionChanged message)
+        {
+        }
+
+        public void Handle(VideoStarted message)
+        {
+        }
+
+        public void Handle(VideoFinished message)
+        {
+            log.Debug("Video {0} done", message.Id);
+            RaiseVideoTrackDone();
+        }
+
+        public void Handle(AudioStarted message)
+        {
+            switch (message.Type)
+            {
+                case AudioTypes.Background:
+                    log.Debug("Playing background track {0}", message.Id);
+                    this.audioTrackStart.OnNext(message.Id);
+                    break;
+            }
+        }
+
+        public void Handle(AudioFinished message)
+        {
+            switch (message.Type)
+            {
+                case AudioTypes.Track:
+                    log.Debug("Audio track {0} done", message.Id);
+                    RaiseAudioTrackDone();
+                    break;
+            }
         }
     }
 }

@@ -13,6 +13,11 @@ namespace Animatroller.Framework.Expander
 {
     public interface IMonoExpanderServerActor :
             IHandle<InputChanged>,
+            IHandle<VideoPositionChanged>,
+            IHandle<VideoStarted>,
+            IHandle<VideoFinished>,
+            IHandle<AudioStarted>,
+            IHandle<AudioFinished>,
             IHandle<AudioPositionChanged>
     {
     }
@@ -146,6 +151,31 @@ namespace Animatroller.Framework.Expander
         }
 
         public void Handle(InputChanged message)
+        {
+            GetClientInstance()?.Handle(message);
+        }
+
+        public void Handle(VideoPositionChanged message)
+        {
+            GetClientInstance()?.Handle(message);
+        }
+
+        public void Handle(VideoStarted message)
+        {
+            GetClientInstance()?.Handle(message);
+        }
+
+        public void Handle(VideoFinished message)
+        {
+            GetClientInstance()?.Handle(message);
+        }
+
+        public void Handle(AudioStarted message)
+        {
+            GetClientInstance()?.Handle(message);
+        }
+
+        public void Handle(AudioFinished message)
         {
             GetClientInstance()?.Handle(message);
         }

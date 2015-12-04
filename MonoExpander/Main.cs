@@ -19,7 +19,7 @@ using Animatroller.Framework.MonoExpanderMessages;
 
 namespace Animatroller.MonoExpander
 {
-    public class Main : IDisposable, IMonoExpanderClientActor
+    public partial class Main : IDisposable
     {
         public enum VideoSystems
         {
@@ -491,7 +491,7 @@ namespace Animatroller.MonoExpander
             return sound;
         }
 
-        private void PlaySound(string fileName, bool playOnNewChannel, float leftVol = 1.0f, float? rightVol = null)
+        private void PlaySound(string fileName, bool playOnNewChannel, double leftVol = 1.0, double? rightVol = null)
         {
             if (this.fmodSystem == null)
                 return;
@@ -515,175 +515,13 @@ namespace Animatroller.MonoExpander
             if (!rightVol.HasValue)
                 rightVol = leftVol;
 
-            channel.FmodChannel.setMixLevelsOutput(leftVol, rightVol.Value, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+            channel.FmodChannel.setMixLevelsOutput((float)leftVol, (float)rightVol.Value, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
             // Play
             channel.Pause = false;
 
             if (!playOnNewChannel)
                 this.currentFxChannel = channel;
-        }
-
-        private void InvokeOSC(Rug.Osc.OscMessage msg)
-        {
-            try
-            {
-                switch (msg.Address)
-                {
-                    case "/test":
-                        this.log.Info("Received OSC test message {0}", string.Join(",", msg));
-                        break;
-
-                    case "/init":
-                        this.log.Info("Received OSC init message {0}", string.Join(",", msg));
-                        break;
-
-                    case "/audio/fx/cue":
-                        switch (msg.Count)
-                        {
-                            case 1:
-                                LoadSound((string)msg[0]);
-                                break;
-
-                            default:
-                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
-                        }
-                        break;
-
-                    case "/audio/fx/play":
-                    case "/audio/fx/playnew":
-                        bool playOnNewChannel = msg.Address == "/audio/fx/playnew";
-                        switch (msg.Count)
-                        {
-                            case 1:
-                                PlaySound((string)msg[0], playOnNewChannel);
-                                break;
-
-                            case 2:
-                                PlaySound((string)msg[0], playOnNewChannel, (float)msg[1]);
-                                break;
-
-                            case 3:
-                                PlaySound((string)msg[0], playOnNewChannel, (float)msg[1], (float)msg[2]);
-                                break;
-
-                            default:
-                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
-                        }
-
-                        break;
-
-                    case "/audio/fx/pause":
-                        if (this.currentFxChannel.HasValue)
-                        {
-                            var chn = this.currentBgChannel.Value;
-                            chn.Pause = true;
-                        }
-                        break;
-
-                    case "/audio/fx/resume":
-                        if (this.currentFxChannel.HasValue)
-                        {
-                            var chn = this.currentFxChannel.Value;
-                            chn.Pause = false;
-                        }
-                        break;
-
-                    case "/audio/fx/volume":
-                        if (msg.Count == 0)
-                            throw new ArgumentException("Missing volume argument");
-
-                        this.fxGroup.Volume = (float)msg[0];
-                        break;
-
-                    case "/audio/bg/volume":
-                        if (msg.Count == 0)
-                            throw new ArgumentException("Missing volume argument");
-
-                        this.bgGroup.Volume = (float)msg[0];
-                        break;
-
-                    case "/audio/bg/resume":
-                    case "/audio/bg/play":
-                        if (this.currentBgChannel.HasValue)
-                        {
-                            var chn = this.currentBgChannel.Value;
-                            chn.Pause = false;
-                        }
-                        else
-                            PlayNextBackground();
-                        break;
-
-                    case "/audio/bg/pause":
-                        if (this.currentBgChannel.HasValue)
-                        {
-                            var chn = this.currentBgChannel.Value;
-                            chn.Pause = true;
-                        }
-                        break;
-
-                    case "/audio/bg/next":
-                        PlayNextBackground();
-                        break;
-
-                    case "/audio/trk/play":
-                        switch (msg.Count)
-                        {
-                            case 1:
-                                LoadTrack((string)msg[0]);
-                                PlayTrack();
-                                break;
-
-                            default:
-                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
-                        }
-                        break;
-
-                    case "/audio/trk/cue":
-                        switch (msg.Count)
-                        {
-                            case 1:
-                                LoadTrack((string)msg[0]);
-                                break;
-
-                            default:
-                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
-                        }
-                        break;
-
-                    case "/audio/trk/pause":
-                        if (this.currentTrkChannel.HasValue)
-                        {
-                            var chn = this.currentTrkChannel.Value;
-                            chn.Pause = true;
-                        }
-                        break;
-
-                    case "/audio/trk/resume":
-                        if (this.currentTrkChannel.HasValue)
-                        {
-                            var chn = this.currentTrkChannel.Value;
-                            chn.Pause = false;
-                        }
-                        break;
-
-                    case "/video/play":
-                        switch (msg.Count)
-                        {
-                            case 1:
-                                PlayVideo((string)msg[0]);
-                                break;
-
-                            default:
-                                throw new ArgumentException(string.Format("Missing argument for OSC message {0}", msg.Address));
-                        }
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                this.log.Error(ex, "Unhandled exception in InvokeOSC");
-            }
         }
 
         public void Dispose()
@@ -790,27 +628,6 @@ namespace Animatroller.MonoExpander
             finally
             {
                 Console.CursorVisible = true;
-            }
-        }
-
-        public void Handle(SetOutputRequest message)
-        {
-            this.log.Info("Set output {0} to {1}", message.Output, message.Value);
-
-            if (!message.Output.StartsWith("d"))
-                return;
-
-            int outputId;
-            if (!int.TryParse(message.Output.Substring(1), out outputId))
-                return;
-
-            if (outputId < 0 || outputId > 7)
-                return;
-
-            if (this.piFace != null)
-            {
-                this.piFace.OutputPins[outputId].State = message.Value != 0.0;
-                this.piFace.UpdatePiFaceOutputPins();
             }
         }
     }

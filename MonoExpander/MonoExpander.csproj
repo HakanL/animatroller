@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Arguments.cs" />
+    <Compile Include="MainHandlers.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="MonoExpanderClientActor.cs" />
     <Compile Include="Program.cs" />
