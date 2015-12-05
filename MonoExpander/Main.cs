@@ -203,7 +203,7 @@ namespace Animatroller.MonoExpander
                     }
                     remote {
                         helios.tcp {
-		                    port = 0
+		                    #port = 0
 		                    hostname = 0.0.0.0
                         }
                     }
@@ -218,7 +218,9 @@ namespace Animatroller.MonoExpander
             string seedsString = string.Format(@"akka.cluster.seed-nodes = [{0}]", seeds);
 
             var finalConfig = ConfigurationFactory.ParseString(
-                    string.Format(@"akka.remote.helios.tcp.public-hostname = {0}", Environment.MachineName))
+                    string.Format(@"akka.remote.helios.tcp.public-hostname = {0}
+                        akka.remote.helios.tcp.port = {1}",
+                    Environment.MachineName, args.ListenPort))
                 .WithFallback(ConfigurationFactory.ParseString(seedsString))
                 .WithFallback(akkaConfig);
 

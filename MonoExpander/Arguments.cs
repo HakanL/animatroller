@@ -29,6 +29,10 @@ namespace Animatroller.MonoExpander
         [ArgDescription("Auto-start background tracks")]
         public bool BackgroundTrackAutoStart { get; set; }
 
+        [ArgShortcut("p")]
+        [ArgDescription("Listen port")]
+        public int ListenPort { get; set; }
+
         [ArgShortcut("s")]
         [ArgDescription("Animatroller Hostname:Port to connect to. Supports comma-separated entries")]
         public string[] Server

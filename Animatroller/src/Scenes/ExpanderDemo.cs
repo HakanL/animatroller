@@ -13,8 +13,10 @@ namespace Animatroller.SceneRunner
     {
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(8088);
         AudioPlayer audioLocal = new AudioPlayer();
+        AudioPlayer audio2 = new AudioPlayer();
 
         DigitalInput2 in1 = new DigitalInput2();
         DigitalOutput2 out1 = new DigitalOutput2();
@@ -30,18 +32,21 @@ namespace Animatroller.SceneRunner
             }
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
-            expanderServer.AddInstance("ca52c6aeb9964a85b83db01c74c5df80", expander1);
+            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);
+            expanderServer.AddInstance("10520fdcf14d47cba31da8b6e05d01d8", expander2);
             
             expander1.DigitalInputs[6].Connect(in1);
             expander1.DigitalOutputs[7].Connect(out1);
             expander1.Connect(audioLocal);
+            expander2.Connect(audio2);
 
             in1.Output.Subscribe(x =>
             {
                 if (x)
-                    audioLocal.PlayEffect("WarmHugs.wav");
+                    audio2.PlayEffect("WarmHugs.wav");
+                    //                    audioLocal.PlayEffect("WarmHugs.wav");
 
-                out1.Value = x;
+                    out1.Value = x;
             });
         }
 
