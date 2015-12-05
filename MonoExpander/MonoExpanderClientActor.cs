@@ -95,7 +95,7 @@ namespace Animatroller.MonoExpander
         protected Logger log = LogManager.GetCurrentClassLogger();
         private Main main;
         private Dictionary<string, DownloadInfo> downloadInfo;
-        private const int ChunkSize = 4096;
+        private const int ChunkSize = 16384;
         private const int BufferedChunks = 5;
 
         public MonoExpanderClientActor(Main main)

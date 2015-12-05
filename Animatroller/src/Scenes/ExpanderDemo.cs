@@ -12,6 +12,7 @@ namespace Animatroller.SceneRunner
     internal class ExpanderDemo : BaseScene
     {
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(8088);
         AudioPlayer audioLocal = new AudioPlayer();
 
@@ -29,10 +30,11 @@ namespace Animatroller.SceneRunner
             }
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
-
-            expanderLocal.DigitalInputs[6].Connect(in1);
-            expanderLocal.DigitalOutputs[7].Connect(out1);
-            expanderLocal.Connect(audioLocal);
+            expanderServer.AddInstance("ca52c6aeb9964a85b83db01c74c5df80", expander1);
+            
+            expander1.DigitalInputs[6].Connect(in1);
+            expander1.DigitalOutputs[7].Connect(out1);
+            expander1.Connect(audioLocal);
 
             in1.Output.Subscribe(x =>
             {

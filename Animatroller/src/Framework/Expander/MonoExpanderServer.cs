@@ -96,7 +96,7 @@ namespace Animatroller.Framework.Expander
 
             var finalConfig = ConfigurationFactory.ParseString(
                     string.Format(@"akka.remote.helios.tcp.public-hostname = {0} 
-                        akka.remote.helios.tcp.port = {1}", "localhost", listenPort))
+                        akka.remote.helios.tcp.port = {1}", Environment.MachineName, listenPort))
                 .WithFallback(akkaConfig);
 
             // Create Actor System
@@ -128,7 +128,7 @@ namespace Animatroller.Framework.Expander
             }
 
             // Always add us first
-            var ourAddress = Address.Parse(string.Format("akka.tcp://Animatroller@localhost:{0}", this.listenPort));
+            var ourAddress = Address.Parse(string.Format("akka.tcp://Animatroller@{1}:{0}", this.listenPort, Environment.MachineName));
             seeds.Remove(ourAddress);
 
             var joinSeeds = System.Collections.Immutable.ImmutableList<Address>.Empty;
