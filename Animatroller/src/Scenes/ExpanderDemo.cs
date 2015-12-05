@@ -39,7 +39,7 @@ namespace Animatroller.SceneRunner
             in1.Output.Subscribe(x =>
             {
                 if (x)
-                    audioLocal.PlayEffect("scream.wav");
+                    audioLocal.PlayEffect("WarmHugs.wav");
 
                 out1.Value = x;
             });

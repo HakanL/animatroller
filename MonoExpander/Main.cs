@@ -118,17 +118,18 @@ namespace Animatroller.MonoExpander
             this.random = new Random();
             this.disposeList = new List<IDisposable>();
 
-            this.soundEffectPath = Path.Combine(Path.GetFullPath(args.FileStoragePath), FileTypes.AudioEffect.ToString());
-            this.trackPath = Path.Combine(Path.GetFullPath(args.FileStoragePath), FileTypes.AudioTrack.ToString());
-            this.videoPath = Path.Combine(Path.GetFullPath(args.FileStoragePath), FileTypes.Video.ToString());
+            string fileStoragePath = Path.GetFullPath(args.FileStoragePath);
+
+            this.soundEffectPath = Path.Combine(fileStoragePath, FileTypes.AudioEffect.ToString());
+            this.trackPath = Path.Combine(fileStoragePath, FileTypes.AudioTrack.ToString());
+            this.videoPath = Path.Combine(fileStoragePath, FileTypes.Video.ToString());
 
             this.autoStartBackgroundTrack = args.BackgroundTrackAutoStart;
 
             // Try to read instance id from disk
-            string tempPath = Path.GetTempPath();
             try
             {
-                using (var f = File.OpenText(Path.Combine(tempPath, "MonoExpander_InstanceId.txt")))
+                using (var f = File.OpenText(Path.Combine(fileStoragePath, "MonoExpander_InstanceId.txt")))
                 {
                     this.instanceId = f.ReadLine();
                 }
@@ -138,7 +139,7 @@ namespace Animatroller.MonoExpander
                 // Generate new
                 this.instanceId = Guid.NewGuid().ToString("n");
 
-                using (var f = File.CreateText(Path.Combine(tempPath, "MonoExpander_InstanceId.txt")))
+                using (var f = File.CreateText(Path.Combine(fileStoragePath, "MonoExpander_InstanceId.txt")))
                 {
                     f.WriteLine(this.instanceId);
                     f.Flush();
