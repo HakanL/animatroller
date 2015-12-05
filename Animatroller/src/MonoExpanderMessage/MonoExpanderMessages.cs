@@ -10,6 +10,14 @@ namespace Animatroller.Framework.MonoExpanderMessages
         Effect
     }
 
+    public enum FileTypes
+    {
+        AudioBackground,
+        AudioTrack,
+        AudioEffect,
+        Video
+    }
+
     public class WhoAreYouRequest
     {
     }
@@ -149,5 +157,49 @@ namespace Animatroller.Framework.MonoExpanderMessages
     public class VideoPlay
     {
         public string FileName { get; set; }
+    }
+
+    //
+    // File requests
+    //
+
+    public class FileRequest
+    {
+        public string DownloadId { get; set; }
+
+        public FileTypes Type { get; set; }
+
+        public string FileName { get; set; }
+    }
+
+    public class FileResponse
+    {
+        public string DownloadId { get; set; }
+
+        public long Size { get; set; }
+
+        public byte[] SignatureSha1 { get; set; }
+    }
+
+    public class FileChunkRequest
+    {
+        public string DownloadId { get; set; }
+
+        public FileTypes Type { get; set; }
+
+        public string FileName { get; set; }
+
+        public long ChunkStart { get; set; }
+
+        public int ChunkSize { get; set; }
+    }
+
+    public class FileChunkResponse
+    {
+        public string DownloadId { get; set; }
+
+        public long ChunkStart { get; set; }
+
+        public byte[] Chunk { get; set; }
     }
 }

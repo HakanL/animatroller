@@ -142,6 +142,8 @@ namespace Animatroller.Framework.Expander
             Cluster.Get(this.system).JoinSeedNodes(joinSeeds);
         }
 
+        public string ExpanderSharedFiles { get; set; }
+
         public void Stop()
         {
             if (this.serverActor != null)

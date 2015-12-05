@@ -56,11 +56,18 @@ namespace Animatroller.MonoExpander
         private ActorSystem system;
         private IActorRef clientActor;
         private Dictionary<Address, IActorRef> serverActors;
+        private string fileStoragePath;
 
         public Main(Arguments args)
         {
             this.log = LogManager.GetLogger("Main");
             this.serverActors = new Dictionary<Address, IActorRef>();
+            this.fileStoragePath = args.FileStoragePath;
+
+            // Clean up temp folder
+            string tempFolder = Path.Combine(this.fileStoragePath, "tmp");
+            Directory.CreateDirectory(tempFolder);
+            Directory.GetDirectories(tempFolder).ToList().ForEach(x => Directory.Delete(x, true));
 
             if (!string.IsNullOrEmpty(args.VideoSystem))
             {
@@ -111,18 +118,10 @@ namespace Animatroller.MonoExpander
             this.random = new Random();
             this.disposeList = new List<IDisposable>();
 
-            if (string.IsNullOrEmpty(args.SoundEffectPath))
-                this.soundEffectPath = Directory.GetCurrentDirectory();
-            else
-                this.soundEffectPath = Path.GetFullPath(args.SoundEffectPath);
-            if (string.IsNullOrEmpty(args.TrackPath))
-                this.trackPath = Directory.GetCurrentDirectory();
-            else
-                this.trackPath = Path.GetFullPath(args.TrackPath);
-            if (string.IsNullOrEmpty(args.VideoPath))
-                this.videoPath = Directory.GetCurrentDirectory();
-            else
-                this.videoPath = Path.GetFullPath(args.VideoPath);
+            this.soundEffectPath = Path.Combine(Path.GetFullPath(args.FileStoragePath), FileTypes.AudioEffect.ToString());
+            this.trackPath = Path.Combine(Path.GetFullPath(args.FileStoragePath), FileTypes.AudioTrack.ToString());
+            this.videoPath = Path.Combine(Path.GetFullPath(args.FileStoragePath), FileTypes.Video.ToString());
+
             this.autoStartBackgroundTrack = args.BackgroundTrackAutoStart;
 
             // Try to read instance id from disk
@@ -224,6 +223,11 @@ namespace Animatroller.MonoExpander
             this.system = ActorSystem.Create("Animatroller", finalConfig);
 
             this.clientActor = this.system.ActorOf(Props.Create<MonoExpanderClientActor>(this), "Expander");
+        }
+
+        public string FileStoragePath
+        {
+            get { return this.fileStoragePath; }
         }
 
         public void AddServer(Address address, IActorRef sender)

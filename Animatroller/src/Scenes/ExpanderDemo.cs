@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Drawing;
 using System.Threading;
 using Animatroller.Framework;
@@ -19,6 +20,14 @@ namespace Animatroller.SceneRunner
 
         public ExpanderDemo(IEnumerable<string> args)
         {
+            string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
+            if (!string.IsNullOrEmpty(expFilesParam))
+            {
+                string[] parts = expFilesParam.Split('=');
+                if (parts.Length == 2)
+                    expanderServer.ExpanderSharedFiles = parts[1];
+            }
+
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
 
             expanderLocal.DigitalInputs[6].Connect(in1);

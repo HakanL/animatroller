@@ -8,6 +8,7 @@ using Akka.Actor;
 using Akka.Cluster;
 using Newtonsoft.Json;
 using Animatroller.Framework.MonoExpanderMessages;
+using System.IO;
 
 namespace Animatroller.Framework.Expander
 {
@@ -30,6 +31,8 @@ namespace Animatroller.Framework.Expander
     public class MonoExpanderServerActor : TypedActor,
         IMonoExpanderServerActor,
         IHandle<ClusterEvent.IMemberEvent>,
+        IHandle<FileRequest>,
+        IHandle<FileChunkRequest>,
         ILogReceive
     {
         protected Logger log = LogManager.GetCurrentClassLogger();
@@ -178,6 +181,75 @@ namespace Animatroller.Framework.Expander
         public void Handle(AudioFinished message)
         {
             GetClientInstance()?.Handle(message);
+        }
+
+        private byte[] CalculateSignatureSha1(string fileName)
+        {
+            using (var fs = new FileStream(fileName, FileMode.Open))
+            using (var bs = new BufferedStream(fs))
+            {
+                using (var sha1 = new System.Security.Cryptography.SHA1Managed())
+                {
+                    return sha1.ComputeHash(bs);
+                }
+            }
+        }
+
+        public void Handle(FileRequest message)
+        {
+            this.log.Info("Requested download file {1} of type {0}", message.Type, message.FileName);
+
+            if (!string.IsNullOrEmpty(Path.GetDirectoryName(message.FileName)))
+                throw new ArgumentException("FileName should be without path");
+
+            string fileTypeFolder = Path.Combine(this.parent.ExpanderSharedFiles, message.Type.ToString());
+            Directory.CreateDirectory(fileTypeFolder);
+
+            string filePath = Path.Combine(fileTypeFolder, message.FileName);
+
+            if (!File.Exists(filePath))
+            {
+                this.log.Warn("File {0} of type {1} doesn't exist", message.FileName, message.Type);
+
+                Sender.Tell(new FileResponse
+                {
+                    DownloadId = message.DownloadId,
+                    Size = 0
+                }, Self);
+
+                return;
+            }
+
+            var fi = new FileInfo(filePath);
+
+            Sender.Tell(new FileResponse
+            {
+                DownloadId = message.DownloadId,
+                Size = fi.Length,
+                SignatureSha1 = CalculateSignatureSha1(filePath)
+            }, Self);
+        }
+
+        public void Handle(FileChunkRequest message)
+        {
+            string filePath = Path.Combine(this.parent.ExpanderSharedFiles, message.Type.ToString(), message.FileName);
+
+            using (var fs = File.OpenRead(filePath))
+            {
+                fs.Seek(message.ChunkStart, SeekOrigin.Begin);
+
+                int bytesToRead = Math.Min(message.ChunkSize, (int)(fs.Length - message.ChunkStart));
+
+                byte[] chunk = new byte[bytesToRead];
+                fs.Read(chunk, 0, chunk.Length);
+
+                Sender.Tell(new FileChunkResponse
+                {
+                    DownloadId = message.DownloadId,
+                    ChunkStart = message.ChunkStart,
+                    Chunk = chunk
+                }, Self);
+            }
         }
     }
 }

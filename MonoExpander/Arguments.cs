@@ -17,21 +17,13 @@ namespace Animatroller.MonoExpander
         [ArgDescription("Activate video system")]
         public string VideoSystem { get; set; }
 
+        [ArgShortcut("fs")]
+        [ArgDescription("Path to file storage location")]
+        public string FileStoragePath { get; set; }
+
         [ArgShortcut("bg")]
         [ArgDescription("Path to background tracks, relative or absolute")]
         public string BackgroundTracksPath { get; set; }
-
-        [ArgShortcut("fx")]
-        [ArgDescription("Path to sound effects, relative or absolute")]
-        public string SoundEffectPath { get; set; }
-
-        [ArgShortcut("trk")]
-        [ArgDescription("Path to tracks, relative or absolute")]
-        public string TrackPath { get; set; }
-
-        [ArgShortcut("vid")]
-        [ArgDescription("Path to video files, relative or absolute")]
-        public string VideoPath { get; set; }
 
         [ArgShortcut("bgas")]
         [ArgDescription("Auto-start background tracks")]
