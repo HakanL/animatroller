@@ -173,7 +173,7 @@ namespace Animatroller.Framework.Expander
         private Acn.DmxStreamer dmxStreamer;
         private Dictionary<int, AcnUniverse> sendingUniverses;
 
-        public AcnStream(IPAddress bindIpAddress)
+        public AcnStream(IPAddress bindIpAddress, int priority)
         {
             if (bindIpAddress == null)
                 bindIpAddress = GetFirstBindAddress();
@@ -184,14 +184,14 @@ namespace Animatroller.Framework.Expander
             log.Info("ACN binding to {0}", bindIpAddress);
 
             this.dmxStreamer = new DmxStreamer(this.socket);
-            this.dmxStreamer.Priority = 150;
+            this.dmxStreamer.Priority = priority;
             this.sendingUniverses = new Dictionary<int, AcnUniverse>();
 
             Executor.Current.Register(this);
         }
 
-        public AcnStream()
-            : this(null)
+        public AcnStream(int priority = 100)
+            : this(null, priority)
         {
         }
 
