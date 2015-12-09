@@ -100,7 +100,7 @@ namespace Animatroller.Framework.Expander
 
             var finalConfig = ConfigurationFactory.ParseString(
                     string.Format(@"akka.remote.helios.tcp.public-hostname = {0} 
-                        akka.remote.helios.tcp.port = {1}", Environment.MachineName, listenPort))
+                        akka.remote.helios.tcp.port = {1}", Environment.MachineName.ToLower(), listenPort))
                 .WithFallback(akkaConfig);
 
             // Create Actor System
@@ -136,7 +136,7 @@ namespace Animatroller.Framework.Expander
             if (this.lighthousePort.HasValue)
             {
                 var lighthouseAddress = Address.Parse(string.Format("akka.tcp://Animatroller@{0}:{1}",
-                    Environment.MachineName, this.lighthousePort.Value));
+                    Environment.MachineName.ToLower(), this.lighthousePort.Value));
                 seeds.Remove(lighthouseAddress);
                 joinSeeds = joinSeeds.Add(lighthouseAddress);
             }
@@ -144,7 +144,7 @@ namespace Animatroller.Framework.Expander
             {
                 // And ourselves
                 var ourAddress = Address.Parse(string.Format("akka.tcp://Animatroller@{0}:{1}",
-                    Environment.MachineName, this.listenPort));
+                    Environment.MachineName.ToLower(), this.listenPort));
                 seeds.Remove(ourAddress);
                 joinSeeds = joinSeeds.Add(ourAddress);
             }

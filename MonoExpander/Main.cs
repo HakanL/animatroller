@@ -119,6 +119,7 @@ namespace Animatroller.MonoExpander
             this.disposeList = new List<IDisposable>();
 
             string fileStoragePath = Path.GetFullPath(args.FileStoragePath);
+            Directory.CreateDirectory(fileStoragePath);
 
             this.soundEffectPath = Path.Combine(fileStoragePath, FileTypes.AudioEffect.ToString());
             this.trackPath = Path.Combine(fileStoragePath, FileTypes.AudioTrack.ToString());
@@ -218,10 +219,12 @@ namespace Animatroller.MonoExpander
             string seeds = string.Join(",", args.Servers.Select(x => string.Format("\"akka.tcp://Animatroller@{0}:{1}\"", x.Host, x.Port)));
             string seedsString = string.Format(@"akka.cluster.seed-nodes = [{0}]", seeds);
 
+            this.log.Info("Connecting to seed nodes: {0}", seeds);
+
             var finalConfig = ConfigurationFactory.ParseString(
                     string.Format(@"akka.remote.helios.tcp.public-hostname = {0}
                         akka.remote.helios.tcp.port = {1}",
-                    Environment.MachineName, args.ListenPort))
+                    Environment.MachineName.ToLower(), args.ListenPort))
                 .WithFallback(ConfigurationFactory.ParseString(seedsString))
                 .WithFallback(akkaConfig);
 
@@ -252,6 +255,11 @@ namespace Animatroller.MonoExpander
 
         public void SendMessage(object message)
         {
+            if (!this.serverActors.Any())
+            {
+                this.log.Warn("No server actors found");
+            }
+
             this.serverActors.Values.ToList().ForEach(x =>
             {
                 x.Tell(message, this.clientActor);
