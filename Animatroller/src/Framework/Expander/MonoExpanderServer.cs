@@ -19,13 +19,15 @@ namespace Animatroller.Framework.Expander
         private ActorSystem system;
         private IActorRef serverActor;
         private int listenPort;
+        private int? lighthousePort;
         private Dictionary<string, IMonoExpanderInstance> clientInstances;
 
         public MonoExpanderServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             Initialize(
                 name: name,
-                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081));
+                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081),
+                lighthousePort: Executor.Current.GetSetKey<int?>(this, name + ".lighthousePort", null));
         }
 
         public void AddInstance(string instanceId, MonoExpanderInstance expanderLocal)
@@ -33,9 +35,9 @@ namespace Animatroller.Framework.Expander
             this.clientInstances.Add(instanceId, expanderLocal);
         }
 
-        public MonoExpanderServer(int listenPort, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public MonoExpanderServer(int listenPort, int? lighthousePort = null, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            Initialize(name, listenPort);
+            Initialize(name, listenPort, lighthousePort);
         }
 
         internal void UpdateClientActors(string instanceId, IActorRef clientActor, IActorRef serverActor)
@@ -55,15 +57,17 @@ namespace Animatroller.Framework.Expander
             return instance;
         }
 
-        private void Initialize(string name, int listenPort)
+        private void Initialize(string name, int listenPort, int? lighthousePort)
         {
             this.name = name;
             this.listenPort = listenPort;
+            this.lighthousePort = lighthousePort;
             this.clientInstances = new Dictionary<string, IMonoExpanderInstance>();
 
             // Default
             var akkaConfig = ConfigurationFactory.ParseString(@"
                 akka {
+                    loggers = [""Akka.Logger.NLog.NLogLogger, Akka.Logger.NLog""]
                     #loglevel = DEBUG
                     #log-config-on-start = on
                     actor {
@@ -127,12 +131,23 @@ namespace Animatroller.Framework.Expander
                 // Ignore
             }
 
-            // Always add us first
-            var ourAddress = Address.Parse(string.Format("akka.tcp://Animatroller@{1}:{0}", this.listenPort, Environment.MachineName));
-            seeds.Remove(ourAddress);
-
             var joinSeeds = System.Collections.Immutable.ImmutableList<Address>.Empty;
-            joinSeeds = joinSeeds.Add(ourAddress);
+            // Always add our lighthouse first if we have one defined
+            if (this.lighthousePort.HasValue)
+            {
+                var lighthouseAddress = Address.Parse(string.Format("akka.tcp://Animatroller@{0}:{1}",
+                    Environment.MachineName, this.lighthousePort.Value));
+                seeds.Remove(lighthouseAddress);
+                joinSeeds = joinSeeds.Add(lighthouseAddress);
+            }
+            else
+            {
+                // And ourselves
+                var ourAddress = Address.Parse(string.Format("akka.tcp://Animatroller@{0}:{1}",
+                    Environment.MachineName, this.listenPort));
+                seeds.Remove(ourAddress);
+                joinSeeds = joinSeeds.Add(ourAddress);
+            }
 
             // Build seed list from rest of seeds
             foreach (var addr in seeds)

@@ -8,6 +8,7 @@ using Animatroller.Framework.LogicalDevice;
 using Expander = Animatroller.Framework.Expander;
 using Controller = Animatroller.Framework.Controller;
 using Physical = Animatroller.Framework.PhysicalDevice;
+using Effect = Animatroller.Framework.Effect;
 using System.Reactive.Subjects;
 
 namespace Animatroller.SceneRunner
@@ -33,11 +34,12 @@ namespace Animatroller.SceneRunner
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(8088);
+        Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8088, lighthousePort: 8899);
         AudioPlayer audio1 = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
 
         Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
+        Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
         DigitalInput2 inOlaf = new DigitalInput2();
 
@@ -65,7 +67,7 @@ namespace Animatroller.SceneRunner
 
         public Xmas2015(IEnumerable<string> args)
         {
-            hours.AddRange("5:00 pm", "10:00 pm");
+            hours.AddRange("4:00 pm", "10:00 pm");
 
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
@@ -74,6 +76,8 @@ namespace Animatroller.SceneRunner
                 if (parts.Length == 2)
                     expanderServer.ExpanderSharedFiles = parts[1];
             }
+
+            pulsatingEffect1.ConnectTo(lightOlaf);
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);
@@ -96,7 +100,7 @@ namespace Animatroller.SceneRunner
                 if (x)
                     hours.SetForced(true);
                 else
-                    hours.SetForced(false);
+                    hours.SetForced(null);
             });
 
             inflatablesRunning.Subscribe(x =>
@@ -150,6 +154,7 @@ namespace Animatroller.SceneRunner
                 {
                     stateMachine.SetBackgroundState(States.Background);
                     stateMachine.SetState(States.Background);
+                    lightOlaf.SetBrightness(1.0);
                     //lightTreeUp.SetColor(Color.Red, 1.0);
                     //lightSnow1.SetBrightness(1.0);
                     //lightSnow2.SetBrightness(1.0);
@@ -161,6 +166,7 @@ namespace Animatroller.SceneRunner
 
                     stateMachine.Hold();
                     stateMachine.SetBackgroundState(null);
+                    lightOlaf.SetBrightness(0);
                     //EverythingOff();
                     System.Threading.Thread.Sleep(200);
                     /*
@@ -176,12 +182,12 @@ namespace Animatroller.SceneRunner
             });
 
             subOlaf
-                .LockWhenRunning(lightOlaf)
                 .RunAction(i =>
                 {
-                    lightOlaf.SetBrightness(1.0, i.Token);
+                    pulsatingEffect1.Start();
                     audio1.PlayEffect("WarmHugs.wav");
                     i.WaitFor(S(10));
+                    pulsatingEffect1.Stop();
                 });
 
 

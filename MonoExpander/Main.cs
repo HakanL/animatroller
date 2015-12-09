@@ -197,6 +197,7 @@ namespace Animatroller.MonoExpander
 
             var akkaConfig = ConfigurationFactory.ParseString(@"
                 akka {
+                    loggers = [""Akka.Logger.NLog.NLogLogger, Akka.Logger.NLog""]
                     ##log-config-on-start = on
                     actor {
                         provider = ""Akka.Cluster.ClusterActorRefProvider, Akka.Cluster""
