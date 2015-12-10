@@ -104,15 +104,18 @@ namespace Animatroller.Framework.Expander
             string seedList = Newtonsoft.Json.JsonConvert.SerializeObject(currentUpMembers.Select(x => x.Value.Address.ToString()));
             Executor.Current.SetKey(this.parent, "CurrentUpMembers", seedList);
 
-            // See if the connected node is known
-            if (message.Member.Status == MemberStatus.Up && message.Member.Roles.Contains("expander"))
+            // Check UpMembers if they are expanders and known
+            foreach (var member in currentUpMembers.Values)
             {
-                // It's an expander, we should ping to get an actor ref
-                lock (this.knownClients)
+                if (member.Roles.Contains("expander"))
                 {
-                    // Tell it to send us its InstanceId
-                    var sel = GetClientActorSelection(message.Member.Address);
-                    sel.Tell(new WhoAreYouRequest(), Self);
+                    // It's an expander, we should ping to get an actor ref
+                    lock (this.knownClients)
+                    {
+                        // Tell it to send us its InstanceId
+                        var sel = GetClientActorSelection(message.Member.Address);
+                        sel.Tell(new WhoAreYouRequest(), Self);
+                    }
                 }
             }
 

@@ -104,7 +104,8 @@ namespace Animatroller.MonoExpander
             this.downloadInfo = new Dictionary<string, DownloadInfo>();
 
             // Subscribe to cluster events
-            Cluster.Get(Context.System).Subscribe(Self, new[] { typeof(ClusterEvent.IMemberEvent) });
+            Cluster.Get(Context.System).Subscribe(Self, new[] {
+                typeof(ClusterEvent.IMemberEvent) });
         }
 
         public void Handle(SetOutputRequest message)
@@ -112,17 +113,28 @@ namespace Animatroller.MonoExpander
             this.main.Handle(message);
         }
 
-        public void Handle(ClusterEvent.IMemberEvent message)
+        private void CheckMembers()
         {
-            if (message.Member.Status == MemberStatus.Up && message.Member.Roles.Contains("animatroller"))
+            var currentUpMembers = Cluster.Get(Context.System).ReadView.Members
+                .Where(x => x.Status == MemberStatus.Up && x.HasRole("animatroller"));
+
+            foreach (var member in currentUpMembers)
             {
                 // Found a master, ping it
-                var sel = GetServerActorSelection(message.Member.Address);
+                var sel = GetServerActorSelection(member.Address);
                 sel.Tell(new Identify("animatroller"), Self);
             }
-            else
+        }
+
+        public void Handle(ClusterEvent.IMemberEvent message)
+        {
+            CheckMembers();
+
+            if (message.Member.Status != MemberStatus.Up || !message.Member.Roles.Contains("animatroller"))
+            {
                 // Not valid
                 this.main.RemoveServer(message.Member.Address);
+            }
         }
 
         private ActorSelection GetServerActorSelection(Address address)
