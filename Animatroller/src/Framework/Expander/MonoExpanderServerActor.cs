@@ -95,6 +95,26 @@ namespace Animatroller.Framework.Expander
             this.parent.UpdateClientActors(message.InstanceId, Sender, Self);
         }
 
+        private void CheckUpMembers()
+        {
+            var currentUpMembers = Cluster.Get(Context.System).ReadView.Members
+                .Where(x => x.Status == MemberStatus.Up);
+
+            foreach (var member in currentUpMembers)
+            {
+                if (member.Roles.Contains("expander"))
+                {
+                    // It's an expander, we should ping to get an actor ref
+                    lock (this.knownClients)
+                    {
+                        // Tell it to send us its InstanceId
+                        var sel = GetClientActorSelection(member.Address);
+                        sel.Tell(new WhoAreYouRequest(), Self);
+                    }
+                }
+            }
+        }
+
         public void Handle(ClusterEvent.IMemberEvent message)
         {
             var currentUpMembers = Cluster.Get(Context.System).ReadView.Members
@@ -105,19 +125,7 @@ namespace Animatroller.Framework.Expander
             Executor.Current.SetKey(this.parent, "CurrentUpMembers", seedList);
 
             // Check UpMembers if they are expanders and known
-            foreach (var member in currentUpMembers.Values)
-            {
-                if (member.Roles.Contains("expander"))
-                {
-                    // It's an expander, we should ping to get an actor ref
-                    lock (this.knownClients)
-                    {
-                        // Tell it to send us its InstanceId
-                        var sel = GetClientActorSelection(message.Member.Address);
-                        sel.Tell(new WhoAreYouRequest(), Self);
-                    }
-                }
-            }
+            CheckUpMembers();
 
             // Clean up known clients list, remove any client who isn't currently up
             lock (this.knownClients)

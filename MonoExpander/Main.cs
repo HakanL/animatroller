@@ -240,7 +240,7 @@ namespace Animatroller.MonoExpander
 
         public void AddServer(Address address, IActorRef sender)
         {
-            this.serverActors.Add(address, sender);
+            this.serverActors[address] = sender;
         }
 
         public void RemoveServer(Address address)

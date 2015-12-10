@@ -90,7 +90,8 @@ namespace Animatroller.Framework.Expander
                     cluster {
                         #seed-nodes = []
                         roles = [animatroller]
-                        auto-down-unreachable-after = 120s
+                        #auto-down-unreachable-after = 120s
+                        unreachable-nodes-reaper-interval = 120s
                     }
                 }
             ");
@@ -147,11 +148,11 @@ namespace Animatroller.Framework.Expander
                     Environment.MachineName.ToLower(), this.listenPort));
                 seeds.Remove(ourAddress);
                 joinSeeds = joinSeeds.Add(ourAddress);
-            }
 
-            // Build seed list from rest of seeds
-            foreach (var addr in seeds)
-                joinSeeds = joinSeeds.Add(addr);
+                // Build seed list from rest of seeds
+                foreach (var addr in seeds)
+                    joinSeeds = joinSeeds.Add(addr);
+            }
 
             // Join the cluster
             Cluster.Get(this.system).JoinSeedNodes(joinSeeds);
