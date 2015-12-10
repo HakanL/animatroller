@@ -34,14 +34,18 @@ namespace Animatroller.SceneRunner
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expander3 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8088, lighthousePort: 8899);
         AudioPlayer audio1 = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
+        VideoPlayer video3 = new VideoPlayer();
 
         Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
         DigitalInput2 inOlaf = new DigitalInput2();
+        DigitalInput2 inR2D2 = new DigitalInput2();
 
         DigitalInput2 in1 = new DigitalInput2();
         DigitalOutput2 out1 = new DigitalOutput2();
@@ -51,7 +55,22 @@ namespace Animatroller.SceneRunner
         DigitalOutput2 airOlaf = new DigitalOutput2();
         DigitalOutput2 airReindeer = new DigitalOutput2();
 
+        Dimmer3 lightNet1 = new Dimmer3();
+        Dimmer3 lightNet2 = new Dimmer3();
+        Dimmer3 lightNet3 = new Dimmer3();
+        Dimmer3 lightNet4 = new Dimmer3();
+        Dimmer3 lightNet5 = new Dimmer3();
+        Dimmer3 lightNet6 = new Dimmer3();
+        Dimmer3 lightNet7 = new Dimmer3();
+        Dimmer3 lightNet8 = new Dimmer3();
+        Dimmer3 lightTopper1 = new Dimmer3();
+        Dimmer3 lightTopper2 = new Dimmer3();
+        Dimmer3 lightStairs1 = new Dimmer3();
+        Dimmer3 lightRail1 = new Dimmer3();
+        Dimmer3 lightRail2 = new Dimmer3();
+
         Dimmer3 lightOlaf = new Dimmer3();
+        Dimmer3 lightR2D2 = new Dimmer3();
         VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
         VirtualPixel1D2 pixelsMatrix = new VirtualPixel1D2(200);
         Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
@@ -64,6 +83,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
 
         Controller.Subroutine subOlaf = new Controller.Subroutine();
+        Controller.Subroutine subR2D2 = new Controller.Subroutine();
 
         public Xmas2015(IEnumerable<string> args)
         {
@@ -78,16 +98,20 @@ namespace Animatroller.SceneRunner
             }
 
             pulsatingEffect1.ConnectTo(lightOlaf);
+            pulsatingEffect2.ConnectTo(lightR2D2);
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);
             expanderServer.AddInstance("10520fdcf14d47cba31da8b6e05d01d8", expander2);
+            expanderServer.AddInstance("59ebb8e925c94182a0f6e0ef09180200", expander3);
 
+            expander1.DigitalInputs[5].Connect(inR2D2);
             expander1.DigitalInputs[4].Connect(inOlaf);
             expander1.DigitalInputs[6].Connect(in1);
             expander1.DigitalOutputs[7].Connect(out1);
             expander1.Connect(audio1);
             expander2.Connect(audio2);
+            expander3.Connect(video3);
 
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
@@ -147,6 +171,20 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(laser, 4), SacnUniverseRenardBig);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 128), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 16), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 10), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 11), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 19), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 22), SacnUniverseRenardBig);
+
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 1), SacnUniverseRenardSmall);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);            
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 3), SacnUniverseRenardSmall);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 4), SacnUniverseRenardSmall);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 5), SacnUniverseRenardSmall);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRail1, 6), SacnUniverseRenardSmall);
+            acnOutput.Connect(new Physical.GenericDimmer(lightTopper1, 7), SacnUniverseRenardSmall);
+            acnOutput.Connect(new Physical.GenericDimmer(lightTopper2, 8), SacnUniverseRenardSmall);
 
             hours.Output.Subscribe(x =>
             {
@@ -155,6 +193,7 @@ namespace Animatroller.SceneRunner
                     stateMachine.SetBackgroundState(States.Background);
                     stateMachine.SetState(States.Background);
                     lightOlaf.SetBrightness(1.0);
+                    lightR2D2.SetBrightness(1.0);
                     //lightTreeUp.SetColor(Color.Red, 1.0);
                     //lightSnow1.SetBrightness(1.0);
                     //lightSnow2.SetBrightness(1.0);
@@ -167,6 +206,7 @@ namespace Animatroller.SceneRunner
                     stateMachine.Hold();
                     stateMachine.SetBackgroundState(null);
                     lightOlaf.SetBrightness(0);
+                    lightR2D2.SetBrightness(0);
                     //EverythingOff();
                     System.Threading.Thread.Sleep(200);
                     /*
@@ -185,9 +225,20 @@ namespace Animatroller.SceneRunner
                 .RunAction(i =>
                 {
                     pulsatingEffect1.Start();
-                    audio1.PlayEffect("WarmHugs.wav");
+                    audio1.PlayEffect("WarmHugs.wav", 0.0, 1.0);
                     i.WaitFor(S(10));
                     pulsatingEffect1.Stop();
+                });
+
+            subR2D2
+                .RunAction(i =>
+                {
+                    pulsatingEffect2.Start();
+                    audio1.PlayEffect("Im C3PO.wav", 1.0, 0.0);
+                    i.WaitFor(S(4));
+                    audio1.PlayEffect("Processing R2D2.wav", 1.0, 0.0);
+                    i.WaitFor(S(5));
+                    pulsatingEffect2.Stop();
                 });
 
 
@@ -196,15 +247,12 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                     subOlaf.Run();
-                //                lightOlaf.SetBrightness(x ? 1.0 : 0.0);
             });
 
             midiAkai.Note(midiChannel, 37).Subscribe(x =>
             {
                 if (x)
-                {
-                    airR2D2.Value = !airR2D2.Value;
-                }
+                    subR2D2.Run();
             });
 
             inOlaf.Output.Subscribe(x =>
@@ -213,11 +261,19 @@ namespace Animatroller.SceneRunner
                     subOlaf.Run();
             });
 
+            inR2D2.Output.Subscribe(x =>
+            {
+                if (x && hours.IsOpen)
+                    subR2D2.Run();
+            });
+
             in1.Output.Subscribe(x =>
             {
                 if (x)
-                    //                    audio2.PlayTrack("02. Frozen - Do You Want to Build a Snowman.wav");
-                    audio1.PlayEffect("WarmHugs.wav");
+                    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
+
+                //                    audio2.PlayTrack("02. Frozen - Do You Want to Build a Snowman.wav");
+                //                    audio1.PlayEffect("WarmHugs.wav");
                 //                    audio2.PlayTrack("08 Feel the Light.wav");
                 //                    audioLocal.PlayEffect("WarmHugs.wav");
 

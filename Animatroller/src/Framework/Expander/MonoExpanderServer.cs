@@ -92,6 +92,10 @@ namespace Animatroller.Framework.Expander
                         roles = [animatroller]
                         #auto-down-unreachable-after = 120s
                         unreachable-nodes-reaper-interval = 120s
+                        failure-detector {
+                            acceptable-heartbeat-pause = 5s
+                            threshold = 10.0
+                        }
                     }
                 }
             ");
