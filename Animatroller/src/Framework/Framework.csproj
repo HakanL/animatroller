@@ -167,10 +167,10 @@
     <Compile Include="Expander\PacketManager.cs" />
     <Compile Include="Expander\DMXPro.cs" />
     <Compile Include="Import\BaseImporter2.cs" />
-    <None Include="Import\HighLevelImporter2.cs" />
+    <Compile Include="Import\HighLevelImporter2.cs" />
     <Compile Include="Import\LowLevelImporter2.cs" />
     <Compile Include="Import\BufferImporter.cs" />
-    <None Include="Import\LorImport2.cs" />
+    <Compile Include="Import\LorImport2.cs" />
     <Compile Include="Interface\ICanExecute.cs" />
     <Compile Include="Interface\IControlTokenDevice.cs" />
     <Compile Include="Interface\IOwnedDevice.cs" />
