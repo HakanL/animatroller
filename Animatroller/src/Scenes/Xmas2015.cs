@@ -259,6 +259,21 @@ namespace Animatroller.SceneRunner
                     subR2D2.Run();
             });
 
+            midiAkai.Note(midiChannel, 38).Subscribe(x =>
+            {
+                if (x)
+                    audio2.PlayTrack("08 Feel the Light.wav");
+            });
+
+            midiAkai.Note(midiChannel, 39).Subscribe(x =>
+            {
+                if (x)
+                {
+                    lorFeelTheLight.Stop();
+                    audio2.PauseTrack();
+                }
+            });
+
             inOlaf.Output.Subscribe(x =>
             {
                 if (x && hours.IsOpen)
@@ -270,6 +285,16 @@ namespace Animatroller.SceneRunner
                 if (x && hours.IsOpen)
                     subR2D2.Run();
             });
+
+            audio2.AudioTrackStart += (o, e) =>
+            {
+                switch (e.FileName)
+                {
+                    case "08 Feel the Light.wav":
+                        lorFeelTheLight.Start(27830);
+                        break;
+                }
+            };
 
             in1.Output.Subscribe(x =>
             {
@@ -283,7 +308,8 @@ namespace Animatroller.SceneRunner
 
                 //                out1.Value = x;
                 if (x)
-                    lorFeelTheLight.Start(27830);
+                    audio2.PlayTrack("08 Feel the Light.wav");
+                //                    lorFeelTheLight.Start(27830);
             });
 
             ImportAndMapFeelTheLight();
@@ -293,7 +319,12 @@ namespace Animatroller.SceneRunner
         {
             lorFeelTheLight.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Feel The Light, Jennifer Lopez.lms"));
 
-//            lorFeelTheLight.Dump();
+            lorFeelTheLight.Progress.Subscribe(x =>
+            {
+                log.Trace("Feel the Light {0:N0} ms", x);
+            });
+
+            //            lorFeelTheLight.Dump();
 
             //lorFeelTheLight.MapDeviceRGB("E - 1", "D# - 2", "D - 3", lightStraigthAhead);
             //lorFeelTheLight.MapDeviceRGB("C# - 4", "C - 5", "B - 6", lightRightColumn);
@@ -308,13 +339,20 @@ namespace Animatroller.SceneRunner
             //lorFeelTheLight.MapDevice("A# - 15", lightNote11);
             //lorFeelTheLight.MapDevice("A - 16", lightNote12);
 
-            lorFeelTheLight.MapDevice("Unit 01.1 arch 1.1", lightNet1);
-            lorFeelTheLight.MapDevice("Unit 01.2 arch 1.2", lightNet2);
-            lorFeelTheLight.MapDevice("Unit 01.3 arch 1.3", lightNet3);
-            lorFeelTheLight.MapDevice("Unit 01.4 arch 1.4", lightNet4);
-            lorFeelTheLight.MapDevice("Unit 01.5 arch 1.5", lightNet5);
-            lorFeelTheLight.MapDevice("Unit 01.6 arch 1.6", lightNet6);
-            lorFeelTheLight.MapDevice("Unit 01.7 arch 1.7", lightNet7);
+            //lorFeelTheLight.MapDevice("Unit 01.1 arch 1.1", lightNet1);
+            //lorFeelTheLight.MapDevice("Unit 01.2 arch 1.2", lightNet2);
+            //lorFeelTheLight.MapDevice("Unit 01.3 arch 1.3", lightNet3);
+            //lorFeelTheLight.MapDevice("Unit 01.4 arch 1.4", lightNet4);
+            //lorFeelTheLight.MapDevice("Unit 01.5 arch 1.5", lightNet5);
+            //lorFeelTheLight.MapDevice("Unit 01.6 arch 1.6", lightNet6);
+            lorFeelTheLight.MapDevice("Unit 01.7 arch 1.7", lightNet8);
+            lorFeelTheLight.MapDevice("Unit 01.8 arch 2.1", lightNet7);
+            lorFeelTheLight.MapDevice("Unit 01.9 arch 2.2", lightNet6);
+            lorFeelTheLight.MapDevice("Unit 01.10 arch 2.3", lightNet5);
+            lorFeelTheLight.MapDevice("Unit 01.11 arch 2.4", lightNet4);
+            lorFeelTheLight.MapDevice("Unit 01.12 arch 2.5", lightNet3);
+            lorFeelTheLight.MapDevice("Unit 01.13arch 2.6", lightNet2);
+            lorFeelTheLight.MapDevice("Unit 01.14 arch 2.7", lightNet1);
 
             //lorFeelTheLight.MapDevice("Sky 1", lightNet1);
             //lorFeelTheLight.MapDevice("Sky 2", lightNet2);
@@ -334,6 +372,12 @@ namespace Animatroller.SceneRunner
             //lorFeelTheLight.MapDevice("Star2", lightStairsLeft);
             //lorFeelTheLight.MapDevice("Star3", lightFenceLeft);
             //lorFeelTheLight.MapDevice("Star extra", lightStar);
+
+            lorFeelTheLight.ControlDevice(pixelsMatrix);
+            lorFeelTheLight.MapDevice("Unit 02.1 Mega tree 1", new VirtualDevice((b, t) =>
+            {
+            }));
+
 
             /*
                         lightBottom.OutputBrightness.Subscribe(x =>

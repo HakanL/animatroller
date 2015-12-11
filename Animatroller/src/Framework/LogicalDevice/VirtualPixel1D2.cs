@@ -173,6 +173,36 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        public virtual VirtualPixel1D2 SetBrightness(int startPosition, int length, double brightness)
+        {
+            CheckBounds(startPosition);
+            CheckBounds(startPosition + length - 1);
+
+            for (int i = 0; i < length; i++)
+                BrightnessArray[startPosition + i] = brightness;
+
+            UpdateOutput();
+
+            return this;
+        }
+
+        public virtual VirtualPixel1D2 SetBrightness(int startPosition, int length, Color color, double? brightness = 1.0)
+        {
+            CheckBounds(startPosition);
+            CheckBounds(startPosition + length - 1);
+
+            for (int i = 0; i < length; i++)
+            {
+                ColorArray[startPosition + i] = color;
+                if (brightness.HasValue)
+                    BrightnessArray[startPosition + i] = brightness.Value;
+            }
+
+            UpdateOutput();
+
+            return this;
+        }
+
         public virtual VirtualPixel1D2 SetColor(int position, Color color, double? brightness = 1.0)
         {
             CheckBounds(position);

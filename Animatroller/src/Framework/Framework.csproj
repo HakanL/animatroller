@@ -218,6 +218,7 @@
     <Compile Include="LogicalDevice\DigitalOutput2.cs" />
     <Compile Include="LogicalDevice\MovingHead.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer3.cs" />
+    <Compile Include="LogicalDevice\VirtualDevice.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D2.cs" />
     <Compile Include="LogicalDevice\VirtualPixel2D.cs" />
     <None Include="LogicalDevice\VirtualPixel1D.cs" />

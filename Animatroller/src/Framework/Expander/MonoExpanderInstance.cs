@@ -17,7 +17,7 @@ namespace Animatroller.Framework.Expander
         private IActorRef serverActorRef;
         private event EventHandler<EventArgs> AudioTrackDone;
         private event EventHandler<EventArgs> VideoTrackDone;
-        private ISubject<string> audioTrackStart;
+        private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
 
         public MonoExpanderInstance(int inputs = 8, int outputs = 8, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -31,7 +31,7 @@ namespace Animatroller.Framework.Expander
             for (int index = 0; index < this.DigitalOutputs.Length; index++)
                 WireupOutput(index);
 
-            this.audioTrackStart = new Subject<string>();
+            this.audioTrackStart = new Subject<Tuple<AudioTypes, string>>();
 
             this.Motor = new PhysicalDevice.MotorWithFeedback((target, speed, timeout) =>
             {
@@ -53,7 +53,7 @@ namespace Animatroller.Framework.Expander
             this.clientActorRef?.Tell(message, this.serverActorRef);
         }
 
-        public IObservable<string> AudioTrackStart
+        public IObservable<Tuple<AudioTypes, string>> AudioTrackStart
         {
             get
             {
@@ -107,6 +107,12 @@ namespace Animatroller.Framework.Expander
                 {
                     logicalDevice.RaiseAudioTrackDone();
                 };
+
+            this.AudioTrackStart.Subscribe(x =>
+            {
+                if (x.Item1 == AudioTypes.Track)
+                    logicalDevice.RaiseAudioTrackStart(x.Item2);
+            });
 
             logicalDevice.AudioChanged += (sender, e) =>
                 {
@@ -256,13 +262,9 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(AudioStarted message)
         {
-            switch (message.Type)
-            {
-                case AudioTypes.Background:
-                    log.Debug("Playing background track {0}", message.Id);
-                    this.audioTrackStart.OnNext(message.Id);
-                    break;
-            }
+            log.Debug("Playing {0} track {1}", message.Type, message.Id);
+
+            this.audioTrackStart.OnNext(Tuple.Create(message.Type, message.Id));
         }
 
         public void Handle(AudioFinished message)

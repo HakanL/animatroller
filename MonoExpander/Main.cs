@@ -238,6 +238,11 @@ namespace Animatroller.MonoExpander
             get { return this.fileStoragePath; }
         }
 
+        public bool IsServerKnown(Address address)
+        {
+            return this.serverActors.ContainsKey(address);
+        }
+
         public void AddServer(Address address, IActorRef sender)
         {
             this.serverActors[address] = sender;

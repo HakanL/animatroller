@@ -266,6 +266,11 @@ namespace Animatroller.Framework.Import
             }
         }
 
+        public void ControlDevice(IReceivesBrightness device)
+        {
+            ConnectTo(device);
+        }
+
         public void MapDevice(string channelName, IReceivesBrightness device, params Tuple<DataElements, object>[] additionalData)
         {
             var id = ChannelIdentityFromName(channelName);
@@ -336,12 +341,16 @@ namespace Animatroller.Framework.Import
         {
             Prepare();
 
+            // Make sure we're stopped
+            Stop();
+
             return this.timeline.Start(offsetMs);
         }
 
         public override void Stop()
         {
             this.timeline.Stop();
+            this.lastProgressReport = 0;
         }
     }
 }

@@ -108,11 +108,6 @@ namespace Animatroller.MonoExpander
                 typeof(ClusterEvent.IMemberEvent) });
         }
 
-        public void Handle(SetOutputRequest message)
-        {
-            this.main.Handle(message);
-        }
-
         private void CheckMembers()
         {
             var currentUpMembers = Cluster.Get(Context.System).ReadView.Members
@@ -142,6 +137,12 @@ namespace Animatroller.MonoExpander
             return Context.ActorSelection(string.Format("{0}/user/ExpanderServer", address));
         }
 
+        private void UpdateServerActor()
+        {
+            if (!this.main.IsServerKnown(Sender.Path.Address))
+                Sender.Tell(new Identify("animatroller"), Self);
+        }
+
         public void Handle(WhoAreYouRequest message)
         {
             Sender.Tell(new WhoAreYouResponse
@@ -159,77 +160,112 @@ namespace Animatroller.MonoExpander
             }
         }
 
+        public void Handle(SetOutputRequest message)
+        {
+            UpdateServerActor();
+
+            this.main.Handle(message);
+        }
+
         public void Handle(AudioEffectCue message)
         {
+            UpdateServerActor();
+
             if (CheckFile(message, FileTypes.AudioEffect, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioEffectPlay message)
         {
+            UpdateServerActor();
+
             if (CheckFile(message, FileTypes.AudioEffect, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioEffectPause message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioEffectResume message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioEffectSetVolume message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundSetVolume message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundResume message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundPause message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundNext message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioTrackPlay message)
         {
+            UpdateServerActor();
+
             if (CheckFile(message, FileTypes.AudioTrack, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioTrackCue message)
         {
+            UpdateServerActor();
+
             if (CheckFile(message, FileTypes.AudioTrack, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioTrackResume message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(AudioTrackPause message)
         {
+            UpdateServerActor();
+
             this.main.Handle(message);
         }
 
         public void Handle(VideoPlay message)
         {
+            UpdateServerActor();
+
             if (CheckFile(message, FileTypes.Video, message.FileName))
                 this.main.Handle(message);
         }

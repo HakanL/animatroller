@@ -14,10 +14,18 @@ namespace Animatroller.Framework.LogicalDevice
         public event EventHandler<AudioChangedEventArgs> AudioChanged;
         public event EventHandler<AudioCommandEventArgs> ExecuteCommand;
         public event EventHandler<EventArgs> AudioTrackDone;
+        public event EventHandler<AudioStartEventArgs> AudioTrackStart;
 
         public AudioPlayer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+        }
+
+        internal void RaiseAudioTrackStart(string fileName)
+        {
+            var handler = AudioTrackStart;
+            if (handler != null)
+                handler(this, new AudioStartEventArgs(fileName));
         }
 
         internal void RaiseAudioTrackDone()

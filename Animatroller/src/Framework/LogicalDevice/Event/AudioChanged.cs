@@ -55,6 +55,16 @@ namespace Animatroller.Framework.LogicalDevice.Event
         }
     }
 
+    public class AudioStartEventArgs : EventArgs
+    {
+        public string FileName { get; private set; }
+
+        public AudioStartEventArgs(string fileName)
+        {
+            this.FileName = fileName;
+        }
+    }
+
     public class AudioCommandValueEventArgs : AudioCommandEventArgs
     {
         public double Value { get; private set; }
