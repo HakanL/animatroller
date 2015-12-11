@@ -5,11 +5,25 @@ using System.Linq;
 using NLog;
 using Animatroller.Framework.Controller;
 using System.Threading.Tasks;
+using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Import
 {
     public abstract class BaseImporter2
     {
+        protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
+        {
+            public ControlledObserverData Observer { get; set; }
+
+            public IData AdditionalData { get; set; }
+
+            public DeviceController(IReceivesBrightness device, IData additionalData)
+                : base(device, 0)
+            {
+                AdditionalData = additionalData;
+            }
+        }
+
         public class ChannelData
         {
             public string Name { get; private set; }
@@ -57,7 +71,7 @@ namespace Animatroller.Framework.Import
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected Dictionary<IChannelIdentity, ChannelData> channelData;
         //        private List<IChannelIdentity> channels;
-        protected Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>> mappedDevices;
+        protected Dictionary<IChannelIdentity, HashSet<DeviceController>> mappedDevices;
         protected Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>> mappedRgbDevices;
         protected HashSet<IControlledDevice> controlledDevices;
 
@@ -65,12 +79,12 @@ namespace Animatroller.Framework.Import
         {
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
             //            this.channels = new List<IChannelIdentity>();
-            this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<IReceivesBrightness>>();
+            this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<DeviceController>>();
             this.mappedRgbDevices = new Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>>();
             this.controlledDevices = new HashSet<IControlledDevice>();
         }
 
-        public abstract Task Start();
+        public abstract Task Start(long offsetMs);
 
         public abstract void Stop();
 
@@ -97,7 +111,7 @@ namespace Animatroller.Framework.Import
                     return kvp.Key;
             }
 
-            throw new KeyNotFoundException(string.Format("Channel {0} not found"));
+            throw new KeyNotFoundException(string.Format("Channel {0} not found", name));
         }
 
         private bool ChannelNameExists(string channelName)
@@ -129,12 +143,12 @@ namespace Animatroller.Framework.Import
             //            this.channels.Add(channelIdentity);
         }
 
-        protected void InternalMapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)
+        protected void InternalMapDevice(IChannelIdentity channelIdentity, DeviceController device)
         {
-            HashSet<IReceivesBrightness> devices;
+            HashSet<DeviceController> devices;
             if (!mappedDevices.TryGetValue(channelIdentity, out devices))
             {
-                devices = new HashSet<IReceivesBrightness>();
+                devices = new HashSet<DeviceController>();
                 mappedDevices[channelIdentity] = devices;
             }
             devices.Add(device);

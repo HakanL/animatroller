@@ -21,17 +21,23 @@ namespace Animatroller.Framework.Import
         protected Timeline2<ChannelEffectInstance> timeline;
         protected Dictionary<IChannelIdentity, IList<ChannelEffect>> channelEffectsPerChannel;
         private bool prepared;
-        private Dictionary<IOwnedDevice, IDisposableObserver<double>> brightnessObservers;
-        private Dictionary<IOwnedDevice, ControlledObserverRGB> rgbObservers;
+        protected List<DeviceController> devices;
+        //private Dictionary<IOwnedDevice, IDisposableObserver<double>> brightnessObservers;
+        //private Dictionary<IOwnedDevice, ControlledObserverRGB> rgbObservers;
         private int lastProgressReport;
         private Subject<int> progress;
+        protected object lockObject = new object();
+        private GroupControlToken token;
+        private string name;
+        private int priority;
 
-        public HighLevelImporter2()
+        public HighLevelImporter2(string name, int priority)
         {
             this.channelEffectsPerChannel = new Dictionary<IChannelIdentity, IList<ChannelEffect>>();
             this.timeline = new Timeline2<ChannelEffectInstance>(iterations: 1);
-            this.brightnessObservers = new Dictionary<IOwnedDevice, IDisposableObserver<double>>();
-            this.rgbObservers = new Dictionary<IOwnedDevice, ControlledObserverRGB>();
+            //this.brightnessObservers = new Dictionary<IOwnedDevice, IDisposableObserver<double>>();
+            //this.rgbObservers = new Dictionary<IOwnedDevice, ControlledObserverRGB>();
+            this.devices = new List<DeviceController>();
 
             this.progress = new Subject<int>();
         }
@@ -41,7 +47,7 @@ namespace Animatroller.Framework.Import
             get { return this.progress.AsObservable(); }
         }
 
-        private void AddEffectData(IChannelIdentity channelIdentity, IEnumerable<IOwnedDevice> devices, ChannelEffectInstance.DeviceType deviceType)
+        private void AddEffectData(IChannelIdentity channelIdentity, IEnumerable<DeviceController> devices, ChannelEffectInstance.DeviceType deviceType)
         {
             foreach (var effectData in channelEffectsPerChannel[channelIdentity])
             {
@@ -71,51 +77,73 @@ namespace Animatroller.Framework.Import
                 AddEffectData(kvp.Key, kvp.Value, ChannelEffectInstance.DeviceType.Brightness);
             }
 
-            foreach (var kvp in this.mappedRgbDevices)
-            {
-                var id = kvp.Key;
+            //foreach (var kvp in this.mappedRgbDevices)
+            //{
+            //    var id = kvp.Key;
 
-                AddEffectData(id.R, kvp.Value, ChannelEffectInstance.DeviceType.ColorR);
-                AddEffectData(id.G, kvp.Value, ChannelEffectInstance.DeviceType.ColorG);
-                AddEffectData(id.B, kvp.Value, ChannelEffectInstance.DeviceType.ColorB);
-            }
+            //    AddEffectData(id.R, kvp.Value, ChannelEffectInstance.DeviceType.ColorR);
+            //    AddEffectData(id.G, kvp.Value, ChannelEffectInstance.DeviceType.ColorG);
+            //    AddEffectData(id.B, kvp.Value, ChannelEffectInstance.DeviceType.ColorB);
+            //}
 
             timeline.Setup(() =>
                 {
-                    foreach (var device in this.mappedDevices.SelectMany(x => x.Value))
+                    if (this.token == null)
                     {
-                        if (!this.brightnessObservers.ContainsKey(device))
-                        {
-                            var observer = device.GetBrightnessObserver();
+                        this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, this.name, this.priority);
 
-                            this.brightnessObservers.Add(device, observer);
+                        foreach (var device in this.devices)
+                        {
+                            device.Observer = device.Device.GetDataObserver(this.token);
+
+                            if (device.AdditionalData != null)
+                                device.Observer.OnNext(device.AdditionalData);
                         }
                     }
+                    //foreach (var device in this.mappedDevices.SelectMany(x => x.Value))
+                    //{
+                    //    if (!this.brightnessObservers.ContainsKey(device))
+                    //    {
+                    //        var observer = device.GetBrightnessObserver();
 
-                    foreach (var device in this.mappedRgbDevices.SelectMany(x => x.Value))
-                    {
-                        if (!this.rgbObservers.ContainsKey(device))
-                        {
-                            var observer = device.GetRgbObserver();
+                    //        this.brightnessObservers.Add(device, observer);
+                    //    }
+                    //}
 
-                            this.rgbObservers.Add(device, observer);
-                        }
-                    }
+                    //foreach (var device in this.mappedRgbDevices.SelectMany(x => x.Value))
+                    //{
+                    //    if (!this.rgbObservers.ContainsKey(device))
+                    //    {
+                    //        var observer = device.GetRgbObserver();
+
+                    //        this.rgbObservers.Add(device, observer);
+                    //    }
+                    //}
                 });
 
             timeline.TearDown(() =>
                 {
-                    foreach (var controlledDevice in this.controlledDevices)
-                        controlledDevice.TurnOff();
+                    foreach (var device in this.devices)
+                    {
+                        device.Observer = null;
+                    }
 
-                    // Release locks
-                    foreach (var observer in this.brightnessObservers.Values)
-                        observer.Dispose();
-                    this.brightnessObservers.Clear();
+                    if (this.token != null)
+                    {
+                        this.token.Dispose();
+                        this.token = null;
+                    }
+                    //foreach (var controlledDevice in this.controlledDevices)
+                    //    controlledDevice.TurnOff();
 
-                    foreach (var observer in this.rgbObservers.Values)
-                        observer.Dispose();
-                    this.rgbObservers.Clear();
+                    //// Release locks
+                    //foreach (var observer in this.brightnessObservers.Values)
+                    //    observer.Dispose();
+                    //this.brightnessObservers.Clear();
+
+                    //foreach (var observer in this.rgbObservers.Values)
+                    //    observer.Dispose();
+                    //this.rgbObservers.Clear();
                 });
 
             timeline.MultiTimelineTrigger += (sender, e) =>
@@ -139,48 +167,49 @@ namespace Animatroller.Framework.Import
                         {
                             foreach (var device in effectInstance.Devices)
                             {
-                                IDisposableObserver<double> observer;
-                                if (!this.brightnessObservers.TryGetValue(device, out observer))
-                                    // Why no lock?
-                                    continue;
+                                effectInstance.Effect.Execute(device.Device, this.token);
+                                //IDisposableObserver<double> observer;
+                                //if (!this.brightnessObservers.TryGetValue(device, out observer))
+                                //    // Why no lock?
+                                //    continue;
 
-                                effectInstance.Effect.Execute(observer);
+                                //effectInstance.Effect.Execute(observer);
                             }
                         }
                         else if (effectInstance.Type == ChannelEffectInstance.DeviceType.ColorR)
                         {
                             foreach (var device in effectInstance.Devices)
                             {
-                                ControlledObserverRGB observer;
-                                if (!this.rgbObservers.TryGetValue(device, out observer))
-                                    // Why no lock?
-                                    continue;
+                                //ControlledObserverRGB observer;
+                                //if (!this.rgbObservers.TryGetValue(device, out observer))
+                                //    // Why no lock?
+                                //    continue;
 
-                                effectInstance.Effect.Execute(observer.R);
+                                //effectInstance.Effect.Execute(observer.R);
                             }
                         }
                         else if (effectInstance.Type == ChannelEffectInstance.DeviceType.ColorG)
                         {
                             foreach (var device in effectInstance.Devices)
                             {
-                                ControlledObserverRGB observer;
-                                if (!this.rgbObservers.TryGetValue(device, out observer))
-                                    // Why no lock?
-                                    continue;
+                                //ControlledObserverRGB observer;
+                                //if (!this.rgbObservers.TryGetValue(device, out observer))
+                                //    // Why no lock?
+                                //    continue;
 
-                                effectInstance.Effect.Execute(observer.G);
+                                //effectInstance.Effect.Execute(observer.G);
                             }
                         }
                         else if (effectInstance.Type == ChannelEffectInstance.DeviceType.ColorB)
                         {
                             foreach (var device in effectInstance.Devices)
                             {
-                                ControlledObserverRGB observer;
-                                if (!this.rgbObservers.TryGetValue(device, out observer))
-                                    // Why no lock?
-                                    continue;
+                                //ControlledObserverRGB observer;
+                                //if (!this.rgbObservers.TryGetValue(device, out observer))
+                                //    // Why no lock?
+                                //    continue;
 
-                                effectInstance.Effect.Execute(observer.B);
+                                //effectInstance.Effect.Execute(observer.B);
                             }
                         }
                     }
@@ -218,11 +247,32 @@ namespace Animatroller.Framework.Import
             log.Info("Total used channels: {0}", count);
         }
 
-        public void MapDevice(string channelName, IReceivesBrightness device)
+        protected DeviceController ConnectTo(IReceivesBrightness device, params Tuple<DataElements, object>[] additionalData)
+        {
+            lock (this.lockObject)
+            {
+                IData data = null;
+                if (additionalData.Any())
+                {
+                    data = new Data();
+                    foreach (var kvp in additionalData)
+                        data[kvp.Item1] = kvp.Item2;
+                }
+
+                var deviceController = new DeviceController(device, data);
+                this.devices.Add(deviceController);
+
+                return deviceController;
+            }
+        }
+
+        public void MapDevice(string channelName, IReceivesBrightness device, params Tuple<DataElements, object>[] additionalData)
         {
             var id = ChannelIdentityFromName(channelName);
 
-            InternalMapDevice(id, device);
+            var deviceController = ConnectTo(device, additionalData);
+
+            InternalMapDevice(id, deviceController);
         }
 
         public void MapDeviceRGB(string channelNameR, string channelNameG, string channelNameB, IReceivesColor device)
@@ -252,7 +302,7 @@ namespace Animatroller.Framework.Import
         {
             public int StartMs { get; set; }
 
-            public abstract void Execute(IObserver<double> device);
+            public abstract void Execute(IReceivesBrightness device, IControlToken token);
         }
 
         protected abstract class ChannelEffectRange : ChannelEffect
@@ -275,18 +325,18 @@ namespace Animatroller.Framework.Import
                 ColorB
             }
 
-            public IEnumerable<IOwnedDevice> Devices { get; set; }
+            public IEnumerable<DeviceController> Devices { get; set; }
 
             public ChannelEffect Effect { get; set; }
 
             public DeviceType Type { get; set; }
         }
 
-        public override Task Start()
+        public override Task Start(long offsetMs = 0)
         {
             Prepare();
 
-            return this.timeline.Start();
+            return this.timeline.Start(offsetMs);
         }
 
         public override void Stop()

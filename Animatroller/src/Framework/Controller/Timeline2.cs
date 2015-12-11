@@ -105,7 +105,7 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        public Task Start()
+        public Task Start(long offsetMs)
         {
             if (this.cancelSource == null || this.cancelSource.IsCancellationRequested)
                 this.cancelSource = new System.Threading.CancellationTokenSource();
@@ -122,12 +122,24 @@ namespace Animatroller.Framework.Controller
                     if (this.iterationsLeft.HasValue)
                         this.iterationsLeft = this.iterationsLeft.Value - 1;
 
-                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    // Find start pos
+                    int startPos = 0;
                     for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
                     {
                         int elapsed = this.timeline.Keys[currentPos];
+                        if (elapsed >= offsetMs)
+                        {
+                            startPos = currentPos;
+                            break;
+                        }
+                    }
 
-                        while (watch.ElapsedMilliseconds < elapsed)
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    for (int currentPos = startPos; currentPos < this.timeline.Count; currentPos++)
+                    {
+                        int elapsed = this.timeline.Keys[currentPos];
+
+                        while (watch.ElapsedMilliseconds + offsetMs < elapsed)
                         {
                             System.Threading.Thread.Sleep(1);
                             if (this.cancelSource.Token.IsCancellationRequested)

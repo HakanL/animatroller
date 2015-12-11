@@ -15,6 +15,7 @@ namespace Animatroller.Framework.Effect2
         protected abstract class TimerJob
         {
             private long lastDuration;
+            private DateTime lastRun;
 
             public bool Running { get; private set; }
 
@@ -36,6 +37,7 @@ namespace Animatroller.Framework.Effect2
 
                 this.lastDuration = -1;
                 this.Running = true;
+                this.lastRun = DateTime.Now;
 
                 this.cancelSource = new CancellationTokenSource();
 

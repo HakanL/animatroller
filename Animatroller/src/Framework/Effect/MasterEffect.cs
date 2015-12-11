@@ -180,7 +180,21 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Shimmer(IObserver<double> deviceObserver, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
+        public Task Shimmer(IReceivesBrightness device, double minBrightness, double maxBrightness, int durationMs, int priority = 1, IControlToken token = null)
+        {
+            if (token != null)
+                return Shimmer(device.GetDataObserver(token), minBrightness, maxBrightness, durationMs);
+
+            var controlToken = device.TakeControl(priority);
+
+            return Shimmer(device.GetDataObserver(controlToken), minBrightness, maxBrightness, durationMs)
+                .ContinueWith(x =>
+                {
+                    controlToken.Dispose();
+                });
+        }
+
+        public Task Shimmer(IObserver<IData> deviceObserver, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
@@ -191,7 +205,7 @@ namespace Animatroller.Framework.Effect2
                 {
                     state = !state;
 
-                    deviceObserver.OnNext(state ? maxBrightness : minBrightness);
+                    deviceObserver.OnNext(new Data(DataElements.Brightness, state ? maxBrightness : minBrightness));
                 },
                 onCompleted: () =>
                 {

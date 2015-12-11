@@ -11,6 +11,6 @@ namespace Animatroller.Framework.Controller
     {
         void Stop();
 
-        Task Start();
+        Task Start(long offsetMs = 0);
     }
 }

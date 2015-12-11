@@ -182,7 +182,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 22), SacnUniverseRenardBig);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 1), SacnUniverseRenardSmall);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);            
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 3), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 4), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 5), SacnUniverseRenardSmall);
@@ -273,21 +273,27 @@ namespace Animatroller.SceneRunner
 
             in1.Output.Subscribe(x =>
             {
-                if (x)
-                    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
+                //if (x)
+                //    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
 
                 //                    audio2.PlayTrack("02. Frozen - Do You Want to Build a Snowman.wav");
                 //                    audio1.PlayEffect("WarmHugs.wav");
                 //                    audio2.PlayTrack("08 Feel the Light.wav");
                 //                    audioLocal.PlayEffect("WarmHugs.wav");
 
-                out1.Value = x;
+                //                out1.Value = x;
+                if (x)
+                    lorFeelTheLight.Start(27830);
             });
+
+            ImportAndMapFeelTheLight();
         }
 
-        private void ImportAndMapCarolBells()
+        private void ImportAndMapFeelTheLight()
         {
             lorFeelTheLight.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Feel The Light, Jennifer Lopez.lms"));
+
+//            lorFeelTheLight.Dump();
 
             //lorFeelTheLight.MapDeviceRGB("E - 1", "D# - 2", "D - 3", lightStraigthAhead);
             //lorFeelTheLight.MapDeviceRGB("C# - 4", "C - 5", "B - 6", lightRightColumn);
@@ -302,19 +308,27 @@ namespace Animatroller.SceneRunner
             //lorFeelTheLight.MapDevice("A# - 15", lightNote11);
             //lorFeelTheLight.MapDevice("A - 16", lightNote12);
 
-            lorFeelTheLight.MapDevice("Sky 1", lightNet1);
-            lorFeelTheLight.MapDevice("Sky 2", lightNet2);
-            lorFeelTheLight.MapDevice("Sky 3", lightNet3);
-            lorFeelTheLight.MapDevice("Sky 4", lightNet4);
-            lorFeelTheLight.MapDevice("Sky 5", lightNet5);
+            lorFeelTheLight.MapDevice("Unit 01.1 arch 1.1", lightNet1);
+            lorFeelTheLight.MapDevice("Unit 01.2 arch 1.2", lightNet2);
+            lorFeelTheLight.MapDevice("Unit 01.3 arch 1.3", lightNet3);
+            lorFeelTheLight.MapDevice("Unit 01.4 arch 1.4", lightNet4);
+            lorFeelTheLight.MapDevice("Unit 01.5 arch 1.5", lightNet5);
+            lorFeelTheLight.MapDevice("Unit 01.6 arch 1.6", lightNet6);
+            lorFeelTheLight.MapDevice("Unit 01.7 arch 1.7", lightNet7);
 
-//            lorFeelTheLight.MapDevice("Sky 1", lightNet10);
-//            lorFeelTheLight.MapDevice("Sky 2", lightNet9);
-            lorFeelTheLight.MapDevice("Sky 3", lightNet8);
-            lorFeelTheLight.MapDevice("Sky 4", lightNet7);
-            lorFeelTheLight.MapDevice("Sky 5", lightNet6);
+            //lorFeelTheLight.MapDevice("Sky 1", lightNet1);
+            //lorFeelTheLight.MapDevice("Sky 2", lightNet2);
+            //lorFeelTheLight.MapDevice("Sky 3", lightNet3);
+            //lorFeelTheLight.MapDevice("Sky 4", lightNet4);
+            //lorFeelTheLight.MapDevice("Sky 5", lightNet5);
 
-//            lorFeelTheLight.MapDevice("Rooftop", snowmanKaggen);
+            //            lorFeelTheLight.MapDevice("Sky 1", lightNet10);
+            //            lorFeelTheLight.MapDevice("Sky 2", lightNet9);
+            //lorFeelTheLight.MapDevice("Sky 3", lightNet8);
+            //lorFeelTheLight.MapDevice("Sky 4", lightNet7);
+            //lorFeelTheLight.MapDevice("Sky 5", lightNet6);
+
+            //            lorFeelTheLight.MapDevice("Rooftop", snowmanKaggen);
 
             //lorFeelTheLight.MapDevice("Star1", lightNet11);
             //lorFeelTheLight.MapDevice("Star2", lightStairsLeft);
@@ -331,10 +345,10 @@ namespace Animatroller.SceneRunner
                             //                    pixelsVideo.SetAllOnlyColor(x);
                         });
             */
-//            lorFeelTheLight.MapDeviceRGBW("R-Edge R", "R-Edge G", "R-Edge B", "R-Edge W", lightRoofEdge);
+            //            lorFeelTheLight.MapDeviceRGBW("R-Edge R", "R-Edge G", "R-Edge B", "R-Edge W", lightRoofEdge);
             //            lorFeelTheLight.MapDeviceRGBW("R-Bottom", "G-Bottom", "B-Bottom", "W-Bottom", lightNotUsed1);
-//            lorFeelTheLight.MapDeviceRGBW("Garage R", "Garage G", "Garage B", "Garage W", lightWhiteStrobe);
-//            lorFeelTheLight.MapDeviceRGBW("Rwindo R", "Rwindo G", "Rwindo B", "Rwindo W", lightMetalReindeer);
+            //            lorFeelTheLight.MapDeviceRGBW("Garage R", "Garage G", "Garage B", "Garage W", lightWhiteStrobe);
+            //            lorFeelTheLight.MapDeviceRGBW("Rwindo R", "Rwindo G", "Rwindo B", "Rwindo W", lightMetalReindeer);
             //lorFeelTheLight.MapDeviceRGBW("Cwindo R", "Cwindo G", "Cwindo B", "Cwindo W", lightCWindow);
             //lorFeelTheLight.MapDeviceRGBW("Lwindo R", "Lwindo G", "Lwindo B", "Lwindo W", lightLWindow);
             //lorFeelTheLight.MapDeviceRGBW("Ft door R", "Ft door G", "Ft door B", "FT door W", lightFrontDoor);

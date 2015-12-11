@@ -14,7 +14,8 @@ namespace Animatroller.Framework.Import
     // Light-O-Rama Musical Sequence
     public class LorImport2 : HighLevelImporter2
     {
-        public LorImport2()
+        public LorImport2(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(name: name, priority: priority)
         {
         }
 
@@ -112,10 +113,10 @@ namespace Animatroller.Framework.Import
             }
         }
 
-        public void MapDevice(int unit, int circuit, int position, IReceivesBrightness device)
-        {
-            InternalMapDevice(new UnitCircuit(unit, circuit, position), device);
-        }
+        //public void MapDevice(int unit, int circuit, int position, IReceivesBrightness device)
+        //{
+        //    InternalMapDevice(new UnitCircuit(unit, circuit, position), device);
+        //}
 
         public class UnitCircuit : IChannelIdentity
         {
@@ -163,9 +164,9 @@ namespace Animatroller.Framework.Import
         {
             public double Brightness { get; set; }
 
-            public override void Execute(IObserver<double> device)
+            public override void Execute(IReceivesBrightness device, IControlToken token)
             {
-                device.OnNext(Brightness);
+                device.SetBrightness(Brightness, token);
             }
         }
 
@@ -175,17 +176,17 @@ namespace Animatroller.Framework.Import
 
             public double EndBrightness { get; set; }
 
-            public override void Execute(IObserver<double> device)
+            public override void Execute(IReceivesBrightness device, IControlToken token)
             {
-                Executor.Current.MasterEffect.Fade(device, StartBrightness, EndBrightness, DurationMs);
+                Executor.Current.MasterEffect.Fade(device, StartBrightness, EndBrightness, DurationMs, token: token);
             }
         }
 
         protected class ShimmerChannelEffect : ChannelEffectRange
         {
-            public override void Execute(IObserver<double> device)
+            public override void Execute(IReceivesBrightness device, IControlToken token)
             {
-                Executor.Current.MasterEffect.Shimmer(device, 0, 1, DurationMs);
+                Executor.Current.MasterEffect.Shimmer(device, 0, 1, DurationMs, token: token);
             }
         }
 
@@ -193,7 +194,7 @@ namespace Animatroller.Framework.Import
         {
             public double Brightness { get; set; }
 
-            public override void Execute(IObserver<double> device)
+            public override void Execute(IReceivesBrightness device, IControlToken token)
             {
             }
         }

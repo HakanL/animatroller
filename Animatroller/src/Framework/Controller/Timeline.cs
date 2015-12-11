@@ -112,7 +112,7 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        public Task Start()
+        public Task Start(long offsetMs = 0)
         {
             if (this.cancelSource == null || this.cancelSource.IsCancellationRequested)
                 this.cancelSource = new System.Threading.CancellationTokenSource();
@@ -126,12 +126,24 @@ namespace Animatroller.Framework.Controller
                     if (this.iterationsLeft.HasValue)
                         this.iterationsLeft = this.iterationsLeft.Value - 1;
 
-                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    // Find start pos
+                    int startPos = 0;
                     for (int currentPos = 0; currentPos < this.timeline.Count; currentPos++)
                     {
-                        double elapsed = (double)this.timeline.Keys[currentPos] / 1000;
+                        int elapsed = this.timeline.Keys[currentPos];
+                        if (elapsed >= offsetMs)
+                        {
+                            startPos = currentPos;
+                            break;
+                        }
+                    }
 
-                        while (watch.Elapsed.TotalSeconds < elapsed)
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
+                    for (int currentPos = startPos; currentPos < this.timeline.Count; currentPos++)
+                    {
+                        long elapsedMs = this.timeline.Keys[currentPos];
+
+                        while (watch.ElapsedMilliseconds + offsetMs < elapsedMs)
                         {
                             System.Threading.Thread.Sleep(1);
                             if (this.cancelSource.Token.IsCancellationRequested)
@@ -145,6 +157,8 @@ namespace Animatroller.Framework.Controller
 
                         var codes = this.timeline.Values[currentPos];
 
+                        double elapsedS = elapsedMs / 1000.0;
+
                         // Invoke
                         string debugStr;
                         if (codes.Count == 1)
@@ -152,19 +166,19 @@ namespace Animatroller.Framework.Controller
                         else
                             debugStr = string.Format("{0} codes ({1})", codes.Count,
                                 string.Join(",", codes));
-                        log.Debug(string.Format("Invoking {1} at {0:N2} s   (pos {2})", elapsed, debugStr, currentPos + 1));
+                        log.Debug(string.Format("Invoking {1} at {0:N2} s   (pos {2})", elapsedS, debugStr, currentPos + 1));
                         var handler = TimelineTrigger;
                         if (handler != null)
                         {
                             foreach (var code in codes)
                             {
-                                handler(this, new TimelineEventArgs(elapsed, code, currentPos + 1));
+                                handler(this, new TimelineEventArgs(elapsedS, code, currentPos + 1));
                             }
                         }
 
                         var multiHandler = MultiTimelineTrigger;
                         if (multiHandler != null)
-                            multiHandler(this, new MultiTimelineEventArgs(elapsed, codes, currentPos + 1));
+                            multiHandler(this, new MultiTimelineEventArgs(elapsedS, codes, currentPos + 1));
                     }
                 }
 
