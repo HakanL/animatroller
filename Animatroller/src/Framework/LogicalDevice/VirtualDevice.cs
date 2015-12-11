@@ -18,6 +18,16 @@ namespace Animatroller.Framework.LogicalDevice
             : base(name)
         {
             this.xyz = xyz;
+
+            this.outputData.Subscribe(x =>
+            {
+                object value;
+
+                if (x.TryGetValue(DataElements.Brightness, out value))
+                {
+                    xyz((double)value, x.CurrentToken);
+                }
+            });
         }
 
         public double Brightness

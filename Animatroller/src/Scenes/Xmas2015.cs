@@ -374,10 +374,39 @@ namespace Animatroller.SceneRunner
             //lorFeelTheLight.MapDevice("Star extra", lightStar);
 
             lorFeelTheLight.ControlDevice(pixelsMatrix);
-            lorFeelTheLight.MapDevice("Unit 02.1 Mega tree 1", new VirtualDevice((b, t) =>
-            {
-            }));
-
+            lorFeelTheLight.MapDevice("Unit 02.1 Mega tree 1",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.2 Mega tree 2",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 20, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.3 Mege tree 3",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 40, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.4 Mega tree 4",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 60, 20, t)));
+            //lorFeelTheLight.MapDevice("Unit 02.5 Mega tree 5",
+            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            //lorFeelTheLight.MapDevice("Unit 02.6 Mega tree 6",
+            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            //lorFeelTheLight.MapDevice("Unit 02.7 Mega tree 7",
+            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            //lorFeelTheLight.MapDevice("Unit 02.8 Mega tree 8",
+            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.9 Mega tree 9",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 80, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.10 Mega tree 10",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 100, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.11 Mega tree 11",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 120, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.12 Mega tree 12",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 140, 20, t)));
+            //lorFeelTheLight.MapDevice("Unit 02.13 Mega tree 13",
+            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            //lorFeelTheLight.MapDevice("Unit 02.14 Mega tree 14",
+            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.15 Mega tree 15",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 160, 20, t)));
+            lorFeelTheLight.MapDevice("Unit 02.16 Mega tree 16",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 180, 20, t)));
+            lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Tuple.Create(DataElements.Color, (object)Color.White));
 
             /*
                         lightBottom.OutputBrightness.Subscribe(x =>

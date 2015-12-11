@@ -403,18 +403,40 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetColor(Color color, double? brightness = 1.0, IControlToken token = null)
         {
+            SetColorRange(color, brightness, 0, null, token);
+        }
+
+        public void SetColorRange(
+            Color color,
+            double? brightness = 1.0,
+            int startPosition = 0,
+            int? length = null,
+            IControlToken token = null)
+        {
             var data = new Data();
 
+            if (!length.HasValue)
+                length = this.pixelCount;
+            else
+            {
+                if (length.Value > this.pixelCount)
+                    length = this.pixelCount;
+            }
+
             var pixelColor = new Color[this.pixelCount];
-            for (int i = 0; i < pixelColor.Length; i++)
-                pixelColor[i] = color;
+            Array.Copy(ColorArray, pixelColor, this.pixelCount);
+
+            for (int i = 0; i < length.Value; i++)
+                pixelColor[startPosition + i] = color;
             data.Add(DataElements.PixelColor, pixelColor);
 
             if (brightness.HasValue)
             {
                 var pixelBrightness = new double[this.pixelCount];
-                for (int i = 0; i < pixelBrightness.Length; i++)
-                    pixelBrightness[i] = brightness.Value;
+                Array.Copy(BrightnessArray, pixelBrightness, this.pixelCount);
+
+                for (int i = 0; i < length.Value; i++)
+                    pixelBrightness[startPosition + i] = brightness.Value;
 
                 data.Add(DataElements.PixelBrightness, pixelBrightness);
             }

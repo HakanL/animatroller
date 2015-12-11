@@ -26,6 +26,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void OnNext(IData value)
         {
+            value.CurrentToken = this.controlToken;
+
             this.control.OnNext(value, this.controlToken);
         }
     }

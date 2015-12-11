@@ -93,6 +93,9 @@ namespace Animatroller.Framework.Expander
             }
 
             this.parent.UpdateClientActors(message.InstanceId, Sender, Self);
+
+            // Send identity
+            Sender.Tell(new ActorIdentity("animatroller", null), Self);
         }
 
         private void CheckUpMembers()

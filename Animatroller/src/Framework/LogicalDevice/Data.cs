@@ -16,5 +16,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             this[dataElement] = value;
         }
+
+        public IControlToken CurrentToken { get; set; }
     }
 }
