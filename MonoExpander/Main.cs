@@ -245,6 +245,9 @@ namespace Animatroller.MonoExpander
 
         public void AddServer(Address address, IActorRef sender)
         {
+            if (!this.serverActors.ContainsKey(address))
+                this.log.Info("Connected to server at {0}", address);
+
             this.serverActors[address] = sender;
         }
 
