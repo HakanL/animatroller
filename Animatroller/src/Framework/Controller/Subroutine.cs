@@ -162,9 +162,25 @@ namespace Animatroller.Framework.Controller
             get { return this.name; }
         }
 
-        public void Run()
+        public Task Run()
         {
-            Executor.Current.Execute(this);
+            Task task;
+            Executor.Current.Execute(this, out task);
+
+            return task;
+        }
+
+        public Task Run(out System.Threading.CancellationTokenSource cts)
+        {
+            Task task;
+            cts = Executor.Current.Execute(this, out task);
+
+            return task;
+        }
+
+        public void RunAndWait()
+        {
+            Executor.Current.ExecuteAndWait(this);
         }
 
         public Subroutine LockWhenRunning(int lockPriority = 1, params IOwnedDevice[] devices)

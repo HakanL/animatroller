@@ -173,6 +173,29 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
+        public EnumStateMachine<T> ForFromSubroutine(T state, Subroutine sub)
+        {
+            var seq = new Sequence();
+            seq.WhenExecuted.Execute(i =>
+            {
+                System.Threading.CancellationTokenSource cts;
+                System.Threading.ManualResetEvent evt = new System.Threading.ManualResetEvent(false);
+                var runTask = sub.Run(out cts)
+                    .ContinueWith(t => evt.Set());
+
+                System.Threading.WaitHandle.WaitAny(new System.Threading.WaitHandle[]
+                {
+                    evt, i.CancelToken.WaitHandle
+                });
+                cts.Cancel();
+            });
+
+            var seqJob = (seq.WhenExecuted as Sequence.SequenceJob);
+            this.stateConfigs[state] = seqJob;
+
+            return this;
+        }
+
         public EnumStateMachine<T> SetMomentaryState(T newState)
         {
             if (IsIdle)

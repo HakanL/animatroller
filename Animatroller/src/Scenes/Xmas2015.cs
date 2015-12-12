@@ -26,7 +26,7 @@ namespace Animatroller.SceneRunner
         {
             Background,
             Music1,
-            Music2,
+            SantaVideo,
             DarthVader
         }
 
@@ -45,6 +45,7 @@ namespace Animatroller.SceneRunner
         Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        Effect.Pulsating pulsatingEffect3 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
         DigitalInput2 inOlaf = new DigitalInput2();
         DigitalInput2 inR2D2 = new DigitalInput2();
@@ -104,6 +105,9 @@ namespace Animatroller.SceneRunner
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
 
+        Controller.Subroutine subCandyCane = new Controller.Subroutine();
+        Controller.Subroutine subBackground = new Controller.Subroutine();
+        Controller.Subroutine subSantaVideo = new Controller.Subroutine();
         Controller.Subroutine subOlaf = new Controller.Subroutine();
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
 
@@ -121,6 +125,7 @@ namespace Animatroller.SceneRunner
 
             pulsatingEffect1.ConnectTo(lightOlaf);
             pulsatingEffect2.ConnectTo(lightR2D2);
+            pulsatingEffect3.ConnectTo(pixelsRoofEdge, Tuple.Create(DataElements.Color, (object)Color.Red));
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);
@@ -160,6 +165,20 @@ namespace Animatroller.SceneRunner
             inflatablesRunning.OnNext(Exec.GetSetKey("InflatablesRunning", false));
 
             //            hours.Output.Log("Hours inside");
+
+            stateMachine.ForFromSubroutine(States.Background, subBackground);
+
+            stateMachine.For(States.Music1).Execute(i =>
+            {
+                audio2.PlayTrack("08 Feel the Light.wav");
+                i.WaitFor(S(240));
+            }).TearDown(() =>
+            {
+                lorFeelTheLight.Stop();
+                audio2.PauseTrack();
+            });
+
+            stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
 
             airR2D2.Value = true;
             airSanta1.Value = true;
@@ -219,7 +238,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightReindeer2, 29), SacnUniverseRenardBig);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 1), SacnUniverseRenardSmall);
-//            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 1), SacnUniverseRenardBig);
+            //            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 1), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 3), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 4), SacnUniverseRenardSmall);
@@ -263,6 +282,119 @@ namespace Animatroller.SceneRunner
                 }
             });
 
+            subBackground
+                .LockWhenRunning(
+                    lightNet1,
+                    lightNet2,
+                    lightNet3,
+                    lightNet4,
+                    lightNet5,
+                    lightNet6,
+                    lightNet7,
+                    lightNet8,
+                    lightTopper1,
+                    lightTopper2,
+                    lightStairs1,
+                    lightStairs2,
+                    lightRail1,
+                    lightRail2,
+                    lightSanta,
+                    lightSnowman,
+                    lightHat1,
+                    lightHat2,
+                    lightHat3,
+                    lightHat4,
+                    lightReindeer1,
+                    lightReindeer2,
+                    lightDarth,
+                    lightWall1,
+                    lightWall2,
+                    lightWall3)
+                .RunAction(i =>
+                {
+                    lightNet1.SetBrightness(1, i.Token);
+                    lightNet2.SetBrightness(1, i.Token);
+                    lightNet3.SetBrightness(1, i.Token);
+                    lightNet4.SetBrightness(1, i.Token);
+                    lightNet5.SetBrightness(1, i.Token);
+                    lightNet6.SetBrightness(1, i.Token);
+                    lightNet7.SetBrightness(1, i.Token);
+                    lightNet8.SetBrightness(1, i.Token);
+                    lightTopper1.SetBrightness(1, i.Token);
+                    lightTopper2.SetBrightness(1, i.Token);
+                    lightStairs1.SetBrightness(1, i.Token);
+                    lightStairs2.SetBrightness(1, i.Token);
+                    lightRail1.SetBrightness(1, i.Token);
+                    lightRail2.SetBrightness(1, i.Token);
+                    lightSanta.SetBrightness(1, i.Token);
+                    lightSnowman.SetBrightness(1, i.Token);
+                    lightHat1.SetBrightness(1, i.Token);
+                    lightHat2.SetBrightness(1, i.Token);
+                    lightHat3.SetBrightness(1, i.Token);
+                    lightHat4.SetBrightness(1, i.Token);
+                    lightReindeer1.SetBrightness(1, i.Token);
+                    lightReindeer2.SetBrightness(1, i.Token);
+                    lightDarth.SetColor(Color.Red, 1, i.Token);
+                    lightWall1.SetColor(Color.Red, 1, i.Token);
+                    lightWall2.SetColor(Color.Red, 1, i.Token);
+                    lightWall3.SetColor(Color.Red, 1, i.Token);
+                    subCandyCane.Run();
+                    i.WaitUntilCancel();
+                    Exec.Cancel(subCandyCane);
+                });
+
+            subCandyCane
+                .LockWhenRunning(pixelsRoofEdge)
+                .RunAction(i =>
+                {
+                    const int spacing = 4;
+
+                    while (true)
+                    {
+                        for (int x = 0; x < spacing; x++)
+                        {
+                            //pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5);
+
+                            i.WaitFor(S(0.30), true);
+                        }
+                    }
+                });
+
+            subSantaVideo
+                .RunAction(i =>
+                {
+                    pulsatingEffect3.Start();
+                    switch (random.Next(6))
+                    {
+                        case 0:
+                            video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
+                            break;
+
+                        case 1:
+                            video3.PlayVideo("NBC_AllThruHouse_Part1_Holl_H.mp4");
+                            break;
+
+                        case 2:
+                            video3.PlayVideo("NBC_AllThruHouse_Part2_Holl_H.mp4");
+                            break;
+
+                        case 3:
+                            video3.PlayVideo("NBC_AllThruHouse_Part3_Holl_H.mp4");
+                            break;
+
+                        case 4:
+                            video3.PlayVideo("NBC_JingleBells_Holl_H.mp4");
+                            break;
+
+                        case 5:
+                            video3.PlayVideo("NBC_WeWishYou_Holl_H.mp4");
+                            break;
+                    }
+
+                    i.WaitFor(S(120), false);
+                    pulsatingEffect3.Stop();
+                });
+
             subOlaf
                 .RunAction(i =>
                 {
@@ -300,7 +432,8 @@ namespace Animatroller.SceneRunner
             midiAkai.Note(midiChannel, 38).Subscribe(x =>
             {
                 if (x)
-                    audio2.PlayTrack("08 Feel the Light.wav");
+                    stateMachine.SetState(States.Music1);
+                //                    audio2.PlayTrack("08 Feel the Light.wav");
             });
 
             midiAkai.Note(midiChannel, 39).Subscribe(x =>
@@ -316,7 +449,7 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                 {
-                    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
+                    stateMachine.SetState(States.SantaVideo);
                 }
             });
 
@@ -340,6 +473,12 @@ namespace Animatroller.SceneRunner
                         lorFeelTheLight.Start(27830);
                         break;
                 }
+            };
+
+            audio2.AudioTrackDone += (o, e) =>
+            {
+                //                Thread.Sleep(5000);
+                //    audio2.PlayTrack("08 Feel the Light.wav");
             };
 
             in1.Output.Subscribe(x =>

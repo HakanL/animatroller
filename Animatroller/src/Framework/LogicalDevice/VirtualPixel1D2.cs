@@ -443,5 +443,19 @@ namespace Animatroller.Framework.LogicalDevice
 
             PushData(token, data);
         }
+
+        //public void Inject(Color color, double brightness, IControlToken token = null)
+        //{
+        //    for (int i = this.brightness.Length - 1; i > 0; i--)
+        //    {
+        //        this.brightness[i] = this.brightness[i - 1];
+        //        this.color[i] = this.color[i - 1];
+        //    }
+
+        //    this.brightness[0] = brightness;
+        //    this.color[0] = color;
+
+        //    RaiseMultiPixelChanged(0, this.brightness.Length);
+        //}
     }
 }
