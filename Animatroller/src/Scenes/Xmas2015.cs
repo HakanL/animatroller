@@ -54,6 +54,7 @@ namespace Animatroller.SceneRunner
 
         DigitalOutput2 laser = new DigitalOutput2();
         DigitalOutput2 airR2D2 = new DigitalOutput2();
+        DigitalOutput2 airSanta1 = new DigitalOutput2();
         DigitalOutput2 airOlaf = new DigitalOutput2();
         DigitalOutput2 airReindeer = new DigitalOutput2();
 
@@ -68,13 +69,30 @@ namespace Animatroller.SceneRunner
         Dimmer3 lightTopper1 = new Dimmer3();
         Dimmer3 lightTopper2 = new Dimmer3();
         Dimmer3 lightStairs1 = new Dimmer3();
+        Dimmer3 lightStairs2 = new Dimmer3();
         Dimmer3 lightRail1 = new Dimmer3();
         Dimmer3 lightRail2 = new Dimmer3();
+
+        Dimmer3 lightSanta = new Dimmer3();
+        Dimmer3 lightSnowman = new Dimmer3();
+
+        Dimmer3 lightHat1 = new Dimmer3();
+        Dimmer3 lightHat2 = new Dimmer3();
+        Dimmer3 lightHat3 = new Dimmer3();
+        Dimmer3 lightHat4 = new Dimmer3();
+        Dimmer3 lightReindeer1 = new Dimmer3();
+        Dimmer3 lightReindeer2 = new Dimmer3();
+        //        StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
+        StrobeColorDimmer3 lightDarth = new StrobeColorDimmer3();
+        StrobeColorDimmer3 lightWall1 = new StrobeColorDimmer3();
+        StrobeColorDimmer3 lightWall2 = new StrobeColorDimmer3();
+        StrobeColorDimmer3 lightWall3 = new StrobeColorDimmer3();
 
         Dimmer3 lightOlaf = new Dimmer3();
         Dimmer3 lightR2D2 = new Dimmer3();
         VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
         VirtualPixel1D2 pixelsMatrix = new VirtualPixel1D2(200);
+        VirtualPixel1D2 saberPixels = new VirtualPixel1D2(32);
         Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
         Subject<bool> inflatablesRunning = new Subject<bool>();
         AnalogInput3 blackOut = new AnalogInput3();
@@ -144,6 +162,7 @@ namespace Animatroller.SceneRunner
             //            hours.Output.Log("Hours inside");
 
             airR2D2.Value = true;
+            airSanta1.Value = true;
             airOlaf.Value = true;
             laser.Value = true;
 
@@ -152,6 +171,7 @@ namespace Animatroller.SceneRunner
             //    .ControlsMasterPower(airSnowman)
                 .ControlsMasterPower(airOlaf)
                 .ControlsMasterPower(laser)
+                .ControlsMasterPower(airSanta1)
                 .ControlsMasterPower(airR2D2);
             //    .ControlsMasterPower(airSanta);
 
@@ -169,19 +189,37 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 0, 170), 10, 1);
             acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 170, 30), 11, 1);
 
+            acnOutput.Connect(new Physical.PixelRope(saberPixels, 0, 32), 12, 1);
+
             acnOutput.Connect(new Physical.GenericDimmer(airOlaf, 10), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(airReindeer, 12), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(airR2D2, 11), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 96), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 97), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 98), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 99), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightDarth, 60), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightWall1, 70), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightWall2, 40), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightWall3, 80), SacnUniverseDMX);
+
             acnOutput.Connect(new Physical.GenericDimmer(laser, 4), SacnUniverseRenardBig);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 128), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 131), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 132), SacnUniverseDMX);
+
             acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 16), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 10), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 11), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 19), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(airSanta1, 20), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 22), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightReindeer1, 32), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightReindeer2, 29), SacnUniverseRenardBig);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 1), SacnUniverseRenardSmall);
+//            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 1), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 3), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 4), SacnUniverseRenardSmall);
@@ -229,7 +267,7 @@ namespace Animatroller.SceneRunner
                 .RunAction(i =>
                 {
                     pulsatingEffect1.Start();
-                    audio1.PlayEffect("WarmHugs.wav", 0.0, 1.0);
+                    audio1.PlayNewEffect("WarmHugs.wav", 0.0, 1.0);
                     i.WaitFor(S(10));
                     pulsatingEffect1.Stop();
                 });
@@ -238,9 +276,9 @@ namespace Animatroller.SceneRunner
                 .RunAction(i =>
                 {
                     pulsatingEffect2.Start();
-                    audio1.PlayEffect("Im C3PO.wav", 1.0, 0.0);
+                    audio1.PlayNewEffect("Im C3PO.wav", 1.0, 0.0);
                     i.WaitFor(S(4));
-                    audio1.PlayEffect("Processing R2D2.wav", 1.0, 0.0);
+                    audio1.PlayNewEffect("Processing R2D2.wav", 0.5, 0.0);
                     i.WaitFor(S(5));
                     pulsatingEffect2.Stop();
                 });
@@ -271,6 +309,14 @@ namespace Animatroller.SceneRunner
                 {
                     lorFeelTheLight.Stop();
                     audio2.PauseTrack();
+                }
+            });
+
+            midiAkai.Note(midiChannel, 40).Subscribe(x =>
+            {
+                if (x)
+                {
+                    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
                 }
             });
 
@@ -307,8 +353,8 @@ namespace Animatroller.SceneRunner
                 //                    audioLocal.PlayEffect("WarmHugs.wav");
 
                 //                out1.Value = x;
-                if (x)
-                    audio2.PlayTrack("08 Feel the Light.wav");
+                //if (x)
+                //    audio2.PlayTrack("08 Feel the Light.wav");
                 //                    lorFeelTheLight.Start(27830);
             });
 
@@ -354,6 +400,32 @@ namespace Animatroller.SceneRunner
             lorFeelTheLight.MapDevice("Unit 01.13arch 2.6", lightNet2);
             lorFeelTheLight.MapDevice("Unit 01.14 arch 2.7", lightNet1);
 
+            lorFeelTheLight.MapDevice("windows 01", lightStairs1);
+            lorFeelTheLight.MapDevice("windows 02", lightStairs2);
+
+            lorFeelTheLight.MapDevice("04.01 Sing tree outline", lightHat1);
+            lorFeelTheLight.MapDevice("04.09  Sing tree outline", lightHat2);
+            lorFeelTheLight.MapDevice("05.01 Sing tree outline", lightHat3);
+            lorFeelTheLight.MapDevice("05.09 Sing tree Outline", lightHat4);
+
+            lorFeelTheLight.MapDevice("03.15 candy cane lane", lightTopper1);
+            lorFeelTheLight.MapDevice("03.13 deer rudolf", lightTopper2);
+            lorFeelTheLight.MapDevice("03.10 house eve 01", lightRail1);
+            lorFeelTheLight.MapDevice("03.11 house eve 02", lightRail2);
+            lorFeelTheLight.MapDevice("03.12 house eve 03", lightReindeer1);
+            lorFeelTheLight.MapDevice("03.14 deer 02", lightReindeer2);
+
+            lorFeelTheLight.MapDevice("03.9 mini tree 08", lightWall1, Tuple.Create(DataElements.Color, (object)Color.Red));
+            lorFeelTheLight.MapDevice("03.8 mini tree 07", lightWall2, Tuple.Create(DataElements.Color, (object)Color.Red));
+            lorFeelTheLight.MapDevice("03.7 mini tree 06", lightWall3, Tuple.Create(DataElements.Color, (object)Color.Red));
+            lorFeelTheLight.MapDevice("03.6 mini tree 05", lightSanta);
+            lorFeelTheLight.MapDevice("03.5 mini tree 04", lightSnowman);
+            lorFeelTheLight.MapDevice("03.4 mini tree 03", lightDarth, Tuple.Create(DataElements.Color, (object)Color.Red));
+            lorFeelTheLight.MapDevice("03.3 mini tree 02",
+                new VirtualDevice((b, t) => saberPixels.SetColorRange(Color.Red, b, 0, 32, t)));
+
+            //
+
             //lorFeelTheLight.MapDevice("Sky 1", lightNet1);
             //lorFeelTheLight.MapDevice("Sky 2", lightNet2);
             //lorFeelTheLight.MapDevice("Sky 3", lightNet3);
@@ -374,6 +446,7 @@ namespace Animatroller.SceneRunner
             //lorFeelTheLight.MapDevice("Star extra", lightStar);
 
             lorFeelTheLight.ControlDevice(pixelsMatrix);
+            lorFeelTheLight.ControlDevice(saberPixels);
             lorFeelTheLight.MapDevice("Unit 02.1 Mega tree 1",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.2 Mega tree 2",
