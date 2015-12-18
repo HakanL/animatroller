@@ -238,7 +238,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightReindeer2, 29), SacnUniverseRenardBig);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 1), SacnUniverseRenardSmall);
-            //            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 1), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 25), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 3), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 4), SacnUniverseRenardSmall);
@@ -255,6 +255,7 @@ namespace Animatroller.SceneRunner
                     stateMachine.SetState(States.Background);
                     lightOlaf.SetBrightness(1.0);
                     lightR2D2.SetBrightness(1.0);
+                    saberPixels.SetColor(Color.Red, 0.4);
                     //lightTreeUp.SetColor(Color.Red, 1.0);
                     //lightSnow1.SetBrightness(1.0);
                     //lightSnow2.SetBrightness(1.0);
@@ -268,6 +269,7 @@ namespace Animatroller.SceneRunner
                     stateMachine.SetBackgroundState(null);
                     lightOlaf.SetBrightness(0);
                     lightR2D2.SetBrightness(0);
+                    saberPixels.SetColor(Color.Black, 0);
                     //EverythingOff();
                     System.Threading.Thread.Sleep(200);
                     /*
@@ -353,7 +355,7 @@ namespace Animatroller.SceneRunner
                     {
                         for (int x = 0; x < spacing; x++)
                         {
-                            //pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5);
+                            pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5);
 
                             i.WaitFor(S(0.30), true);
                         }
