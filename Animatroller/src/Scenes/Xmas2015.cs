@@ -489,6 +489,9 @@ namespace Animatroller.SceneRunner
 
             in1.Output.Subscribe(x =>
             {
+                if (x)
+                    subOlaf.Run();
+
                 //if (x)
                 //    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
 

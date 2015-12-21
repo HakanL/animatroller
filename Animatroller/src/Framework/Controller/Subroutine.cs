@@ -141,7 +141,7 @@ namespace Animatroller.Framework.Controller
                 catch (Exception ex)
                 {
                     if (!(ex is OperationCanceledException))
-                        log.Debug(ex, "Exception in subroutine/mainAction");
+                        log.Debug(ex, "Exception when executing subroutine/mainAction");
                 }
 
                 Executor.Current.WaitForManagedTasks(true);

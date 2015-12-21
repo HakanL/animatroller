@@ -4,268 +4,183 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NLog;
-using Akka.Actor;
 using Animatroller.Framework.MonoExpanderMessages;
-using Akka.Cluster;
 using System.IO;
+using Microsoft.AspNet.SignalR.Client;
+using Newtonsoft.Json.Linq;
 
 namespace Animatroller.MonoExpander
 {
-    public interface IMonoExpanderClientActor :
-        IHandle<SetOutputRequest>,
-        IHandle<AudioEffectCue>,
-        IHandle<AudioEffectPlay>,
-        IHandle<AudioEffectPause>,
-        IHandle<AudioEffectResume>,
-        IHandle<AudioEffectSetVolume>,
-        IHandle<AudioBackgroundSetVolume>,
-        IHandle<AudioBackgroundResume>,
-        IHandle<AudioBackgroundPause>,
-        IHandle<AudioBackgroundNext>,
-        IHandle<AudioTrackPlay>,
-        IHandle<AudioTrackCue>,
-        IHandle<AudioTrackResume>,
-        IHandle<AudioTrackPause>,
-        IHandle<VideoPlay>
+    public class MonoExpanderClient
     {
-    }
-
-    public class DownloadInfo
-    {
-        public DateTime Start { get; private set; }
-
-        public string TempFolder { get; set; }
-
-        public string Id { get; private set; }
-
-        public FileTypes FileType { get; set; }
-
-        public string FileName { get; set; }
-
-        public string FinalFilePath { get; set; }
-
-        public byte[] SignatureSha1 { get; set; }
-
-        public long FileSize { get; set; }
-
-        public int Chunks { get; set; }
-
-        public int RequestedChunks { get; set; }
-
-        public int ReceivedChunks { get; set; }
-
-        public object TriggerMessage { get; set; }
-
-        public DownloadInfo()
+        public class DownloadInfo
         {
-            Id = Guid.NewGuid().ToString("n");
-            Start = DateTime.Now;
-        }
+            public DateTime Start { get; private set; }
 
-        internal void Cleanup()
-        {
-            try
+            public string TempFolder { get; set; }
+
+            public string Id { get; private set; }
+
+            public FileTypes FileType { get; set; }
+
+            public string FileName { get; set; }
+
+            public string FinalFilePath { get; set; }
+
+            public byte[] SignatureSha1 { get; set; }
+
+            public long FileSize { get; set; }
+
+            public int Chunks { get; set; }
+
+            public int RequestedChunks { get; set; }
+
+            public int ReceivedChunks { get; set; }
+
+            public object TriggerMessage { get; set; }
+
+            public DownloadInfo()
             {
-                Directory.Delete(TempFolder, true);
+                Id = Guid.NewGuid().ToString("n");
+                Start = DateTime.Now;
             }
-            catch
+
+            internal void Cleanup()
             {
+                try
+                {
+                    Directory.Delete(TempFolder, true);
+                }
+                catch
+                {
+                }
+            }
+
+            internal void Restart()
+            {
+                Start = DateTime.Now;
+                FileSize = 0;
+                ReceivedChunks = 0;
+                RequestedChunks = 0;
+                SignatureSha1 = null;
             }
         }
 
-        internal void Restart()
-        {
-            Start = DateTime.Now;
-            FileSize = 0;
-            ReceivedChunks = 0;
-            RequestedChunks = 0;
-            SignatureSha1 = null;
-        }
-    }
-
-    public class MonoExpanderClientActor : TypedActor,
-        ILogReceive,
-        IHandle<ClusterEvent.IMemberEvent>,
-        IHandle<WhoAreYouRequest>,
-        IHandle<ActorIdentity>,
-        IHandle<FileResponse>,
-        IHandle<FileChunkResponse>,
-        IMonoExpanderClientActor
-    {
         protected Logger log = LogManager.GetCurrentClassLogger();
         private Main main;
         private Dictionary<string, DownloadInfo> downloadInfo;
         private const int ChunkSize = 16384;
         private const int BufferedChunks = 5;
+        private IHubProxy hub;
 
-        public MonoExpanderClientActor(Main main)
+        public MonoExpanderClient(Main main, IHubProxy hub)
         {
             this.main = main;
+            this.hub = hub;
             this.downloadInfo = new Dictionary<string, DownloadInfo>();
-
-            // Subscribe to cluster events
-            Cluster.Get(Context.System).Subscribe(Self, new[] {
-                typeof(ClusterEvent.IMemberEvent) });
         }
 
-        private void CheckMembers()
+        public void HandleMessage(Type messageType, object message)
         {
-            var currentUpMembers = Cluster.Get(Context.System).ReadView.Members
-                .Where(x => x.Status == MemberStatus.Up && x.HasRole("animatroller"));
-
-            foreach (var member in currentUpMembers)
+            var jobject = message as JObject;
+            if (jobject != null)
             {
-                // Found a master, ping it
-                var sel = GetServerActorSelection(member.Address);
-                sel.Tell(new Identify("animatroller"), Self);
+                var messageObject = jobject.ToObject(messageType);
+
+                var method = typeof(MonoExpanderClient).GetMethods()
+                    .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
+                    .ToList();
+
+                method.SingleOrDefault()?.Invoke(this, new object[] { messageObject });
             }
         }
 
-        public void Handle(ClusterEvent.IMemberEvent message)
+        private void SendMessage(object message)
         {
-            CheckMembers();
-
-            if (message.Member.Status != MemberStatus.Up || !message.Member.Roles.Contains("animatroller"))
-            {
-                // Not valid
-                this.main.RemoveServer(message.Member.Address);
-            }
+            this.hub.Invoke("HandleMessage", message.GetType(), message);
         }
 
-        private ActorSelection GetServerActorSelection(Address address)
+        public void Handle(Ping message)
         {
-            return Context.ActorSelection(string.Format("{0}/user/ExpanderServer", address));
-        }
-
-        private void UpdateServerActor()
-        {
-            if (!this.main.IsServerKnown(Sender.Path.Address))
-                Sender.Tell(new Identify("animatroller"), Self);
-        }
-
-        public void Handle(WhoAreYouRequest message)
-        {
-            Sender.Tell(new WhoAreYouResponse
-            {
-                InstanceId = this.main.InstanceId
-            }, Self);
-        }
-
-        public void Handle(ActorIdentity message)
-        {
-            if (message.MessageId is string && (string)message.MessageId == "animatroller")
-            {
-                // We expected this
-                this.main.AddServer(Sender.Path.Address, Sender);
-            }
+            log.Debug("Ping from server");
         }
 
         public void Handle(SetOutputRequest message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioEffectCue message)
         {
-            UpdateServerActor();
-
             if (CheckFile(message, FileTypes.AudioEffect, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioEffectPlay message)
         {
-            UpdateServerActor();
-
             if (CheckFile(message, FileTypes.AudioEffect, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioEffectPause message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioEffectResume message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioEffectSetVolume message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundSetVolume message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundResume message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundPause message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioBackgroundNext message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioTrackPlay message)
         {
-            UpdateServerActor();
-
             if (CheckFile(message, FileTypes.AudioTrack, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioTrackCue message)
         {
-            UpdateServerActor();
-
             if (CheckFile(message, FileTypes.AudioTrack, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioTrackResume message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(AudioTrackPause message)
         {
-            UpdateServerActor();
-
             this.main.Handle(message);
         }
 
         public void Handle(VideoPlay message)
         {
-            UpdateServerActor();
-
             if (CheckFile(message, FileTypes.Video, message.FileName))
                 this.main.Handle(message);
         }
@@ -304,12 +219,12 @@ namespace Animatroller.MonoExpander
                 Directory.Delete(downloadInfo.TempFolder, true);
 
             // Request the file
-            Sender.Tell(new FileRequest
+            SendMessage(new FileRequest
             {
                 DownloadId = downloadInfo.Id,
                 Type = fileType,
                 FileName = fileName
-            }, Self);
+            });
 
             return false;
         }
@@ -355,14 +270,14 @@ namespace Animatroller.MonoExpander
 
             for (int chunkId = 0; chunkId <= downloadInfo.Chunks && chunkId < BufferedChunks; chunkId++)
             {
-                Sender.Tell(new FileChunkRequest
+                SendMessage(new FileChunkRequest
                 {
                     DownloadId = message.DownloadId,
                     FileName = downloadInfo.FileName,
                     Type = downloadInfo.FileType,
                     ChunkSize = ChunkSize,
                     ChunkStart = downloadInfo.RequestedChunks * ChunkSize
-                }, Self);
+                });
 
                 downloadInfo.RequestedChunks++;
             }
@@ -385,14 +300,14 @@ namespace Animatroller.MonoExpander
             // Request next chunk
             if (downloadInfo.RequestedChunks < downloadInfo.Chunks)
             {
-                Sender.Tell(new FileChunkRequest
+                SendMessage(new FileChunkRequest
                 {
                     DownloadId = message.DownloadId,
                     FileName = downloadInfo.FileName,
                     Type = downloadInfo.FileType,
                     ChunkSize = ChunkSize,
                     ChunkStart = downloadInfo.RequestedChunks * ChunkSize
-                }, Self);
+                });
 
                 downloadInfo.RequestedChunks++;
             }
@@ -419,14 +334,14 @@ namespace Animatroller.MonoExpander
                                 if (!File.Exists(chunkFile) || new FileInfo(chunkFile).Length != expectedChunkSize)
                                 {
                                     // Re-request
-                                    Sender.Tell(new FileChunkRequest
+                                    SendMessage(new FileChunkRequest
                                     {
                                         DownloadId = message.DownloadId,
                                         FileName = downloadInfo.FileName,
                                         Type = downloadInfo.FileType,
                                         ChunkSize = ChunkSize,
                                         ChunkStart = chunkStart
-                                    }, Self);
+                                    });
 
                                     // Not done yet
                                     return;
@@ -453,12 +368,12 @@ namespace Animatroller.MonoExpander
                             // Invalid signature, request the file again
                             downloadInfo.Restart();
 
-                            Sender.Tell(new FileRequest
+                            SendMessage(new FileRequest
                             {
                                 DownloadId = downloadInfo.Id,
                                 Type = downloadInfo.FileType,
                                 FileName = downloadInfo.FileName
-                            }, Self);
+                            });
 
                             return;
                         }
@@ -469,7 +384,14 @@ namespace Animatroller.MonoExpander
                         this.downloadInfo.Remove(downloadInfo.Id);
 
                         if (downloadInfo.TriggerMessage != null)
-                            Self.Tell(downloadInfo.TriggerMessage);
+                        {
+                            // Invoke
+                            var method = typeof(MonoExpanderClient).GetMethods()
+                                .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == downloadInfo.TriggerMessage.GetType()))
+                                .ToList();
+
+                            method.SingleOrDefault()?.Invoke(this, new object[] { downloadInfo.TriggerMessage });
+                        }
                     }
                     finally
                     {

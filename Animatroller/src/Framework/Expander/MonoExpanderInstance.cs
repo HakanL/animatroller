@@ -2,22 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
-using Akka.Actor;
-using Akka.Configuration;
 using Animatroller.Framework.MonoExpanderMessages;
 using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class MonoExpanderInstance : IPort, IRunnable, IOutputHardware, IMonoExpanderInstance
+    public class MonoExpanderInstance : IPort, IRunnable, IOutputHardware
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
-        private IActorRef clientActorRef;
-        private IActorRef serverActorRef;
         private event EventHandler<EventArgs> AudioTrackDone;
         private event EventHandler<EventArgs> VideoTrackDone;
         private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
+        private Action<object> sendAction;
 
         public MonoExpanderInstance(int inputs = 8, int outputs = 8, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -42,15 +39,14 @@ namespace Animatroller.Framework.Expander
             Executor.Current.Register(this);
         }
 
-        public void SetActor(IActorRef clientActorRef, IActorRef serverActorRef)
+        internal void SetSendAction(Action<object> sendAction)
         {
-            this.clientActorRef = clientActorRef;
-            this.serverActorRef = serverActorRef;
+            this.sendAction = sendAction;
         }
 
         private void SendMessage(object message)
         {
-            this.clientActorRef?.Tell(message, this.serverActorRef);
+            this.sendAction?.Invoke(message);
         }
 
         public IObservable<Tuple<AudioTypes, string>> AudioTrackStart
@@ -276,6 +272,21 @@ namespace Animatroller.Framework.Expander
                     RaiseAudioTrackDone();
                     break;
             }
+        }
+
+        public void Handle(Ping message)
+        {
+            log.Debug("Response from instance {0}", this.name);
+        }
+
+        public void HandleMessage(object message)
+        {
+            Type messageType = message.GetType();
+            var method = typeof(MonoExpanderInstance).GetMethods()
+                .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
+                .ToList();
+
+            method.SingleOrDefault()?.Invoke(this, new object[] { message });
         }
     }
 }

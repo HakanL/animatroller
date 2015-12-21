@@ -12,10 +12,8 @@ using NLog;
 using SupersonicSound.Exceptions;
 using System.Diagnostics;
 using org.freedesktop.DBus;
-using Akka.Configuration;
-using Akka.Configuration.Hocon;
-using Akka.Actor;
 using Animatroller.Framework.MonoExpanderMessages;
+using Microsoft.AspNet.SignalR.Client;
 
 namespace Animatroller.MonoExpander
 {
@@ -53,15 +51,13 @@ namespace Animatroller.MonoExpander
         private List<IDisposable> disposeList;
         private int? lastPosBg;
         private int? lastPosTrk;
-        private ActorSystem system;
-        private IActorRef clientActor;
-        private Dictionary<Address, IActorRef> serverActors;
         private string fileStoragePath;
+        private List<Tuple<HubConnection, IHubProxy, MonoExpanderClient>> connections;
+        private bool attemptHubReconnect;
 
         public Main(Arguments args)
         {
             this.log = LogManager.GetLogger("Main");
-            this.serverActors = new Dictionary<Address, IActorRef>();
             this.fileStoragePath = args.FileStoragePath;
 
             // Clean up temp folder
@@ -194,43 +190,48 @@ namespace Animatroller.MonoExpander
                 }
             }
 
-            this.log.Info("Initializing Akka listener");
+            this.log.Info("Initializing SignalR client");
 
-            var akkaConfig = ConfigurationFactory.ParseString(@"
-                akka {
-                    loggers = [""Akka.Logger.NLog.NLogLogger, Akka.Logger.NLog""]
-                    ##log-config-on-start = on
-                    actor {
-                        provider = ""Akka.Cluster.ClusterActorRefProvider, Akka.Cluster""
+            this.attemptHubReconnect = true;
+            this.connections = new List<Tuple<HubConnection, IHubProxy, MonoExpanderClient>>();
+            foreach (var server in args.Servers)
+            {
+                var connection = new HubConnection(
+                    string.Format("http://{0}:{1}/", server.Host, server.Port),
+                    string.Format("InstanceId={0}", InstanceId));
+
+                connection.Closed += () =>
+                {
+                    if (this.attemptHubReconnect)
+                    {
+                        this.log.Warn("Connection to {0}:{1} disconnected, trying reconnect", server.Host, server.Port);
+
+                        Task.Delay(2000).ContinueWith(t => connection.Start());
                     }
-                    remote {
-                        helios.tcp {
-		                    #port = 0
-		                    hostname = 0.0.0.0
-                        }
-                    }
-                    cluster {
-                        #seed-nodes = [""akka.tcp://Animatroller@127.0.0.1:8088""]
-                        roles = [expander]
-                    }
-                }
-            ");
+                };
 
-            string seeds = string.Join(",", args.Servers.Select(x => string.Format("\"akka.tcp://Animatroller@{0}:{1}\"", x.Host, x.Port)));
-            string seedsString = string.Format(@"akka.cluster.seed-nodes = [{0}]", seeds);
+                connection.Error += error =>
+                {
+                    this.log.Warn("SignalR error {0} for host {1}:{2}", error.Message, server.Host, server.Port);
+                };
 
-            this.log.Info("Connecting to seed nodes: {0}", seeds);
+                connection.StateChanged += state =>
+                {
+                    this.log.Trace("Connection to {0}:{1} changed state to {2}", server.Host, server.Port, state.NewState);
+                };
 
-            var finalConfig = ConfigurationFactory.ParseString(
-                    string.Format(@"akka.remote.helios.tcp.public-hostname = {0}
-                        akka.remote.helios.tcp.port = {1}",
-                    Environment.MachineName.ToLower(), args.ListenPort))
-                .WithFallback(ConfigurationFactory.ParseString(seedsString))
-                .WithFallback(akkaConfig);
+                var hub = connection.CreateHubProxy("MonoExpanderHub");
 
-            this.system = ActorSystem.Create("Animatroller", finalConfig);
+                var client = new MonoExpanderClient(this, hub);
 
-            this.clientActor = this.system.ActorOf(Props.Create<MonoExpanderClientActor>(this), "Expander");
+                // Wire up messages
+                hub.On<Type, object>("HandleMessage", client.HandleMessage);
+
+                // Start, ignore result here (caught by the event handlers)
+                connection.Start();
+
+                this.connections.Add(Tuple.Create(connection, hub, client));
+            }
         }
 
         public string FileStoragePath
@@ -238,39 +239,27 @@ namespace Animatroller.MonoExpander
             get { return this.fileStoragePath; }
         }
 
-        public bool IsServerKnown(Address address)
-        {
-            return this.serverActors.ContainsKey(address);
-        }
-
-        public void AddServer(Address address, IActorRef sender)
-        {
-            if (!this.serverActors.ContainsKey(address))
-                this.log.Info("Connected to server at {0}", address);
-
-            this.serverActors[address] = sender;
-        }
-
-        public void RemoveServer(Address address)
-        {
-            this.serverActors.Remove(address);
-        }
-
         public string InstanceId
         {
             get { return this.instanceId; }
         }
 
-        public void SendMessage(object message)
+        public void SendMessage<T>(T message)
         {
-            if (!this.serverActors.Any())
+            this.connections.ForEach(tt =>
             {
-                this.log.Warn("No server actors found");
-            }
-
-            this.serverActors.Values.ToList().ForEach(x =>
-            {
-                x.Tell(message, this.clientActor);
+                try
+                {
+                    if (tt.Item1.State == ConnectionState.Connected)
+                        tt.Item2.Invoke("HandleMessage", message.GetType(), message);
+                    else
+                        this.log.Debug("Not connected to {0}", tt.Item1.Url);
+                }
+                catch (Exception ex)
+                {
+                    // Ignore
+                    this.log.Debug("Failed to send: {0}", ex.Message);
+                }
             });
         }
 
@@ -551,11 +540,13 @@ namespace Animatroller.MonoExpander
 
         public void Dispose()
         {
-            if (this.system != null)
+            this.attemptHubReconnect = false;
+            this.connections.ForEach(tt =>
             {
-                this.system.Dispose();
-                this.system = null;
-            }
+                tt.Item1.Stop();
+                tt.Item1.Dispose();
+            });
+            this.connections.Clear();
 
             if (this.fmodSystem != null)
                 this.fmodSystem.Dispose();
@@ -635,10 +626,7 @@ namespace Animatroller.MonoExpander
                         // Send ping
                         this.log.Trace("Send ping");
 
-                        SendMessage(new WhoAreYouResponse
-                        {
-                            InstanceId = InstanceId
-                        });
+                        SendMessage(new Ping());
 
                         watch.Restart();
                     }
@@ -647,8 +635,6 @@ namespace Animatroller.MonoExpander
                 }
 
                 this.log.Info("Shutting down");
-
-                this.clientActor.GracefulStop(TimeSpan.FromSeconds(1));
             }
             finally
             {

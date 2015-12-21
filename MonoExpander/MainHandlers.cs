@@ -10,14 +10,12 @@ using SupersonicSound.LowLevel;
 using NLog;
 using SupersonicSound.Exceptions;
 using System.Diagnostics;
-using Akka.Configuration;
-using Akka.Configuration.Hocon;
-using Akka.Actor;
 using Animatroller.Framework.MonoExpanderMessages;
+using Newtonsoft.Json.Linq;
 
 namespace Animatroller.MonoExpander
 {
-    public partial class Main : IMonoExpanderClientActor
+    public partial class Main
     {
         public void Handle(SetOutputRequest message)
         {

@@ -18,13 +18,8 @@ namespace Animatroller.Framework.MonoExpanderMessages
         Video
     }
 
-    public class WhoAreYouRequest
+    public class Ping
     {
-    }
-
-    public class WhoAreYouResponse
-    {
-        public string InstanceId { get; set; }
     }
 
     //

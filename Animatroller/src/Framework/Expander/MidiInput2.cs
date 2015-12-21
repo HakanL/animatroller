@@ -50,7 +50,7 @@ namespace Animatroller.Framework.Expander
                 if (!ignoreMissingDevice)
                     throw new ArgumentException("Midi device not detected");
                 else
-                    Debug.Assert(false, "Midi device not detected");
+                    log.Warn("Midi device not detected");
             }
             else
             {
