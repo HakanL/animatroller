@@ -360,6 +360,10 @@ namespace Animatroller.SceneRunner
                             i.WaitFor(S(0.30), true);
                         }
                     }
+                })
+                .TearDown(() =>
+                {
+                    pixelsRoofEdge.SetColor(Color.Black, 0.0);
                 });
 
             subSantaVideo
