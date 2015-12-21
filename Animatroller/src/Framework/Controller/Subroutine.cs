@@ -133,8 +133,16 @@ namespace Animatroller.Framework.Controller
 
                 Lock();
 
-                if (this.mainAction != null)
-                    this.mainAction(this);
+                try
+                {
+                    if (this.mainAction != null)
+                        this.mainAction(this);
+                }
+                catch (Exception ex)
+                {
+                    if (!(ex is OperationCanceledException))
+                        log.Debug(ex, "Exception in subroutine/mainAction");
+                }
 
                 Executor.Current.WaitForManagedTasks(true);
 
