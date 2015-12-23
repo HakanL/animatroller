@@ -40,6 +40,7 @@ namespace Animatroller.SceneRunner
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8088, lighthousePort: 8899);
         AudioPlayer audio1 = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
+        AudioPlayer audioDarthVader = new AudioPlayer();
         VideoPlayer video3 = new VideoPlayer();
 
         Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
@@ -84,7 +85,7 @@ namespace Animatroller.SceneRunner
         Dimmer3 lightReindeer1 = new Dimmer3();
         Dimmer3 lightReindeer2 = new Dimmer3();
         //        StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
-        StrobeColorDimmer3 lightDarth = new StrobeColorDimmer3();
+        StrobeColorDimmer3 lightVader = new StrobeColorDimmer3();
         StrobeColorDimmer3 lightWall1 = new StrobeColorDimmer3();
         StrobeColorDimmer3 lightWall2 = new StrobeColorDimmer3();
         StrobeColorDimmer3 lightWall3 = new StrobeColorDimmer3();
@@ -106,10 +107,12 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
 
         Controller.Subroutine subCandyCane = new Controller.Subroutine();
+        Controller.Subroutine subStarWarsCane = new Controller.Subroutine();
         Controller.Subroutine subBackground = new Controller.Subroutine();
         Controller.Subroutine subSantaVideo = new Controller.Subroutine();
         Controller.Subroutine subOlaf = new Controller.Subroutine();
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
+        Controller.Subroutine subStarWars = new Controller.Subroutine();
 
         public Xmas2015(IEnumerable<string> args)
         {
@@ -125,7 +128,7 @@ namespace Animatroller.SceneRunner
 
             pulsatingEffect1.ConnectTo(lightOlaf);
             pulsatingEffect2.ConnectTo(lightR2D2);
-            pulsatingEffect3.ConnectTo(pixelsRoofEdge, Tuple.Create(DataElements.Color, (object)Color.Red));
+            pulsatingEffect3.ConnectTo(pixelsRoofEdge, Utils.AdditionalData(Color.Red));
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);
@@ -136,6 +139,7 @@ namespace Animatroller.SceneRunner
             expander1.DigitalInputs[4].Connect(inOlaf);
             expander1.DigitalInputs[6].Connect(in1);
             expander1.DigitalOutputs[7].Connect(out1);
+            expanderLocal.Connect(audioDarthVader);
             expander1.Connect(audio1);
             expander2.Connect(audio2);
             expander3.Connect(video3);
@@ -179,6 +183,7 @@ namespace Animatroller.SceneRunner
             });
 
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
+            stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
             airR2D2.Value = true;
             airSanta1.Value = true;
@@ -217,7 +222,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 97), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 98), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 99), SacnUniverseDMX);
-            acnOutput.Connect(new Physical.RGBStrobe(lightDarth, 60), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.RGBStrobe(lightVader, 60), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightWall1, 70), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightWall2, 40), SacnUniverseDMX);
             acnOutput.Connect(new Physical.RGBStrobe(lightWall3, 80), SacnUniverseDMX);
@@ -308,7 +313,7 @@ namespace Animatroller.SceneRunner
                     lightHat4,
                     lightReindeer1,
                     lightReindeer2,
-                    lightDarth,
+                    lightVader,
                     lightWall1,
                     lightWall2,
                     lightWall3)
@@ -336,7 +341,7 @@ namespace Animatroller.SceneRunner
                     lightHat4.SetBrightness(1, i.Token);
                     lightReindeer1.SetBrightness(1, i.Token);
                     lightReindeer2.SetBrightness(1, i.Token);
-                    lightDarth.SetColor(Color.Red, 1, i.Token);
+                    lightVader.SetColor(Color.Red, 1, i.Token);
                     lightWall1.SetColor(Color.Red, 1, i.Token);
                     lightWall2.SetColor(Color.Red, 1, i.Token);
                     lightWall3.SetColor(Color.Red, 1, i.Token);
@@ -363,6 +368,42 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                 {
+                    //TODO: We should write to a frame buffer and it should automatically reset when the lock is released
+                    pixelsRoofEdge.SetColor(Color.Black, 0.0);
+                });
+
+            subStarWarsCane
+                .LockWhenRunning(pixelsRoofEdge)
+                .RunAction(instance =>
+                {
+                    const int spacing = 4;
+
+                    while (!instance.CancelToken.IsCancellationRequested)
+                    {
+                        for (int i = 0; i < spacing; i++)
+                        {
+                            switch (i % spacing)
+                            {
+                                case 0:
+                                case 1:
+                                    pixelsRoofEdge.InjectRev(Color.Yellow, 1.0);
+                                    break;
+                                case 2:
+                                case 3:
+                                    pixelsRoofEdge.InjectRev(Color.Orange, 0.2);
+                                    break;
+                            }
+
+                            instance.WaitFor(S(0.1));
+
+                            if (instance.IsCancellationRequested)
+                                break;
+                        }
+                    }
+                })
+                .TearDown(() =>
+                {
+                    //TODO: We should write to a frame buffer and it should automatically reset when the lock is released
                     pixelsRoofEdge.SetColor(Color.Black, 0.0);
                 });
 
@@ -421,6 +462,75 @@ namespace Animatroller.SceneRunner
                     pulsatingEffect2.Stop();
                 });
 
+            subStarWars
+                .RunAction(instance =>
+                {
+                    //Exec.Cancel(subCandyCane);
+                    subStarWarsCane.Run();
+                    lightR2D2.SetBrightness(1.0, instance.Token);
+
+                    audioDarthVader.PlayTrack("01. Star Wars - Main Title.wav");
+
+                    instance.WaitFor(S(16));
+
+                    audioDarthVader.PauseTrack();
+                    Exec.Cancel(subStarWarsCane);
+                    instance.WaitFor(S(0.5));
+                    /*
+                        elJesus.SetPower(true);
+                        pulsatingStar.Start();
+                        lightJesus.SetColor(Color.White, 0.3);
+                        light3wise.SetOnlyColor(Color.LightYellow);
+                        light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));*/
+
+                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, additionalData: Utils.AdditionalData(Color.Red));
+
+                    instance.WaitFor(S(2.5));
+
+                    audioDarthVader.PlayEffect("saberon.wav");
+                    for (int sab = 00; sab < 32; sab++)
+                    {
+                        saberPixels.Inject(Color.Red, 0.5);
+                        instance.WaitFor(S(0.01));
+                    }
+                    instance.WaitFor(S(1));
+
+                    lightVader.SetColor(Color.Red, 1.0, instance.Token);
+                    audioDarthVader.PlayEffect("father.wav");
+                    instance.WaitFor(S(5));
+
+                    lightVader.SetBrightness(0.0, instance.Token);
+                    //light3wise.TurnOff();
+                    //lightJesus.TurnOff();
+                    //pulsatingStar.Stop();
+                    //elJesus.TurnOff();
+
+                    audioDarthVader.PlayEffect("force1.wav");
+                    instance.WaitFor(S(4));
+
+                    audioDarthVader.PlayEffect("saberoff.wav");
+                    instance.WaitFor(S(0.7));
+                    for (int sab = 0; sab < 16; sab++)
+                    {
+                        saberPixels.InjectRev(Color.Black, 0);
+                        saberPixels.InjectRev(Color.Black, 0);
+                        instance.WaitFor(S(0.01));
+                    }
+                    //elLightsaber.SetPower(false);
+                    instance.WaitFor(S(2));
+
+                    //lightJesus.TurnOff();
+                    //light3wise.TurnOff();
+                    //elLightsaber.TurnOff();
+                    //pulsatingStar.Stop();
+                    //elJesus.TurnOff();
+                    //instance.WaitFor(S(2));
+                })
+                .TearDown(() =>
+                {
+                    audioDarthVader.PauseTrack();
+                    lightR2D2.SetBrightness(0.0);
+                });
 
 
             midiAkai.Note(midiChannel, 36).Subscribe(x =>
@@ -490,7 +600,7 @@ namespace Animatroller.SceneRunner
             in1.Output.Subscribe(x =>
             {
                 if (x)
-                    subOlaf.Run();
+                    subStarWars.Run();
 
                 //if (x)
                 //    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
@@ -563,12 +673,12 @@ namespace Animatroller.SceneRunner
             lorFeelTheLight.MapDevice("03.12 house eve 03", lightReindeer1);
             lorFeelTheLight.MapDevice("03.14 deer 02", lightReindeer2);
 
-            lorFeelTheLight.MapDevice("03.9 mini tree 08", lightWall1, Tuple.Create(DataElements.Color, (object)Color.Red));
-            lorFeelTheLight.MapDevice("03.8 mini tree 07", lightWall2, Tuple.Create(DataElements.Color, (object)Color.Red));
-            lorFeelTheLight.MapDevice("03.7 mini tree 06", lightWall3, Tuple.Create(DataElements.Color, (object)Color.Red));
+            lorFeelTheLight.MapDevice("03.9 mini tree 08", lightWall1, Utils.AdditionalData(Color.Red));
+            lorFeelTheLight.MapDevice("03.8 mini tree 07", lightWall2, Utils.AdditionalData(Color.Red));
+            lorFeelTheLight.MapDevice("03.7 mini tree 06", lightWall3, Utils.AdditionalData(Color.Red));
             lorFeelTheLight.MapDevice("03.6 mini tree 05", lightSanta);
             lorFeelTheLight.MapDevice("03.5 mini tree 04", lightSnowman);
-            lorFeelTheLight.MapDevice("03.4 mini tree 03", lightDarth, Tuple.Create(DataElements.Color, (object)Color.Red));
+            lorFeelTheLight.MapDevice("03.4 mini tree 03", lightVader, Utils.AdditionalData(Color.Red));
             lorFeelTheLight.MapDevice("03.3 mini tree 02",
                 new VirtualDevice((b, t) => saberPixels.SetColorRange(Color.Red, b, 0, 32, t)));
 
@@ -627,7 +737,7 @@ namespace Animatroller.SceneRunner
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 160, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.16 Mega tree 16",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 180, 20, t)));
-            lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Tuple.Create(DataElements.Color, (object)Color.White));
+            lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.AdditionalData(Color.White));
 
             /*
                         lightBottom.OutputBrightness.Subscribe(x =>

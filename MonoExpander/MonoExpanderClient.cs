@@ -13,15 +13,17 @@ namespace Animatroller.MonoExpander
 {
     public class MonoExpanderClient
     {
-        public class DownloadInfo
+        protected class DownloadInfo
         {
             public DateTime Start { get; private set; }
 
-            public string TempFolder { get; set; }
+            public DateTime? LastReceive { get; set; }
+
+            public string TempFolder { get; private set; }
 
             public string Id { get; private set; }
 
-            public FileTypes FileType { get; set; }
+            public FileTypes FileType { get; private set; }
 
             public string FileName { get; set; }
 
@@ -39,10 +41,25 @@ namespace Animatroller.MonoExpander
 
             public object TriggerMessage { get; set; }
 
-            public DownloadInfo()
+            public DownloadInfo(string fileStoragePath, FileTypes fileType)
             {
                 Id = Guid.NewGuid().ToString("n");
                 Start = DateTime.Now;
+                FileType = fileType;
+                TempFolder = Path.Combine(fileStoragePath, "tmp", fileType.ToString(), Id, "_chunks");
+            }
+
+            public bool IsZombie
+            {
+                get
+                {
+                    if (LastReceive.HasValue)
+                    {
+                        return (DateTime.Now - LastReceive.Value).TotalSeconds > 30;
+                    }
+                    else
+                        return (DateTime.Now - Start).TotalSeconds > 30;
+                }
             }
 
             internal void Cleanup()
@@ -68,7 +85,7 @@ namespace Animatroller.MonoExpander
 
         protected Logger log = LogManager.GetCurrentClassLogger();
         private Main main;
-        private Dictionary<string, DownloadInfo> downloadInfo;
+        private Dictionary<string, DownloadInfo> downloadInfos;
         private const int ChunkSize = 16384;
         private const int BufferedChunks = 5;
         private IHubProxy hub;
@@ -77,7 +94,7 @@ namespace Animatroller.MonoExpander
         {
             this.main = main;
             this.hub = hub;
-            this.downloadInfo = new Dictionary<string, DownloadInfo>();
+            this.downloadInfos = new Dictionary<string, DownloadInfo>();
         }
 
         public void HandleMessage(Type messageType, object message)
@@ -97,7 +114,14 @@ namespace Animatroller.MonoExpander
 
         private void SendMessage(object message)
         {
-            this.hub.Invoke("HandleMessage", message.GetType(), message);
+            try
+            {
+                this.hub.Invoke("HandleMessage", message.GetType(), message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                this.log.Error(ex, "Unable to send in SendMessage");
+            }
         }
 
         public void Handle(Ping message)
@@ -185,6 +209,23 @@ namespace Animatroller.MonoExpander
                 this.main.Handle(message);
         }
 
+        private void CleanUpDownloadInfo()
+        {
+            lock (this.downloadInfos)
+            {
+                foreach (var kvp in this.downloadInfos.ToList())
+                {
+                    var downloadInfo = kvp.Value;
+
+                    if (downloadInfo.IsZombie)
+                    {
+                        downloadInfo.Cleanup();
+                        this.downloadInfos.Remove(kvp.Key);
+                    }
+                }
+            }
+        }
+
         private bool CheckFile(object triggerMessage, FileTypes fileType, string fileName)
         {
             if (!string.IsNullOrEmpty(Path.GetDirectoryName(fileName)))
@@ -197,31 +238,42 @@ namespace Animatroller.MonoExpander
             if (File.Exists(filePath))
                 return true;
 
+            CleanUpDownloadInfo();
+
             this.log.Info("Missing file {0} of type {1}", fileName, fileType);
 
-            if (this.downloadInfo.Any(x => x.Value.FileType == fileType && x.Value.FileName == fileName))
-                // Already in the process to be downloaded
-                return false;
+            string downloadId;
 
-            var downloadInfo = new DownloadInfo
+            lock (this.downloadInfos)
             {
-                TriggerMessage = triggerMessage,
-                TempFolder = Path.Combine(this.main.FileStoragePath, "tmp", fileType.ToString(), "_chunks"),
-                FileType = fileType,
-                FileName = fileName,
-                FinalFilePath = filePath
-            };
+                if (this.downloadInfos.Any(x => x.Value.FileType == fileType && x.Value.FileName == fileName))
+                {
+                    // Already in the process to be downloaded
+                    this.log.Info("Already in the process of being downloaded");
 
-            this.downloadInfo.Add(downloadInfo.Id, downloadInfo);
+                    return false;
+                }
 
-            if (Directory.Exists(downloadInfo.TempFolder))
-                // Empty it
-                Directory.Delete(downloadInfo.TempFolder, true);
+                var downloadInfo = new DownloadInfo(this.main.FileStoragePath, fileType)
+                {
+                    TriggerMessage = triggerMessage,
+                    FileName = fileName,
+                    FinalFilePath = filePath
+                };
+
+                this.downloadInfos.Add(downloadInfo.Id, downloadInfo);
+
+                if (Directory.Exists(downloadInfo.TempFolder))
+                    // Empty it
+                    Directory.Delete(downloadInfo.TempFolder, true);
+
+                downloadId = downloadInfo.Id;
+            }
 
             // Request the file
             SendMessage(new FileRequest
             {
-                DownloadId = downloadInfo.Id,
+                DownloadId = downloadId,
                 Type = fileType,
                 FileName = fileName
             });
@@ -245,41 +297,46 @@ namespace Animatroller.MonoExpander
         {
             DownloadInfo downloadInfo;
 
-            if (!this.downloadInfo.TryGetValue(message.DownloadId, out downloadInfo))
-                // Unknown, ignore
-                return;
-
-            if (message.Size == 0)
+            lock (this.downloadInfos)
             {
-                // Doesn't exist
-                this.downloadInfo.Remove(message.DownloadId);
+                if (!this.downloadInfos.TryGetValue(message.DownloadId, out downloadInfo))
+                    // Unknown, ignore
+                    return;
 
-                downloadInfo.Cleanup();
-
-                return;
-            }
-
-            downloadInfo.FileSize = message.Size;
-            downloadInfo.SignatureSha1 = message.SignatureSha1;
-
-            // Prep temp folder
-            Directory.CreateDirectory(downloadInfo.TempFolder);
-
-            // Request chunks
-            downloadInfo.Chunks = (int)(message.Size / ChunkSize) + 1;
-
-            for (int chunkId = 0; chunkId <= downloadInfo.Chunks && chunkId < BufferedChunks; chunkId++)
-            {
-                SendMessage(new FileChunkRequest
+                if (message.Size == 0)
                 {
-                    DownloadId = message.DownloadId,
-                    FileName = downloadInfo.FileName,
-                    Type = downloadInfo.FileType,
-                    ChunkSize = ChunkSize,
-                    ChunkStart = downloadInfo.RequestedChunks * ChunkSize
-                });
+                    // Doesn't exist
+                    this.downloadInfos.Remove(message.DownloadId);
 
-                downloadInfo.RequestedChunks++;
+                    downloadInfo.Cleanup();
+
+                    return;
+                }
+
+                downloadInfo.FileSize = message.Size;
+                downloadInfo.SignatureSha1 = message.SignatureSha1;
+
+                // Prep temp folder
+                Directory.CreateDirectory(downloadInfo.TempFolder);
+
+                // Request chunks
+                downloadInfo.Chunks = (int)(message.Size / ChunkSize) + 1;
+
+                for (int chunkId = 0; chunkId < downloadInfo.Chunks && chunkId < BufferedChunks; chunkId++)
+                {
+                    this.log.Trace("Requesting chunk {0} of file {1}", chunkId, downloadInfo.FileName);
+
+                    SendMessage(new FileChunkRequest
+                    {
+                        DownloadId = message.DownloadId,
+                        FileName = downloadInfo.FileName,
+                        Type = downloadInfo.FileType,
+                        ChunkSize = ChunkSize,
+                        ChunkStart = downloadInfo.RequestedChunks * ChunkSize
+                    });
+
+                    downloadInfo.RequestedChunks++;
+                }
             }
         }
 
@@ -287,117 +344,126 @@ namespace Animatroller.MonoExpander
         {
             DownloadInfo downloadInfo;
 
-            if (!this.downloadInfo.TryGetValue(message.DownloadId, out downloadInfo))
-                // Unknown, ignore
-                return;
-
-            string chunkFile = Path.Combine(downloadInfo.TempFolder, string.Format("chunk_{0}.bin", message.ChunkStart));
-
-            File.WriteAllBytes(chunkFile, message.Chunk);
-
-            downloadInfo.ReceivedChunks++;
-
-            // Request next chunk
-            if (downloadInfo.RequestedChunks < downloadInfo.Chunks)
+            lock (this.downloadInfos)
             {
-                SendMessage(new FileChunkRequest
+                if (!this.downloadInfos.TryGetValue(message.DownloadId, out downloadInfo))
+                    // Unknown, ignore
+                    return;
+
+                string chunkFile = Path.Combine(downloadInfo.TempFolder, string.Format("chunk_{0}.bin", message.ChunkStart));
+                Directory.CreateDirectory(Path.GetDirectoryName(chunkFile));
+
+                File.WriteAllBytes(chunkFile, message.Chunk);
+
+                downloadInfo.ReceivedChunks++;
+                downloadInfo.LastReceive = DateTime.Now;
+
+                // Request next chunk
+                if (downloadInfo.RequestedChunks < downloadInfo.Chunks)
                 {
-                    DownloadId = message.DownloadId,
-                    FileName = downloadInfo.FileName,
-                    Type = downloadInfo.FileType,
-                    ChunkSize = ChunkSize,
-                    ChunkStart = downloadInfo.RequestedChunks * ChunkSize
-                });
+                    this.log.Trace("Requesting chunk {0} of file {1}", downloadInfo.RequestedChunks, downloadInfo.FileName);
 
-                downloadInfo.RequestedChunks++;
-            }
-            else
-            {
-                if (downloadInfo.ReceivedChunks >= downloadInfo.Chunks)
-                {
-                    // Check if we have everything
-
-                    long chunkStart = 0;
-                    long fileSize = 0;
-                    string assembleFile = Path.Combine(Path.GetDirectoryName(downloadInfo.TempFolder), downloadInfo.FileName);
-
-                    try
+                    SendMessage(new FileChunkRequest
                     {
-                        using (var fsOutput = File.Create(assembleFile))
+                        DownloadId = message.DownloadId,
+                        FileName = downloadInfo.FileName,
+                        Type = downloadInfo.FileType,
+                        ChunkSize = ChunkSize,
+                        ChunkStart = downloadInfo.RequestedChunks * ChunkSize
+                    });
+
+                    downloadInfo.RequestedChunks++;
+                }
+                else
+                {
+                    if (downloadInfo.ReceivedChunks >= downloadInfo.Chunks)
+                    {
+                        // Check if we have everything
+
+                        long chunkStart = 0;
+                        long fileSize = 0;
+                        string assembleFile = Path.Combine(Path.GetDirectoryName(downloadInfo.TempFolder), downloadInfo.FileName);
+
+                        try
                         {
-                            while (fileSize != downloadInfo.FileSize)
+                            using (var fsOutput = File.Create(assembleFile))
                             {
-                                chunkFile = Path.Combine(downloadInfo.TempFolder, string.Format("chunk_{0}.bin", chunkStart));
-
-                                long expectedChunkSize = Math.Min(downloadInfo.FileSize - fileSize, ChunkSize);
-
-                                if (!File.Exists(chunkFile) || new FileInfo(chunkFile).Length != expectedChunkSize)
+                                while (fileSize != downloadInfo.FileSize)
                                 {
-                                    // Re-request
-                                    SendMessage(new FileChunkRequest
-                                    {
-                                        DownloadId = message.DownloadId,
-                                        FileName = downloadInfo.FileName,
-                                        Type = downloadInfo.FileType,
-                                        ChunkSize = ChunkSize,
-                                        ChunkStart = chunkStart
-                                    });
+                                    chunkFile = Path.Combine(downloadInfo.TempFolder, string.Format("chunk_{0}.bin", chunkStart));
 
-                                    // Not done yet
-                                    return;
+                                    long expectedChunkSize = Math.Min(downloadInfo.FileSize - fileSize, ChunkSize);
+
+                                    if (!File.Exists(chunkFile) || new FileInfo(chunkFile).Length != expectedChunkSize)
+                                    {
+                                        this.log.Trace("Re-requesting chunk {0} of file {1}", chunkStart / ChunkSize, downloadInfo.FileName);
+
+                                        // Re-request
+                                        SendMessage(new FileChunkRequest
+                                        {
+                                            DownloadId = message.DownloadId,
+                                            FileName = downloadInfo.FileName,
+                                            Type = downloadInfo.FileType,
+                                            ChunkSize = ChunkSize,
+                                            ChunkStart = chunkStart
+                                        });
+
+                                        // Not done yet
+                                        return;
+                                    }
+
+                                    var fi = new FileInfo(chunkFile);
+                                    chunkStart += fi.Length;
+                                    fileSize += fi.Length;
+
+                                    using (var fsInput = File.OpenRead(chunkFile))
+                                        fsInput.CopyTo(fsOutput);
                                 }
 
-                                var fi = new FileInfo(chunkFile);
-                                chunkStart += fi.Length;
-                                fileSize += fi.Length;
-
-                                using (var fsInput = File.OpenRead(chunkFile))
-                                    fsInput.CopyTo(fsOutput);
+                                fsOutput.Flush();
                             }
 
-                            fsOutput.Flush();
-                        }
+                            // Delete all chunks
+                            downloadInfo.Cleanup();
 
-                        // Delete all chunks
-                        downloadInfo.Cleanup();
-
-                        // Check signature
-                        byte[] sign = CalculateSignatureSha1(assembleFile);
-                        if (!sign.SequenceEqual(downloadInfo.SignatureSha1))
-                        {
-                            // Invalid signature, request the file again
-                            downloadInfo.Restart();
-
-                            SendMessage(new FileRequest
+                            // Check signature
+                            byte[] sign = CalculateSignatureSha1(assembleFile);
+                            if (!sign.SequenceEqual(downloadInfo.SignatureSha1))
                             {
-                                DownloadId = downloadInfo.Id,
-                                Type = downloadInfo.FileType,
-                                FileName = downloadInfo.FileName
-                            });
+                                // Invalid signature, request the file again
+                                downloadInfo.Restart();
 
-                            return;
+                                SendMessage(new FileRequest
+                                {
+                                    DownloadId = downloadInfo.Id,
+                                    Type = downloadInfo.FileType,
+                                    FileName = downloadInfo.FileName
+                                });
+
+                                return;
+                            }
+
+                            // Match, move to final directory
+                            File.Move(assembleFile, downloadInfo.FinalFilePath);
+                            assembleFile = null;
+                            this.downloadInfos.Remove(downloadInfo.Id);
+
+                            if (downloadInfo.TriggerMessage != null)
+                            {
+                                // Invoke
+                                var method = typeof(MonoExpanderClient).GetMethods()
+                                    .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == downloadInfo.TriggerMessage.GetType()))
+                                    .ToList();
+
+                                method.SingleOrDefault()?.Invoke(this, new object[] { downloadInfo.TriggerMessage });
+                            }
                         }
-
-                        // Match, move to final directory
-                        File.Move(assembleFile, downloadInfo.FinalFilePath);
-                        assembleFile = null;
-                        this.downloadInfo.Remove(downloadInfo.Id);
-
-                        if (downloadInfo.TriggerMessage != null)
+                        finally
                         {
-                            // Invoke
-                            var method = typeof(MonoExpanderClient).GetMethods()
-                                .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == downloadInfo.TriggerMessage.GetType()))
-                                .ToList();
-
-                            method.SingleOrDefault()?.Invoke(this, new object[] { downloadInfo.TriggerMessage });
+                            // Delete the temporary assemble file
+                            if (!string.IsNullOrEmpty(assembleFile))
+                                File.Delete(assembleFile);
                         }
-                    }
-                    finally
-                    {
-                        // Delete the temporary assemble file
-                        if (!string.IsNullOrEmpty(assembleFile))
-                            File.Delete(assembleFile);
                     }
                 }
             }

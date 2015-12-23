@@ -29,21 +29,23 @@ namespace Animatroller.Framework.Effect2
         {
         }
 
-        public Task Fade(IReceivesBrightness device, double start, double end, int durationMs, int priority = 1, ITransformer transformer = null, IControlToken token = null)
+        public Task Fade(IReceivesBrightness device, double start, double end, int durationMs, int priority = 1, ITransformer transformer = null, IControlToken token = null,
+            params Tuple<DataElements, object>[] additionalData)
         {
             if (token != null)
-                return Fade(device.GetDataObserver(token), start, end, durationMs, transformer);
+                return Fade(device.GetDataObserver(token), start, end, durationMs, transformer, additionalData);
 
             var controlToken = device.TakeControl(priority);
 
-            return Fade(device.GetDataObserver(controlToken), start, end, durationMs, transformer)
+            return Fade(device.GetDataObserver(controlToken), start, end, durationMs, transformer, additionalData)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
                 });
         }
 
-        public Task Fade(IObserver<IData> deviceObserver, double start, double end, int durationMs, ITransformer transformer = null)
+        public Task Fade(IObserver<IData> deviceObserver, double start, double end, int durationMs, ITransformer transformer = null,
+            params Tuple<DataElements, object>[] additionalData)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
@@ -55,6 +57,9 @@ namespace Animatroller.Framework.Effect2
 
                 return taskSource.Task;
             }
+
+            if (additionalData.Any())
+                deviceObserver.OnNext(additionalData.GenerateIData());
 
             var observer = Observer.Create<double>(
                 onNext: pos =>

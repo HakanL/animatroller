@@ -130,5 +130,19 @@ namespace Animatroller.Framework.Extensions
                     device.Control.OnNext(x);
                 });
         }
+
+        public static IData GenerateIData(this Tuple<DataElements, object>[] dataElements)
+        {
+            IData data = null;
+
+            if (dataElements.Any())
+            {
+                data = new LogicalDevice.Data();
+                foreach (var kvp in dataElements)
+                    data[kvp.Item1] = kvp.Item2;
+            }
+
+            return data;
+        }
     }
 }

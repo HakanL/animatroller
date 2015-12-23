@@ -103,11 +103,18 @@ namespace Animatroller.Framework.Expander
         {
             string filePath = Path.Combine(this.mainServer.ExpanderSharedFiles, message.Type.ToString(), message.FileName);
 
+            long fileSize = new FileInfo(filePath).Length;
+            int chunkId = (int)(message.ChunkStart / message.ChunkSize);
+            int chunks = (int)(fileSize / message.ChunkSize);
+            this.log.Info("Request for file {0} chunk {1}/{2} for {3:N0} bytes", message.FileName, chunkId, chunks, message.ChunkSize);
+
             using (var fs = File.OpenRead(filePath))
             {
                 fs.Seek(message.ChunkStart, SeekOrigin.Begin);
 
                 int bytesToRead = Math.Min(message.ChunkSize, (int)(fs.Length - message.ChunkStart));
+                if (bytesToRead <= 0)
+                    return;
 
                 byte[] chunk = new byte[bytesToRead];
                 fs.Read(chunk, 0, chunk.Length);

@@ -460,5 +460,22 @@ namespace Animatroller.Framework.LogicalDevice
 
             UpdateOutput();
         }
+
+        public void InjectRev(Color color, double brightness, IControlToken token = null)
+        {
+            var cArray = ColorArray;
+            var bArray = BrightnessArray;
+
+            for (int i = 0; i < bArray.Length - 1; i++)
+            {
+                bArray[i] = bArray[i + 1];
+                cArray[i] = cArray[i + 1];
+            }
+
+            bArray[bArray.Length - 1] = brightness;
+            cArray[cArray.Length - 1] = color;
+
+            UpdateOutput();
+        }
     }
 }

@@ -134,15 +134,35 @@ namespace Animatroller.Simulator
                 {
                     // Skip
                 }
+                else if (field.FieldType == typeof(OperatingHours2))
+                {
+                    // Skip
+                }
+                else if (field.FieldType == typeof(Animatroller.Framework.Controller.Subroutine))
+                {
+                    // Skip
+                }
+                else if (field.FieldType == typeof(Animatroller.Framework.LogicalDevice.VideoPlayer))
+                {
+                    // Skip
+                }
                 else if (field.FieldType.Name.StartsWith("EnumStateMachine") ||
                     field.FieldType.Name.StartsWith("IntStateMachine") ||
                     field.FieldType.Name.StartsWith("Timeline"))
                 {
                     // Skip
                 }
+                else if (field.FieldType.FullName.StartsWith("Animatroller.Framework.Effect."))
+                {
+                    // Skip
+                }
+                else if (field.FieldType.FullName.StartsWith("Animatroller.Framework.Import."))
+                {
+                    // Skip
+                }
                 else
                 {
-                    log.Info("Unknown field {0}", field.FieldType);
+                    log.Trace("Unknown field {0}", field.FieldType);
                 }
             }
 

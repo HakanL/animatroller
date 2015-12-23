@@ -200,6 +200,10 @@ namespace Animatroller.MonoExpander
                     string.Format("http://{0}:{1}/", server.Host, server.Port),
                     string.Format("InstanceId={0}", InstanceId));
 
+#if DEBUG
+//                connection.DeadlockErrorTimeout = TimeSpan.FromMinutes(15);
+#endif
+
                 connection.Closed += () =>
                 {
                     if (this.attemptHubReconnect)

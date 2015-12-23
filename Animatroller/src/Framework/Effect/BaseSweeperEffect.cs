@@ -7,6 +7,7 @@ using System.Reactive;
 using System.Reactive.Subjects;
 using NLog;
 using Animatroller.Framework.LogicalDevice;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Framework.Effect
 {
@@ -215,16 +216,10 @@ namespace Animatroller.Framework.Effect
 
         public BaseSweeperEffect ConnectTo(IReceivesBrightness device, params Tuple<DataElements, object>[] additionalData)
         {
+            IData data = additionalData.GenerateIData();
+
             lock (lockObject)
             {
-                IData data = null;
-                if (additionalData.Any())
-                {
-                    data = new Data();
-                    foreach (var kvp in additionalData)
-                        data[kvp.Item1] = kvp.Item2;
-                }
-
                 this.devices.Add(new DeviceController(device, data));
             }
 
