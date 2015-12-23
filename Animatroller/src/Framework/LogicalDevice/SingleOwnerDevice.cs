@@ -10,7 +10,7 @@ namespace Animatroller.Framework.LogicalDevice
     {
         public delegate void PushDataDelegate(DataElements dataElements, object value);
 
-        protected List<IControlTokenDevice> owners;
+        protected List<IControlToken> owners;
         protected IControlToken currentOwner;
         protected ControlSubject<IData, IControlToken> outputData;
         private IData ownerlessData;
@@ -18,9 +18,8 @@ namespace Animatroller.Framework.LogicalDevice
         public SingleOwnerDevice(string name)
             : base(name)
         {
-            this.owners = new List<IControlTokenDevice>();
+            this.owners = new List<IControlToken>();
             this.outputData = new ControlSubject<IData, IControlToken>(null, HasControl);
-            this.ownerlessData = new Data();
 
             this.outputData.Subscribe(x =>
             {
@@ -33,11 +32,25 @@ namespace Animatroller.Framework.LogicalDevice
 
         public override void SetInitialState()
         {
-            base.SetInitialState();
+            BuildDefaultData(this.currentData);
 
-            // Copy current data to ownerless for initial state
-            foreach (var kvp in this.currentData)
-                this.ownerlessData[kvp.Key] = kvp.Value;
+            base.SetInitialState();
+        }
+
+        protected IData GetOwnerlessData()
+        {
+            lock (this)
+            {
+                if (this.ownerlessData == null)
+                {
+                    var data = new Data();
+                    BuildDefaultData(data);
+
+                    this.ownerlessData = data;
+                }
+            }
+
+            return this.ownerlessData;
         }
 
         protected virtual IData PreprocessPushData(IData data)
@@ -70,16 +83,21 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void PushData(IControlToken token, IData data)
         {
+            var dataElements = data.ToList();
+
             PushDataDelegate pushDelegate;
             if (token != null)
                 pushDelegate = token.PushData;
             else
+            {
+                var ownerless = GetOwnerlessData();
                 pushDelegate = (d, v) =>
                 {
-                    ownerlessData[d] = v;
+                    ownerless[d] = v;
                 };
+            }
 
-            foreach (var kvp in data)
+            foreach (var kvp in dataElements)
                 pushDelegate(kvp.Key, kvp.Value);
 
             this.outputData.OnNext(data, token);
@@ -99,29 +117,33 @@ namespace Animatroller.Framework.LogicalDevice
         {
             lock (this)
             {
-                var ownerCandidate = new ControlledDevice(name, priority, cToken =>
-                {
-                    IData restoreData;
-                    IControlTokenDevice nextOwner;
-
-                    lock (this)
+                var ownerCandidate = new ControlledDevice(
+                    name,
+                    priority,
+                    populate => BuildDefaultData(populate),
+                    cToken =>
                     {
-                        this.owners.Remove(cToken);
+                        IData restoreData;
+                        IControlToken nextOwner;
 
-                        nextOwner = this.owners.LastOrDefault();
+                        lock (this)
+                        {
+                            this.owners.Remove(cToken);
 
-                        if (nextOwner != null)
-                            restoreData = nextOwner.Data;
-                        else
-                            restoreData = ownerlessData;
+                            nextOwner = this.owners.LastOrDefault();
 
-                        this.currentOwner = nextOwner;
+                            if (nextOwner != null)
+                                restoreData = nextOwner.GetDataForDevice(this);
+                            else
+                                restoreData = GetOwnerlessData();
 
-                        Executor.Current.SetControlToken(this, nextOwner);
-                    }
+                            this.currentOwner = nextOwner;
 
-                    PushData(nextOwner, restoreData.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
-                });
+                            Executor.Current.SetControlToken(this, nextOwner);
+                        }
+
+                        PushData(nextOwner, restoreData.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
+                    });
 
                 // Insert new owner
                 lock (this)
@@ -162,6 +184,8 @@ namespace Animatroller.Framework.LogicalDevice
             return HasControl(Executor.Current.GetControlToken(this));
         }
 
+        public abstract void BuildDefaultData(IData data);
+
         public bool IsOwned
         {
             get { return this.currentOwner != null; }
@@ -171,7 +195,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get
             {
-                return this.outputData.DistinctUntilChanged();
+                return this.outputData.AsObservable();
             }
         }
 

@@ -31,7 +31,7 @@ namespace Animatroller.SceneRunner
         }
 
         OperatingHours2 hours = new OperatingHours2();
-        Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
+        Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>(States.Background);
 
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
@@ -52,6 +52,8 @@ namespace Animatroller.SceneRunner
         DigitalInput2 inR2D2 = new DigitalInput2();
 
         DigitalInput2 in1 = new DigitalInput2();
+        DigitalInput2 in2 = new DigitalInput2();
+        DigitalInput2 in3 = new DigitalInput2();
         DigitalOutput2 out1 = new DigitalOutput2();
 
         DigitalOutput2 laser = new DigitalOutput2();
@@ -256,35 +258,18 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                 {
-                    stateMachine.SetBackgroundState(States.Background);
-                    stateMachine.SetState(States.Background);
-                    lightOlaf.SetBrightness(1.0);
-                    lightR2D2.SetBrightness(1.0);
-                    saberPixels.SetColor(Color.Red, 0.4);
-                    //lightTreeUp.SetColor(Color.Red, 1.0);
-                    //lightSnow1.SetBrightness(1.0);
-                    //lightSnow2.SetBrightness(1.0);
+                    stateMachine.GoToDefaultState();
                 }
                 else
                 {
                     //if (buttonOverrideHours.Active)
                     //    return;
 
-                    stateMachine.Hold();
-                    stateMachine.SetBackgroundState(null);
-                    lightOlaf.SetBrightness(0);
-                    lightR2D2.SetBrightness(0);
-                    saberPixels.SetColor(Color.Black, 0);
-                    //EverythingOff();
+                    stateMachine.GoToIdle();
+                    
+                    // Needed?
                     System.Threading.Thread.Sleep(200);
-                    /*
-                                        airR2D2.Power = false;
-                                        airSanta.Power = false;
-                                        airSnowman.Power = false;
-                                        airReindeer.Power = false;*/
 
-                    //switchDeerHuge.TurnOff();
-                    //switchSanta.TurnOff();
                     inflatablesRunning.OnNext(false);
                 }
             });
@@ -316,9 +301,14 @@ namespace Animatroller.SceneRunner
                     lightVader,
                     lightWall1,
                     lightWall2,
-                    lightWall3)
+                    lightWall3,
+                    lightR2D2,
+                    lightOlaf,
+                    saberPixels)
                 .RunAction(i =>
                 {
+                    lightR2D2.SetBrightness(1, i.Token);
+                    lightOlaf.SetBrightness(1, i.Token);
                     lightNet1.SetBrightness(1, i.Token);
                     lightNet2.SetBrightness(1, i.Token);
                     lightNet3.SetBrightness(1, i.Token);
@@ -345,6 +335,9 @@ namespace Animatroller.SceneRunner
                     lightWall1.SetColor(Color.Red, 1, i.Token);
                     lightWall2.SetColor(Color.Red, 1, i.Token);
                     lightWall3.SetColor(Color.Red, 1, i.Token);
+
+                    saberPixels.SetColor(Color.Red, 0.4, i.Token);
+
                     subCandyCane.Run();
                     i.WaitUntilCancel();
                     Exec.Cancel(subCandyCane);
@@ -360,16 +353,11 @@ namespace Animatroller.SceneRunner
                     {
                         for (int x = 0; x < spacing; x++)
                         {
-                            pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5);
+                            pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, i.Token);
 
                             i.WaitFor(S(0.30), true);
                         }
                     }
-                })
-                .TearDown(() =>
-                {
-                    //TODO: We should write to a frame buffer and it should automatically reset when the lock is released
-                    pixelsRoofEdge.SetColor(Color.Black, 0.0);
                 });
 
             subStarWarsCane
@@ -386,11 +374,11 @@ namespace Animatroller.SceneRunner
                             {
                                 case 0:
                                 case 1:
-                                    pixelsRoofEdge.InjectRev(Color.Yellow, 1.0);
+                                    pixelsRoofEdge.InjectRev(Color.Yellow, 1.0, instance.Token);
                                     break;
                                 case 2:
                                 case 3:
-                                    pixelsRoofEdge.InjectRev(Color.Orange, 0.2);
+                                    pixelsRoofEdge.InjectRev(Color.Orange, 0.2, instance.Token);
                                     break;
                             }
 
@@ -400,11 +388,6 @@ namespace Animatroller.SceneRunner
                                 break;
                         }
                     }
-                })
-                .TearDown(() =>
-                {
-                    //TODO: We should write to a frame buffer and it should automatically reset when the lock is released
-                    pixelsRoofEdge.SetColor(Color.Black, 0.0);
                 });
 
             subSantaVideo
@@ -463,6 +446,10 @@ namespace Animatroller.SceneRunner
                 });
 
             subStarWars
+                .LockWhenRunning(
+                    saberPixels,
+                    lightVader,
+                    lightR2D2)
                 .RunAction(instance =>
                 {
                     //Exec.Cancel(subCandyCane);
@@ -483,14 +470,14 @@ namespace Animatroller.SceneRunner
                         light3wise.SetOnlyColor(Color.LightYellow);
                         light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));*/
 
-                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, additionalData: Utils.AdditionalData(Color.Red));
+                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.AdditionalData(Color.Red));
 
                     instance.WaitFor(S(2.5));
 
                     audioDarthVader.PlayEffect("saberon.wav");
                     for (int sab = 00; sab < 32; sab++)
                     {
-                        saberPixels.Inject(Color.Red, 0.5);
+                        saberPixels.Inject(Color.Red, 0.5, instance.Token);
                         instance.WaitFor(S(0.01));
                     }
                     instance.WaitFor(S(1));
@@ -512,8 +499,8 @@ namespace Animatroller.SceneRunner
                     instance.WaitFor(S(0.7));
                     for (int sab = 0; sab < 16; sab++)
                     {
-                        saberPixels.InjectRev(Color.Black, 0);
-                        saberPixels.InjectRev(Color.Black, 0);
+                        saberPixels.InjectRev(Color.Black, 0, instance.Token);
+                        saberPixels.InjectRev(Color.Black, 0, instance.Token);
                         instance.WaitFor(S(0.01));
                     }
                     //elLightsaber.SetPower(false);
@@ -529,7 +516,6 @@ namespace Animatroller.SceneRunner
                 .TearDown(() =>
                 {
                     audioDarthVader.PauseTrack();
-                    lightR2D2.SetBrightness(0.0);
                 });
 
 
@@ -548,7 +534,7 @@ namespace Animatroller.SceneRunner
             midiAkai.Note(midiChannel, 38).Subscribe(x =>
             {
                 if (x)
-                    stateMachine.SetState(States.Music1);
+                    stateMachine.GoToState(States.Music1);
                 //                    audio2.PlayTrack("08 Feel the Light.wav");
             });
 
@@ -565,7 +551,7 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                 {
-                    stateMachine.SetState(States.SantaVideo);
+                    stateMachine.GoToState(States.SantaVideo);
                 }
             });
 
@@ -600,20 +586,19 @@ namespace Animatroller.SceneRunner
             in1.Output.Subscribe(x =>
             {
                 if (x)
-                    subStarWars.Run();
+                    stateMachine.GoToMomentaryState(States.DarthVader);
+            });
 
-                //if (x)
-                //    video3.PlayVideo("NBC_DeckTheHalls_Holl_H.mp4");
+            in2.Output.Subscribe(x =>
+            {
+                if (x)
+                    stateMachine.GoToIdle();
+            });
 
-                //                    audio2.PlayTrack("02. Frozen - Do You Want to Build a Snowman.wav");
-                //                    audio1.PlayEffect("WarmHugs.wav");
-                //                    audio2.PlayTrack("08 Feel the Light.wav");
-                //                    audioLocal.PlayEffect("WarmHugs.wav");
-
-                //                out1.Value = x;
-                //if (x)
-                //    audio2.PlayTrack("08 Feel the Light.wav");
-                //                    lorFeelTheLight.Start(27830);
+            in3.Output.Subscribe(x =>
+            {
+                if (x)
+                    stateMachine.GoToDefaultState();
             });
 
             ImportAndMapFeelTheLight();

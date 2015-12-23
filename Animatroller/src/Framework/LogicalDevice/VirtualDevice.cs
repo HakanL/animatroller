@@ -49,5 +49,10 @@ namespace Animatroller.Framework.LogicalDevice
         {
             throw new NotImplementedException();
         }
+
+        public override void BuildDefaultData(IData data)
+        {
+            // Do nothing
+        }
     }
 }

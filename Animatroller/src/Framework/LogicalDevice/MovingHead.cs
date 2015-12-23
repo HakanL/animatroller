@@ -19,8 +19,14 @@ namespace Animatroller.Framework.LogicalDevice
         public MovingHead([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.currentData[DataElements.Pan] = 0.0;
-            this.currentData[DataElements.Tilt] = 0.0;
+        }
+
+        public override void BuildDefaultData(IData data)
+        {
+            base.BuildDefaultData(data);
+
+            data[DataElements.Pan] = 0.0;
+            data[DataElements.Tilt] = 0.0;
         }
 
         public double Pan

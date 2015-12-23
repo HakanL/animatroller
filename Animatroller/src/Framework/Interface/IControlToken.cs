@@ -6,6 +6,8 @@ namespace Animatroller.Framework
 {
     public interface IControlToken : IDisposable
     {
+        IData GetDataForDevice(IOwnedDevice device);
+
         int Priority { get; }
 
         void PushData(DataElements dataElement, object value);

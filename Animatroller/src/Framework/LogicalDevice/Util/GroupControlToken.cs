@@ -38,6 +38,18 @@ namespace Animatroller.Framework.LogicalDevice
 
         public int Priority { get; set; }
 
+        public IData GetDataForDevice(IOwnedDevice device)
+        {
+            IControlToken token;
+
+            if (MemberTokens.TryGetValue(device, out token))
+            {
+                return token.GetDataForDevice(device);
+            }
+
+            throw new ArgumentException("Unhandled device");
+        }
+
         public void Dispose()
         {
             if (this.ownsTokens)

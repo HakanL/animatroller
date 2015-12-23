@@ -8,7 +8,13 @@ namespace Animatroller.Framework.LogicalDevice
         public ColorDimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.currentData[DataElements.Color] = Color.White;
+        }
+
+        public override void BuildDefaultData(IData data)
+        {
+            base.BuildDefaultData(data);
+
+            data[DataElements.Color] = Color.White;
         }
 
         public Color Color

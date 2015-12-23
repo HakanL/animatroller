@@ -25,9 +25,6 @@ namespace Animatroller.Framework.LogicalDevice
 
             this.devices = new List<PixelDevice>();
 
-            this.currentData[DataElements.PixelBrightness] = InitArray(this.pixelCount, 0.0);
-            this.currentData[DataElements.PixelColor] = InitArray(this.pixelCount, Color.White);
-
             this.outputData.Subscribe(x =>
             {
                 Output();
@@ -35,6 +32,12 @@ namespace Animatroller.Framework.LogicalDevice
 
             Executor.Current.Blackout.Subscribe(_ => Output());
             Executor.Current.Whiteout.Subscribe(_ => Output());
+        }
+
+        public override void BuildDefaultData(IData data)
+        {
+            data[DataElements.PixelBrightness] = InitArray(this.pixelCount, 0.0);
+            data[DataElements.PixelColor] = InitArray(this.pixelCount, Color.White);
         }
 
         private T[] InitArray<T>(int size, T initValue)
@@ -128,22 +131,28 @@ namespace Animatroller.Framework.LogicalDevice
                 throw new ArgumentOutOfRangeException("position");
         }
 
-        private Color[] ColorArray
+        private Color[] GetColorArray(IData data)
         {
-            get { return (Color[])this.currentData[DataElements.PixelColor]; }
+            if (data == null)
+                data = GetOwnerlessData();
+
+            return (Color[])data[DataElements.PixelColor];
         }
 
-        private double[] BrightnessArray
+        private double[] GetBrightnessArray(IData data)
         {
-            get { return (double[])this.currentData[DataElements.PixelBrightness]; }
+            if (data == null)
+                data = GetOwnerlessData();
+
+            return (double[])data[DataElements.PixelBrightness];
         }
 
         public virtual VirtualPixel1D2 SetColor(int position, Color color, double brightness)
         {
             CheckBounds(position);
 
-            ColorArray[position] = color;
-            BrightnessArray[position] = brightness;
+            GetColorArray(null)[position] = color;
+            GetBrightnessArray(null)[position] = brightness;
 
             UpdateOutput();
 
@@ -154,7 +163,10 @@ namespace Animatroller.Framework.LogicalDevice
         {
             CheckBounds(position);
 
-            return new ColorBrightness(ColorArray[position], BrightnessArray[position]);
+            Color[] currentColorArray = (Color[])this.currentData[DataElements.PixelColor];
+            double[] currentBrightnessArray = (double[])this.currentData[DataElements.PixelBrightness];
+
+            return new ColorBrightness(currentColorArray[position], currentBrightnessArray[position]);
         }
 
         public double Brightness
@@ -166,7 +178,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             CheckBounds(position);
 
-            BrightnessArray[position] = brightness;
+            GetBrightnessArray(null)[position] = brightness;
 
             UpdateOutput();
 
@@ -179,7 +191,7 @@ namespace Animatroller.Framework.LogicalDevice
             CheckBounds(startPosition + length - 1);
 
             for (int i = 0; i < length; i++)
-                BrightnessArray[startPosition + i] = brightness;
+                GetBrightnessArray(null)[startPosition + i] = brightness;
 
             UpdateOutput();
 
@@ -193,9 +205,9 @@ namespace Animatroller.Framework.LogicalDevice
 
             for (int i = 0; i < length; i++)
             {
-                ColorArray[startPosition + i] = color;
+                GetColorArray(null)[startPosition + i] = color;
                 if (brightness.HasValue)
-                    BrightnessArray[startPosition + i] = brightness.Value;
+                    GetBrightnessArray(null)[startPosition + i] = brightness.Value;
             }
 
             UpdateOutput();
@@ -207,9 +219,9 @@ namespace Animatroller.Framework.LogicalDevice
         {
             CheckBounds(position);
 
-            ColorArray[position] = color;
+            GetColorArray(null)[position] = color;
             if (brightness.HasValue)
-                BrightnessArray[position] = brightness.Value;
+                GetBrightnessArray(null)[position] = brightness.Value;
 
             UpdateOutput();
 
@@ -218,8 +230,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void Output()
         {
-            var colorArray = ColorArray;
-            var brightnessArray = BrightnessArray;
+            Color[] currentColorArray = (Color[])this.currentData[DataElements.PixelColor];
+            double[] currentBrightnessArray = (double[])this.currentData[DataElements.PixelBrightness];
 
             foreach (var pixelDevice in this.devices)
             {
@@ -232,7 +244,7 @@ namespace Animatroller.Framework.LogicalDevice
                         if (!firstPosition.HasValue)
                             firstPosition = i - pixelDevice.StartPosition;
 
-                        newValues.Add(PhysicalDevice.BaseLight.GetColorFromColorBrightness(colorArray[i], brightnessArray[i]));
+                        newValues.Add(PhysicalDevice.BaseLight.GetColorFromColorBrightness(currentColorArray[i], currentBrightnessArray[i]));
                     }
                 }
 
@@ -413,7 +425,11 @@ namespace Animatroller.Framework.LogicalDevice
             int? length = null,
             IControlToken token = null)
         {
-            var data = new Data();
+            IData data;
+            if (token == null)
+                data = GetOwnerlessData();
+            else
+                data = token.GetDataForDevice(this);
 
             if (!length.HasValue)
                 length = this.pixelCount;
@@ -423,22 +439,17 @@ namespace Animatroller.Framework.LogicalDevice
                     length = this.pixelCount;
             }
 
-            var pixelColor = new Color[this.pixelCount];
-            Array.Copy(ColorArray, pixelColor, this.pixelCount);
+            var pixelColor = GetColorArray(data);
 
             for (int i = 0; i < length.Value; i++)
                 pixelColor[startPosition + i] = color;
-            data.Add(DataElements.PixelColor, pixelColor);
 
             if (brightness.HasValue)
             {
-                var pixelBrightness = new double[this.pixelCount];
-                Array.Copy(BrightnessArray, pixelBrightness, this.pixelCount);
+                var pixelBrightness = GetBrightnessArray(data);
 
                 for (int i = 0; i < length.Value; i++)
                     pixelBrightness[startPosition + i] = brightness.Value;
-
-                data.Add(DataElements.PixelBrightness, pixelBrightness);
             }
 
             PushData(token, data);
@@ -446,8 +457,14 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void Inject(Color color, double brightness, IControlToken token = null)
         {
-            var cArray = ColorArray;
-            var bArray = BrightnessArray;
+            IData data;
+            if (token == null)
+                data = GetOwnerlessData();
+            else
+                data = token.GetDataForDevice(this);
+
+            var cArray = GetColorArray(data);
+            var bArray = GetBrightnessArray(data);
 
             for (int i = bArray.Length - 1; i > 0; i--)
             {
@@ -458,13 +475,19 @@ namespace Animatroller.Framework.LogicalDevice
             bArray[0] = brightness;
             cArray[0] = color;
 
-            UpdateOutput();
+            PushData(token, data);
         }
 
         public void InjectRev(Color color, double brightness, IControlToken token = null)
         {
-            var cArray = ColorArray;
-            var bArray = BrightnessArray;
+            IData data;
+            if (token == null)
+                data = GetOwnerlessData();
+            else
+                data = token.GetDataForDevice(this);
+
+            var cArray = GetColorArray(data);
+            var bArray = GetBrightnessArray(data);
 
             for (int i = 0; i < bArray.Length - 1; i++)
             {
@@ -475,7 +498,7 @@ namespace Animatroller.Framework.LogicalDevice
             bArray[bArray.Length - 1] = brightness;
             cArray[cArray.Length - 1] = color;
 
-            UpdateOutput();
+            PushData(token, data);
         }
     }
 }

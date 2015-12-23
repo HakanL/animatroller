@@ -17,7 +17,13 @@ namespace Animatroller.Framework.LogicalDevice
         public StrobeColorDimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.currentData[DataElements.StrobeSpeed] = 0.0;
+        }
+
+        public override void BuildDefaultData(IData data)
+        {
+            base.BuildDefaultData(data);
+
+            data[DataElements.StrobeSpeed] = 0.0;
         }
 
         public double StrobeSpeed

@@ -174,7 +174,6 @@
     <Compile Include="Import\BufferImporter.cs" />
     <Compile Include="Import\LorImport2.cs" />
     <Compile Include="Interface\ICanExecute.cs" />
-    <Compile Include="Interface\IControlTokenDevice.cs" />
     <Compile Include="Interface\IOwnedDevice.cs" />
     <Compile Include="Interface\ISubjectWithValue.cs" />
     <Compile Include="Interface\IRunnable.cs" />
@@ -222,7 +221,7 @@
     <Compile Include="LogicalDevice\StrobeColorDimmer3.cs" />
     <Compile Include="LogicalDevice\VirtualDevice.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D2.cs" />
-    <Compile Include="LogicalDevice\VirtualPixel2D.cs" />
+    <None Include="LogicalDevice\VirtualPixel2D.cs" />
     <None Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />
     <Compile Include="LogicalDevice\Event\PixelChanged.cs" />

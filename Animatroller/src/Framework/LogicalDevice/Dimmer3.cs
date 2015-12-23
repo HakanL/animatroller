@@ -21,7 +21,11 @@ namespace Animatroller.Framework.LogicalDevice
         public Dimmer3([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.currentData[DataElements.Brightness] = 0.0;
+        }
+
+        public override void BuildDefaultData(IData data)
+        {
+            data[DataElements.Brightness] = 0.0;
         }
 
         public void SetBrightness(double brightness, IControlToken token = null)

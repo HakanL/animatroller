@@ -18,11 +18,13 @@ namespace Animatroller.Framework.LogicalDevice
         private bool currentValue;
         protected ISubject<bool> controlValue;
         protected ISubject<bool> outputValue;
+        private bool initialValue;
 
         public DigitalOutput2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool initial = false, TimeSpan? autoResetDelay = null)
             : base(name)
         {
             this.currentValue = initial;
+            this.initialValue = initial;
 
             this.outputValue = new Subject<bool>();
             this.controlValue = new Subject<bool>();
@@ -45,8 +47,11 @@ namespace Animatroller.Framework.LogicalDevice
                     UpdateOutput();
                 }
             });
+        }
 
-            this.currentData[DataElements.Power] = initial;
+        public override void BuildDefaultData(IData data)
+        {
+            data[DataElements.Power] = this.initialValue;
         }
 
         //public Switch Follow(OperatingHours source)

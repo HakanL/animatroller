@@ -6,17 +6,18 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class ControlledDevice : IControlTokenDevice
+    public class ControlledDevice : IControlToken
     {
-        private Action<IControlTokenDevice> disposeAction;
+        private Action<IControlToken> disposeAction;
         private IData data;
 
-        public ControlledDevice(string name, int priority, Action<IControlTokenDevice> dispose)
+        public ControlledDevice(string name, int priority, Action<IData> populateData, Action<IControlToken> dispose)
         {
             this.Name = name;
             this.Priority = priority;
             this.disposeAction = dispose;
             this.data = new Data();
+            populateData(this.data);
         }
 
         public void Dispose()
@@ -35,9 +36,9 @@ namespace Animatroller.Framework.LogicalDevice
             return this == checkToken;
         }
 
-        public IData Data
+        public IData GetDataForDevice(IOwnedDevice device)
         {
-            get { return this.data; }
+            return this.data;
         }
 
         public string Name { get; private set; }

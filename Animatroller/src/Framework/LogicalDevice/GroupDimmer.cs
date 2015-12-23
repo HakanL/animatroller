@@ -59,6 +59,11 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
+        public void BuildDefaultData(IData data)
+        {
+            // Do nothing
+        }
+
         public double Brightness
         {
             get

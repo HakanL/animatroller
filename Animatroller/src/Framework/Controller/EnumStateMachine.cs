@@ -47,10 +47,9 @@ namespace Animatroller.Framework.Controller
         protected T? currentState;
         protected T? nextState;
         private Stack<T> momentaryStates;
-        private T? backgroundState;
-        private bool isRunning;
+        private T? defaultState;
 
-        public EnumStateMachine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public EnumStateMachine(T? defaultState = null, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             if (!typeof(T).IsEnum)
                 throw new ArgumentException("T must be an enumerated type");
@@ -59,6 +58,7 @@ namespace Animatroller.Framework.Controller
             this.stateConfigs = new Dictionary<T, Sequence.SequenceJob>();
             this.currentJob = null;
             this.momentaryStates = new Stack<T>();
+            this.defaultState = defaultState;
 
             Executor.Current.Register(this);
         }
@@ -74,9 +74,9 @@ namespace Animatroller.Framework.Controller
                 handlerString(this, new StateChangedStringEventArgs(this.CurrentStateString));
         }
 
-        public EnumStateMachine<T> SetBackgroundState(T? backgroundState)
+        public EnumStateMachine<T> SetDefaultState(T? defaultState)
         {
-            this.backgroundState = backgroundState;
+            this.defaultState = defaultState;
 
             return this;
         }
@@ -98,17 +98,17 @@ namespace Animatroller.Framework.Controller
                     {
                         this.nextState = (T)values.GetValue(i);
                         if (IsIdle)
-                            SetState(this.nextState.Value);
+                            GoToState(this.nextState.Value);
                     }
                     else
                     {
-                        this.nextState = this.backgroundState;
+                        this.nextState = this.defaultState;
                         if (IsIdle)
                         {
                             if (this.nextState.HasValue)
-                                SetState(this.nextState.Value);
+                                GoToState(this.nextState.Value);
                             else
-                                Hold();
+                                GoToIdle();
                         }
                     }
                     break;
@@ -132,14 +132,14 @@ namespace Animatroller.Framework.Controller
                     i++;
                     if (i < values.Length)
                     {
-                        SetState((T)values.GetValue(i));
+                        GoToState((T)values.GetValue(i));
                     }
                     else
                     {
-                        if (this.backgroundState.HasValue)
-                            SetState(this.nextState.Value);
+                        if (this.defaultState.HasValue)
+                            GoToState(this.nextState.Value);
                         else
-                            Hold();
+                            GoToIdle();
                     }
                     break;
                 }
@@ -196,7 +196,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        public EnumStateMachine<T> SetMomentaryState(T newState)
+        public EnumStateMachine<T> GoToMomentaryState(T newState)
         {
             if (IsIdle)
                 this.InternalSetState(newState);
@@ -214,7 +214,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        public EnumStateMachine<T> SetState(T newState)
+        public EnumStateMachine<T> GoToState(T newState)
         {
             lock (lockObject)
             {
@@ -223,6 +223,16 @@ namespace Animatroller.Framework.Controller
             }
 
             InternalSetState(newState);
+
+            return this;
+        }
+
+        public EnumStateMachine<T> GoToDefaultState()
+        {
+            if (this.defaultState.HasValue)
+                GoToState(this.defaultState.Value);
+            else
+                GoToIdle();
 
             return this;
         }
@@ -286,10 +296,10 @@ namespace Animatroller.Framework.Controller
                                 InternalSetState(popState.Value);
                             else if (nextState.HasValue)
                                 InternalSetState(this.nextState.Value);
-                            else if (this.backgroundState.HasValue)
-                                InternalSetState(this.backgroundState.Value);
+                            else if (this.defaultState.HasValue)
+                                InternalSetState(this.defaultState.Value);
                             else
-                                Hold();
+                                GoToIdle();
                         }
                     }, this.name, out jobTask);
 
@@ -303,7 +313,7 @@ namespace Animatroller.Framework.Controller
             RaiseStateChanged();
         }
 
-        public EnumStateMachine<T> Hold()
+        public EnumStateMachine<T> GoToIdle()
         {
             InternalHold();
 
@@ -312,7 +322,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        public void InternalHold()
+        private void InternalHold()
         {
             Tuple<System.Threading.CancellationTokenSource, Task> jobToCancel = null;
             lock (lockObject)
@@ -337,12 +347,10 @@ namespace Animatroller.Framework.Controller
 
         public void Start()
         {
-            this.isRunning = true;
         }
 
         public void Stop()
         {
-            this.isRunning = false;
             InternalHold();
         }
 

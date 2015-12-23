@@ -170,14 +170,14 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                 {
-                    stateMachine.SetState(States.EmergencyStop);
+                    stateMachine.GoToState(States.EmergencyStop);
                 }
                 else
                 {
                     if (hoursFull.IsOpen)
-                        stateMachine.SetState(States.Background);
+                        stateMachine.GoToState(States.Background);
                     else
-                        stateMachine.Hold();
+                        stateMachine.GoToIdle();
                 }
             });
 
@@ -185,17 +185,17 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                 {
-                    stateMachine.SetBackgroundState(States.Background);
+                    stateMachine.SetDefaultState(States.Background);
 
                     if (emergencyStop.Value)
-                        stateMachine.SetState(States.EmergencyStop);
+                        stateMachine.GoToState(States.EmergencyStop);
                     else
-                        stateMachine.SetState(States.Background);
+                        stateMachine.GoToState(States.Background);
                 }
                 else
                 {
-                    stateMachine.Hold();
-                    stateMachine.SetBackgroundState(null);
+                    stateMachine.GoToIdle();
+                    stateMachine.SetDefaultState(null);
                 }
                 SetPixelColor();
             });
@@ -578,7 +578,7 @@ namespace Animatroller.SceneRunner
             oscServer.RegisterAction<int>("/1/special1", (msg, data) =>
             {
                 if (data.First() != 0)
-                    stateMachine.SetMomentaryState(States.Special1);
+                    stateMachine.GoToMomentaryState(States.Special1);
                 else
                     stateMachine.StopCurrentJob();
             });
