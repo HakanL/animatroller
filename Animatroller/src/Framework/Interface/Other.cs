@@ -47,6 +47,8 @@ namespace Animatroller.Framework
     {
         IObservable<IData> OutputData { get; }
 
+        IObservable<IData> OutputChanged { get; }
+
         IData CurrentData { get; }
     }
 

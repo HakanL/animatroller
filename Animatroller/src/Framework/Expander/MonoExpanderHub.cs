@@ -24,11 +24,25 @@ namespace Animatroller.Framework.Expander
             this.log = log;
         }
 
-        public override Task OnConnected()
+        private void UpdateInstance()
         {
             var instanceId = Context.QueryString["InstanceId"];
 
             this.mainServer.SetKnownInstanceId(instanceId, Context.ConnectionId);
+
+            this.log.Debug("Instance {0} connected on {1}", instanceId, Context.ConnectionId);
+        }
+
+        public override Task OnReconnected()
+        {
+            UpdateInstance();
+
+            return base.OnReconnected();
+        }
+
+        public override Task OnConnected()
+        {
+            UpdateInstance();
 
             return base.OnConnected();
         }

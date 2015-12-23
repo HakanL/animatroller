@@ -112,6 +112,7 @@ namespace Animatroller.SceneRunner
         Controller.Subroutine subStarWarsCane = new Controller.Subroutine();
         Controller.Subroutine subBackground = new Controller.Subroutine();
         Controller.Subroutine subSantaVideo = new Controller.Subroutine();
+        Controller.Subroutine subMusic1 = new Controller.Subroutine();
         Controller.Subroutine subOlaf = new Controller.Subroutine();
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
         Controller.Subroutine subStarWars = new Controller.Subroutine();
@@ -143,7 +144,8 @@ namespace Animatroller.SceneRunner
             expander1.DigitalOutputs[7].Connect(out1);
             expanderLocal.Connect(audioDarthVader);
             expander1.Connect(audio1);
-            expander2.Connect(audio2);
+            //FIXME
+            expanderLocal.Connect(audio2);
             expander3.Connect(video3);
 
             blackOut.ConnectTo(Exec.Blackout);
@@ -173,17 +175,7 @@ namespace Animatroller.SceneRunner
             //            hours.Output.Log("Hours inside");
 
             stateMachine.ForFromSubroutine(States.Background, subBackground);
-
-            stateMachine.For(States.Music1).Execute(i =>
-            {
-                audio2.PlayTrack("08 Feel the Light.wav");
-                i.WaitFor(S(240));
-            }).TearDown(() =>
-            {
-                lorFeelTheLight.Stop();
-                audio2.PauseTrack();
-            });
-
+            stateMachine.ForFromSubroutine(States.Music1, subMusic1);
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
@@ -361,7 +353,9 @@ namespace Animatroller.SceneRunner
                 });
 
             subStarWarsCane
-                .LockWhenRunning(pixelsRoofEdge)
+                .LockWhenRunning(
+                    pixelsRoofEdge,
+                    pixelsMatrix)
                 .RunAction(instance =>
                 {
                     const int spacing = 4;
@@ -389,6 +383,17 @@ namespace Animatroller.SceneRunner
                         }
                     }
                 });
+
+            subMusic1
+                .RunAction(ins =>
+                    {
+                        audio2.PlayTrack("08 Feel the Light.wav");
+                        ins.WaitFor(S(240));
+                    }).TearDown(() =>
+                    {
+                        lorFeelTheLight.Stop();
+                        audio2.PauseTrack();
+                    });
 
             subSantaVideo
                 .RunAction(i =>
@@ -586,7 +591,7 @@ namespace Animatroller.SceneRunner
             in1.Output.Subscribe(x =>
             {
                 if (x)
-                    stateMachine.GoToMomentaryState(States.DarthVader);
+                    stateMachine.GoToState(States.Music1);
             });
 
             in2.Output.Subscribe(x =>
@@ -615,25 +620,6 @@ namespace Animatroller.SceneRunner
 
             //            lorFeelTheLight.Dump();
 
-            //lorFeelTheLight.MapDeviceRGB("E - 1", "D# - 2", "D - 3", lightStraigthAhead);
-            //lorFeelTheLight.MapDeviceRGB("C# - 4", "C - 5", "B - 6", lightRightColumn);
-            //lorFeelTheLight.MapDeviceRGB("A# - 7", "A - 8", "G# - 9", lightNote3);
-            //lorFeelTheLight.MapDeviceRGB("G - 10", "F# - 11", "F - 12", lightNote4);
-            //lorFeelTheLight.MapDeviceRGB("E - 13", "D# - 14", "D - 15", lightNote5);
-            //lorFeelTheLight.MapDeviceRGB("C# - 16", "C - 1", "B - 2", lightUpTree);
-            //lorFeelTheLight.MapDeviceRGB("A# - 3", "A - 4", "G# - 5", lightNote7);
-            //lorFeelTheLight.MapDeviceRGB("G - 6", "F# - 7", "F - 8", lightNote8);
-            //lorFeelTheLight.MapDeviceRGB("E - 9", "D# - 10", "D - 11", lightNote9);
-            //lorFeelTheLight.MapDeviceRGB("C# - 12", "C - 13", "B - 14", lightVader);
-            //lorFeelTheLight.MapDevice("A# - 15", lightNote11);
-            //lorFeelTheLight.MapDevice("A - 16", lightNote12);
-
-            //lorFeelTheLight.MapDevice("Unit 01.1 arch 1.1", lightNet1);
-            //lorFeelTheLight.MapDevice("Unit 01.2 arch 1.2", lightNet2);
-            //lorFeelTheLight.MapDevice("Unit 01.3 arch 1.3", lightNet3);
-            //lorFeelTheLight.MapDevice("Unit 01.4 arch 1.4", lightNet4);
-            //lorFeelTheLight.MapDevice("Unit 01.5 arch 1.5", lightNet5);
-            //lorFeelTheLight.MapDevice("Unit 01.6 arch 1.6", lightNet6);
             lorFeelTheLight.MapDevice("Unit 01.7 arch 1.7", lightNet8);
             lorFeelTheLight.MapDevice("Unit 01.8 arch 2.1", lightNet7);
             lorFeelTheLight.MapDevice("Unit 01.9 arch 2.2", lightNet6);
@@ -667,27 +653,6 @@ namespace Animatroller.SceneRunner
             lorFeelTheLight.MapDevice("03.3 mini tree 02",
                 new VirtualDevice((b, t) => saberPixels.SetColorRange(Color.Red, b, 0, 32, t)));
 
-            //
-
-            //lorFeelTheLight.MapDevice("Sky 1", lightNet1);
-            //lorFeelTheLight.MapDevice("Sky 2", lightNet2);
-            //lorFeelTheLight.MapDevice("Sky 3", lightNet3);
-            //lorFeelTheLight.MapDevice("Sky 4", lightNet4);
-            //lorFeelTheLight.MapDevice("Sky 5", lightNet5);
-
-            //            lorFeelTheLight.MapDevice("Sky 1", lightNet10);
-            //            lorFeelTheLight.MapDevice("Sky 2", lightNet9);
-            //lorFeelTheLight.MapDevice("Sky 3", lightNet8);
-            //lorFeelTheLight.MapDevice("Sky 4", lightNet7);
-            //lorFeelTheLight.MapDevice("Sky 5", lightNet6);
-
-            //            lorFeelTheLight.MapDevice("Rooftop", snowmanKaggen);
-
-            //lorFeelTheLight.MapDevice("Star1", lightNet11);
-            //lorFeelTheLight.MapDevice("Star2", lightStairsLeft);
-            //lorFeelTheLight.MapDevice("Star3", lightFenceLeft);
-            //lorFeelTheLight.MapDevice("Star extra", lightStar);
-
             lorFeelTheLight.ControlDevice(pixelsMatrix);
             lorFeelTheLight.ControlDevice(saberPixels);
             lorFeelTheLight.MapDevice("Unit 02.1 Mega tree 1",
@@ -698,14 +663,6 @@ namespace Animatroller.SceneRunner
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 40, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.4 Mega tree 4",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 60, 20, t)));
-            //lorFeelTheLight.MapDevice("Unit 02.5 Mega tree 5",
-            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
-            //lorFeelTheLight.MapDevice("Unit 02.6 Mega tree 6",
-            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
-            //lorFeelTheLight.MapDevice("Unit 02.7 Mega tree 7",
-            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
-            //lorFeelTheLight.MapDevice("Unit 02.8 Mega tree 8",
-            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.9 Mega tree 9",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 80, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.10 Mega tree 10",
@@ -714,183 +671,11 @@ namespace Animatroller.SceneRunner
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 120, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.12 Mega tree 12",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 140, 20, t)));
-            //lorFeelTheLight.MapDevice("Unit 02.13 Mega tree 13",
-            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
-            //lorFeelTheLight.MapDevice("Unit 02.14 Mega tree 14",
-            //    new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.15 Mega tree 15",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 160, 20, t)));
             lorFeelTheLight.MapDevice("Unit 02.16 Mega tree 16",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 180, 20, t)));
             lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.AdditionalData(Color.White));
-
-            /*
-                        lightBottom.OutputBrightness.Subscribe(x =>
-                        {
-                            //                    pixelsVideo.SetBrightness(x, null);
-                        });
-                        lightBottom.OutputColor.Subscribe(x =>
-                        {
-                            //                    pixelsVideo.SetAllOnlyColor(x);
-                        });
-            */
-            //            lorFeelTheLight.MapDeviceRGBW("R-Edge R", "R-Edge G", "R-Edge B", "R-Edge W", lightRoofEdge);
-            //            lorFeelTheLight.MapDeviceRGBW("R-Bottom", "G-Bottom", "B-Bottom", "W-Bottom", lightNotUsed1);
-            //            lorFeelTheLight.MapDeviceRGBW("Garage R", "Garage G", "Garage B", "Garage W", lightWhiteStrobe);
-            //            lorFeelTheLight.MapDeviceRGBW("Rwindo R", "Rwindo G", "Rwindo B", "Rwindo W", lightMetalReindeer);
-            //lorFeelTheLight.MapDeviceRGBW("Cwindo R", "Cwindo G", "Cwindo B", "Cwindo W", lightCWindow);
-            //lorFeelTheLight.MapDeviceRGBW("Lwindo R", "Lwindo G", "Lwindo B", "Lwindo W", lightLWindow);
-            //lorFeelTheLight.MapDeviceRGBW("Ft door R", "Ft door G", "Ft door B", "FT door W", lightFrontDoor);
-            //lorFeelTheLight.MapDeviceRGBW("Bush - red", "Bush - green", "Bush - blue", "Bush - white", lightBush);
-
-            //lorFeelTheLight.MapDevice("Tree - A", lightSnowman);
-            //lorFeelTheLight.MapDevice("Tree - B", lightSanta);
-
-            //lorFeelTheLight.MapDevice("Spoke 1a", lightHat1);
-            //lorFeelTheLight.MapDevice("Spoke 2a", lightHat2);
-            //lorFeelTheLight.MapDevice("Spoke 3a", lightHat3);
-            //lorFeelTheLight.MapDevice("Spoke  4a", lightHat4);
-            //lorFeelTheLight.MapDevice("Spoke 5a", lightR2D2);
-            //lorFeelTheLight.MapDevice("Spoke 6a", lightNet11);
-
-            //lorFeelTheLight.MapDevice("Spoke 7a", lightStairsLeft);
-            //lorFeelTheLight.MapDevice("Spoke 8a", lightFenceLeft);
-            //lorFeelTheLight.MapDevice("Spoke 9a", lightFenceMid);
-            //lorFeelTheLight.MapDevice("Spoike 10a", lightFenceRight);
-            //lorFeelTheLight.MapDevice("Spoke  11a", lightStairsRight);
-            //lorFeelTheLight.MapDevice("Spoke  12a", lightNet11);
-            //lorFeelTheLight.MapDevice("Spoke  13a", lightBushes);
-            // lorImport.MapDevice("Spoke  14a", light);
-            // lorImport.MapDevice("Spoke  15a", light);
-            // lorImport.MapDevice("Spoke  16a", light);
-            // lorImport.MapDevice("Pillar L8", light);
-            // lorImport.MapDevice("Pillar L7", light);
-            // lorImport.MapDevice("Pillar L6", light);
-            // lorImport.MapDevice("Pillar L5", light);
-            // lorImport.MapDevice("Pillar L4", light);
-            // lorImport.MapDevice("Pillar L3", light);
-            // lorImport.MapDevice("Pillar L2", light);
-            // lorImport.MapDevice("Pillar L1", light);
-            // lorImport.MapDevice("Pillar R8", light);
-            // lorImport.MapDevice("Pillar R7", light);
-            // lorImport.MapDevice("Pillar R6", light);
-            // lorImport.MapDevice("Pillar R5", light);
-            // lorImport.MapDevice("Pillar R4", light);
-            // lorImport.MapDevice("Pillar R3", light);
-            // lorImport.MapDevice("Pillar R2", light);
-            // lorImport.MapDevice("Pillar R1", light);
-            // lorImport.MapDevice("8  MiniTree 1r", light);
-            // lorImport.MapDevice("8  MiniTree 2r", light);
-            // lorImport.MapDevice("8  MiniTree 3r", light);
-            // lorImport.MapDevice("8  MiniTree 4r", light);
-            // lorImport.MapDevice("8  MiniTree 5r", light);
-            // lorImport.MapDevice("8  MiniTree 6r", light);
-            // lorImport.MapDevice("8  MiniTree 7r", light);
-            // lorImport.MapDevice("8  MiniTree 8r", light);
-            // lorImport.MapDevice("8  MiniTree 9r", light);
-            // lorImport.MapDevice("8  MiniTree 10r", light);
-            // lorImport.MapDevice("8  MiniTree 11r", light);
-            // lorImport.MapDevice("8  MiniTree 12r", light);
-            // lorImport.MapDevice("8  MiniTree 13r", light);
-            // lorImport.MapDevice("8  MiniTree 14r", light);
-            // lorImport.MapDevice("8  MiniTree 15r", light);
-            // lorImport.MapDevice("8  MiniTree 16r", light);
-            // lorImport.MapDevice("MiniTree 1g", light);
-            // lorImport.MapDevice("MiniTree 2g", light);
-            // lorImport.MapDevice("MiniTree 3g", light);
-            // lorImport.MapDevice("MiniTree 4g", light);
-            // lorImport.MapDevice("MiniTree 5g", light);
-            // lorImport.MapDevice("MiniTree 6g", light);
-            // lorImport.MapDevice("MiniTree 7g", light);
-            // lorImport.MapDevice("MiniTree 8g", light);
-            // lorImport.MapDevice("MiniTree 9g", light);
-            // lorImport.MapDevice("MiniTree 10g", light);
-            // lorImport.MapDevice("MiniTree 11g", light);
-            // lorImport.MapDevice("MiniTree 12g", light);
-            // lorImport.MapDevice("MiniTree 13g", light);
-            // lorImport.MapDevice("MiniTree 14g", light);
-            // lorImport.MapDevice("MiniTree 15g", light);
-            // lorImport.MapDevice("MiniTree 16g", light);
-            // lorImport.MapDevice("Hray B1", light);
-            // lorImport.MapDevice("Hray B2", light);
-            // lorImport.MapDevice("Hray B3", light);
-            // lorImport.MapDevice("Hray B4", light);
-            // lorImport.MapDevice("Hray B5", light);
-            // lorImport.MapDevice("Hray B6", light);
-            // lorImport.MapDevice("Hray B7", light);
-            // lorImport.MapDevice("Hray B8", light);
-            // lorImport.MapDevice("Hray R1", light);
-            // lorImport.MapDevice("Hray R2", light);
-            // lorImport.MapDevice("Hray R3", light);
-            // lorImport.MapDevice("Hray R4", light);
-            // lorImport.MapDevice("Hray R5", light);
-            // lorImport.MapDevice("Hray R6", light);
-            // lorImport.MapDevice("Hray R7", light);
-            // lorImport.MapDevice("Hray R8", light);
-            // lorImport.MapDevice("Vray 1", light);
-            // lorImport.MapDevice("Vray 2", light);
-            // lorImport.MapDevice("Vray 3", light);
-            // lorImport.MapDevice("Vray 4", light);
-            // lorImport.MapDevice("Vray 5", light);
-            // lorImport.MapDevice("Vray 6", light);
-            // lorImport.MapDevice("Vray 7", light);
-            // lorImport.MapDevice("Vray 8", light);
-            // lorImport.MapDevice("Vray 9", light);
-            // lorImport.MapDevice("Vray 10", light);
-            // lorImport.MapDevice("Vray 11", light);
-            // lorImport.MapDevice("Vray 12", light);
-            // lorImport.MapDevice("Vray 13", light);
-            // lorImport.MapDevice("Vray 14", light);
-            // lorImport.MapDevice("Vray 15", light);
-            // lorImport.MapDevice("Vray 16", light);
-            // lorImport.MapDevice("Vray 17", light);
-            // lorImport.MapDevice("Vray 18", light);
-            // lorImport.MapDevice("Vray 19", light);
-            // lorImport.MapDevice("Vray 20", light);
-            // lorImport.MapDevice("Vray 21", light);
-            // lorImport.MapDevice("Vray 22", light);
-            // lorImport.MapDevice("Vray 23", light);
-            // lorImport.MapDevice("Vray 24", light);
-            // lorImport.MapDevice("Vray 25", light);
-            // lorImport.MapDevice("Vray 26", light);
-            // lorImport.MapDevice("Vray 27", light);
-            // lorImport.MapDevice("Vray 28", light);
-            // lorImport.MapDevice("Vray 29", light);
-            // lorImport.MapDevice("Vray 30", light);
-            // lorImport.MapDevice("Vray 31", light);
-            // lorImport.MapDevice("Vray 32", light);
-            // lorImport.MapDevice("Arch 1-1", light);
-            // lorImport.MapDevice("Arch 1-2", light);
-            // lorImport.MapDevice("Arch 1-3", light);
-            // lorImport.MapDevice("Arch 1-4", light);
-            // lorImport.MapDevice("Arch 1-5", light);
-            // lorImport.MapDevice("Arch 1-6", light);
-            // lorImport.MapDevice("Arch 1-7", light);
-            // lorImport.MapDevice("Arch 1-8", light);
-            // lorImport.MapDevice("Arch 2-1", light);
-            // lorImport.MapDevice("Arch 2-2", light);
-            // lorImport.MapDevice("Arch 2-3", light);
-            // lorImport.MapDevice("Arch 2-4", light);
-            // lorImport.MapDevice("Arch 2-5", light);
-            // lorImport.MapDevice("Arch 2-6", light);
-            // lorImport.MapDevice("Arch 2-7", light);
-            // lorImport.MapDevice("Arch 2-8", light);
-            // lorImport.MapDevice("Arch 3-1", light);
-            // lorImport.MapDevice("Arch 3-2", light);
-            // lorImport.MapDevice("Arch 3-3", light);
-            // lorImport.MapDevice("Arch 3-4", light);
-            // lorImport.MapDevice("Arch 3-5", light);
-            // lorImport.MapDevice("Arch 3-6", light);
-            // lorImport.MapDevice("Arch 3-7", light);
-            // lorImport.MapDevice("Arch 3-8", light);
-            // lorImport.MapDevice("Arch 4-1", light);
-            // lorImport.MapDevice("Arch 4-2", light);
-            // lorImport.MapDevice("Arch 4-3", light);
-            // lorImport.MapDevice("Arch 4-4", light);
-            // lorImport.MapDevice("Arch 4-5", light);
-            // lorImport.MapDevice("Arch 4-6", light);
-            // lorImport.MapDevice("Arch 4-7", light);
-            // lorImport.MapDevice("Arch 4-8", light);
 
             lorFeelTheLight.Prepare();
         }

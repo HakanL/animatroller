@@ -14,6 +14,11 @@ namespace Animatroller.Framework
             return Tuple.Create(dataElement, (object)color);
         }
 
+        public static Tuple<DataElements, object> AdditionalData(DataElements dataElement, double value)
+        {
+            return Tuple.Create(dataElement, (object)value);
+        }
+
         public static Tuple<DataElements, object> AdditionalData(Color color)
         {
             return Tuple.Create(DataElements.Color, (object)color);

@@ -30,7 +30,7 @@ namespace Animatroller.Framework.PhysicalDevice
             var sendsData = logicalDevice as ISendsData;
             if (sendsData != null)
             {
-                sendsData.OutputData.Subscribe(x =>
+                sendsData.OutputChanged.Subscribe(x =>
                 {
                     SetFromIData(x);
 

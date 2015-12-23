@@ -60,7 +60,7 @@ namespace Animatroller.Simulator
                         }
                     }
 
-                    System.Threading.Thread.Sleep(50);
+                    System.Threading.Thread.Sleep(100);
                 }
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
@@ -72,14 +72,14 @@ namespace Animatroller.Simulator
         {
             this.logicalDevice = logicalDevice;
 
-            logicalDevice.OutputData.Subscribe(x =>
+            logicalDevice.OutputChanged.Subscribe(x =>
             {
                 SetFromIData(x);
 
                 this.newDataAvailable = true;
             });
 
-            SetFromIData(logicalDevice.CurrentData);
+//            SetFromIData(logicalDevice.CurrentData);
 
             Executor.Current.Blackout.Subscribe(_ => this.newDataAvailable = true);
             Executor.Current.Whiteout.Subscribe(_ => this.newDataAvailable = true);
@@ -92,6 +92,7 @@ namespace Animatroller.Simulator
             if (data.TryGetValue(DataElements.PixelBrightness, out value))
             {
                 double[] pixelBrightness = (double[])value;
+
                 for (int i = 0; i < Math.Min(this.pixelData.Length, pixelBrightness.Length); i++)
                     this.pixelData[i].Brightness = pixelBrightness[i];
             }
@@ -168,7 +169,7 @@ namespace Animatroller.Simulator
 
         public string Name
         {
-            get { return string.Empty; }
+            get { return this.logicalDevice.Name; }
         }
     }
 }

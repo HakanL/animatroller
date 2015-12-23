@@ -30,7 +30,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetBrightness(double brightness, IControlToken token = null)
         {
-            PushData(DataElements.Brightness, brightness, token);
+            PushData(token, Utils.AdditionalData(DataElements.Brightness, brightness));
         }
 
         public double Brightness

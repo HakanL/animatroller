@@ -17,6 +17,10 @@ namespace Animatroller.Simulator
         private Control.StrobeBulb control;
         private double? pan;
         private double? tilt;
+        private Task senderTask;
+        private System.Threading.CancellationTokenSource cancelSource;
+        private object lockObject = new object();
+        private bool newDataAvailable;
 
         public Control.StrobeBulb LabelLightControl
         {
@@ -26,6 +30,26 @@ namespace Animatroller.Simulator
         public TestLight(IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {
+            this.cancelSource = new System.Threading.CancellationTokenSource();
+            this.senderTask = new Task(x =>
+            {
+                while (!this.cancelSource.IsCancellationRequested)
+                {
+                    lock (lockObject)
+                    {
+                        if (this.newDataAvailable)
+                        {
+                            this.newDataAvailable = false;
+
+                            Output();
+                        }
+                    }
+
+                    System.Threading.Thread.Sleep(100);
+                }
+            }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
+
+            this.senderTask.Start();
         }
 
         protected override void SetFromIData(IData data)
@@ -74,7 +98,7 @@ namespace Animatroller.Simulator
 
         public void Update()
         {
-            Output();
+            this.newDataAvailable = true;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace Animatroller.Framework.LogicalDevice
 {
@@ -13,6 +14,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected List<IControlToken> owners;
         protected IControlToken currentOwner;
         protected ControlSubject<IData, IControlToken> outputData;
+        protected Subject<IData> outputChanged;
         private IData ownerlessData;
 
         public SingleOwnerDevice(string name)
@@ -20,6 +22,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             this.owners = new List<IControlToken>();
             this.outputData = new ControlSubject<IData, IControlToken>(null, HasControl);
+            this.outputChanged = new Subject<IData>();
 
             this.outputData.Subscribe(x =>
             {
@@ -27,6 +30,8 @@ namespace Animatroller.Framework.LogicalDevice
 
                 foreach (var kvp in data)
                     this.currentData[kvp.Key] = kvp.Value;
+
+                this.outputChanged.OnNext(CurrentData);
             });
         }
 
@@ -35,6 +40,8 @@ namespace Animatroller.Framework.LogicalDevice
             BuildDefaultData(this.currentData);
 
             base.SetInitialState();
+
+            this.outputChanged.OnNext(CurrentData);
         }
 
         protected IData GetOwnerlessData()
@@ -74,11 +81,6 @@ namespace Animatroller.Framework.LogicalDevice
                 throw new ArgumentNullException("token");
 
             return new ControlledObserverData(token, this.outputData);
-        }
-
-        protected void PushData(DataElements dataElement, object value, IControlToken token)
-        {
-            PushData(token, Tuple.Create(dataElement, value));
         }
 
         public void PushData(IControlToken token, IData data)
@@ -196,6 +198,14 @@ namespace Animatroller.Framework.LogicalDevice
             get
             {
                 return this.outputData.AsObservable();
+            }
+        }
+
+        public IObservable<IData> OutputChanged
+        {
+            get
+            {
+                return this.outputChanged.AsObservable();
             }
         }
 
