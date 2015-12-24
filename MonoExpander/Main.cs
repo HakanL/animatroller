@@ -215,6 +215,8 @@ namespace Animatroller.MonoExpander
                     }
                 };
 
+                connection.TraceLevel = TraceLevels.All;
+                connection.TraceWriter = Console.Out;
                 connection.Error += error =>
                 {
                     this.log.Warn("SignalR error {0} for host {1}:{2}", error.Message, server.Host, server.Port);
