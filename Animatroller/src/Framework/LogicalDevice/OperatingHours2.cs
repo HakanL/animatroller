@@ -87,7 +87,7 @@ namespace Animatroller.Framework.LogicalDevice
         public override void SetInitialState()
         {
             EvaluateOpenHours();
-            base.SetInitialState();
+            // No need to call the base class to output state, EvaluateOpenHours already did that via IsOpen
 
             this.timer.Change(0, 1000);
         }
