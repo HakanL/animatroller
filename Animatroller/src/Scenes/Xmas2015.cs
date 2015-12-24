@@ -145,7 +145,8 @@ namespace Animatroller.SceneRunner
             expanderLocal.Connect(audioDarthVader);
             expander1.Connect(audio1);
             //FIXME
-            expanderLocal.Connect(audio2);
+            //            expanderLocal.Connect(audio2);
+            expander2.Connect(audio2);
             expander3.Connect(video3);
 
             blackOut.ConnectTo(Exec.Blackout);
@@ -258,7 +259,7 @@ namespace Animatroller.SceneRunner
                     //    return;
 
                     stateMachine.GoToIdle();
-                    
+
                     // Needed?
                     System.Threading.Thread.Sleep(200);
 

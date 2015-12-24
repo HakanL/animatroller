@@ -201,8 +201,9 @@ namespace Animatroller.MonoExpander
                     string.Format("InstanceId={0}", InstanceId));
 
 #if DEBUG
-//                connection.DeadlockErrorTimeout = TimeSpan.FromMinutes(15);
+                connection.DeadlockErrorTimeout = TimeSpan.FromMinutes(15);
 #endif
+                connection.TransportConnectTimeout = TimeSpan.FromSeconds(15);
 
                 connection.Closed += () =>
                 {
