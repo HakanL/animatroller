@@ -1,4 +1,4 @@
 #!/bin/sh
 
-mono lib/NuGet.exe restore
+mono lib/nuget.exe restore
 xbuild /p:TargetFrameworkVersion="v4.5"
