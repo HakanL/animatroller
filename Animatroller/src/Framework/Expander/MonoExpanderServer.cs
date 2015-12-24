@@ -89,7 +89,7 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
-            var startOptions = new StartOptions(@"http://+:8086/")
+            var startOptions = new StartOptions(@"http://+:8899/")
             {
                 ServerFactory = "Microsoft.Owin.Host.HttpListener"
             };
