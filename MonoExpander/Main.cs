@@ -251,6 +251,9 @@ namespace Animatroller.MonoExpander
 
         public void SendMessage<T>(T message)
         {
+            if (connections == null)
+                return;
+
             this.connections.ForEach(tt =>
             {
                 try
