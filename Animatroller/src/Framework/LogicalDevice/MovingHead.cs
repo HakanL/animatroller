@@ -41,7 +41,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetPanTilt(double pan, double tilt, IControlToken token)
         {
-            PushData(token,
+            SetData(token,
                 Tuple.Create(DataElements.Pan, (object)pan),
                 Tuple.Create(DataElements.Tilt, (object)tilt)
                 );

@@ -8,7 +8,9 @@ namespace Animatroller.Framework
     {
         LogicalDevice.ControlledObserverData GetDataObserver(IControlToken token);
 
-        void PushData(IControlToken token, IData data);
+        //        void PushData(IControlToken token, IData data);
+
+        void PushOutput(IControlToken token);
 
         void BuildDefaultData(IData data);
     }

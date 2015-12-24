@@ -26,13 +26,13 @@ namespace Animatroller.Framework.LogicalDevice
         {
             if (brightness.HasValue)
             {
-                PushData(token,
+                SetData(token,
                     Tuple.Create(DataElements.Brightness, (object)brightness),
                     Tuple.Create(DataElements.Color, (object)color)
                     );
             }
             else
-                PushData(token, Tuple.Create(DataElements.Color, (object)color));
+                SetData(token, Tuple.Create(DataElements.Color, (object)color));
         }
     }
 }

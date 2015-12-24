@@ -62,11 +62,11 @@ namespace Animatroller.Framework.LogicalDevice
                 this.disposeAction(this);
         }
 
-        public void PushData(DataElements dataElement, object value)
-        {
-            foreach (var memberToken in MemberTokens.Values)
-                memberToken.PushData(dataElement, value);
-        }
+        //public void PushData(DataElements dataElement, object value)
+        //{
+        //    foreach (var memberToken in MemberTokens.Values)
+        //        memberToken.PushData(dataElement, value);
+        //}
 
         public bool IsOwner(IControlToken checkToken)
         {

@@ -26,6 +26,33 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
+        protected List<T> AllMembers
+        {
+            get
+            {
+                lock (this.members)
+                {
+                    return this.members.ToList();
+                }
+            }
+        }
+
+        public void PushOutput(IControlToken token)
+        {
+            foreach (var member in AllMembers)
+            {
+                member.PushOutput(token);
+            }
+        }
+
+        public IData GetFrameBuffer(IControlToken token, IReceivesData device)
+        {
+            if (token == null)
+                return Executor.Current.MasterToken.GetDataForDevice(device);
+
+            return token.GetDataForDevice(device);
+        }
+
         protected override void UpdateOutput()
         {
             // No need to do anything here, each individual member should be started on its own

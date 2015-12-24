@@ -72,7 +72,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected override void UpdateOutput()
         {
-            PushData(Executor.Current.GetControlToken(this));
+            SetData(Executor.Current.GetControlToken(this));
         }
 
         public ControlledObserverData GetDataObserver(IControlToken token)
@@ -83,14 +83,34 @@ namespace Animatroller.Framework.LogicalDevice
             return new ControlledObserverData(token, this.outputData);
         }
 
-        public void PushData(IControlToken token, IData data)
+        public IData GetFrameBuffer(IControlToken token, IReceivesData device)
+        {
+            if (token == null)
+                return Executor.Current.MasterToken.GetDataForDevice(device);
+
+            return token.GetDataForDevice(device);
+        }
+
+        public void PushOutput(IControlToken token)
+        {
+            var finalToken = token;
+            if (finalToken == null)
+                finalToken = Executor.Current.MasterToken;
+
+            var data = finalToken.GetDataForDevice(this);
+
+            if (data != null)
+                this.outputData.OnNext(data, finalToken);
+        }
+
+        public void XXXPushData(IControlToken token, IData data)
         {
             var dataElements = data.ToList();
 
             PushDataDelegate pushDelegate;
-            if (token != null)
-                pushDelegate = token.PushData;
-            else
+            //if (token != null)
+            //    pushDelegate = token.GetDataForDevice(this);
+            //else
             {
                 var ownerless = GetOwnerlessData();
                 pushDelegate = (d, v) =>
@@ -105,14 +125,14 @@ namespace Animatroller.Framework.LogicalDevice
             this.outputData.OnNext(data, token);
         }
 
-        protected void PushData(IControlToken token, params Tuple<DataElements, object>[] values)
+        protected void SetData(IControlToken token, params Tuple<DataElements, object>[] values)
         {
-            var data = new Data();
+            var data = GetFrameBuffer(token, this);
 
             foreach (var kvp in values)
                 data[kvp.Item1] = kvp.Item2;
 
-            PushData(token, data);
+            PushOutput(token);
         }
 
         public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
@@ -144,7 +164,7 @@ namespace Animatroller.Framework.LogicalDevice
                             Executor.Current.SetControlToken(this, nextOwner);
                         }
 
-                        PushData(nextOwner, restoreData.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
+                        SetData(nextOwner, restoreData.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
                     });
 
                 // Insert new owner

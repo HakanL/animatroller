@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -19,12 +20,9 @@ namespace Animatroller.Framework.LogicalDevice
             if (token == null)
                 token = this.internalLock;
 
-            lock (this.members)
+            foreach (var member in AllMembers)
             {
-                foreach (var member in this.members)
-                {
-                    member.SetBrightness(brightness, token);
-                }
+                member.SetBrightness(brightness, token);
             }
         }
 
@@ -33,31 +31,29 @@ namespace Animatroller.Framework.LogicalDevice
             if (token == null)
                 token = this.internalLock;
 
-            var data = new Data();
-            data[DataElements.Brightness] = brightness;
-            if (additionalData != null)
-                foreach (var kvp in additionalData)
-                    data[kvp.Key] = kvp.Value;
-
-            lock (this.members)
+            foreach (var member in AllMembers)
             {
-                foreach (var member in this.members)
-                {
-                    member.PushData(token, data);
-                }
+                var data = GetFrameBuffer(token, member);
+
+                data[DataElements.Brightness] = brightness;
+                if (additionalData != null)
+                    foreach (var kvp in additionalData)
+                        data[kvp.Key] = kvp.Value;
+
+                member.PushOutput(token);
             }
         }
 
-        public void PushData(IControlToken token, IData data)
-        {
-            lock (this.members)
-            {
-                foreach (var member in this.members)
-                {
-                    member.PushData(token, data);
-                }
-            }
-        }
+        //public void PushData(IControlToken token, IData data)
+        //{
+        //    lock (this.members)
+        //    {
+        //        foreach (var member in this.members)
+        //        {
+        //            member.PushData(token, data);
+        //        }
+        //    }
+        //}
 
         public void BuildDefaultData(IData data)
         {

@@ -9,5 +9,7 @@ namespace Animatroller.Framework
         bool HasControl(IControlToken checkOwner);
 
         bool IsOwned { get; }
+
+        IData GetFrameBuffer(IControlToken token, IReceivesData device);
     }
 }

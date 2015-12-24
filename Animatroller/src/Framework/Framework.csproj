@@ -133,6 +133,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MasterToken.cs" />
     <Compile Include="Utility\Utils.cs" />
     <None Include="app.config" />
     <None Include="Controller\CueList.cs" />

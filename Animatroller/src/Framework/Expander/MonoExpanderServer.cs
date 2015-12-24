@@ -26,7 +26,6 @@ namespace Animatroller.Framework.Expander
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
         private int listenPort;
-        private int? lighthousePort;
         private Dictionary<string, MonoExpanderInstance> clientInstances;
         private Dictionary<string, string> connectionIdByInstanceId;
         private Dictionary<string, string> instanceIdByConnectionId;
@@ -37,8 +36,7 @@ namespace Animatroller.Framework.Expander
         {
             Initialize(
                 name: name,
-                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081),
-                lighthousePort: Executor.Current.GetSetKey<int?>(this, name + ".lighthousePort", null));
+                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081));
         }
 
         public void AddInstance(string instanceId, MonoExpanderInstance expanderLocal)
@@ -67,16 +65,15 @@ namespace Animatroller.Framework.Expander
             });
         }
 
-        public MonoExpanderServer(int listenPort, int? lighthousePort = null, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public MonoExpanderServer(int listenPort, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            Initialize(name, listenPort, lighthousePort);
+            Initialize(name, listenPort);
         }
 
-        private void Initialize(string name, int listenPort, int? lighthousePort)
+        private void Initialize(string name, int listenPort)
         {
             this.name = name;
             this.listenPort = listenPort;
-            this.lighthousePort = lighthousePort;
             this.clientInstances = new Dictionary<string, MonoExpanderInstance>();
             this.connectionIdByInstanceId = new Dictionary<string, string>();
             this.instanceIdByConnectionId = new Dictionary<string, string>();
@@ -89,7 +86,7 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
-            var startOptions = new StartOptions(@"http://+:8899/")
+            var startOptions = new StartOptions(string.Format("http://+:{0}/", this.listenPort))
             {
                 ServerFactory = "Microsoft.Owin.Host.HttpListener"
             };

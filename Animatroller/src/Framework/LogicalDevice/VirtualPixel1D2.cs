@@ -362,7 +362,7 @@ namespace Animatroller.Framework.LogicalDevice
             for (int i = 0; i < pixelBrightness.Length; i++)
                 pixelBrightness[i] = brightness;
 
-            PushData(token, Tuple.Create(DataElements.PixelBrightness, (object)pixelBrightness));
+            SetData(token, Tuple.Create(DataElements.PixelBrightness, (object)pixelBrightness));
         }
 
         protected class PixelDevice
@@ -425,11 +425,11 @@ namespace Animatroller.Framework.LogicalDevice
             int? length = null,
             IControlToken token = null)
         {
-            IData data;
-            if (token == null)
-                data = GetOwnerlessData();
-            else
-                data = token.GetDataForDevice(this);
+            IData data = GetFrameBuffer(token, this);
+            //if (token == null)
+            //    data = GetOwnerlessData();
+            //else
+            //    data = token.GetDataForDevice(this);
 
             if (!length.HasValue)
                 length = this.pixelCount;
@@ -452,16 +452,16 @@ namespace Animatroller.Framework.LogicalDevice
                     pixelBrightness[startPosition + i] = brightness.Value;
             }
 
-            PushData(token, data);
+            PushOutput(token);
         }
 
         public void Inject(Color color, double brightness, IControlToken token = null)
         {
-            IData data;
-            if (token == null)
-                data = GetOwnerlessData();
-            else
-                data = token.GetDataForDevice(this);
+            IData data = GetFrameBuffer(token, this);
+            //if (token == null)
+            //    data = GetOwnerlessData();
+            //else
+            //    data = token.GetDataForDevice(this);
 
             var cArray = GetColorArray(data);
             var bArray = GetBrightnessArray(data);
@@ -475,16 +475,16 @@ namespace Animatroller.Framework.LogicalDevice
             bArray[0] = brightness;
             cArray[0] = color;
 
-            PushData(token, data);
+            PushOutput(token);
         }
 
         public void InjectRev(Color color, double brightness, IControlToken token = null)
         {
-            IData data;
-            if (token == null)
-                data = GetOwnerlessData();
-            else
-                data = token.GetDataForDevice(this);
+            IData data = GetFrameBuffer(token, this);
+            //if (token == null)
+            //    data = GetOwnerlessData();
+            //else
+            //    data = token.GetDataForDevice(this);
 
             var cArray = GetColorArray(data);
             var bArray = GetBrightnessArray(data);
@@ -498,7 +498,7 @@ namespace Animatroller.Framework.LogicalDevice
             bArray[bArray.Length - 1] = brightness;
             cArray[cArray.Length - 1] = color;
 
-            PushData(token, data);
+            PushOutput(token);
         }
     }
 }

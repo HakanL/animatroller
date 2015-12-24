@@ -37,7 +37,7 @@ namespace Animatroller.SceneRunner
         Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander3 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8088, lighthousePort: 8899);
+        Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         AudioPlayer audio1 = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
         AudioPlayer audioDarthVader = new AudioPlayer();
@@ -119,7 +119,7 @@ namespace Animatroller.SceneRunner
 
         public Xmas2015(IEnumerable<string> args)
         {
-            hours.AddRange("4:00 pm", "10:00 pm");
+            hours.AddRange("4:00 pm", "11:59 pm");
 
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
