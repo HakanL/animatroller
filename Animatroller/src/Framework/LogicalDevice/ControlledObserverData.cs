@@ -6,17 +6,19 @@ namespace Animatroller.Framework.LogicalDevice
     {
         private IControlToken controlToken;
         private ControlSubject<IData, IControlToken> control;
+        private IData data;
 
-        public ControlledObserverData(IControlToken controlToken, ControlSubject<IData, IControlToken> control)
+        public ControlledObserverData(IControlToken controlToken, ControlSubject<IData, IControlToken> control, IData data)
         {
             this.controlToken = controlToken;
             this.control = control;
+            this.data = data;
         }
 
         public void OnCompleted()
         {
             // We don't want to end the underlaying IData observer
-//            this.control.OnCompleted();
+            //            this.control.OnCompleted();
         }
 
         public void OnError(Exception error)
@@ -26,9 +28,12 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void OnNext(IData value)
         {
-            value.CurrentToken = this.controlToken;
+            this.data.CurrentToken = this.controlToken;
 
-            this.control.OnNext(value, this.controlToken);
+            foreach (var kvp in value)
+                this.data[kvp.Key] = kvp.Value;
+
+            this.control.OnNext(this.data, this.controlToken);
         }
     }
 }

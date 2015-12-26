@@ -72,7 +72,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected override void UpdateOutput()
         {
-            SetData(Executor.Current.GetControlToken(this));
+            // Don't think we need this any more
+//            SetData(Executor.Current.GetControlToken(this));
         }
 
         public ControlledObserverData GetDataObserver(IControlToken token)
@@ -80,7 +81,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (token == null)
                 throw new ArgumentNullException("token");
 
-            return new ControlledObserverData(token, this.outputData);
+            return new ControlledObserverData(token, this.outputData, token.GetDataForDevice(this));
         }
 
         public IData GetFrameBuffer(IControlToken token, IReceivesData device)
@@ -101,28 +102,6 @@ namespace Animatroller.Framework.LogicalDevice
 
             if (data != null)
                 this.outputData.OnNext(data, finalToken);
-        }
-
-        public void XXXPushData(IControlToken token, IData data)
-        {
-            var dataElements = data.ToList();
-
-            PushDataDelegate pushDelegate;
-            //if (token != null)
-            //    pushDelegate = token.GetDataForDevice(this);
-            //else
-            {
-                var ownerless = GetOwnerlessData();
-                pushDelegate = (d, v) =>
-                {
-                    ownerless[d] = v;
-                };
-            }
-
-            foreach (var kvp in dataElements)
-                pushDelegate(kvp.Key, kvp.Value);
-
-            this.outputData.OnNext(data, token);
         }
 
         protected void SetData(IControlToken token, params Tuple<DataElements, object>[] values)
