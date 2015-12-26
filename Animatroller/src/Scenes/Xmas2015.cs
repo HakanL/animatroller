@@ -26,6 +26,7 @@ namespace Animatroller.SceneRunner
         {
             Background,
             Music1,
+            Music2,
             SantaVideo,
             DarthVader
         }
@@ -37,9 +38,10 @@ namespace Animatroller.SceneRunner
         Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander3 = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         AudioPlayer audio1 = new AudioPlayer();
-        AudioPlayer audio2 = new AudioPlayer();
+        AudioPlayer audioMain = new AudioPlayer();
         AudioPlayer audioDarthVader = new AudioPlayer();
         VideoPlayer video3 = new VideoPlayer();
 
@@ -47,9 +49,12 @@ namespace Animatroller.SceneRunner
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffect3 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        Effect.Pulsating pulsatingEffect4 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
 
         DigitalInput2 inOlaf = new DigitalInput2();
         DigitalInput2 inR2D2 = new DigitalInput2();
+        DigitalInput2 inBlueButton = new DigitalInput2();
+        DigitalInput2 inRedButton = new DigitalInput2();
 
         DigitalInput2 in1 = new DigitalInput2();
         DigitalInput2 in2 = new DigitalInput2();
@@ -72,6 +77,7 @@ namespace Animatroller.SceneRunner
         Dimmer3 lightNet8 = new Dimmer3();
         Dimmer3 lightTopper1 = new Dimmer3();
         Dimmer3 lightTopper2 = new Dimmer3();
+        Dimmer3 lightXmasTree = new Dimmer3();
         Dimmer3 lightStairs1 = new Dimmer3();
         Dimmer3 lightStairs2 = new Dimmer3();
         Dimmer3 lightRail1 = new Dimmer3();
@@ -86,6 +92,8 @@ namespace Animatroller.SceneRunner
         Dimmer3 lightHat4 = new Dimmer3();
         Dimmer3 lightReindeer1 = new Dimmer3();
         Dimmer3 lightReindeer2 = new Dimmer3();
+        Dimmer3 lightBlueButton = new Dimmer3();
+        Dimmer3 lightRedButton = new Dimmer3();
         //        StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
         StrobeColorDimmer3 lightVader = new StrobeColorDimmer3();
         StrobeColorDimmer3 lightWall1 = new StrobeColorDimmer3();
@@ -104,6 +112,7 @@ namespace Animatroller.SceneRunner
         DigitalInput2 buttonStartInflatables = new DigitalInput2();
 
         Import.LorImport2 lorFeelTheLight = new Import.LorImport2();
+        Import.LorImport2 lorBelieve = new Import.LorImport2();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
@@ -113,13 +122,14 @@ namespace Animatroller.SceneRunner
         Controller.Subroutine subBackground = new Controller.Subroutine();
         Controller.Subroutine subSantaVideo = new Controller.Subroutine();
         Controller.Subroutine subMusic1 = new Controller.Subroutine();
+        Controller.Subroutine subMusic2 = new Controller.Subroutine();
         Controller.Subroutine subOlaf = new Controller.Subroutine();
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
         Controller.Subroutine subStarWars = new Controller.Subroutine();
 
         public Xmas2015(IEnumerable<string> args)
         {
-            hours.AddRange("4:00 pm", "11:59 pm");
+            hours.AddRange("4:00 pm", "10:00 pm");
 
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
@@ -132,22 +142,30 @@ namespace Animatroller.SceneRunner
             pulsatingEffect1.ConnectTo(lightOlaf);
             pulsatingEffect2.ConnectTo(lightR2D2);
             pulsatingEffect3.ConnectTo(pixelsRoofEdge, Utils.AdditionalData(Color.Red));
+            pulsatingEffect4.ConnectTo(lightBlueButton);
+            pulsatingEffect4.ConnectTo(lightRedButton);
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);
             expanderServer.AddInstance("10520fdcf14d47cba31da8b6e05d01d8", expander2);
             expanderServer.AddInstance("59ebb8e925c94182a0f6e0ef09180200", expander3);
+            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expander4);
 
             expander1.DigitalInputs[5].Connect(inR2D2);
             expander1.DigitalInputs[4].Connect(inOlaf);
             expander1.DigitalInputs[6].Connect(in1);
             expander1.DigitalOutputs[7].Connect(out1);
-            expanderLocal.Connect(audioDarthVader);
+            //            expanderLocal.Connect(audioDarthVader);
+
+            expander4.DigitalInputs[5].Connect(inBlueButton);
+            expander4.DigitalInputs[4].Connect(inRedButton);
+
             expander1.Connect(audio1);
             //FIXME
             //            expanderLocal.Connect(audio2);
-            expander2.Connect(audio2);
+            expander2.Connect(audioMain);
             expander3.Connect(video3);
+            expander4.Connect(audioDarthVader);
 
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
@@ -177,6 +195,7 @@ namespace Animatroller.SceneRunner
 
             stateMachine.ForFromSubroutine(States.Background, subBackground);
             stateMachine.ForFromSubroutine(States.Music1, subMusic1);
+            stateMachine.ForFromSubroutine(States.Music2, subMusic2);
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
@@ -227,6 +246,9 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 128), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 131), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 132), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 132), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightBlueButton, 262), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRedButton, 263), SacnUniverseDMX);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 16), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 10), SacnUniverseRenardBig);
@@ -234,11 +256,13 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 19), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(airSanta1, 20), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 22), SacnUniverseRenardBig);
-            acnOutput.Connect(new Physical.GenericDimmer(lightReindeer1, 32), SacnUniverseRenardBig);
+
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 25), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightXmasTree, 26), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightReindeer2, 29), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightReindeer1, 32), SacnUniverseRenardBig);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 1), SacnUniverseRenardSmall);
-            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 25), SacnUniverseRenardBig);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 3), SacnUniverseRenardSmall);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 4), SacnUniverseRenardSmall);
@@ -279,6 +303,7 @@ namespace Animatroller.SceneRunner
                     lightNet8,
                     lightTopper1,
                     lightTopper2,
+                    lightXmasTree,
                     lightStairs1,
                     lightStairs2,
                     lightRail1,
@@ -300,6 +325,7 @@ namespace Animatroller.SceneRunner
                     saberPixels)
                 .RunAction(i =>
                 {
+                    pulsatingEffect4.Start();
                     lightR2D2.SetBrightness(1, i.Token);
                     lightOlaf.SetBrightness(1, i.Token);
                     lightNet1.SetBrightness(1, i.Token);
@@ -312,6 +338,7 @@ namespace Animatroller.SceneRunner
                     lightNet8.SetBrightness(1, i.Token);
                     lightTopper1.SetBrightness(1, i.Token);
                     lightTopper2.SetBrightness(1, i.Token);
+                    lightXmasTree.SetBrightness(1, i.Token);
                     lightStairs1.SetBrightness(1, i.Token);
                     lightStairs2.SetBrightness(1, i.Token);
                     lightRail1.SetBrightness(1, i.Token);
@@ -334,6 +361,7 @@ namespace Animatroller.SceneRunner
                     subCandyCane.Run();
                     i.WaitUntilCancel();
                     Exec.Cancel(subCandyCane);
+                    pulsatingEffect4.Stop();
                 });
 
             subCandyCane
@@ -388,13 +416,24 @@ namespace Animatroller.SceneRunner
             subMusic1
                 .RunAction(ins =>
                     {
-                        audio2.PlayTrack("08 Feel the Light.wav");
+                        audioMain.PlayTrack("08 Feel the Light.wav");
                         ins.WaitFor(S(240));
                     }).TearDown(() =>
                     {
                         lorFeelTheLight.Stop();
-                        audio2.PauseTrack();
+                        audioMain.PauseTrack();
                     });
+
+            subMusic2
+                .RunAction(ins =>
+                {
+                    audioMain.PlayTrack("T.P.E. - 04 - Josh Groban - Believe.flac");
+                    ins.WaitFor(S(260));
+                }).TearDown(() =>
+                {
+                    lorBelieve.Stop();
+                    audioMain.PauseTrack();
+                });
 
             subSantaVideo
                 .RunAction(i =>
@@ -462,11 +501,11 @@ namespace Animatroller.SceneRunner
                     subStarWarsCane.Run();
                     lightR2D2.SetBrightness(1.0, instance.Token);
 
-                    audioDarthVader.PlayTrack("01. Star Wars - Main Title.wav");
+                    audioMain.PlayTrack("01. Star Wars - Main Title.wav");
 
                     instance.WaitFor(S(16));
 
-                    audioDarthVader.PauseTrack();
+                    audioMain.PauseTrack();
                     Exec.Cancel(subStarWarsCane);
                     instance.WaitFor(S(0.5));
                     /*
@@ -521,7 +560,7 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(() =>
                 {
-                    audioDarthVader.PauseTrack();
+                    audioMain.PauseTrack();
                 });
 
 
@@ -549,7 +588,7 @@ namespace Animatroller.SceneRunner
                 if (x)
                 {
                     lorFeelTheLight.Stop();
-                    audio2.PauseTrack();
+                    audioMain.PauseTrack();
                 }
             });
 
@@ -573,17 +612,33 @@ namespace Animatroller.SceneRunner
                     subR2D2.Run();
             });
 
-            audio2.AudioTrackStart += (o, e) =>
+            inRedButton.Output.Subscribe(x =>
+            {
+                if (x && hours.IsOpen)
+                    stateMachine.GoToState(States.DarthVader);
+            });
+
+            inBlueButton.Output.Subscribe(x =>
+            {
+                if (x && hours.IsOpen)
+                    stateMachine.GoToState(States.Music2);
+            });
+
+            audioMain.AudioTrackStart += (o, e) =>
             {
                 switch (e.FileName)
                 {
                     case "08 Feel the Light.wav":
                         lorFeelTheLight.Start(27830);
                         break;
+
+                    case "T.P.E. - 04 - Josh Groban - Believe.flac":
+                        lorBelieve.Start();
+                        break;
                 }
             };
 
-            audio2.AudioTrackDone += (o, e) =>
+            audioMain.AudioTrackDone += (o, e) =>
             {
                 //                Thread.Sleep(5000);
                 //    audio2.PlayTrack("08 Feel the Light.wav");
@@ -591,8 +646,9 @@ namespace Animatroller.SceneRunner
 
             in1.Output.Subscribe(x =>
             {
-                if (x)
-                    stateMachine.GoToState(States.Music1);
+                //                lightRedButton.SetBrightness(x ? 1.0 : 0.0);
+                //if (x)
+                //    stateMachine.GoToState(States.Music1);
             });
 
             in2.Output.Subscribe(x =>
@@ -608,6 +664,7 @@ namespace Animatroller.SceneRunner
             });
 
             ImportAndMapFeelTheLight();
+            ImportAndMapBelieve();
         }
 
         private void ImportAndMapFeelTheLight()
@@ -679,6 +736,81 @@ namespace Animatroller.SceneRunner
             lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.AdditionalData(Color.White));
 
             lorFeelTheLight.Prepare();
+        }
+
+        private void ImportAndMapBelieve()
+        {
+            lorBelieve.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Believe - Josh Groban 64 chns.lms"));
+
+            lorBelieve.Progress.Subscribe(x =>
+            {
+                log.Trace("Believe {0:N0} ms", x);
+            });
+
+//            lorBelieve.Dump();
+
+            lorBelieve.MapDevice("Yard 1", lightNet1);
+            lorBelieve.MapDevice("Yard 2", lightNet2);
+            lorBelieve.MapDevice("Yard 3", lightNet3);
+            lorBelieve.MapDevice("Yard 4", lightNet4);
+            lorBelieve.MapDevice("Yard 5", lightNet5);
+            lorBelieve.MapDevice("Yard 6", lightNet6);
+            lorBelieve.MapDevice("Yard 7", lightNet7);
+            lorBelieve.MapDevice("Yard 8", lightNet8);
+            lorBelieve.MapDevice("Yard 9", lightHat1);
+            lorBelieve.MapDevice("Yard 10", lightHat2);
+            lorBelieve.MapDevice("Yard 7", lightHat3);
+            lorBelieve.MapDevice("Yard 8", lightHat4);
+
+            lorBelieve.MapDevice("House 1", lightR2D2);
+            lorBelieve.MapDevice("House 2", lightOlaf);
+
+            lorBelieve.MapDevice("Wreath W", lightStairs1);
+            lorBelieve.MapDevice("Wreath R", lightStairs2);
+            lorBelieve.MapDevice("Mega Star", lightXmasTree);
+
+            lorBelieve.MapDevice("Floods B", lightWall1, Utils.AdditionalData(Color.Blue));
+            lorBelieve.MapDevice("Floods G", lightWall2, Utils.AdditionalData(Color.Green));
+            lorBelieve.MapDevice("Floods R", lightWall3, Utils.AdditionalData(Color.Red));
+
+            lorBelieve.MapDevice("Ferris Wheel 1", lightTopper1);
+            lorBelieve.MapDevice("Ferris Wheel 2", lightTopper2);
+            lorBelieve.MapDevice("Ferris Wheel 3", lightRail1);
+            lorBelieve.MapDevice("Ferris Wheel 4", lightRail2);
+            lorBelieve.MapDevice("Ferris Wheel 5", lightReindeer1);
+            lorBelieve.MapDevice("Ferris Wheel 6", lightReindeer2);
+            lorBelieve.MapDevice("Ferris Wheel 7", lightSanta);
+            lorBelieve.MapDevice("Ferris Wheel 8", lightSnowman);
+
+            lorBelieve.MapDevice("NATIVITY", lightVader, Utils.AdditionalData(Color.Red));
+            lorBelieve.MapDevice("House 3",
+                new VirtualDevice((b, t) => saberPixels.SetColorRange(Color.Red, b, 0, 32, t)));
+
+            lorBelieve.ControlDevice(pixelsMatrix);
+            lorBelieve.ControlDevice(saberPixels);
+            lorBelieve.MapDevice("Mega Tree 1",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 2",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 20, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 3",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 40, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 4",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 60, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 5",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 80, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 6",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 100, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 7",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 120, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 8",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 140, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 9",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 160, 20, t)));
+            lorBelieve.MapDevice("Mega Tree 10",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 180, 20, t)));
+            lorBelieve.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
+
+            lorBelieve.Prepare();
         }
 
         public override void Run()

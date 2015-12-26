@@ -101,12 +101,22 @@ namespace Animatroller.Framework.Import
                     }};
 
                 case "twinkle":
-                    return new List<ChannelEffect>() { new TwinkleChannelEffect
-                    {
-                        StartMs = startMs,
-                        EndMs = endMs,
-                        Brightness = double.Parse(effect.intensity) / 100.0
-                    }};
+                    if(!string.IsNullOrEmpty(effect.intensity))
+                        return new List<ChannelEffect>() { new TwinkleChannelEffect
+                        {
+                            StartMs = startMs,
+                            EndMs = endMs,
+                            StartBrightness = double.Parse(effect.intensity) / 100.0,
+                            EndBrightness = double.Parse(effect.intensity) / 100.0
+                        }};
+                    else
+                        return new List<ChannelEffect>() { new TwinkleChannelEffect
+                        {
+                            StartMs = startMs,
+                            EndMs = endMs,
+                            StartBrightness = double.Parse(effect.startIntensity) / 100.0,
+                            EndBrightness = double.Parse(effect.endIntensity) / 100.0
+                        }};
 
                 default:
                     throw new NotImplementedException("Unknown effect type " + effect.type);
@@ -192,10 +202,13 @@ namespace Animatroller.Framework.Import
 
         protected class TwinkleChannelEffect : ChannelEffectRange
         {
-            public double Brightness { get; set; }
+            public double StartBrightness { get; set; }
+
+            public double EndBrightness { get; set; }
 
             public override void Execute(IReceivesBrightness device, IControlToken token)
             {
+                Executor.Current.MasterEffect.Shimmer(device, StartBrightness, EndBrightness, DurationMs, token: token);
             }
         }
     }
