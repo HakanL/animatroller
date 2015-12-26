@@ -2,7 +2,7 @@
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class ControlledObserverData : IObserver<IData>
+    public class ControlledObserverData : IPushDataController
     {
         private IControlToken controlToken;
         private ControlSubject<IData, IControlToken> control;
@@ -21,19 +21,38 @@ namespace Animatroller.Framework.LogicalDevice
             //            this.control.OnCompleted();
         }
 
-        public void OnError(Exception error)
+        //public void OnError(Exception error)
+        //{
+        //    this.control.OnError(error);
+        //}
+
+        public IData Data
         {
-            this.control.OnError(error);
+            get { return this.data; }
         }
 
-        public void OnNext(IData value)
+        //public void OnNext(IData value)
+        //{
+        //    this.data.CurrentToken = this.controlToken;
+
+        //    foreach (var kvp in value)
+        //        this.data[kvp.Key] = kvp.Value;
+
+        //    this.control.OnNext(this.data, this.controlToken);
+        //}
+
+        public void PushData()
         {
-            this.data.CurrentToken = this.controlToken;
-
-            foreach (var kvp in value)
-                this.data[kvp.Key] = kvp.Value;
-
             this.control.OnNext(this.data, this.controlToken);
+        }
+
+        public void SetDataFromIData(IData source)
+        {
+            if (source != null)
+            {
+                foreach (var kvp in source)
+                    this.data[kvp.Key] = kvp.Value;
+            }
         }
     }
 }

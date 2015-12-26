@@ -26,11 +26,6 @@ namespace Animatroller.Framework.LogicalDevice
                 this.disposeAction(this);
         }
 
-        public void PushData(DataElements dataElement, object value)
-        {
-            this.data[dataElement] = value;
-        }
-
         public bool IsOwner(IControlToken checkToken)
         {
             return this == checkToken;

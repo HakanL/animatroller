@@ -96,8 +96,7 @@ namespace Animatroller.Framework.Import
                         {
                             device.Observer = device.Device.GetDataObserver(this.token);
 
-                            if (device.AdditionalData != null)
-                                device.Observer.OnNext(device.AdditionalData);
+                            device.Observer.SetDataFromIData(device.AdditionalData);
                         }
                     }
                     //foreach (var device in this.mappedDevices.SelectMany(x => x.Value))

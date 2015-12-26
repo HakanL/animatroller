@@ -14,7 +14,7 @@ namespace Animatroller.Framework.Effect
     {
         protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
         {
-            public ControlledObserverData Observer { get; set; }
+            public IPushDataController Observer { get; set; }
 
             public DeviceController(IReceivesBrightness device)
                 : base(device, 0)
@@ -74,9 +74,10 @@ namespace Animatroller.Framework.Effect
                         if (deviceOwner == null)
                             continue;
 
-                        deviceOwner
-                            .OnNext(new Data(DataElements.Brightness,
-                                this.random.NextDouble().ScaleToMinMax(this.minBrightness, this.maxBrightness)));
+                        deviceOwner.Data[DataElements.Brightness] =
+                                this.random.NextDouble().ScaleToMinMax(this.minBrightness, this.maxBrightness);
+
+                        deviceOwner.PushData();
                     }
                 }
                 catch

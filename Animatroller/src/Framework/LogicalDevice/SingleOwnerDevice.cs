@@ -76,7 +76,7 @@ namespace Animatroller.Framework.LogicalDevice
 //            SetData(Executor.Current.GetControlToken(this));
         }
 
-        public ControlledObserverData GetDataObserver(IControlToken token)
+        public IPushDataController GetDataObserver(IControlToken token)
         {
             if (token == null)
                 throw new ArgumentNullException("token");

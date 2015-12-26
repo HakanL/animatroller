@@ -58,12 +58,12 @@ namespace Animatroller.Framework.LogicalDevice
             // No need to do anything here, each individual member should be started on its own
         }
 
-        public ControlledObserverData GetDataObserver(IControlToken token)
+        public IPushDataController GetDataObserver(IControlToken token)
         {
             if (token == null)
                 throw new ArgumentNullException("token");
 
-            var observers = new List<ControlledObserverData>();
+            var observers = new List<IPushDataController>();
             lock (this.members)
             {
                 foreach (var member in this.members)
@@ -76,10 +76,13 @@ namespace Animatroller.Framework.LogicalDevice
             groupObserver.Subscribe(x =>
             {
                 foreach (var observer in observers)
-                    observer.OnNext(x);
+                {
+                    observer.SetDataFromIData(x);
+                    observer.PushData();
+                }
             });
 
-            return new ControlledObserverData(token, groupObserver);
+            return new ControlledGroupData(token, groupObserver);
         }
 
         public void TakeAndHoldControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")

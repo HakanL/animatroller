@@ -15,7 +15,7 @@ namespace Animatroller.Framework.Effect
     {
         protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
         {
-            public ControlledObserverData Observer { get; set; }
+            public IPushDataController Observer { get; set; }
 
             public IData AdditionalData { get; set; }
 
@@ -126,7 +126,8 @@ namespace Animatroller.Framework.Effect
                 if (deviceOwner == null)
                     continue;
 
-                deviceOwner.OnNext(new Data(DataElements.Brightness, value));
+                deviceOwner.Data[DataElements.Brightness] = value;
+                deviceOwner.PushData();
 
                 watches[i].Stop();
             }
@@ -155,8 +156,7 @@ namespace Animatroller.Framework.Effect
                 {
                     device.Observer = device.Device.GetDataObserver(this.token);
 
-                    if (device.AdditionalData != null)
-                        device.Observer.OnNext(device.AdditionalData);
+                    device.Observer.SetDataFromIData(device.AdditionalData);
                 }
             }
 

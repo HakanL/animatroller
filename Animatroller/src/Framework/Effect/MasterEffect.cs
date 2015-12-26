@@ -44,7 +44,7 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        public Task Fade(IObserver<IData> deviceObserver, double start, double end, int durationMs, ITransformer transformer = null,
+        public Task Fade(IPushDataController deviceObserver, double start, double end, int durationMs, ITransformer transformer = null,
             params Tuple<DataElements, object>[] additionalData)
         {
             var taskSource = new TaskCompletionSource<bool>();
@@ -59,7 +59,7 @@ namespace Animatroller.Framework.Effect2
             }
 
             if (additionalData.Any())
-                deviceObserver.OnNext(additionalData.GenerateIData());
+                deviceObserver.SetDataFromIData(additionalData.GenerateIData());
 
             var observer = Observer.Create<double>(
                 onNext: pos =>
@@ -69,12 +69,11 @@ namespace Animatroller.Framework.Effect2
 
                     double brightness = start + (pos * brightnessRange);
 
-                    deviceObserver.OnNext(new Data(DataElements.Brightness, brightness));
+                    deviceObserver.Data[DataElements.Brightness] = brightness;
+                    deviceObserver.PushData();
                 },
                 onCompleted: () =>
                 {
-                    deviceObserver.OnCompleted();
-
                     taskSource.SetResult(true);
                 });
 
@@ -96,7 +95,7 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        public Task Custom(double[] customList, IObserver<IData> deviceObserver, int durationMs, int? loop)
+        public Task Custom(double[] customList, IPushDataController deviceObserver, int durationMs, int? loop)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
@@ -114,7 +113,9 @@ namespace Animatroller.Framework.Effect2
 
                         if (loopCounter >= loop.Value)
                         {
-                            deviceObserver.OnNext(new Data(DataElements.Brightness, customList[customList.Length - 1]));
+                            deviceObserver.Data[DataElements.Brightness] = customList[customList.Length - 1];
+                            deviceObserver.PushData();
+
                             cancelSource.Cancel();
                             return;
                         }
@@ -124,12 +125,11 @@ namespace Animatroller.Framework.Effect2
 
                     int pos = (int)(customList.Length * instanceMs / durationMs);
 
-                    deviceObserver.OnNext(new Data(DataElements.Brightness, customList[pos]));
+                    deviceObserver.Data[DataElements.Brightness] = customList[pos];
+                    deviceObserver.PushData();
                 },
                 onCompleted: () =>
                 {
-                    deviceObserver.OnCompleted();
-
                     taskSource.SetResult(true);
                 });
 
@@ -199,7 +199,7 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        public Task Shimmer(IObserver<IData> deviceObserver, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
+        public Task Shimmer(IPushDataController deviceObserver, double minBrightness, double maxBrightness, int durationMs, int priority = 1)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
@@ -210,12 +210,11 @@ namespace Animatroller.Framework.Effect2
                 {
                     state = !state;
 
-                    deviceObserver.OnNext(new Data(DataElements.Brightness, state ? maxBrightness : minBrightness));
+                    deviceObserver.Data[DataElements.Brightness] = state ? maxBrightness : minBrightness;
+                    deviceObserver.PushData();
                 },
                 onCompleted: () =>
                 {
-                    deviceObserver.OnCompleted();
-
                     taskSource.SetResult(true);
                 });
 

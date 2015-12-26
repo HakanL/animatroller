@@ -13,7 +13,7 @@ namespace Animatroller.Framework.Import
     {
         protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
         {
-            public ControlledObserverData Observer { get; set; }
+            public IPushDataController Observer { get; set; }
 
             public IData AdditionalData { get; set; }
 

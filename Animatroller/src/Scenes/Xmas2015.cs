@@ -155,14 +155,11 @@ namespace Animatroller.SceneRunner
             expander1.DigitalInputs[4].Connect(inOlaf);
             expander1.DigitalInputs[6].Connect(in1);
             expander1.DigitalOutputs[7].Connect(out1);
-            //            expanderLocal.Connect(audioDarthVader);
 
             expander4.DigitalInputs[5].Connect(inBlueButton);
             expander4.DigitalInputs[4].Connect(inRedButton);
 
             expander1.Connect(audio1);
-            //FIXME
-            //            expanderLocal.Connect(audio2);
             expander2.Connect(audioMain);
             expander3.Connect(video3);
             expander4.Connect(audioDarthVader);

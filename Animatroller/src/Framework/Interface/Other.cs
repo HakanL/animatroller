@@ -4,9 +4,18 @@ using System.Drawing;
 
 namespace Animatroller.Framework
 {
+    public interface IPushDataController
+    {
+        void PushData();
+
+        IData Data { get; }
+
+        void SetDataFromIData(IData source);
+    }
+
     public interface IReceivesData : IOwnedDevice
     {
-        LogicalDevice.ControlledObserverData GetDataObserver(IControlToken token);
+        IPushDataController GetDataObserver(IControlToken token);
 
         //        void PushData(IControlToken token, IData data);
 
