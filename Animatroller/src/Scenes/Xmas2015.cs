@@ -146,10 +146,10 @@ namespace Animatroller.SceneRunner
             pulsatingEffect4.ConnectTo(lightRedButton);
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
-            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);
-            expanderServer.AddInstance("10520fdcf14d47cba31da8b6e05d01d8", expander2);
-            expanderServer.AddInstance("59ebb8e925c94182a0f6e0ef09180200", expander3);
-            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expander4);
+            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);      // rpi-eb0092ca
+            expanderServer.AddInstance("10520fdcf14d47cba31da8b6e05d01d8", expander2);      // rpi-eb428ef1
+            expanderServer.AddInstance("59ebb8e925c94182a0f6e0ef09180200", expander3);      // rpi-eba6cbc7
+            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expander4);      // rpi-eb81c94e
 
             expander1.DigitalInputs[5].Connect(inR2D2);
             expander1.DigitalInputs[4].Connect(inOlaf);
@@ -502,9 +502,6 @@ namespace Animatroller.SceneRunner
 
                     instance.WaitFor(S(16));
 
-                    audioMain.PauseTrack();
-                    Exec.Cancel(subStarWarsCane);
-                    instance.WaitFor(S(0.5));
                     /*
                         elJesus.SetPower(true);
                         pulsatingStar.Start();
@@ -513,8 +510,10 @@ namespace Animatroller.SceneRunner
                         light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));*/
 
                     Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.AdditionalData(Color.Red));
-
                     instance.WaitFor(S(2.5));
+
+                    Exec.Cancel(subStarWarsCane);
+                    instance.WaitFor(S(0.5));
 
                     audioDarthVader.PlayEffect("saberon.wav");
                     for (int sab = 00; sab < 32; sab++)
@@ -523,6 +522,7 @@ namespace Animatroller.SceneRunner
                         instance.WaitFor(S(0.01));
                     }
                     instance.WaitFor(S(1));
+                    audioMain.PauseTrack();
 
                     lightVader.SetColor(Color.Red, 1.0, instance.Token);
                     audioDarthVader.PlayEffect("father.wav");
@@ -599,26 +599,36 @@ namespace Animatroller.SceneRunner
 
             inOlaf.Output.Subscribe(x =>
             {
-                if (x && hours.IsOpen)
+                if (x)
                     subOlaf.Run();
             });
 
             inR2D2.Output.Subscribe(x =>
             {
-                if (x && hours.IsOpen)
+                if (x)
                     subR2D2.Run();
             });
 
             inRedButton.Output.Subscribe(x =>
             {
-                if (x && hours.IsOpen)
-                    stateMachine.GoToState(States.DarthVader);
+                if (x)
+                {
+                    if (hours.IsOpen)
+                        stateMachine.GoToState(States.DarthVader);
+                    else
+                        audioDarthVader.PlayEffect("Darth Breathing.wav");
+                }
             });
 
             inBlueButton.Output.Subscribe(x =>
             {
-                if (x && hours.IsOpen)
-                    stateMachine.GoToState(States.Music2);
+                if (x)
+                {
+                    if (hours.IsOpen)
+                        stateMachine.GoToState(States.Music2);
+                    else
+                        audioDarthVader.PlayEffect("darkside.wav");
+                }
             });
 
             audioMain.AudioTrackStart += (o, e) =>
@@ -744,7 +754,7 @@ namespace Animatroller.SceneRunner
                 log.Trace("Believe {0:N0} ms", x);
             });
 
-//            lorBelieve.Dump();
+            //            lorBelieve.Dump();
 
             lorBelieve.MapDevice("Yard 1", lightNet1);
             lorBelieve.MapDevice("Yard 2", lightNet2);

@@ -28,7 +28,7 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 var data = PreprocessPushData(x);
 
-                foreach (var kvp in data)
+                foreach (var kvp in data.ToList())
                     this.currentData[kvp.Key] = kvp.Value;
 
                 this.outputChanged.OnNext(CurrentData);

@@ -95,6 +95,7 @@ namespace Animatroller.Framework.LogicalDevice
         public void SetForced(bool? forcedIsOpen)
         {
             this.forced = forcedIsOpen;
+            EvaluateOpenHours();
         }
 
         public bool IsOpen
