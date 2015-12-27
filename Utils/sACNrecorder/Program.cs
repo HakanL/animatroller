@@ -21,7 +21,7 @@ namespace Animatroller.sACNrecorder
             {
                 var arguments = Args.Parse<Arguments>(args);
 
-                using (var recorder = new Recorder(arguments))
+                using (var recorder = new AcnRecorder(arguments))
                 {
                     recorder.StartRecord();
 

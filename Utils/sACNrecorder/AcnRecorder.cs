@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.sACNrecorder
 {
-    public class Recorder : IDisposable
+    public class AcnRecorder : IDisposable
     {
         private readonly Guid acnId = new Guid("{1A246A28-D145-449F-B3F2-68676BA0E93F}");
         private ConcurrentQueue<DmxData> receivedData;
@@ -25,7 +25,7 @@ namespace Animatroller.sACNrecorder
         private Acn.Sockets.StreamingAcnSocket acnSocket;
         private DataWriter dataWriter;
 
-        public Recorder(Arguments args)
+        public AcnRecorder(Arguments args)
         {
             if (args.Universes.Length == 0)
                 throw new ArgumentException("No universes specified");

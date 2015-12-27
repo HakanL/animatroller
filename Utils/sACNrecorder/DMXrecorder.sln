@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sACNrecorder", "sACNrecorder.csproj", "{4D3CF655-C2E0-4B14-A441-80791C0FE092}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMXrecorder", "DMXrecorder.csproj", "{4D3CF655-C2E0-4B14-A441-80791C0FE092}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
