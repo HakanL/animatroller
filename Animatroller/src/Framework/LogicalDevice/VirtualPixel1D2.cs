@@ -325,7 +325,7 @@ namespace Animatroller.Framework.LogicalDevice
 
             var newData = new Data();
 
-            foreach (var kvp in data)
+            foreach (var kvp in data.ToList())
             {
                 switch (kvp.Key)
                 {

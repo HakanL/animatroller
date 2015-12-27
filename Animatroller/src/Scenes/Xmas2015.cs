@@ -599,13 +599,13 @@ namespace Animatroller.SceneRunner
 
             inOlaf.Output.Subscribe(x =>
             {
-                if (x)
+                if (x && hours.IsOpen)
                     subOlaf.Run();
             });
 
             inR2D2.Output.Subscribe(x =>
             {
-                if (x)
+                if (x && hours.IsOpen)
                     subR2D2.Run();
             });
 
@@ -614,9 +614,12 @@ namespace Animatroller.SceneRunner
                 if (x)
                 {
                     if (hours.IsOpen)
-                        stateMachine.GoToState(States.DarthVader);
+                    {
+                        if (stateMachine.CurrentState == States.Background)
+                            stateMachine.GoToState(States.DarthVader);
+                    }
                     else
-                        audioDarthVader.PlayEffect("Darth Breathing.wav");
+                        audioDarthVader.PlayEffect("darthvader_lackoffaith.wav");
                 }
             });
 
@@ -625,7 +628,10 @@ namespace Animatroller.SceneRunner
                 if (x)
                 {
                     if (hours.IsOpen)
-                        stateMachine.GoToState(States.Music2);
+                    {
+                        if (stateMachine.CurrentState == States.Background)
+                            stateMachine.GoToState(States.Music2);
+                    }
                     else
                         audioDarthVader.PlayEffect("darkside.wav");
                 }
