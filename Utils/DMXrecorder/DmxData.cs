@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Animatroller.sACNrecorder
+namespace Animatroller.DMXrecorder
 {
     public class DmxData
     {

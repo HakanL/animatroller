@@ -2,7 +2,7 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.sACNrecorder
+namespace Animatroller.DMXrecorder
 {
     public class DataWriter : IDisposable
     {

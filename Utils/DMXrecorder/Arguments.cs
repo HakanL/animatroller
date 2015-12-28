@@ -2,10 +2,21 @@
 using System.Collections.Generic;
 using PowerArgs;
 
-namespace Animatroller.sACNrecorder
+namespace Animatroller.DMXrecorder
 {
     public class Arguments
     {
+        public enum InputTypes
+        {
+            sACN,
+            ArtNet
+        }
+
+        [ArgShortcut("t")]
+        [ArgDescription("Input type")]
+        [ArgRequired()]
+        public InputTypes InputType { get; set; }
+
         [ArgShortcut("o")]
         [ArgDescription("Output file")]
         [ArgRequired()]

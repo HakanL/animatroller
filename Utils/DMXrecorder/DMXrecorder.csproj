@@ -50,9 +50,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FileWriter.cs" />
+    <Compile Include="ArtNetRecorder.cs" />
     <Compile Include="Arguments.cs" />
     <Compile Include="DataWriter.cs" />
     <Compile Include="DmxData.cs" />
+    <Compile Include="IRecorder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AcnRecorder.cs" />

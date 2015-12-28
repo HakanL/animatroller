@@ -11,7 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using PowerArgs;
 
-namespace Animatroller.sACNrecorder
+namespace Animatroller.DMXrecorder
 {
     public class Program
     {
@@ -21,8 +21,24 @@ namespace Animatroller.sACNrecorder
             {
                 var arguments = Args.Parse<Arguments>(args);
 
-                using (var recorder = new AcnRecorder(arguments))
+                using (var writer = new FileWriter(arguments))
                 {
+                    IRecorder recorder;
+
+                    switch (arguments.InputType)
+                    {
+                        case Arguments.InputTypes.sACN:
+                            recorder = new AcnRecorder(writer, arguments.Universes);
+                            break;
+
+                        case Arguments.InputTypes.ArtNet:
+                            recorder = new ArtNetRecorder(writer, arguments.Universes);
+                            break;
+
+                        default:
+                            throw new ArgumentException("Invalid input type");
+                    }
+
                     recorder.StartRecord();
 
                     Console.WriteLine("Recording...");
@@ -32,6 +48,9 @@ namespace Animatroller.sACNrecorder
                     Console.ReadLine();
 
                     recorder.StopRecord();
+
+                    recorder.Dispose();
+                    recorder = null;
                 }
             }
             catch (ArgException ex)
