@@ -21,7 +21,7 @@ namespace Animatroller.DMXrecorder
             {
                 var arguments = Args.Parse<Arguments>(args);
 
-                using (var writer = new FileWriter(arguments))
+                using (var writer = new OutputProcessor(arguments))
                 {
                     IRecorder recorder;
 

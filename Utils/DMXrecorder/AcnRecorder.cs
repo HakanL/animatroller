@@ -18,9 +18,9 @@ namespace Animatroller.DMXrecorder
         private Stopwatch timestamper;
         private Dictionary<int, UniverseData> universes;
         private Acn.Sockets.StreamingAcnSocket acnSocket;
-        private FileWriter writer;
+        private OutputProcessor writer;
 
-        public AcnRecorder(FileWriter writer, int[] universes)
+        public AcnRecorder(OutputProcessor writer, int[] universes)
         {
             if (universes.Length == 0)
                 throw new ArgumentException("No universes specified");
@@ -44,8 +44,6 @@ namespace Animatroller.DMXrecorder
                 this.universes.Add(universe, universeData);
 
                 this.writer.AddUniverse(universe);
-
-                this.writer.AddData(universeData.GetInitData());
             }
         }
 
@@ -79,17 +77,6 @@ namespace Animatroller.DMXrecorder
                 // Unknown universe
                 return;
 
-            bool changed = false;
-            for (int i = 0; i < Math.Min(universeData.LastDmxData.Length, newDmxData.Length - 1); i++)
-            {
-                if (universeData.LastDmxData[i] != newDmxData[i + 1])
-                {
-                    changed = true;
-                }
-
-                universeData.LastDmxData[i] = newDmxData[i + 1];
-            }
-
             long sequence = e.Packet.Framing.SequenceNumber + universeData.SequenceHigh;
             if (e.Packet.Framing.SequenceNumber < universeData.LastSequenceLow)
             {
@@ -99,16 +86,11 @@ namespace Animatroller.DMXrecorder
             }
             universeData.LastSequenceLow = e.Packet.Framing.SequenceNumber;
 
-            DmxData dmxData;
-            if (!changed)
-            {
-                dmxData = DmxData.CreateNoChange(this.timestamper.ElapsedMilliseconds, sequence, e.Packet.Framing.Universe);
-            }
-            else
-            {
-                dmxData = DmxData.CreateFullFrame(this.timestamper.ElapsedMilliseconds, sequence, e.Packet.Framing.Universe,
-                    newDmxData.Skip(1).ToArray());
-            }
+            var dmxData = RawDmxData.Create(
+                millisecond: this.timestamper.ElapsedMilliseconds,
+                sequence: sequence,
+                universe: e.Packet.Framing.Universe,
+                data: newDmxData.Skip(1).ToArray());
 
             this.writer.AddData(dmxData);
         }

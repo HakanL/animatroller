@@ -12,6 +12,12 @@ namespace Animatroller.DMXrecorder
             ArtNet
         }
 
+        public enum FileFormats
+        {
+            Csv,
+            Binary
+        }
+
         [ArgShortcut("t")]
         [ArgDescription("Input type")]
         [ArgRequired()]
@@ -29,7 +35,7 @@ namespace Animatroller.DMXrecorder
 
         [ArgShortcut("f")]
         [ArgDescription("File format")]
-        [ArgDefaultValue(DataWriter.FileFormats.Csv)]
-        public DataWriter.FileFormats FileFormat { get; set; }
+        [ArgDefaultValue(FileFormats.Csv)]
+        public FileFormats FileFormat { get; set; }
     }
 }

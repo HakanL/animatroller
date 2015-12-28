@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.DMXrecorder
 {
-    public class DmxData
+    public class OutputDmxData
     {
         public enum DataTypes
         {
@@ -24,13 +24,13 @@ namespace Animatroller.DMXrecorder
 
         public int Universe { get; set; }
 
-        private DmxData()
+        private OutputDmxData()
         {
         }
 
-        public static DmxData CreateNoChange(long millisecond, long sequence, int universe)
+        public static OutputDmxData CreateNoChange(long millisecond, long sequence, int universe)
         {
-            return new DmxData
+            return new OutputDmxData
             {
                 DataType = DataTypes.NoChange,
                 Data = null,
@@ -40,9 +40,9 @@ namespace Animatroller.DMXrecorder
             };
         }
 
-        public static DmxData CreateFullFrame(long millisecond, long sequence, int universe, byte[] data)
+        public static OutputDmxData CreateFullFrame(long millisecond, long sequence, int universe, byte[] data)
         {
-            return new DmxData
+            return new OutputDmxData
             {
                 DataType = DataTypes.FullFrame,
                 Data = data,
