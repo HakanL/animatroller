@@ -20,6 +20,12 @@ namespace Animatroller.SceneRunner
         const int SacnUniverseDMX = 1;
         const int SacnUniverseRenardBig = 20;
         const int SacnUniverseRenardSmall = 21;
+        const int SacnUniverse5 = 5;
+        const int SacnUniverse6 = 6;
+        const int SacnUniverse10 = 10;
+        const int SacnUniverse11 = 11;
+        const int SacnUniverse12 = 12;
+
         const int midiChannel = 0;
 
         public enum States
@@ -218,13 +224,13 @@ namespace Animatroller.SceneRunner
                 }
             });
 
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 6, 1);
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 5, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), SacnUniverse6, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), SacnUniverse5, 1);
 
-            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 0, 170), 10, 1);
-            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 170, 30), 11, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 0, 170), SacnUniverse10, 1);
+            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 170, 30), SacnUniverse11, 1);
 
-            acnOutput.Connect(new Physical.PixelRope(saberPixels, 0, 32), 12, 1);
+            acnOutput.Connect(new Physical.PixelRope(saberPixels, 0, 32), SacnUniverse12, 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(airOlaf, 10), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(airReindeer, 12), SacnUniverseDMX);
