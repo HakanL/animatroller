@@ -9,15 +9,10 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public interface IPixel1D : ILogicalDevice
-    {
-        int Pixels { get; }
-        event EventHandler<PixelChangedEventArgs> PixelChanged;
-        event EventHandler<MultiPixelChangedEventArgs> MultiPixelChanged;
-    }
-
     public interface IPixel1D2 : ISendsData
     {
+        IObservable<Bitmap> ImageChanged { get; }
+
         int Pixels { get; }
     }
 

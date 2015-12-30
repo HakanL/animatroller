@@ -186,6 +186,11 @@ namespace Animatroller.Framework.Controller
             return task;
         }
 
+        public void Stop()
+        {
+            Executor.Current.Cancel(this);
+        }
+
         public void RunAndWait()
         {
             Executor.Current.ExecuteAndWait(this);

@@ -101,6 +101,7 @@ namespace Animatroller.Framework.Controller
 
                             // Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
                             nextStop = intervalMs * (watch.ElapsedMilliseconds / intervalMs + 1);
+                            continue;
                         }
                         else if (msLeft < 16)
                         {

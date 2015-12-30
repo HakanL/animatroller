@@ -8,7 +8,6 @@ namespace Animatroller.Framework.PhysicalDevice
     public class PixelRope : BaseDevice, INeedsPixelOutput
     {
         private object lockObject = new object();
-//        protected ColorBrightness[] pixelData;
 
         public IPixelOutput PixelOutputPort { protected get; set; }
 
@@ -69,7 +68,7 @@ namespace Animatroller.Framework.PhysicalDevice
         public PixelRope(VirtualPixel1D2 logicalDevice, int startVirtualPosition, int positions)
             : base(logicalDevice)
         {
-//            this.pixelData = new ColorBrightness[positions];
+            //            this.pixelData = new ColorBrightness[positions];
 
             //logicalDevice.OutputData.Subscribe(x =>
             //{
@@ -121,6 +120,18 @@ namespace Animatroller.Framework.PhysicalDevice
             //            PixelOutputPort.SendPixelsValue(e.StartChannel, values);
             //        }
             //    });
+        }
+
+        public PixelRope(VirtualPixel1D3 logicalDevice, int startVirtualPosition, int positions)
+            : base(logicalDevice)
+        {
+            logicalDevice.AddPixelDevice(startVirtualPosition, positions, (arr, len) =>
+            {
+                lock (this.lockObject)
+                {
+                    PixelOutputPort.SendPixelsValue(0, arr, len);
+                }
+            });
         }
 
         //public override void SetInitialState()

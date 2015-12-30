@@ -387,6 +387,14 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
+        public IObservable<Bitmap> ImageChanged
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         //public void SetRGB(byte[] array, int arrayOffset, int arrayLength, int pixelOffset, bool raiseChangeEvent = true)
         //{
         //    int pixel = pixelOffset;

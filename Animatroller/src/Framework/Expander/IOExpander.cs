@@ -280,5 +280,10 @@ namespace Animatroller.Framework.Expander
 
             return SendStatus.NotSet;
         }
+
+        public void SendPixelsValue(int channel, byte[] rgb, int length)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace Animatroller.Framework
         Tilt,
         PixelBrightness,
         PixelColor,
-        Power
+        Power,
+        PixelBitmap
     }
 }

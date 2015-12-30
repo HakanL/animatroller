@@ -29,7 +29,14 @@ namespace Animatroller.Framework.Effect2
         {
         }
 
-        public Task Fade(IReceivesBrightness device, double start, double end, int durationMs, int priority = 1, ITransformer transformer = null, IControlToken token = null,
+        public Task Fade(
+            IReceivesBrightness device,
+            double start,
+            double end,
+            int durationMs,
+            int priority = 1,
+            ITransformer transformer = null,
+            IControlToken token = null,
             params Tuple<DataElements, object>[] additionalData)
         {
             if (token != null)
@@ -44,7 +51,12 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        public Task Fade(IPushDataController deviceObserver, double start, double end, int durationMs, ITransformer transformer = null,
+        public Task Fade(
+            IPushDataController deviceObserver,
+            double start,
+            double end,
+            int durationMs,
+            ITransformer transformer = null,
             params Tuple<DataElements, object>[] additionalData)
         {
             var taskSource = new TaskCompletionSource<bool>();

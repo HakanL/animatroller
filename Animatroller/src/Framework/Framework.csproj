@@ -134,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LogicalDevice\ControlledGroupData.cs" />
+    <Compile Include="LogicalDevice\VirtualPixel1D3.cs" />
     <Compile Include="MasterToken.cs" />
     <Compile Include="Utility\Utils.cs" />
     <None Include="app.config" />

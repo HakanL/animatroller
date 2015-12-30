@@ -76,6 +76,8 @@ namespace Animatroller.Simulator
                 //    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel1D2))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D2)fieldValue));
+                else if (field.FieldType == typeof(VirtualPixel1D3))
+                    this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D3)fieldValue));
                 //else if (field.FieldType == typeof(VirtualPixel2D))
                 //    this.Connect(new Animatroller.Simulator.TestPixel2D((VirtualPixel2D)fieldValue));
                 else if (field.FieldType == typeof(AnalogInput3))
@@ -247,15 +249,14 @@ namespace Animatroller.Simulator
             return control;
         }
 
-        public Control.RopeLight AddNewRope(string name, int pixels)
+        public Control.PixelLight1D AddNewRope(string name, int pixels)
         {
             var moduleControl = new Control.ModuleControl();
             moduleControl.Text = name;
-            moduleControl.Size = new System.Drawing.Size(4 * pixels, 50);
+            moduleControl.Size = new System.Drawing.Size(4 * pixels + 6, 40);
 
-            var control = new Control.RopeLight();
+            var control = new Control.PixelLight1D();
             moduleControl.ChildControl = control;
-            control.Pixels = pixels;
 
             flowLayoutPanelLights.Controls.Add(moduleControl);
 

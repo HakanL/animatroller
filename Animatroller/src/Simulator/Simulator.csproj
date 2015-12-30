@@ -96,11 +96,11 @@
     <Compile Include="Control\MatrixLight.Designer.cs">
       <DependentUpon>MatrixLight.cs</DependentUpon>
     </Compile>
-    <Compile Include="Control\RopeLight.cs">
+    <Compile Include="Control\PixelLight1D.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Control\RopeLight.Designer.cs">
-      <DependentUpon>RopeLight.cs</DependentUpon>
+    <Compile Include="Control\PixelLight1D.Designer.cs">
+      <DependentUpon>PixelLight1D.cs</DependentUpon>
     </Compile>
     <Compile Include="Control\SuperSimpleBulb.cs">
       <SubType>Component</SubType>
@@ -143,8 +143,8 @@
     <EmbeddedResource Include="Control\MatrixLight.resx">
       <DependentUpon>MatrixLight.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Control\RopeLight.resx">
-      <DependentUpon>RopeLight.cs</DependentUpon>
+    <EmbeddedResource Include="Control\PixelLight1D.resx">
+      <DependentUpon>PixelLight1D.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Control\StrobeBulb.resx">
       <DependentUpon>StrobeBulb.cs</DependentUpon>

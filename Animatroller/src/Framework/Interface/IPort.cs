@@ -24,7 +24,10 @@ namespace Animatroller.Framework
     public interface IPixelOutput : IPort
     {
         SendStatus SendPixelValue(int channel, PhysicalDevice.PixelRGBByte rgb);
+
         SendStatus SendPixelsValue(int channel, PhysicalDevice.PixelRGBByte[] rgb);
+
+        void SendPixelsValue(int channel, byte[] rgb, int length);
     }
 
     public interface IDigitalInput : IPort

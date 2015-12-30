@@ -16,6 +16,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected ControlSubject<IData, IControlToken> outputData;
         protected Subject<IData> outputChanged;
         private IData ownerlessData;
+        protected object lockObject = new object();
 
         public SingleOwnerDevice(string name)
             : base(name)
@@ -26,12 +27,33 @@ namespace Animatroller.Framework.LogicalDevice
 
             this.outputData.Subscribe(x =>
             {
-                var data = PreprocessPushData(x);
+                lock (this.lockObject)
+                {
+                    var data = PreprocessPushData(x);
 
-                foreach (var kvp in data.ToList())
-                    this.currentData[kvp.Key] = kvp.Value;
+                    var usedKeys = new HashSet<DataElements>();
 
-                this.outputChanged.OnNext(CurrentData);
+                    foreach (var kvp in data.ToList())
+                    {
+                        usedKeys.Add(kvp.Key);
+
+                        switch (kvp.Key)
+                        {
+                            case DataElements.PixelBitmap:
+                                this.currentData[kvp.Key] = new System.Drawing.Bitmap((System.Drawing.Bitmap)kvp.Value);
+                                break;
+
+                            default:
+                                this.currentData[kvp.Key] = kvp.Value;
+                                break;
+                        }
+                    }
+
+                    this.currentData.Where(k => !usedKeys.Contains(k.Key)).ToList()
+                        .ForEach(k => this.currentData.Remove(k.Key));
+
+                    this.outputChanged.OnNext(CurrentData);
+                }
             });
         }
 
@@ -73,7 +95,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected override void UpdateOutput()
         {
             // Don't think we need this any more
-//            SetData(Executor.Current.GetControlToken(this));
+            //            SetData(Executor.Current.GetControlToken(this));
         }
 
         public IPushDataController GetDataObserver(IControlToken token)

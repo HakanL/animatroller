@@ -22,7 +22,7 @@ namespace Animatroller.Framework.Controller
 
         public HighPrecisionTimer2(int intervalMs, bool startRunning = true)
         {
-            log.Info("Starting HighPrecisionTimer with {0} ms interval", intervalMs);
+            log.Info("Starting HighPrecisionTimer2 with {0} ms interval", intervalMs);
 
             this.outputValue = new Subject<long>();
 
@@ -79,6 +79,7 @@ namespace Animatroller.Framework.Controller
 
                             // Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
                             nextStop = intervalMs * (watch.ElapsedMilliseconds / intervalMs + 1);
+                            continue;
                         }
                         else if (msLeft < 16)
                         {

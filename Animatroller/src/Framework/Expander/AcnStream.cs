@@ -104,6 +104,26 @@ namespace Animatroller.Framework.Expander
 
                 return SendStatus.NotSet;
             }
+
+            public void SendPixelsValue(int channel, byte[] rgb, int length)
+            {
+                // Max 510 RGB values per universe
+                int universe = (this.startDmxChannel + (channel * 3)) / 510;
+                int localStart = (this.startDmxChannel + (channel * 3)) % 510;
+
+                int startOffset = 0;
+                while (startOffset < length)
+                {
+                    var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
+
+                    int maxChannels = Math.Min(511 - localStart, length);
+                    acnUniverse.SendDimmerValues(localStart, rgb, startOffset, maxChannels);
+
+                    startOffset += maxChannels;
+                    universe++;
+                    localStart = 1;
+                }
+            }
         }
 
         protected class AcnUniverse : IDmxOutput, IDisposable
