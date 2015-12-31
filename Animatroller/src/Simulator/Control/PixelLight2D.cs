@@ -50,8 +50,11 @@ namespace Animatroller.Simulator.Control
             }
         }
 
-        private void RopeLight2_Resize(object sender, EventArgs e)
+        private void PixelLight2D_Resize(object sender, EventArgs e)
         {
+            if (this.scaleX == 0 || this.scaleY == 0)
+                return;
+
             this.overlay = new Bitmap(Width, Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             using (var g = Graphics.FromImage(this.overlay))

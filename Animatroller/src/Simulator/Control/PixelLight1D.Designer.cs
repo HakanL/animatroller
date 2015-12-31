@@ -37,7 +37,7 @@
             this.Name = "RopeLight2";
             this.Size = new System.Drawing.Size(253, 142);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.RopeLight2_Paint);
-            this.Resize += new System.EventHandler(this.RopeLight2_Resize);
+            this.Resize += new System.EventHandler(this.PixelLight1D_Resize);
             this.ResumeLayout(false);
 
         }
