@@ -65,62 +65,62 @@ namespace Animatroller.Framework.PhysicalDevice
         //        };
         //}
 
-        public Pixel1D(VirtualPixel1D2 logicalDevice, int startVirtualPosition, int positions)
-            : base(logicalDevice)
-        {
-            //            this.pixelData = new ColorBrightness[positions];
+        //public Pixel1D(VirtualPixel1D2 logicalDevice, int startVirtualPosition, int positions)
+        //    : base(logicalDevice)
+        //{
+        //    //            this.pixelData = new ColorBrightness[positions];
 
-            //logicalDevice.OutputData.Subscribe(x =>
-            //{
-            //    SetFromIData(x);
+        //    //logicalDevice.OutputData.Subscribe(x =>
+        //    //{
+        //    //    SetFromIData(x);
 
-            //    Output();
-            //});
+        //    //    Output();
+        //    //});
 
-            //SetFromIData(logicalDevice.CurrentData);
+        //    //SetFromIData(logicalDevice.CurrentData);
 
 
-            logicalDevice.AddPixelDevice(startVirtualPosition, positions, x =>
-            {
-                var values = new PhysicalDevice.PixelRGBByte[x.Length];
+        //    logicalDevice.AddPixelDevice(startVirtualPosition, positions, x =>
+        //    {
+        //        var values = new PhysicalDevice.PixelRGBByte[x.Length];
 
-                for (int i = 0; i < x.Length; i++)
-                {
-                    var color = x[i];
+        //        for (int i = 0; i < x.Length; i++)
+        //        {
+        //            var color = x[i];
 
-                    values[i] = new PixelRGBByte(color.R, color.G, color.B);
-                }
+        //            values[i] = new PixelRGBByte(color.R, color.G, color.B);
+        //        }
 
-                lock (this.lockObject)
-                {
-                    PixelOutputPort.SendPixelsValue(0, values);
-                }
-            });
-            //logicalDevice.AddPixelDevice(startVirtualPosition, positions, (sender, e) =>
-            //    {
-            //        // Handles brightness as well
-            //        var color = BaseLight.GetColorFromColorBrightness(e.NewColor, e.NewBrightness);
+        //        lock (this.lockObject)
+        //        {
+        //            PixelOutputPort.SendPixelsValue(0, values);
+        //        }
+        //    });
+        //    //logicalDevice.AddPixelDevice(startVirtualPosition, positions, (sender, e) =>
+        //    //    {
+        //    //        // Handles brightness as well
+        //    //        var color = BaseLight.GetColorFromColorBrightness(e.NewColor, e.NewBrightness);
 
-            //        lock (this.lockObject)
-            //        {
-            //            PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
-            //        }
-            //    }, (sender, e) =>
-            //    {
-            //        var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
-            //        for (int i = 0; i < e.NewValues.Length; i++)
-            //        {
-            //            var color = BaseLight.GetColorFromColorBrightness(e.NewValues[i].Color, e.NewValues[i].Brightness);
+        //    //        lock (this.lockObject)
+        //    //        {
+        //    //            PixelOutputPort.SendPixelValue(e.Channel, new PhysicalDevice.PixelRGBByte(color.R, color.G, color.B));
+        //    //        }
+        //    //    }, (sender, e) =>
+        //    //    {
+        //    //        var values = new PhysicalDevice.PixelRGBByte[e.NewValues.Length];
+        //    //        for (int i = 0; i < e.NewValues.Length; i++)
+        //    //        {
+        //    //            var color = BaseLight.GetColorFromColorBrightness(e.NewValues[i].Color, e.NewValues[i].Brightness);
 
-            //            values[i] = new PixelRGBByte(color.R, color.G, color.B);
-            //        }
+        //    //            values[i] = new PixelRGBByte(color.R, color.G, color.B);
+        //    //        }
 
-            //        lock (this.lockObject)
-            //        {
-            //            PixelOutputPort.SendPixelsValue(e.StartChannel, values);
-            //        }
-            //    });
-        }
+        //    //        lock (this.lockObject)
+        //    //        {
+        //    //            PixelOutputPort.SendPixelsValue(e.StartChannel, values);
+        //    //        }
+        //    //    });
+        //}
 
         public Pixel1D(VirtualPixel1D3 logicalDevice, int startVirtualPosition, int positions)
             : base(logicalDevice)

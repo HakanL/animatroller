@@ -222,13 +222,13 @@
     <Compile Include="LogicalDevice\BaseDevice.cs" />
     <Compile Include="LogicalDevice\Event\AudioChanged.cs" />
     <Compile Include="LogicalDevice\Interface\IControlData.cs" />
-    <Compile Include="LogicalDevice\SinglePixel.cs" />
+    <None Include="LogicalDevice\SinglePixel.cs" />
     <Compile Include="LogicalDevice\Interface\IPixel.cs" />
     <Compile Include="LogicalDevice\DigitalOutput2.cs" />
     <Compile Include="LogicalDevice\MovingHead.cs" />
     <Compile Include="LogicalDevice\StrobeColorDimmer3.cs" />
     <Compile Include="LogicalDevice\VirtualDevice.cs" />
-    <Compile Include="LogicalDevice\VirtualPixel1D2.cs" />
+    <None Include="LogicalDevice\VirtualPixel1D2.cs" />
     <None Include="LogicalDevice\VirtualPixel2D.cs" />
     <None Include="LogicalDevice\VirtualPixel1D.cs" />
     <Compile Include="LogicalDevice\Event\MultiPixelChanged.cs" />

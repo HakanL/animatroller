@@ -108,9 +108,9 @@ namespace Animatroller.SceneRunner
 
         Dimmer3 lightOlaf = new Dimmer3();
         Dimmer3 lightR2D2 = new Dimmer3();
-        VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
-        VirtualPixel1D2 pixelsMatrix = new VirtualPixel1D2(200);
-        VirtualPixel1D2 saberPixels = new VirtualPixel1D2(32);
+        VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
+        VirtualPixel1D3 pixelsMatrix = new VirtualPixel1D3(200);
+        VirtualPixel1D3 saberPixels = new VirtualPixel1D3(32);
         Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
         Subject<bool> inflatablesRunning = new Subject<bool>();
         AnalogInput3 blackOut = new AnalogInput3();

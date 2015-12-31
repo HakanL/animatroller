@@ -17,7 +17,7 @@ namespace Animatroller.SceneRunner
 
         ColorDimmer3 lightA = new ColorDimmer3();
         ColorDimmer3 lightB = new ColorDimmer3();
-        VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
+        VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
 
         GroupDimmer lightGroup = new GroupDimmer();
 

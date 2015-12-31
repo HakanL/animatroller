@@ -74,8 +74,8 @@ namespace Animatroller.Simulator
                 //    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 //else if (field.FieldType == typeof(Pixel1D))
                 //    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
-                else if (field.FieldType == typeof(VirtualPixel1D2))
-                    this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D2)fieldValue));
+                //else if (field.FieldType == typeof(VirtualPixel1D2))
+                //    this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D2)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel1D3))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D3)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel2D3))

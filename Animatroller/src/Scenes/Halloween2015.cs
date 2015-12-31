@@ -48,7 +48,7 @@ namespace Animatroller.SceneRunner
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
 
-        private VirtualPixel1D2 pixelsRoofEdge = new VirtualPixel1D2(150);
+        private VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
         private AnalogInput3 faderR = new AnalogInput3(persistState: true);
         private AnalogInput3 faderG = new AnalogInput3(persistState: true);
         private AnalogInput3 faderB = new AnalogInput3(persistState: true);
