@@ -5,7 +5,7 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class PixelRope : BaseDevice, INeedsPixelOutput
+    public class Pixel1D : BaseDevice, INeedsPixelOutput
     {
         private object lockObject = new object();
 
@@ -65,7 +65,7 @@ namespace Animatroller.Framework.PhysicalDevice
         //        };
         //}
 
-        public PixelRope(VirtualPixel1D2 logicalDevice, int startVirtualPosition, int positions)
+        public Pixel1D(VirtualPixel1D2 logicalDevice, int startVirtualPosition, int positions)
             : base(logicalDevice)
         {
             //            this.pixelData = new ColorBrightness[positions];
@@ -122,14 +122,14 @@ namespace Animatroller.Framework.PhysicalDevice
             //    });
         }
 
-        public PixelRope(VirtualPixel1D3 logicalDevice, int startVirtualPosition, int positions)
+        public Pixel1D(VirtualPixel1D3 logicalDevice, int startVirtualPosition, int positions)
             : base(logicalDevice)
         {
-            logicalDevice.AddPixelDevice(startVirtualPosition, positions, (arr, len) =>
+            logicalDevice.AddPixelDevice(startVirtualPosition, positions, pixels =>
             {
                 lock (this.lockObject)
                 {
-                    PixelOutputPort.SendPixelsValue(0, arr, len);
+                    PixelOutputPort.SendPixelsValue(0, pixels, pixels.Length);
                 }
             });
         }

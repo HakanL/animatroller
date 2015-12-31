@@ -21,23 +21,8 @@ namespace Animatroller.Simulator
         private int numberOfPixels;
         private bool newDataAvailable;
 
-        public Control.PixelLight1D LightControl
-        {
-            set
-            {
-                this.control = value;
-            }
-        }
-
-        public int Pixels
-        {
-            get { return this.numberOfPixels; }
-        }
-
         private TestPixel1D(int numberOfPixels)
         {
-            Executor.Current.Register(this);
-
             this.numberOfPixels = numberOfPixels;
             this.cancelSource = new System.Threading.CancellationTokenSource();
 
@@ -61,6 +46,8 @@ namespace Animatroller.Simulator
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
             this.senderTask.Start();
+
+            Executor.Current.Register(this);
         }
 
         public TestPixel1D(IPixel1D2 logicalDevice)
@@ -74,6 +61,19 @@ namespace Animatroller.Simulator
 
                 this.newDataAvailable = true;
             });
+        }
+
+        public Control.PixelLight1D LightControl
+        {
+            set
+            {
+                this.control = value;
+            }
+        }
+
+        public int Pixels
+        {
+            get { return this.numberOfPixels; }
         }
 
         public ILogicalDevice ConnectedDevice

@@ -15,23 +15,26 @@ using System.Reactive.Linq;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class VirtualPixel1D3 : SingleOwnerDevice, IPixel1D2, IApiVersion3, IReceivesBrightness, IReceivesColor
+    public class VirtualPixel2D3 : SingleOwnerDevice, IPixel2D2, IApiVersion3, IReceivesBrightness
     {
-        protected int pixelCount;
+        protected int pixelWidth;
+        protected int pixelHeight;
         protected List<PixelDevice> devices;
         private Bitmap outputBitmap;
         private Graphics output;
         private Rectangle outputRectangle;
         private ColorMatrix brightnessMatrix;
         private Subject<Bitmap> imageChanged;
+        private byte[] tempPixels;
 
-        public VirtualPixel1D3(int pixels, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public VirtualPixel2D3(int pixelWidth, int pixelHeight, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            if (pixels <= 0)
-                throw new ArgumentOutOfRangeException("pixels");
+            if (pixelWidth <= 0 || pixelHeight <= 0)
+                throw new ArgumentOutOfRangeException("pixelWidth/pixelHeight");
 
-            this.pixelCount = pixels;
+            this.pixelWidth = pixelWidth;
+            this.pixelHeight = pixelHeight;
 
             this.devices = new List<PixelDevice>();
 
@@ -63,6 +66,11 @@ namespace Animatroller.Framework.LogicalDevice
             this.output = Graphics.FromImage(this.outputBitmap);
             this.outputRectangle = new Rectangle(0, 0, this.outputBitmap.Width, this.outputBitmap.Height);
 
+            int bytesPerPixel = System.Drawing.Bitmap.GetPixelFormatSize(this.outputBitmap.PixelFormat) / 8;
+            int stride = 4 * ((this.outputBitmap.Width * bytesPerPixel + 3) / 4);
+            int byteCount = stride * this.outputBitmap.Height;
+            this.tempPixels = new byte[byteCount];
+
             this.brightnessMatrix = new ColorMatrix(new float[][]{
                 new float[] {1, 0, 0, 0, 0},
                 new float[] {0, 1, 0, 0, 0},
@@ -72,14 +80,19 @@ namespace Animatroller.Framework.LogicalDevice
                 });
         }
 
-        public int Pixels
+        public int PixelWidth
         {
-            get { return this.pixelCount; }
+            get { return this.pixelWidth; }
+        }
+
+        public int PixelHeight
+        {
+            get { return this.pixelHeight; }
         }
 
         private Bitmap GetBitmap()
         {
-            return new Bitmap(this.pixelCount, 1, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            return new Bitmap(this.pixelWidth, this.pixelHeight, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
         }
 
         public IObservable<Bitmap> ImageChanged
@@ -140,22 +153,24 @@ namespace Animatroller.Framework.LogicalDevice
                         imageAttributes);
                 }
 
+                BitmapData bitmapData = this.outputBitmap.LockBits(this.outputRectangle, ImageLockMode.ReadOnly, this.outputBitmap.PixelFormat);
+                System.Runtime.InteropServices.Marshal.Copy(bitmapData.Scan0, this.tempPixels, 0, this.tempPixels.Length);
+                this.outputBitmap.UnlockBits(bitmapData);
+
                 foreach (var pixelDevice in this.devices)
                 {
-                    pixelDevice.DrawImage(this.outputBitmap);
+                    pixelDevice.DrawImage(this.tempPixels);
                 }
 
                 this.imageChanged.OnNext(this.outputBitmap);
             }
         }
 
-        public VirtualPixel1D3 AddPixelDevice(int startVirtualPosition, int positions, Action<byte[]> pixelsChanged)
+        public void AddPixelDevice(Dictionary<int, Utility.PixelMap[]> pixelMapping, Action<byte[]> pixelsChanged)
         {
-            var newPixelDevice = new PixelDevice(this.pixelCount, startVirtualPosition, startVirtualPosition + positions - 1, pixelsChanged);
+            var newPixelDevice = new PixelDevice(this.pixelWidth, this.pixelHeight, pixelMapping, pixelsChanged);
 
             this.devices.Add(newPixelDevice);
-
-            return this;
         }
 
         public double Brightness
@@ -192,48 +207,86 @@ namespace Animatroller.Framework.LogicalDevice
 
             private Action<byte[]> pixelsChangedAction;
 
-            public int StartPosition { get; }
+            private int[] pixelMapping;
 
-            public PixelDevice(int pixelCount, int startPosition, int endPosition, Action<byte[]> pixelsChangedAction)
+            private int stride;
+
+            public PixelDevice(int pixelWidth, int pixelHeight, Dictionary<int, Utility.PixelMap[]> pixelMapping, Action<byte[]> pixelsChangedAction)
             {
                 this.pixelsChangedAction = pixelsChangedAction;
 
-                this.outputBitmap = new Bitmap(endPosition - startPosition + 1, 1, PixelFormat.Format24bppRgb);
+                this.outputBitmap = new Bitmap(pixelWidth, pixelHeight, PixelFormat.Format24bppRgb);
                 this.outputGraphics = Graphics.FromImage(this.outputBitmap);
-                this.outputRectangle = new Rectangle(0, 0, endPosition - startPosition + 1, 1);
+                this.outputRectangle = new Rectangle(0, 0, pixelWidth, pixelHeight);
 
-                int bytesPerPixel = Bitmap.GetPixelFormatSize(this.outputBitmap.PixelFormat) / 8;
-                this.pixels = new byte[this.outputRectangle.Width * bytesPerPixel];
+                int bytesPerPixel = System.Drawing.Bitmap.GetPixelFormatSize(this.outputBitmap.PixelFormat) / 8;
+                this.stride = 4 * ((this.outputBitmap.Width * bytesPerPixel + 3) / 4);
+                int byteCount = stride * this.outputBitmap.Height;
+                this.pixels = new byte[bytesPerPixel * this.outputBitmap.Width * this.outputBitmap.Height];
+                this.pixelMapping = new int[byteCount];
+
+                UpdatePixelMapping(pixelMapping);
             }
 
-            public void DrawImage(Bitmap bitmap)
+            private void UpdatePixelMapping(Dictionary<int, Utility.PixelMap[]> input)
+            {
+                for (int i = 0; i < this.pixelMapping.Length; i++)
+                    this.pixelMapping[i] = -1;
+
+                if (!input.Any())
+                    return;
+
+                int minUniverse = input.Min(x => x.Key);
+                int maxUniverse = input.Max(x => x.Key);
+
+                for (int universe = minUniverse; universe <= maxUniverse; universe++)
+                {
+                    Utility.PixelMap[] mapping;
+                    if (!input.TryGetValue(universe, out mapping))
+                        continue;
+
+                    for (int i = 0; i < mapping.Length; i++)
+                    {
+                        Utility.PixelMap map = mapping[i];
+
+                        int rgbOffset = -1;
+                        switch (map.ColorComponent)
+                        {
+                            case Utility.ColorComponent.R:
+                                rgbOffset = 2;
+                                break;
+
+                            case Utility.ColorComponent.G:
+                                rgbOffset = 1;
+                                break;
+
+                            case Utility.ColorComponent.B:
+                                rgbOffset = 0;
+                                break;
+                        }
+                        if (rgbOffset == -1)
+                            continue;
+
+                        int sourcePos = map.Y * this.stride + map.X * 3 + rgbOffset;
+                        if (sourcePos >= 0 && sourcePos <= this.pixelMapping.Length)
+                            this.pixelMapping[sourcePos] = i + (universe - minUniverse) * 510;
+                    }
+                }
+            }
+
+            public void DrawImage(byte[] rawPixels)
             {
                 if (this.pixelsChangedAction != null)
                 {
-                    int stride;
-                    lock (this)
-                    {
-                        this.outputGraphics.DrawImageUnscaled(bitmap, StartPosition, 0);
+                    if (this.pixelMapping.Length != rawPixels.Length)
+                        // Incorrect pixel mapping
+                        return;
 
-                        BitmapData bitmapData = this.outputBitmap.LockBits(this.outputRectangle, ImageLockMode.ReadOnly, this.outputBitmap.PixelFormat);
-                        stride = bitmapData.Stride;
-                        System.Runtime.InteropServices.Marshal.Copy(bitmapData.Scan0, pixels, 0, pixels.Length);
-                        this.outputBitmap.UnlockBits(bitmapData);
-                    }
-
-                    // Shift little/big-endian
-                    if (BitConverter.IsLittleEndian)
+                    for (int i = 0; i < rawPixels.Length; i++)
                     {
-                        for (int y = 0; y < this.outputRectangle.Height; y++)
-                        {
-                            for (int x = 0; x < this.outputRectangle.Width; x++)
-                            {
-                                int bytePos = y * stride + x * 3;
-                                byte b1 = this.pixels[bytePos + 2];
-                                this.pixels[bytePos + 2] = this.pixels[bytePos];
-                                this.pixels[bytePos] = b1;
-                            }
-                        }
+                        int pos = this.pixelMapping[i];
+                        if (pos >= 0 && pos < this.pixels.Length)
+                            this.pixels[pos] = rawPixels[i];
                     }
 
                     this.pixelsChangedAction(this.pixels);
@@ -241,24 +294,18 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public Color Color
-        {
-            get
-            {
-                return Color.Transparent;
-            }
-        }
-
         public void SetColor(Color color, double? brightness = 1.0, IControlToken token = null)
         {
-            SetColorRange(color, brightness, 0, null, token);
+            SetColorRange(color, brightness, token: token);
         }
 
         public void SetColorRange(
             Color color,
             double? brightness = 1.0,
-            int startPosition = 0,
-            int? length = null,
+            int startX = 0,
+            int startY = 0,
+            int? width = null,
+            int? height = null,
             IControlToken token = null)
         {
             IData data = GetFrameBuffer(token, this);
@@ -269,21 +316,23 @@ namespace Animatroller.Framework.LogicalDevice
             else
                 injectColor = color;
 
-            if (!length.HasValue)
-                length = this.pixelCount;
-            else
-            {
-                if (length.Value > this.pixelCount)
-                    length = this.pixelCount;
-            }
+            if (!width.HasValue)
+                width = this.pixelWidth;
+            if (!height.HasValue)
+                height = this.pixelHeight;
 
             var bitmap = (Bitmap)data[DataElements.PixelBitmap];
-            for (int i = 0; i < length.Value; i++)
-                bitmap.SetPixel(startPosition + i, 0, injectColor);
+
+            using (var g = Graphics.FromImage(bitmap))
+            using (var b = new SolidBrush(injectColor))
+            {
+                g.FillRectangle(b, startX, startY, width.Value, height.Value);
+            }
 
             PushOutput(token);
         }
 
+        [Obsolete("Just for testing, not a very useful function")]
         public void Inject(Color color, double brightness = 1.0, IControlToken token = null)
         {
             IData data = GetFrameBuffer(token, this);
@@ -295,24 +344,8 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 g.DrawImageUnscaled(bitmap, 1, 0);
 
-                bitmap.SetPixel(0, 0, injectColor);
-            }
-
-            PushOutput(token);
-        }
-
-        public void InjectRev(Color color, double brightness, IControlToken token = null)
-        {
-            IData data = GetFrameBuffer(token, this);
-            var bitmap = (Bitmap)data[DataElements.PixelBitmap];
-
-            Color injectColor = GetColorFromColorAndBrightness(color, brightness);
-
-            using (var g = Graphics.FromImage(bitmap))
-            {
-                g.DrawImageUnscaled(bitmap, -1, 0);
-
-                bitmap.SetPixel(bitmap.Width - 1, 0, injectColor);
+                for (int y = 0; y < bitmap.Height; y++)
+                    bitmap.SetPixel(0, y, injectColor);
             }
 
             PushOutput(token);

@@ -90,11 +90,11 @@
     <Compile Include="Control\Motor.Designer.cs">
       <DependentUpon>Motor.cs</DependentUpon>
     </Compile>
-    <Compile Include="Control\MatrixLight.cs">
+    <Compile Include="Control\PixelLight2D.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Control\MatrixLight.Designer.cs">
-      <DependentUpon>MatrixLight.cs</DependentUpon>
+    <Compile Include="Control\PixelLight2D.Designer.cs">
+      <DependentUpon>PixelLight2D.cs</DependentUpon>
     </Compile>
     <Compile Include="Control\PixelLight1D.cs">
       <SubType>UserControl</SubType>
@@ -140,8 +140,8 @@
     <EmbeddedResource Include="Control\Motor.resx">
       <DependentUpon>Motor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Control\MatrixLight.resx">
-      <DependentUpon>MatrixLight.cs</DependentUpon>
+    <EmbeddedResource Include="Control\PixelLight2D.resx">
+      <DependentUpon>PixelLight2D.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Control\PixelLight1D.resx">
       <DependentUpon>PixelLight1D.cs</DependentUpon>

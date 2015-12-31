@@ -43,8 +43,8 @@ namespace Animatroller.SceneRunner
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightA, 1), 20);
             acnOutput.Connect(new Physical.SmallRGBStrobe(lightB, 10), 20);
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 26, 1);
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 25, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50), 26, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), 25, 1);
 
             testLightA.ConnectTo(x => lightA.SetBrightness(x));
             testLightA.ConnectTo(x => pixelsRoofEdge.SetBrightness(x));

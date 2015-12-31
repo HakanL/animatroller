@@ -44,7 +44,6 @@ namespace Animatroller.DMXrecorder
 
         public void StartRecord()
         {
-            this.timestamper = Stopwatch.StartNew();
         }
 
         public void StopRecord()
@@ -55,6 +54,9 @@ namespace Animatroller.DMXrecorder
         {
             if (e.Packet.OpCode == ArtNetOpCodes.Dmx)
             {
+                if (this.timestamper == null)
+                    this.timestamper = Stopwatch.StartNew();
+
                 var packet = e.Packet as ArtNetDmxPacket;
 
                 UniverseData universeData;

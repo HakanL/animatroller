@@ -29,7 +29,7 @@ namespace Animatroller.Simulator
 
     public interface INeedsMatrixLight : IOutputDevice
     {
-        Control.MatrixLight LightControl { set; }
+        Control.PixelLight2D LightControl { set; }
 
         int PixelWidth { get; }
 

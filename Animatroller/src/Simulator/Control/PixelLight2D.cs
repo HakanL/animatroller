@@ -12,19 +12,21 @@ using System.Drawing.Drawing2D;
 
 namespace Animatroller.Simulator.Control
 {
-    public partial class PixelLight1D : UserControl
+    public partial class PixelLight2D : UserControl
     {
         private Bitmap outputBitmap;
         private Bitmap overlay;
-        private int scale;
+        private int scaleX;
+        private int scaleY;
 
-        public PixelLight1D(int scale = 4)
+        public PixelLight2D(int scaleX = 4, int scaleY = 4)
         {
             InitializeComponent();
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 
-            this.scale = scale;
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
         }
 
         public void SetImage(Bitmap image)
@@ -55,9 +57,14 @@ namespace Animatroller.Simulator.Control
             using (var g = Graphics.FromImage(this.overlay))
             using (var p = new Pen(Color.Black))
             {
-                for (int x = this.scale - 1; x < Width; x += this.scale)
+                for (int x = this.scaleX - 1; x < Width; x += this.scaleX)
                 {
                     g.DrawLine(p, x, 0, x, Height - 1);
+                }
+
+                for (int y = this.scaleY - 1; y < Height; y += this.scaleY)
+                {
+                    g.DrawLine(p, 0, y, Width - 1, y);
                 }
             }
         }

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.DMXrecorder
+namespace Animatroller.Common
 {
     public class BinaryFileWriter : FileWriter
     {
@@ -20,16 +20,23 @@ namespace Animatroller.DMXrecorder
             this.streamWriter.Dispose();
         }
 
-        public override void Output(OutputDmxData dmxData)
+        public override void Output(DmxData dmxData)
         {
             switch (dmxData.DataType)
             {
-                case OutputDmxData.DataTypes.FullFrame:
+                case DmxData.DataTypes.FullFrame:
                     this.streamWriter.Write((byte)0x01);
                     this.streamWriter.Write((uint)dmxData.Timestamp);
                     this.streamWriter.Write((ushort)dmxData.Universe);
                     this.streamWriter.Write((ushort)dmxData.Data.Length);
                     this.streamWriter.Write(dmxData.Data);
+                    this.streamWriter.Write((byte)0x04);
+                    break;
+
+                case DmxData.DataTypes.NoChange:
+                    this.streamWriter.Write((byte)0x02);
+                    this.streamWriter.Write((uint)dmxData.Timestamp);
+                    this.streamWriter.Write((ushort)dmxData.Universe);
                     this.streamWriter.Write((byte)0x04);
                     break;
             }

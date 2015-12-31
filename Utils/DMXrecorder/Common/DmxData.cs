@@ -4,9 +4,9 @@ using System.Linq;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Animatroller.DMXrecorder
+namespace Animatroller.Common
 {
-    public class OutputDmxData
+    public class DmxData
     {
         public enum DataTypes
         {
@@ -24,13 +24,13 @@ namespace Animatroller.DMXrecorder
 
         public int Universe { get; set; }
 
-        private OutputDmxData()
+        public DmxData()
         {
         }
 
-        public static OutputDmxData CreateNoChange(long millisecond, long sequence, int universe)
+        public static DmxData CreateNoChange(long millisecond, long sequence, int universe)
         {
-            return new OutputDmxData
+            return new DmxData
             {
                 DataType = DataTypes.NoChange,
                 Data = null,
@@ -40,9 +40,9 @@ namespace Animatroller.DMXrecorder
             };
         }
 
-        public static OutputDmxData CreateFullFrame(long millisecond, long sequence, int universe, byte[] data)
+        public static DmxData CreateFullFrame(long millisecond, long sequence, int universe, byte[] data)
         {
-            return new OutputDmxData
+            return new DmxData
             {
                 DataType = DataTypes.FullFrame,
                 Data = data,

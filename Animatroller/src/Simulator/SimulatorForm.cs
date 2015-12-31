@@ -78,6 +78,8 @@ namespace Animatroller.Simulator
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D2)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel1D3))
                     this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D3)fieldValue));
+                else if (field.FieldType == typeof(VirtualPixel2D3))
+                    this.Connect(new Animatroller.Simulator.TestPixel2D((VirtualPixel2D3)fieldValue));
                 //else if (field.FieldType == typeof(VirtualPixel2D))
                 //    this.Connect(new Animatroller.Simulator.TestPixel2D((VirtualPixel2D)fieldValue));
                 else if (field.FieldType == typeof(AnalogInput3))
@@ -251,11 +253,13 @@ namespace Animatroller.Simulator
 
         public Control.PixelLight1D AddNewRope(string name, int pixels)
         {
+            int scale = 4;
+
             var moduleControl = new Control.ModuleControl();
             moduleControl.Text = name;
-            moduleControl.Size = new System.Drawing.Size(4 * pixels + 6, 40);
+            moduleControl.Size = new System.Drawing.Size(scale * pixels + 6, 40);
 
-            var control = new Control.PixelLight1D();
+            var control = new Control.PixelLight1D(scale);
             moduleControl.ChildControl = control;
 
             flowLayoutPanelLights.Controls.Add(moduleControl);
@@ -263,13 +267,16 @@ namespace Animatroller.Simulator
             return control;
         }
 
-        public Control.MatrixLight AddNewMatrix(string name, int width, int height)
+        public Control.PixelLight2D AddNewMatrix(string name, int width, int height)
         {
+            int scaleX = 12;
+            int scaleY = 12;
+
             var moduleControl = new Control.ModuleControl();
             moduleControl.Text = name;
-            moduleControl.Size = new System.Drawing.Size(8 * width + 6, 8 * height + 27);
+            moduleControl.Size = new System.Drawing.Size(scaleX * width + 6, scaleY * height + 26);
 
-            var control = new Control.MatrixLight(width, height);
+            var control = new Control.PixelLight2D(scaleX, scaleY);
             moduleControl.ChildControl = control;
 
             flowLayoutPanelLights.Controls.Add(moduleControl);
@@ -481,7 +488,7 @@ namespace Animatroller.Simulator
 
         public void Connect(INeedsMatrixLight output)
         {
-            output.LightControl = AddNewMatrix(output.Name, 20, 10);
+            output.LightControl = AddNewMatrix(output.Name, output.PixelWidth, output.PixelHeight);
         }
 
         private void updateTimer_Tick(object sender, EventArgs e)

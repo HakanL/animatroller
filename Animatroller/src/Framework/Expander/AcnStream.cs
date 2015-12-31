@@ -116,7 +116,7 @@ namespace Animatroller.Framework.Expander
                 {
                     var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
 
-                    int maxChannels = Math.Min(511 - localStart, length);
+                    int maxChannels = Math.Min(511 - localStart, length - startOffset);
                     acnUniverse.SendDimmerValues(localStart, rgb, startOffset, maxChannels);
 
                     startOffset += maxChannels;

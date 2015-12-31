@@ -133,16 +133,22 @@ namespace Animatroller.SceneRunner
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
         Controller.Subroutine subStarWars = new Controller.Subroutine();
 
+        Import.DmxPlayback dmxPlayback = new Import.DmxPlayback();
+
         public Xmas2015(IEnumerable<string> args)
         {
             hours.AddRange("4:00 pm", "10:00 pm");
 
+            string expanderFilesFolder = string.Empty;
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
             {
                 string[] parts = expFilesParam.Split('=');
                 if (parts.Length == 2)
+                {
+                    expanderFilesFolder =
                     expanderServer.ExpanderSharedFiles = parts[1];
+                }
             }
 
             pulsatingEffect1.ConnectTo(lightOlaf);
@@ -175,6 +181,13 @@ namespace Animatroller.SceneRunner
 
             midiAkai.Controller(midiChannel, 1).Subscribe(x => blackOut.Value = x.Value);
             midiAkai.Controller(midiChannel, 2).Subscribe(x => whiteOut.Value = x.Value);
+
+            dmxPlayback.Load(Path.Combine(expanderFilesFolder, "Seq", "XmasLoop.bin"), 15);
+            dmxPlayback.Loop = true;
+
+            var pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMappingFromGlediatorPatch(
+                Path.Combine(expanderFilesFolder, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
+            dmxPlayback.SetOutput(pixelsMatrix, pixelMapping);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -224,13 +237,13 @@ namespace Animatroller.SceneRunner
                 }
             });
 
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), SacnUniverse6, 1);
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), SacnUniverse5, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50), SacnUniverse6, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniverse5, 1);
 
-            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 0, 170), SacnUniverse10, 1);
-            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 170, 30), SacnUniverse11, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsMatrix, 0, 170), SacnUniverse10, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsMatrix, 170, 30), SacnUniverse11, 1);
 
-            acnOutput.Connect(new Physical.PixelRope(saberPixels, 0, 32), SacnUniverse12, 1);
+            acnOutput.Connect(new Physical.Pixel1D(saberPixels, 0, 32), SacnUniverse12, 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(airOlaf, 10), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(airReindeer, 12), SacnUniverseDMX);
@@ -325,7 +338,8 @@ namespace Animatroller.SceneRunner
                     lightWall3,
                     lightR2D2,
                     lightOlaf,
-                    saberPixels)
+                    saberPixels,
+                    pixelsMatrix)
                 .RunAction(i =>
                 {
                     pulsatingEffect4.Start();
@@ -362,7 +376,11 @@ namespace Animatroller.SceneRunner
                     saberPixels.SetColor(Color.Red, 0.4, i.Token);
 
                     subCandyCane.Run();
+                    dmxPlayback.Run();
+
                     i.WaitUntilCancel();
+
+                    dmxPlayback.Stop();
                     Exec.Cancel(subCandyCane);
                     pulsatingEffect4.Stop();
                 });

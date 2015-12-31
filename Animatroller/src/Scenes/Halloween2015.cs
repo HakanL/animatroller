@@ -389,8 +389,8 @@ namespace Animatroller.SceneRunner
             timelineThunder8.AddMs(4200, "C");
             timelineThunder8.TimelineTrigger += TriggerThunderTimeline;
 
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 0, 50), 6, 1);
-            acnOutput.Connect(new Physical.PixelRope(pixelsRoofEdge, 50, 100), 5, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50), 6, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), 5, 1);
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall1Light, 60), 1);

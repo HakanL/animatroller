@@ -13,16 +13,21 @@ using Controller = Animatroller.Framework.Controller;
 using Effect = Animatroller.Framework.Effect;
 using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
+using Import = Animatroller.Framework.Import;
+using System.IO;
 
 namespace Animatroller.SceneRunner
 {
     internal class PixelTest1 : BaseScene
     {
-        const int SacnUniversePix1 = 30;
-        const int SacnUniversePix2 = 31;
+        const int SacnUniverse5 = 5;
+        const int SacnUniverse6 = 6;
+        const int SacnUniverse10 = 10;
+        const int SacnUniverse11 = 11;
 
         Expander.AcnStream acnOutput = new Expander.AcnStream();
-        VirtualPixel1D3 pixelsMatrix = new VirtualPixel1D3(200);
+        VirtualPixel1D3 pixelRope = new VirtualPixel1D3(150);
+        VirtualPixel2D3 pixelsMatrix = new VirtualPixel2D3(20, 10);
         AnalogInput3 blackOut = new AnalogInput3();
         AnalogInput3 whiteOut = new AnalogInput3();
 
@@ -38,24 +43,48 @@ namespace Animatroller.SceneRunner
         DigitalInput2 buttonClear = new DigitalInput2();
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 buttonCane = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 buttonCandyCane = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 buttonPlayback = new DigitalInput2();
+        Import.DmxPlayback dmxPlayback = new Import.DmxPlayback();
 
         Controller.Subroutine subStarWarsCane = new Controller.Subroutine();
+        Controller.Subroutine subCandyCane = new Controller.Subroutine();
 
         //Expander.OpcClient opcOutput = new Expander.OpcClient("192.168.1.113");
 
         public PixelTest1(IEnumerable<string> args)
         {
+            string expanderFilesFolder = string.Empty;
+            string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
+            if (!string.IsNullOrEmpty(expFilesParam))
+            {
+                string[] parts = expFilesParam.Split('=');
+                if (parts.Length == 2)
+                    expanderFilesFolder = parts[1];
+            }
+
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            var file = System.IO.File.OpenRead(@"C:\Projects\Animatroller\Utils\DMXrecorder\bin\Debug\Glediator.bin");
-            var binRead = new System.IO.BinaryReader(file);
+            dmxPlayback.Load(Path.Combine(expanderFilesFolder, "Seq", "XmasLoop.bin"), 15);
+            dmxPlayback.Loop = true;
 
-            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 0, 170), SacnUniversePix1, 1);
-            acnOutput.Connect(new Physical.PixelRope(pixelsMatrix, 170, 30), SacnUniversePix2, 1);
+            //            var pixelMapping = dmxPlayback.GeneratePixelMapping(pixelsMatrix, 8, channelShift: 1);
+            var pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMappingFromGlediatorPatch(
+                Path.Combine(expanderFilesFolder, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
+            dmxPlayback.SetOutput(pixelsMatrix, pixelMapping);
+            //dmxPlayback.SetOutput(pixelRope, pixelMapping);
+
+            acnOutput.Connect(new Physical.Pixel1D(pixelRope, 0, 50), SacnUniverse6, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelRope, 50, 100), SacnUniverse5, 1);
+
+            pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMapping(20, 10, pixelOrder: Framework.Utility.PixelOrder.HorizontalSnakeBottomLeft);
+            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping), SacnUniverse10, 1);
 
             subStarWarsCane
-                .LockWhenRunning(pixelsMatrix)
+                .LockWhenRunning(pixelRope)
                 .RunAction(instance =>
                 {
                     const int spacing = 4;
@@ -68,11 +97,11 @@ namespace Animatroller.SceneRunner
                             {
                                 case 0:
                                 case 1:
-                                    pixelsMatrix.InjectRev(Color.Yellow, 1.0, instance.Token);
+                                    pixelRope.InjectRev(Color.Yellow, 1.0, instance.Token);
                                     break;
                                 case 2:
                                 case 3:
-                                    pixelsMatrix.InjectRev(Color.Orange, 0.2, instance.Token);
+                                    pixelRope.InjectRev(Color.Orange, 0.2, instance.Token);
                                     break;
                             }
 
@@ -84,12 +113,31 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
+            subCandyCane
+                .LockWhenRunning(pixelRope)
+                .RunAction(i =>
+                {
+                    const int spacing = 4;
+
+                    while (true)
+                    {
+                        for (int x = 0; x < spacing; x++)
+                        {
+                            pixelRope.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, i.Token);
+
+                            i.WaitFor(S(0.30), true);
+                        }
+                    }
+                });
+
             buttonTest.Output.Subscribe(x =>
                 {
                     if (x)
                     {
                         Color rndCol = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
-                        pixelsMatrix.Inject(rndCol, 1.0);
+                        pixelRope.Inject(rndCol, 1.0);
+
+                        pixelsMatrix.Inject(rndCol);
                     }
                 });
 
@@ -99,6 +147,22 @@ namespace Animatroller.SceneRunner
                     subStarWarsCane.Run();
                 else
                     subStarWarsCane.Stop();
+            });
+
+            buttonCandyCane.Output.Subscribe(x =>
+            {
+                if (x)
+                    subCandyCane.Run();
+                else
+                    subCandyCane.Stop();
+            });
+
+            buttonPlayback.Output.Subscribe(x =>
+            {
+                if (x)
+                    dmxPlayback.Run();
+                else
+                    dmxPlayback.Stop();
             });
 
             buttonFader.Output.Subscribe(x =>
@@ -120,62 +184,13 @@ namespace Animatroller.SceneRunner
             buttonClear.Output.Subscribe(x =>
             {
                 if (x)
-                    pixelsMatrix.SetColor(Color.Black, 0.0);
-            });
-
-            pixelsMatrix.SetBrightness(1);
-
-            var bitmap = (Bitmap)pixelsMatrix.GetFrameBuffer(null, pixelsMatrix)[DataElements.PixelBitmap];
-
-            Task.Run(() =>
-            {
-                while (false && file.Position < file.Length)
                 {
-                    byte bStart = binRead.ReadByte();
-                    if (bStart != 1)
-                        throw new ArgumentException("Invalid data");
-
-                    uint timestamp = (uint)binRead.ReadInt32();
-                    ushort universe = (ushort)binRead.ReadInt16();
-                    ushort len = (ushort)binRead.ReadInt16();
-                    byte[] data = binRead.ReadBytes(len);
-                    byte bEnd = binRead.ReadByte();
-                    if (bEnd != 4)
-                        throw new ArgumentException("Invalid data");
-
-                    int pixCount = 0;
-                    int pix = 0;
-                    switch (universe)
-                    {
-                        case 8:
-                            pixCount = 170;
-                            pix = 0;
-                            break;
-
-                        case 9:
-                            pixCount = 30;
-                            pix = 170;
-                            break;
-                    }
-                    if (pixCount == 0)
-                        continue;
-
-                    int i = 0;
-                    int pixPos = 0;
-                    while (pixPos++ < pixCount)
-                    {
-                        var col = Color.FromArgb(data[i++], data[i++], data[i++]);
-                        bitmap.SetPixel(pix, 0, col);
-
-                        pix++;
-                    }
-
-                    if (universe == 9)
-                        pixelsMatrix.PushOutput(null);
-
-                    Thread.Sleep(25);
+                    pixelRope.SetColor(Color.Black, 0.0);
+                    pixelsMatrix.SetColor(Color.Black, 0.0);
                 }
             });
+
+            pixelRope.SetBrightness(1);
         }
 
         public override void Run()

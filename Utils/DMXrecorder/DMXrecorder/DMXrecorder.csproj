@@ -34,10 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Acn">
-      <HintPath>..\..\Animatroller\lib\Acn.dll</HintPath>
+      <HintPath>..\..\..\Animatroller\lib\Acn.dll</HintPath>
     </Reference>
     <Reference Include="PowerArgs, Version=2.7.0.0, Culture=neutral, PublicKeyToken=26a276264bbd55b8, processorArchitecture=MSIL">
-      <HintPath>packages\PowerArgs.2.7.0.0\lib\net45\PowerArgs.dll</HintPath>
+      <HintPath>..\packages\PowerArgs.2.7.0.0\lib\net45\PowerArgs.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -50,14 +50,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BinaryFileWriter.cs" />
-    <Compile Include="CsvFileWriter.cs" />
     <Compile Include="RawDmxData.cs" />
     <Compile Include="OutputProcessor.cs" />
     <Compile Include="ArtNetRecorder.cs" />
     <Compile Include="Arguments.cs" />
-    <Compile Include="FileWriter.cs" />
-    <Compile Include="OutputDmxData.cs" />
     <Compile Include="IRecorder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -67,6 +63,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{3b9fb049-939e-4dd6-aafd-dcc5564baef6}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

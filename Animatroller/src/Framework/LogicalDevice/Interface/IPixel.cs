@@ -9,11 +9,25 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public interface IPixel1D2 : ISendsData
+
+    public interface IPixel2 : ISendsData, IReceivesData
+    {
+    }
+
+    public interface IPixel1D2 : IPixel2
     {
         IObservable<Bitmap> ImageChanged { get; }
 
         int Pixels { get; }
+    }
+
+    public interface IPixel2D2 : IPixel2
+    {
+        IObservable<Bitmap> ImageChanged { get; }
+
+        int PixelWidth { get; }
+
+        int PixelHeight { get; }
     }
 
     public interface IPixel2D : ILogicalDevice

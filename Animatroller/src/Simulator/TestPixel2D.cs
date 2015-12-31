@@ -12,45 +12,22 @@ namespace Animatroller.Simulator
 {
     public class TestPixel2D : INeedsMatrixLight, IPhysicalDevice
     {
+        private Bitmap outputBitmap;
         private object lockObject = new object();
-        private string name;
-        private bool pixelsChanged;
-        private Color[,] pixelData;
         private Task senderTask;
         private System.Threading.CancellationTokenSource cancelSource;
-        private int sentUpdates;
         private ILogicalDevice logicalDevice;
-        private Control.MatrixLight control;
+        private Control.PixelLight2D control;
         private int pixelWidth;
         private int pixelHeight;
+        private bool newDataAvailable;
 
-        public Control.MatrixLight LightControl
+        public TestPixel2D(int pixelWidth, int pixelHeight)
         {
-            set
-            {
-                this.control = value;
-            }
-        }
-
-        public TestPixel2D(IPixel2D logicalDevice)
-        {
-            this.name = logicalDevice.Name;
-            this.pixelWidth = logicalDevice.PixelWidth;
-            this.pixelHeight = logicalDevice.PixelHeight;
-
-            Executor.Current.Register(this);
-
-            this.logicalDevice = logicalDevice;
-
-            logicalDevice.Output.Subscribe(x =>
-                {
-                    Array.Copy(x, this.pixelData, PixelWidth * PixelHeight);
-
-                    this.pixelsChanged = true;
-                });
+            this.pixelWidth = pixelWidth;
+            this.pixelHeight = pixelHeight;
 
             this.cancelSource = new System.Threading.CancellationTokenSource();
-            this.pixelData = new Color[this.pixelWidth, this.pixelHeight];
 
             this.senderTask = new Task(x =>
             {
@@ -58,17 +35,12 @@ namespace Animatroller.Simulator
                 {
                     lock (lockObject)
                     {
-                        if (this.control == null)
-                            continue;
-
-                        if (this.pixelsChanged)
+                        if (this.newDataAvailable)
                         {
-                            this.pixelsChanged = false;
+                            this.newDataAvailable = false;
 
-                            this.sentUpdates++;
-
-                            // Send everything
-                            control.SetPixels(this.pixelData);
+                            if (control != null)
+                                control.SetImage(this.outputBitmap);
                         }
                     }
 
@@ -77,15 +49,29 @@ namespace Animatroller.Simulator
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
             this.senderTask.Start();
+
+            Executor.Current.Register(this);
         }
 
-        public void SetInitialState()
+        public TestPixel2D(IPixel2D2 logicalDevice)
+            : this(logicalDevice.PixelWidth, logicalDevice.PixelHeight)
         {
+            this.logicalDevice = logicalDevice;
+
+            logicalDevice.ImageChanged.Subscribe(x =>
+            {
+                this.outputBitmap = new Bitmap(x);
+
+                this.newDataAvailable = true;
+            });
         }
 
-        public string Name
+        public Control.PixelLight2D LightControl
         {
-            get { return this.name; }
+            set
+            {
+                this.control = value;
+            }
         }
 
         public int PixelWidth
@@ -96,6 +82,20 @@ namespace Animatroller.Simulator
         public int PixelHeight
         {
             get { return this.pixelHeight; }
+        }
+
+        public ILogicalDevice ConnectedDevice
+        {
+            get { return this.logicalDevice; }
+        }
+
+        public void SetInitialState()
+        {
+        }
+
+        public string Name
+        {
+            get { return this.logicalDevice.Name; }
         }
     }
 }

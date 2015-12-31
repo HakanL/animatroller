@@ -2,7 +2,7 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.DMXrecorder
+namespace Animatroller.Common
 {
     public abstract class FileWriter : IDisposable
     {
@@ -19,7 +19,7 @@ namespace Animatroller.DMXrecorder
         {
         }
 
-        public abstract void Output(OutputDmxData dmxData);
+        public abstract void Output(DmxData dmxData);
 
         public virtual void Footer(int universeId)
         {

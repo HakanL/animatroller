@@ -33,8 +33,6 @@ namespace Animatroller.DMXrecorder
 
             this.acnSocket.Open(IPAddress.Any);
 
-            this.timestamper = Stopwatch.StartNew();
-
             this.universes = new Dictionary<int, UniverseData>();
 
             foreach (int universe in universes)
@@ -85,6 +83,9 @@ namespace Animatroller.DMXrecorder
                 sequence += 256;
             }
             universeData.LastSequenceLow = e.Packet.Framing.SequenceNumber;
+
+            if (this.timestamper == null)
+                this.timestamper = Stopwatch.StartNew();
 
             var dmxData = RawDmxData.Create(
                 millisecond: this.timestamper.ElapsedMilliseconds,
