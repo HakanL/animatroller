@@ -62,7 +62,8 @@ namespace Animatroller.SceneRunner
         DigitalInput2 inBlueButton = new DigitalInput2();
         DigitalInput2 inRedButton = new DigitalInput2();
 
-        DigitalInput2 in1 = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 inShowMachine = new DigitalInput2();
         DigitalInput2 in2 = new DigitalInput2();
         DigitalInput2 in3 = new DigitalInput2();
         DigitalOutput2 out1 = new DigitalOutput2();
@@ -72,6 +73,7 @@ namespace Animatroller.SceneRunner
         DigitalOutput2 airSanta1 = new DigitalOutput2();
         DigitalOutput2 airOlaf = new DigitalOutput2();
         DigitalOutput2 airReindeer = new DigitalOutput2();
+        DigitalOutput2 snowMachine = new DigitalOutput2();
 
         Dimmer3 lightNet1 = new Dimmer3();
         Dimmer3 lightNet2 = new Dimmer3();
@@ -132,6 +134,7 @@ namespace Animatroller.SceneRunner
         Controller.Subroutine subOlaf = new Controller.Subroutine();
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
         Controller.Subroutine subStarWars = new Controller.Subroutine();
+        Controller.Subroutine subSnow = new Controller.Subroutine();
 
         Import.DmxPlayback dmxPlayback = new Import.DmxPlayback();
 
@@ -165,8 +168,9 @@ namespace Animatroller.SceneRunner
 
             expander1.DigitalInputs[5].Connect(inR2D2);
             expander1.DigitalInputs[4].Connect(inOlaf);
-            expander1.DigitalInputs[6].Connect(in1);
+            expander1.DigitalInputs[6].Connect(inShowMachine);
             expander1.DigitalOutputs[7].Connect(out1);
+            expander4.DigitalOutputs[7].Connect(snowMachine);
 
             expander4.DigitalInputs[5].Connect(inBlueButton);
             expander4.DigitalInputs[4].Connect(inRedButton);
@@ -401,6 +405,18 @@ namespace Animatroller.SceneRunner
                     }
                 });
 
+            subSnow
+                .RunAction(ins =>
+                {
+                    snowMachine.Value = true;
+
+                    ins.WaitFor(S(30));
+                })
+                .TearDown(() =>
+                {
+                    snowMachine.Value = false;
+                });
+
             subStarWarsCane
                 .LockWhenRunning(
                     pixelsRoofEdge,
@@ -447,10 +463,12 @@ namespace Animatroller.SceneRunner
             subMusic2
                 .RunAction(ins =>
                 {
+                    snowMachine.Value = true;
                     audioMain.PlayTrack("T.P.E. - 04 - Josh Groban - Believe.flac");
                     ins.WaitFor(S(260));
                 }).TearDown(() =>
                 {
+                    snowMachine.Value = false;
                     lorBelieve.Stop();
                     audioMain.PauseTrack();
                 });
@@ -652,6 +670,7 @@ namespace Animatroller.SceneRunner
                 {
                     if (hours.IsOpen)
                     {
+                        subSnow.Run();
                         if (stateMachine.CurrentState == States.Background)
                             stateMachine.GoToState(States.Music2);
                     }
@@ -680,8 +699,9 @@ namespace Animatroller.SceneRunner
                 //    audio2.PlayTrack("08 Feel the Light.wav");
             };
 
-            in1.Output.Subscribe(x =>
+            inShowMachine.Output.Subscribe(x =>
             {
+                snowMachine.Value = x;
                 //                lightRedButton.SetBrightness(x ? 1.0 : 0.0);
                 //if (x)
                 //    stateMachine.GoToState(States.Music1);
