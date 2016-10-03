@@ -39,8 +39,10 @@ namespace Animatroller.Framework
 
     public interface IRunnableState
     {
-        IRunnableState SetUp(Action action);
-        IRunnableState TearDown(Action action);
+        IRunnableState SetUp(Action<ISequenceInstance> action);
+
+        IRunnableState TearDown(Action<ISequenceInstance> action);
+
         IRunnableState Execute(Action<ISequenceInstance> action);
     }
 }

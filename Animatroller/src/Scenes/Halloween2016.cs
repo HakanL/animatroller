@@ -73,6 +73,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 block = new DigitalInput2(persistState: true);
 
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
+        Effect.Pulsating pulsatingCat = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         private Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
         private Effect.PopOut2 popOut1 = new Effect.PopOut2(S(0.3));
@@ -89,7 +90,7 @@ namespace Animatroller.SceneRunner
         private DigitalOutput2 fog = new DigitalOutput2();
         private DateTime? lastFogRun = DateTime.Now;
         private DigitalOutput2 candyEyes = new DigitalOutput2();
-        private DigitalOutput2 catLights = new DigitalOutput2();
+        private Dimmer3 catLights = new Dimmer3();
         private DigitalOutput2 george1 = new DigitalOutput2();
         private DigitalOutput2 george2 = new DigitalOutput2();
         private DigitalOutput2 popper = new DigitalOutput2();
@@ -236,6 +237,8 @@ namespace Animatroller.SceneRunner
             pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
             pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
+            pulsatingCat.ConnectTo(catLights);
+
             stateMachine.For(States.Background)
                 .Execute(i =>
                     {
@@ -264,7 +267,7 @@ namespace Animatroller.SceneRunner
                             }
                         }
                     })
-                .TearDown(() =>
+                .TearDown(instance =>
                     {
                         purpleLights.SetBrightness(0.0);
 
@@ -1017,7 +1020,8 @@ namespace Animatroller.SceneRunner
             {
                 var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
-                catLights.Value = true;
+                pulsatingCat.Start();
+//                catLights.SetBrightness(1.0, instance.Token);
 
                 while (true)
                 {
@@ -1050,9 +1054,11 @@ namespace Animatroller.SceneRunner
                         break;
                 }
             })
-            .TearDown(() =>
+            .TearDown(instance =>
             {
-                catLights.Value = false;
+                //                Exec.MasterEffect.Fade(catLights, 1.0, 0.0, 1000, token: instance.Token);
+                //TODO: Fade out
+                pulsatingCat.Stop();
             });
 
             motionSeq.WhenExecuted
@@ -1062,7 +1068,7 @@ namespace Animatroller.SceneRunner
 
                     //                    instance.WaitFor(S(10));
                 })
-                .TearDown(() =>
+                .TearDown(instance =>
                 {
                 });
         }

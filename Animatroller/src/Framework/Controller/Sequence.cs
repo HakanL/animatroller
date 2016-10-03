@@ -16,8 +16,8 @@ namespace Animatroller.Framework.Controller
             private object lockObject = new object();
             private string id;
             protected string name;
-            protected Action setUpAction;
-            protected Action tearDownAction;
+            protected Action<ISequenceInstance> setUpAction;
+            protected Action<ISequenceInstance> tearDownAction;
             protected List<Action<ISequenceInstance>> actions;
             protected System.Threading.CancellationToken cancelToken;
 
@@ -38,7 +38,7 @@ namespace Animatroller.Framework.Controller
                 get { return this.cancelToken.IsCancellationRequested; }
             }
 
-            public IRunnableState SetUp(Action action)
+            public IRunnableState SetUp(Action<ISequenceInstance> action)
             {
                 this.setUpAction = action;
 
@@ -52,7 +52,7 @@ namespace Animatroller.Framework.Controller
                 return this;
             }
 
-            public IRunnableState TearDown(Action action)
+            public IRunnableState TearDown(Action<ISequenceInstance> action)
             {
                 this.tearDownAction = action;
 
@@ -101,7 +101,7 @@ namespace Animatroller.Framework.Controller
                     this.cancelToken = cancelToken;
 
                     if (this.setUpAction != null)
-                        this.setUpAction.Invoke();
+                        this.setUpAction.Invoke(this);
 
                     do
                     {
@@ -122,7 +122,7 @@ namespace Animatroller.Framework.Controller
                     } while (loop && !cancelToken.IsCancellationRequested);
 
                     if (this.tearDownAction != null)
-                        this.tearDownAction.Invoke();
+                        this.tearDownAction.Invoke(this);
 
                     if (cancelToken.IsCancellationRequested)
                         log.Info("SequenceJob {0} canceled and stopped", this.name);

@@ -247,7 +247,7 @@ namespace Animatroller.SceneRunner
                             }
                         }
                     })
-                .TearDown(() =>
+                .TearDown(instance =>
                     {
                         purpleLights.SetBrightness(0.0);
 
@@ -1033,7 +1033,7 @@ namespace Animatroller.SceneRunner
                     break;
             }
         })
-        .TearDown(() =>
+        .TearDown(instance =>
         {
             catLights.Value = false;
         });
@@ -1045,7 +1045,7 @@ namespace Animatroller.SceneRunner
 
                     //                    instance.WaitFor(S(10));
                 })
-                .TearDown(() =>
+                .TearDown(instance =>
                 {
                 });
         }
