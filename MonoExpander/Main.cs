@@ -228,12 +228,13 @@ namespace Animatroller.MonoExpander
                     this.log.Trace("Connection to {0}:{1} changed state to {2}", server.Host, server.Port, state.NewState);
                 };
 
-                var hub = connection.CreateHubProxy("MonoExpanderHub");
+                var hub = connection.CreateHubProxy("ExpanderCommunicationHub");
 
                 var client = new MonoExpanderClient(this, hub);
 
                 // Wire up messages
                 hub.On<Type, object>("HandleMessage", client.HandleMessage);
+                hub.On<object>("HandleMessage", client.HandleMessage);
 
                 // Start, ignore result here (caught by the event handlers)
                 connection.Start();

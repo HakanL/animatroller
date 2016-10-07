@@ -6,8 +6,8 @@ using NLog;
 using Newtonsoft.Json;
 using Owin;
 using Microsoft.Owin.Hosting;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
+using System.Threading.Tasks;
+using System.IO;
 
 namespace Animatroller.Framework.Expander
 {
@@ -15,7 +15,7 @@ namespace Animatroller.Framework.Expander
     {
         void SetKnownInstanceId(string instanceId, string connectionId);
 
-        void HandleMessage(string connectionId, object message);
+        //        void HandleMessage(string connectionId, object message);
 
         string ExpanderSharedFiles { get; }
 
@@ -23,27 +23,94 @@ namespace Animatroller.Framework.Expander
 
     public class MonoExpanderServer : IDisposable, IPort, IRunnable, IMonoExpanderServerRepository
     {
+        public enum CommunicationTypes
+        {
+            Unknown = 0,
+            SignalR = 1,
+            Netty = 2
+        }
+
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
-        private int listenPort;
         private Dictionary<string, MonoExpanderInstance> clientInstances;
         private Dictionary<string, string> connectionIdByInstanceId;
         private Dictionary<string, string> instanceIdByConnectionId;
         private IDisposable signalrServer;
         private object lockObject = new object();
+        private ExpanderCommunication.IServerCommunication serverCommunication;
 
         public MonoExpanderServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             Initialize(
                 name: name,
-                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081));
+                listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081),
+                communicationType: CommunicationTypes.SignalR);
+        }
+
+        public MonoExpanderServer(int listenPort, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            Initialize(
+                name: name,
+                listenPort: listenPort,
+                communicationType: CommunicationTypes.SignalR);
+        }
+
+        private void Initialize(string name, int listenPort, CommunicationTypes communicationType)
+        {
+            this.name = name;
+            this.clientInstances = new Dictionary<string, MonoExpanderInstance>();
+            this.connectionIdByInstanceId = new Dictionary<string, string>();
+            this.instanceIdByConnectionId = new Dictionary<string, string>();
+
+            switch (communicationType)
+            {
+                case CommunicationTypes.SignalR:
+                    this.serverCommunication = new ExpanderCommunication.SignalRServer(listenPort);
+                    break;
+
+                case CommunicationTypes.Netty:
+                    this.serverCommunication = new ExpanderCommunication.NettyServer(listenPort);
+                    break;
+
+                default:
+                    throw new ArgumentException("Communication Type");
+            }
+
+            this.serverCommunication.SetMessageReceivedCallback((connectionId, messageType, message) =>
+                {
+                    HandleMessage(connectionId, messageType, message);
+                });
+
+            Executor.Current.Register(this);
+        }
+
+        private static void Serialize(object value, Stream s)
+        {
+            using (var writer = new StreamWriter(s))
+            using (var jsonWriter = new JsonTextWriter(writer))
+            {
+                var ser = new JsonSerializer();
+                ser.Serialize(jsonWriter, value);
+                jsonWriter.Flush();
+            }
+        }
+
+        private static object DeserializeFromStream(Stream stream)
+        {
+            var serializer = new JsonSerializer();
+
+            using (var sr = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(sr))
+            {
+                return serializer.Deserialize(jsonTextReader);
+            }
         }
 
         public void AddInstance(string instanceId, MonoExpanderInstance expanderLocal)
         {
             this.clientInstances.Add(instanceId, expanderLocal);
 
-            expanderLocal.SetSendAction(msg =>
+            expanderLocal.SetSendAction(async msg =>
             {
                 string connectionId;
 
@@ -57,43 +124,19 @@ namespace Animatroller.Framework.Expander
                     }
                 }
 
-                var context = GlobalHost.ConnectionManager.GetHubContext<MonoExpanderHub>();
+                using (var ms = new MemoryStream())
+                {
+                    Serialize(msg, ms);
 
-                IClientProxy client = context.Clients.Client(connectionId);
-
-                client.Invoke("HandleMessage", msg.GetType(), msg);
+                    await this.serverCommunication.SendToClientAsync(connectionId, ms.ToArray());
+                }
             });
-        }
-
-        public MonoExpanderServer(int listenPort, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
-        {
-            Initialize(name, listenPort);
-        }
-
-        private void Initialize(string name, int listenPort)
-        {
-            this.name = name;
-            this.listenPort = listenPort;
-            this.clientInstances = new Dictionary<string, MonoExpanderInstance>();
-            this.connectionIdByInstanceId = new Dictionary<string, string>();
-            this.instanceIdByConnectionId = new Dictionary<string, string>();
-
-            GlobalHost.DependencyResolver.Register(typeof(MonoExpanderHub), () =>
-                new MonoExpanderHub(this, log));
-
-            Executor.Current.Register(this);
         }
 
         public void Start()
         {
-            var startOptions = new StartOptions(string.Format("http://+:{0}/", this.listenPort))
-            {
-                ServerFactory = "Microsoft.Owin.Host.HttpListener"
-            };
-            this.signalrServer = WebApp.Start<MonoExpanderStartup>(startOptions);
+            Task.Run(async () => await this.serverCommunication.StartAsync()).Wait();
         }
-
-        public string ExpanderSharedFiles { get; set; }
 
         public void Stop()
         {
@@ -105,6 +148,8 @@ namespace Animatroller.Framework.Expander
             this.signalrServer = null;
         }
 
+        public string ExpanderSharedFiles { get; set; }
+
         public void SetKnownInstanceId(string instanceId, string connectionId)
         {
             lock (this.lockObject)
@@ -114,7 +159,7 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        public void HandleMessage(string connectionId, object message)
+        private void HandleMessage(string connectionId, Type messageType, object message)
         {
             string instanceId;
             lock (this.lockObject)
@@ -131,7 +176,7 @@ namespace Animatroller.Framework.Expander
                 if (!this.clientInstances.TryGetValue(instanceId, out instance))
                     return;
 
-                instance.HandleMessage(message);
+                instance.HandleMessage(messageType, message);
             }
         }
     }

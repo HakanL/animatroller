@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SceneRunner", "SceneRunner\SceneRunner.csproj", "{B456587A-C3B4-4654-A1D1-3029E9BFDBCA}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -18,6 +18,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FCEA493-3A1C-4328-B8BA-775E771FBACC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoExpanderMessage", "MonoExpanderMessage\MonoExpanderMessage.csproj", "{8A2B3891-435E-454F-8A9E-52A11ED12691}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExpanderCommunication", "ExpanderCommunication\ExpanderCommunication.csproj", "{CEE6096B-00CA-487B-B90C-3C3B64FEFB93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{8A2B3891-435E-454F-8A9E-52A11ED12691}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A2B3891-435E-454F-8A9E-52A11ED12691}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A2B3891-435E-454F-8A9E-52A11ED12691}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEE6096B-00CA-487B-B90C-3C3B64FEFB93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEE6096B-00CA-487B-B90C-3C3B64FEFB93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEE6096B-00CA-487B-B90C-3C3B64FEFB93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEE6096B-00CA-487B-B90C-3C3B64FEFB93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

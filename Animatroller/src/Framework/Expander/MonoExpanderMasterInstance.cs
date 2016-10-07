@@ -5,46 +5,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.MonoExpanderMessages;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json.Linq;
 using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    [HubName("MonoExpanderHub")]
-    public class MonoExpanderHub : Hub
+    public abstract class MonoExpanderMasterInstance : ExpanderCommunication.IClientInstance
     {
         private IMonoExpanderServerRepository mainServer;
         private ILogger log;
+        protected Action<object> sendAction;
+        private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
 
-        public MonoExpanderHub(IMonoExpanderServerRepository mainServer, ILogger log)
+        public MonoExpanderMasterInstance(IMonoExpanderServerRepository mainServer, ILogger log)
         {
             this.mainServer = mainServer;
             this.log = log;
+
+            this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
         }
 
-        private void UpdateInstance()
+        public void SetSendAction(Action<object> sendAction)
         {
-            var instanceId = Context.QueryString["InstanceId"];
-
-            this.mainServer.SetKnownInstanceId(instanceId, Context.ConnectionId);
-
-            this.log.Debug("Instance {0} connected on {1}", instanceId, Context.ConnectionId);
+            this.sendAction = sendAction;
         }
 
-        public override Task OnReconnected()
+        public void UpdateInstance(string instanceId, string connectionId)
         {
-            UpdateInstance();
+            this.mainServer.SetKnownInstanceId(instanceId, connectionId);
 
-            return base.OnReconnected();
-        }
-
-        public override Task OnConnected()
-        {
-            UpdateInstance();
-
-            return base.OnConnected();
+            this.log.Debug("Instance {0} connected on {1}", instanceId, connectionId);
         }
 
         public void HandleMessage(Type messageType, object message)
@@ -54,15 +44,22 @@ namespace Animatroller.Framework.Expander
             {
                 var messageObject = jobject.ToObject(messageType);
 
-                // Check if we handle it here in the hub first
-                var method = typeof(MonoExpanderHub).GetMethods()
-                    .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
-                    .ToList();
+                System.Reflection.MethodInfo methodInfo;
+                lock (this)
+                {
+                    if (!this.handleMethodCache.TryGetValue(messageType, out methodInfo))
+                    {
+                        var handleMethods = typeof(MonoExpanderInstance).GetMethods()
+                            .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
+                            .ToList();
 
-                if (method.Any())
-                    method.Single().Invoke(this, new object[] { messageObject });
-                else
-                    this.mainServer.HandleMessage(Context.ConnectionId, messageObject);
+                        methodInfo = handleMethods.SingleOrDefault();
+
+                        this.handleMethodCache.Add(messageType, methodInfo);
+                    }
+                }
+
+                methodInfo?.Invoke(this, new object[] { messageObject });
             }
         }
 
@@ -94,7 +91,7 @@ namespace Animatroller.Framework.Expander
             {
                 this.log.Warn("File {0} of type {1} doesn't exist", message.FileName, message.Type);
 
-                Clients.Caller.HandleMessage(typeof(FileResponse), new FileResponse
+                this.sendAction(new FileResponse
                 {
                     DownloadId = message.DownloadId,
                     Size = 0
@@ -105,7 +102,7 @@ namespace Animatroller.Framework.Expander
 
             var fi = new FileInfo(filePath);
 
-            Clients.Caller.HandleMessage(typeof(FileResponse), new FileResponse
+            this.sendAction(new FileResponse
             {
                 DownloadId = message.DownloadId,
                 Size = fi.Length,
@@ -133,7 +130,7 @@ namespace Animatroller.Framework.Expander
                 byte[] chunk = new byte[bytesToRead];
                 fs.Read(chunk, 0, chunk.Length);
 
-                Clients.Caller.HandleMessage(typeof(FileChunkResponse), new FileChunkResponse
+                this.sendAction(new FileChunkResponse
                 {
                     DownloadId = message.DownloadId,
                     ChunkStart = message.ChunkStart,

@@ -7,16 +7,16 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class MonoExpanderInstance : IPort, IRunnable, IOutputHardware
+    public class MonoExpanderInstance : MonoExpanderMasterInstance, IPort, IRunnable, IOutputHardware
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
         private event EventHandler<EventArgs> AudioTrackDone;
         private event EventHandler<EventArgs> VideoTrackDone;
         private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
-        private Action<object> sendAction;
 
         public MonoExpanderInstance(int inputs = 8, int outputs = 8, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+            : base(null, log)
         {
             this.name = name;
 
@@ -35,13 +35,7 @@ namespace Animatroller.Framework.Expander
                 //                this.oscClient.Send("/motor/exec", 1, target, (int)(speed * 100), timeout.TotalSeconds.ToString("F0"));
             });
 
-
             Executor.Current.Register(this);
-        }
-
-        internal void SetSendAction(Action<object> sendAction)
-        {
-            this.sendAction = sendAction;
         }
 
         private void SendMessage(object message)
@@ -65,16 +59,12 @@ namespace Animatroller.Framework.Expander
 
         protected virtual void RaiseAudioTrackDone()
         {
-            var handler = AudioTrackDone;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            AudioTrackDone?.Invoke(this, EventArgs.Empty);
         }
 
         protected virtual void RaiseVideoTrackDone()
         {
-            var handler = VideoTrackDone;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            VideoTrackDone?.Invoke(this, EventArgs.Empty);
         }
 
         public void Start()
@@ -277,16 +267,6 @@ namespace Animatroller.Framework.Expander
         public void Handle(Ping message)
         {
             log.Debug("Response from instance {0}", this.name);
-        }
-
-        public void HandleMessage(object message)
-        {
-            Type messageType = message.GetType();
-            var method = typeof(MonoExpanderInstance).GetMethods()
-                .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
-                .ToList();
-
-            method.SingleOrDefault()?.Invoke(this, new object[] { message });
         }
     }
 }

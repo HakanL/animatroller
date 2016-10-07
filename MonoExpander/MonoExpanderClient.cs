@@ -97,6 +97,11 @@ namespace Animatroller.MonoExpander
             this.downloadInfos = new Dictionary<string, DownloadInfo>();
         }
 
+        public void HandleMessage(object message)
+        {
+
+        }
+
         public void HandleMessage(Type messageType, object message)
         {
             var jobject = message as JObject;

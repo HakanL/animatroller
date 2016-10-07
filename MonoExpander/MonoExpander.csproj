@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Animatroller.MonoExpander</RootNamespace>
     <AssemblyName>MonoExpander</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -39,45 +39,45 @@
       <HintPath>packages\dbus-sharp.0.7.0\lib\net35\dbus-sharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>packages\Microsoft.AspNet.SignalR.Client.2.2.0\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>packages\Microsoft.AspNet.SignalR.Client.2.2.1\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>packages\NLog.4.2.3\lib\net45\NLog.dll</HintPath>
+      <HintPath>packages\NLog.4.3.9\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="PowerArgs, Version=2.7.0.0, Culture=neutral, PublicKeyToken=26a276264bbd55b8, processorArchitecture=MSIL">
-      <HintPath>packages\PowerArgs.2.7.0.0\lib\net45\PowerArgs.dll</HintPath>
+    <Reference Include="PowerArgs, Version=2.7.2.0, Culture=neutral, PublicKeyToken=26a276264bbd55b8, processorArchitecture=MSIL">
+      <HintPath>packages\PowerArgs.2.7.2.0\lib\net45\PowerArgs.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Raspberry.IO, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Raspberry.IO.GeneralPurpose.2.3.0\lib\net40\Raspberry.IO.dll</HintPath>
+    <Reference Include="Raspberry.IO, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Raspberry.IO.GeneralPurpose.2.4\lib\net40\Raspberry.IO.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Raspberry.IO.Components">
       <HintPath>lib\Raspberry.IO.Components.dll</HintPath>
     </Reference>
-    <Reference Include="Raspberry.IO.GeneralPurpose, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Raspberry.IO.GeneralPurpose.2.3.0\lib\net40\Raspberry.IO.GeneralPurpose.dll</HintPath>
+    <Reference Include="Raspberry.IO.GeneralPurpose, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Raspberry.IO.GeneralPurpose.2.4\lib\net40\Raspberry.IO.GeneralPurpose.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Raspberry.IO.InterIntegratedCircuit">
       <HintPath>lib\Raspberry.IO.InterIntegratedCircuit.dll</HintPath>
     </Reference>
-    <Reference Include="Raspberry.IO.Interop, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Raspberry.IO.GeneralPurpose.2.3.0\lib\net40\Raspberry.IO.Interop.dll</HintPath>
+    <Reference Include="Raspberry.IO.Interop, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Raspberry.IO.GeneralPurpose.2.4\lib\net40\Raspberry.IO.Interop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Raspberry.IO.SerialPeripheralInterface">
       <HintPath>lib\Raspberry.IO.SerialPeripheralInterface.dll</HintPath>
     </Reference>
-    <Reference Include="Raspberry.System, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\Raspberry.System.2.0.0\lib\net40\Raspberry.System.dll</HintPath>
+    <Reference Include="Raspberry.System, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Raspberry.System.2.1\lib\net40\Raspberry.System.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Rug.Osc, Version=1.2.5.17694, Culture=neutral, processorArchitecture=MSIL">
@@ -115,6 +115,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Animatroller\src\ExpanderCommunication\ExpanderCommunication.csproj">
+      <Project>{cee6096b-00ca-487b-b90c-3c3b64fefb93}</Project>
+      <Name>ExpanderCommunication</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Animatroller\src\MonoExpanderMessage\MonoExpanderMessage.csproj">
       <Project>{8a2b3891-435e-454f-8a9e-52a11ed12691}</Project>
       <Name>MonoExpanderMessage</Name>
