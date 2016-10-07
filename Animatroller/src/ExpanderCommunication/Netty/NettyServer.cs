@@ -20,7 +20,7 @@ namespace Animatroller.ExpanderCommunication
         private ServerBootstrap bootstrap;
         private IChannel boundChannel;
         private int listenPort;
-        private Action<string, Type, object> messageReceivedAction;
+        private Action<string, string, byte[]> dataReceivedAction;
 
         public NettyServer(int listenPort)
         {
@@ -60,17 +60,12 @@ namespace Animatroller.ExpanderCommunication
                 this.workerGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)));
         }
 
-        public void AddInstance(string instanceId, IClientInstance expanderLocal)
+        public void SetDataReceivedCallback(Action<string, string, byte[]> dataReceived)
         {
-            throw new NotImplementedException();
+            this.dataReceivedAction = dataReceived;
         }
 
-        public void SetMessageReceivedCallback(Action<string, Type, object> messageReceived)
-        {
-            this.messageReceivedAction = messageReceived;
-        }
-
-        public Task<bool> SendToClientAsync(string connectionId, byte[] data)
+        public Task<bool> SendToClientAsync(string connectionId, string messageType, byte[] data)
         {
             return Task.FromResult(false);
         }

@@ -12,6 +12,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simulator", "Simulator\Simulator.csproj", "{5CA4EE12-DD7F-49D0-9079-41EE3B067FCE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Framework", "Framework\Framework.csproj", "{97C48505-A92A-4FBD-B39C-BBB014AEF34B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CEE6096B-00CA-487B-B90C-3C3B64FEFB93} = {CEE6096B-00CA-487B-B90C-3C3B64FEFB93}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scenes", "Scenes\Scenes.csproj", "{60DBA58A-2233-4386-ABDE-C5766CBAC8DE}"
 EndProject

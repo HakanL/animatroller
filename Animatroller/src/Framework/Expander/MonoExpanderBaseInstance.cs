@@ -10,57 +10,47 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public abstract class MonoExpanderMasterInstance : ExpanderCommunication.IClientInstance
+    public abstract class MonoExpanderBaseInstance
     {
-        private IMonoExpanderServerRepository mainServer;
-        private ILogger log;
+        private static Logger log = LogManager.GetCurrentClassLogger();
+        private string expanderSharedFiles;
         protected Action<object> sendAction;
         private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
 
-        public MonoExpanderMasterInstance(IMonoExpanderServerRepository mainServer, ILogger log)
+        public MonoExpanderBaseInstance()
         {
-            this.mainServer = mainServer;
-            this.log = log;
-
             this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
         }
 
-        public void SetSendAction(Action<object> sendAction)
+        internal void Initialize(string expanderSharedFiles, Action<object> sendAction)
         {
+            this.expanderSharedFiles = expanderSharedFiles;
             this.sendAction = sendAction;
         }
 
-        public void UpdateInstance(string instanceId, string connectionId)
+        protected void SendMessage(object message)
         {
-            this.mainServer.SetKnownInstanceId(instanceId, connectionId);
-
-            this.log.Debug("Instance {0} connected on {1}", instanceId, connectionId);
+            this.sendAction?.Invoke(message);
         }
 
-        public void HandleMessage(Type messageType, object message)
+        public void HandleMessage(Type messageType, object messageObject)
         {
-            var jobject = message as JObject;
-            if (jobject != null)
+            System.Reflection.MethodInfo methodInfo;
+            lock (this)
             {
-                var messageObject = jobject.ToObject(messageType);
-
-                System.Reflection.MethodInfo methodInfo;
-                lock (this)
+                if (!this.handleMethodCache.TryGetValue(messageType, out methodInfo))
                 {
-                    if (!this.handleMethodCache.TryGetValue(messageType, out methodInfo))
-                    {
-                        var handleMethods = typeof(MonoExpanderInstance).GetMethods()
-                            .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
-                            .ToList();
+                    var handleMethods = typeof(MonoExpanderInstance).GetMethods()
+                        .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
+                        .ToList();
 
-                        methodInfo = handleMethods.SingleOrDefault();
+                    methodInfo = handleMethods.SingleOrDefault();
 
-                        this.handleMethodCache.Add(messageType, methodInfo);
-                    }
+                    this.handleMethodCache.Add(messageType, methodInfo);
                 }
-
-                methodInfo?.Invoke(this, new object[] { messageObject });
             }
+
+            methodInfo?.Invoke(this, new object[] { messageObject });
         }
 
         private byte[] CalculateSignatureSha1(string fileName)
@@ -77,21 +67,21 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(FileRequest message)
         {
-            this.log.Info("Requested download file {1} of type {0}", message.Type, message.FileName);
+            log.Info("Requested download file {1} of type {0}", message.Type, message.FileName);
 
             if (!string.IsNullOrEmpty(Path.GetDirectoryName(message.FileName)))
                 throw new ArgumentException("FileName should be without path");
 
-            string fileTypeFolder = Path.Combine(this.mainServer.ExpanderSharedFiles, message.Type.ToString());
+            string fileTypeFolder = Path.Combine(this.expanderSharedFiles, message.Type.ToString());
             Directory.CreateDirectory(fileTypeFolder);
 
             string filePath = Path.Combine(fileTypeFolder, message.FileName);
 
             if (!File.Exists(filePath))
             {
-                this.log.Warn("File {0} of type {1} doesn't exist", message.FileName, message.Type);
+                log.Warn("File {0} of type {1} doesn't exist", message.FileName, message.Type);
 
-                this.sendAction(new FileResponse
+                SendMessage(new FileResponse
                 {
                     DownloadId = message.DownloadId,
                     Size = 0
@@ -102,7 +92,7 @@ namespace Animatroller.Framework.Expander
 
             var fi = new FileInfo(filePath);
 
-            this.sendAction(new FileResponse
+            SendMessage(new FileResponse
             {
                 DownloadId = message.DownloadId,
                 Size = fi.Length,
@@ -112,12 +102,12 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(FileChunkRequest message)
         {
-            string filePath = Path.Combine(this.mainServer.ExpanderSharedFiles, message.Type.ToString(), message.FileName);
+            string filePath = Path.Combine(this.expanderSharedFiles, message.Type.ToString(), message.FileName);
 
             long fileSize = new FileInfo(filePath).Length;
             int chunkId = (int)(message.ChunkStart / message.ChunkSize);
             int chunks = (int)(fileSize / message.ChunkSize);
-            this.log.Info("Request for file {0} chunk {1}/{2} for {3:N0} bytes", message.FileName, chunkId, chunks, message.ChunkSize);
+            log.Info("Request for file {0} chunk {1}/{2} for {3:N0} bytes", message.FileName, chunkId, chunks, message.ChunkSize);
 
             using (var fs = File.OpenRead(filePath))
             {
@@ -130,7 +120,7 @@ namespace Animatroller.Framework.Expander
                 byte[] chunk = new byte[bytesToRead];
                 fs.Read(chunk, 0, chunk.Length);
 
-                this.sendAction(new FileChunkResponse
+                SendMessage(new FileChunkResponse
                 {
                     DownloadId = message.DownloadId,
                     ChunkStart = message.ChunkStart,

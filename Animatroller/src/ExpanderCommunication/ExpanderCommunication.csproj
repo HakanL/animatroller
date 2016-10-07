@@ -98,11 +98,9 @@
   <ItemGroup>
     <None Include="Udp\BaseConnectionManager.cs" />
     <None Include="Udp\ClientConnectionManager.cs" />
-    <Compile Include="IClientInstance.cs" />
     <Compile Include="IServerCommunication.cs" />
     <Compile Include="Netty\NettyServer.cs" />
     <Compile Include="Netty\NettyServerHandler.cs" />
-    <Compile Include="SignalR\SignalRErrorHandlingPipelineModule.cs" />
     <Compile Include="SignalR\SignalRHub.cs" />
     <Compile Include="SignalR\SignalRServerStartup.cs" />
     <Compile Include="SignalR\SignalRServer.cs" />

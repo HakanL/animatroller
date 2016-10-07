@@ -7,7 +7,7 @@ using NLog;
 
 namespace Animatroller.Framework.Expander
 {
-    public class MonoExpanderInstance : MonoExpanderMasterInstance, IPort, IRunnable, IOutputHardware
+    public class MonoExpanderInstance : MonoExpanderBaseInstance, IPort, IRunnable, IOutputHardware
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
@@ -16,7 +16,6 @@ namespace Animatroller.Framework.Expander
         private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
 
         public MonoExpanderInstance(int inputs = 8, int outputs = 8, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
-            : base(null, log)
         {
             this.name = name;
 
@@ -36,11 +35,6 @@ namespace Animatroller.Framework.Expander
             });
 
             Executor.Current.Register(this);
-        }
-
-        private void SendMessage(object message)
-        {
-            this.sendAction?.Invoke(message);
         }
 
         public IObservable<Tuple<AudioTypes, string>> AudioTrackStart
@@ -266,7 +260,7 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(Ping message)
         {
-            log.Debug("Response from instance {0}", this.name);
+            log.Trace("Response from instance {0}", this.name);
         }
     }
 }

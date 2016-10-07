@@ -12,15 +12,9 @@ namespace Animatroller.ExpanderCommunication
     {
         public void Configuration(IAppBuilder app)
         {
-            GlobalHost.HubPipeline.AddModule(new SignalRErrorHandlingPipelineModule());
+            app.UseErrorPage();
 
-            var hubConfiguration = new HubConfiguration
-            {
-                EnableJSONP = true,
-                EnableDetailedErrors = true
-            };
-
-            app.MapSignalR(hubConfiguration);
+            app.MapSignalR();
         }
     }
 }

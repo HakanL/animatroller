@@ -12,8 +12,6 @@ namespace Animatroller.ExpanderCommunication
 
         Task StopAsync();
 
-        void SetMessageReceivedCallback(Action<string, Type, object> messageReceived);
-
-        Task<bool> SendToClientAsync(string connectionId, byte[] data);
+        Task<bool> SendToClientAsync(string connectionId, string messageType, byte[] data);
     }
 }

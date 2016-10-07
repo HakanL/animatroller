@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-//using System.Reactive.Subjects;
 using NLog;
-using Newtonsoft.Json;
-using Owin;
-//using Microsoft.Owin.Hosting;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.Owin.Hosting;
@@ -19,17 +13,23 @@ namespace Animatroller.ExpanderCommunication
         private int listenPort;
         private IDisposable signalrServer;
         private object lockObject = new object();
-        private Action<string, Type, object> messageReceivedAction;
+        private Action<string, string, byte[]> dataReceivedAction;
+        private Action<string, string> connectionIdUpdatedAction;
 
-        public SignalRServer(int listenPort)
+        public SignalRServer(
+            int listenPort,
+            Action<string, string> connectionIdUpdatedAction,
+            Action<string, string, byte[]> dataReceivedAction)
         {
             this.listenPort = listenPort;
+            this.connectionIdUpdatedAction = connectionIdUpdatedAction;
+            this.dataReceivedAction = dataReceivedAction;
 
             GlobalHost.DependencyResolver.Register(typeof(SignalRHub), () =>
                 new SignalRHub(this, log));
         }
 
-        public Task<bool> SendToClientAsync(string connectionId, byte[] data)
+        public Task<bool> SendToClientAsync(string connectionId, string messageType, byte[] data)
         {
             var context = GlobalHost.ConnectionManager.GetHubContext<SignalRHub>();
 
@@ -38,7 +38,7 @@ namespace Animatroller.ExpanderCommunication
             if (client == null)
                 return Task.FromResult(false);
 
-            client.Invoke("HandleMessage", data);
+            client.Invoke("HandleMessage", messageType, data);
 
             return Task.FromResult(true);
         }
@@ -46,7 +46,7 @@ namespace Animatroller.ExpanderCommunication
         public Task StartAsync()
         {
             var startOptions = new StartOptions(string.Format("http://+:{0}/", this.listenPort))
-            {                
+            {
                 ServerFactory = "Microsoft.Owin.Host.HttpListener"
             };
             this.signalrServer = WebApp.Start<SignalRServerStartup>(startOptions);
@@ -56,40 +56,25 @@ namespace Animatroller.ExpanderCommunication
 
         public Task StopAsync()
         {
-            //FIXME
-            Dispose();
+            this.signalrServer?.Dispose();
+            this.signalrServer = null;
+
             return Task.CompletedTask;
         }
 
         public void Dispose()
         {
-            this.signalrServer?.Dispose();
-            this.signalrServer = null;
+            Task.Run(async () => await StopAsync()).Wait();
         }
 
         internal void UpdateInstance(string instanceId, string connectionId)
         {
-            //FIXME
+            this.connectionIdUpdatedAction(instanceId, connectionId);
         }
 
-        public void SetMessageReceivedCallback(Action<string, Type, object> messageReceived)
+        internal void DataReceived(string connectionId, string messageType, byte[] data)
         {
-            this.messageReceivedAction = messageReceived;
-        }
-
-        public void SetKnownInstanceId(string instanceId, string connectionId)
-        {
-            //FIXME
-            //lock (this.lockObject)
-            //{
-            //    this.connectionIdByInstanceId[instanceId] = connectionId;
-            //    this.instanceIdByConnectionId[connectionId] = instanceId;
-            //}
-        }
-
-        public void HandleMessage(string connectionId, Type messageType, object message)
-        {
-            this.messageReceivedAction?.Invoke(connectionId, messageType, message);
+            this.dataReceivedAction?.Invoke(connectionId, messageType, data);
         }
     }
 }

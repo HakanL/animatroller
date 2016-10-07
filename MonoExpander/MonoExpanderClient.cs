@@ -89,38 +89,66 @@ namespace Animatroller.MonoExpander
         private const int ChunkSize = 16384;
         private const int BufferedChunks = 5;
         private IHubProxy hub;
+        private Dictionary<string, Type> typeCache;
+        private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
 
         public MonoExpanderClient(Main main, IHubProxy hub)
         {
             this.main = main;
             this.hub = hub;
             this.downloadInfos = new Dictionary<string, DownloadInfo>();
+            this.typeCache = new Dictionary<string, Type>();
+            this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
         }
 
-        public void HandleMessage(object message)
+        public void HandleMessage(string messageType, byte[] data)
         {
+            object messageObject;
+            Type type;
 
-        }
-
-        public void HandleMessage(Type messageType, object message)
-        {
-            var jobject = message as JObject;
-            if (jobject != null)
+            using (var ms = new MemoryStream(data))
             {
-                var messageObject = jobject.ToObject(messageType);
+                lock (this.typeCache)
+                {
+                    if (!this.typeCache.TryGetValue(messageType, out type))
+                    {
+                        type = typeof(Animatroller.Framework.MonoExpanderMessages.Ping).Assembly.GetType(messageType, true);
+                        this.typeCache.Add(messageType, type);
+                    }
+                }
 
-                var method = typeof(MonoExpanderClient).GetMethods()
-                    .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
-                    .ToList();
-
-                method.SingleOrDefault()?.Invoke(this, new object[] { messageObject });
+                messageObject = Main.DeserializeFromStream(ms, type);
             }
+
+            if (messageObject != null)
+                InternalHandleMessage(type, messageObject);
+        }
+
+        private void InternalHandleMessage(Type messageType, object messageObject)
+        {
+            System.Reflection.MethodInfo methodInfo;
+            lock (this)
+            {
+                if (!this.handleMethodCache.TryGetValue(messageType, out methodInfo))
+                {
+                    var handleMethods = typeof(MonoExpanderClient).GetMethods()
+                        .Where(x => x.Name == "Handle" && x.GetParameters().Any(p => p.ParameterType == messageType))
+                        .ToList();
+
+                    methodInfo = handleMethods.SingleOrDefault();
+
+                    this.handleMethodCache.Add(messageType, methodInfo);
+                }
+            }
+
+            methodInfo?.Invoke(this, new object[] { messageObject });
         }
 
         private void SendMessage(object message)
         {
             try
             {
+                //FIXME
                 this.hub.Invoke("HandleMessage", message.GetType(), message);
             }
             catch (InvalidOperationException ex)

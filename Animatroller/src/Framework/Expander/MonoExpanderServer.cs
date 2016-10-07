@@ -1,27 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Subjects;
 using NLog;
 using Newtonsoft.Json;
-using Owin;
-using Microsoft.Owin.Hosting;
 using System.Threading.Tasks;
 using System.IO;
 
 namespace Animatroller.Framework.Expander
 {
-    public interface IMonoExpanderServerRepository
-    {
-        void SetKnownInstanceId(string instanceId, string connectionId);
-
-        //        void HandleMessage(string connectionId, object message);
-
-        string ExpanderSharedFiles { get; }
-
-    }
-
-    public class MonoExpanderServer : IDisposable, IPort, IRunnable, IMonoExpanderServerRepository
+    public class MonoExpanderServer : IDisposable, IPort, IRunnable
     {
         public enum CommunicationTypes
         {
@@ -38,6 +24,7 @@ namespace Animatroller.Framework.Expander
         private IDisposable signalrServer;
         private object lockObject = new object();
         private ExpanderCommunication.IServerCommunication serverCommunication;
+        private Dictionary<string, Type> typeCache;
 
         public MonoExpanderServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -61,25 +48,25 @@ namespace Animatroller.Framework.Expander
             this.clientInstances = new Dictionary<string, MonoExpanderInstance>();
             this.connectionIdByInstanceId = new Dictionary<string, string>();
             this.instanceIdByConnectionId = new Dictionary<string, string>();
+            this.typeCache = new Dictionary<string, Type>();
 
             switch (communicationType)
             {
                 case CommunicationTypes.SignalR:
-                    this.serverCommunication = new ExpanderCommunication.SignalRServer(listenPort);
+                    this.serverCommunication = new ExpanderCommunication.SignalRServer(
+                        listenPort: listenPort,
+                        connectionIdUpdatedAction: AssociateInstanceIdToConnectionId,
+                        dataReceivedAction: DataReceived);
                     break;
 
                 case CommunicationTypes.Netty:
-                    this.serverCommunication = new ExpanderCommunication.NettyServer(listenPort);
+                    this.serverCommunication = new ExpanderCommunication.NettyServer(
+                        listenPort: listenPort);
                     break;
 
                 default:
                     throw new ArgumentException("Communication Type");
             }
-
-            this.serverCommunication.SetMessageReceivedCallback((connectionId, messageType, message) =>
-                {
-                    HandleMessage(connectionId, messageType, message);
-                });
 
             Executor.Current.Register(this);
         }
@@ -95,14 +82,36 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        private static object DeserializeFromStream(Stream stream)
+        private static object DeserializeFromStream(Stream stream, Type messageType)
         {
             var serializer = new JsonSerializer();
 
             using (var sr = new StreamReader(stream))
             using (var jsonTextReader = new JsonTextReader(sr))
             {
-                return serializer.Deserialize(jsonTextReader);
+                return serializer.Deserialize(jsonTextReader, messageType);
+            }
+        }
+
+        private async Task SendData(string instanceId, object data)
+        {
+            string connectionId;
+
+            lock (this.lockObject)
+            {
+                if (!this.connectionIdByInstanceId.TryGetValue(instanceId, out connectionId))
+                {
+                    log.Trace("InstanceId {0} not connected yet", instanceId);
+
+                    return;
+                }
+            }
+
+            using (var ms = new MemoryStream())
+            {
+                Serialize(data, ms);
+
+                await this.serverCommunication.SendToClientAsync(connectionId, data.GetType().FullName, ms.ToArray());
             }
         }
 
@@ -110,27 +119,9 @@ namespace Animatroller.Framework.Expander
         {
             this.clientInstances.Add(instanceId, expanderLocal);
 
-            expanderLocal.SetSendAction(async msg =>
-            {
-                string connectionId;
-
-                lock (this.lockObject)
-                {
-                    if (!this.connectionIdByInstanceId.TryGetValue(instanceId, out connectionId))
-                    {
-                        log.Trace("InstanceId {0} not connected yet", instanceId);
-
-                        return;
-                    }
-                }
-
-                using (var ms = new MemoryStream())
-                {
-                    Serialize(msg, ms);
-
-                    await this.serverCommunication.SendToClientAsync(connectionId, ms.ToArray());
-                }
-            });
+            expanderLocal.Initialize(
+                expanderSharedFiles: ExpanderSharedFiles,
+                sendAction: async msg => await SendData(instanceId, msg));
         }
 
         public void Start()
@@ -140,18 +131,21 @@ namespace Animatroller.Framework.Expander
 
         public void Stop()
         {
-        }
-
-        public void Dispose()
-        {
             this.signalrServer?.Dispose();
             this.signalrServer = null;
         }
 
+        public void Dispose()
+        {
+            Stop();
+        }
+
         public string ExpanderSharedFiles { get; set; }
 
-        public void SetKnownInstanceId(string instanceId, string connectionId)
+        public void AssociateInstanceIdToConnectionId(string instanceId, string connectionId)
         {
+            log.Debug("Instance {0} connected on {1}", instanceId, connectionId);
+
             lock (this.lockObject)
             {
                 this.connectionIdByInstanceId[instanceId] = connectionId;
@@ -159,7 +153,7 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        private void HandleMessage(string connectionId, Type messageType, object message)
+        private void DataReceived(string connectionId, string messageType, byte[] data)
         {
             string instanceId;
             lock (this.lockObject)
@@ -176,7 +170,24 @@ namespace Animatroller.Framework.Expander
                 if (!this.clientInstances.TryGetValue(instanceId, out instance))
                     return;
 
-                instance.HandleMessage(messageType, message);
+                object messageObject;
+                Type type;
+
+                using (var ms = new MemoryStream(data))
+                {
+                    lock (this.typeCache)
+                    {
+                        if (!this.typeCache.TryGetValue(messageType, out type))
+                        {
+                            type = typeof(Animatroller.Framework.MonoExpanderMessages.Ping).Assembly.GetType(messageType, true);
+                            this.typeCache.Add(messageType, type);
+                        }
+                    }
+
+                    messageObject = DeserializeFromStream(ms, type);
+                }
+
+                instance.HandleMessage(type, messageObject);
             }
         }
     }

@@ -14,6 +14,7 @@ using System.Diagnostics;
 using org.freedesktop.DBus;
 using Animatroller.Framework.MonoExpanderMessages;
 using Microsoft.AspNet.SignalR.Client;
+using Newtonsoft.Json;
 
 namespace Animatroller.MonoExpander
 {
@@ -233,8 +234,7 @@ namespace Animatroller.MonoExpander
                 var client = new MonoExpanderClient(this, hub);
 
                 // Wire up messages
-                hub.On<Type, object>("HandleMessage", client.HandleMessage);
-                hub.On<object>("HandleMessage", client.HandleMessage);
+                hub.On<string, byte[]>("HandleMessage", client.HandleMessage);
 
                 // Start, ignore result here (caught by the event handlers)
                 connection.Start();
@@ -253,6 +253,28 @@ namespace Animatroller.MonoExpander
             get { return this.instanceId; }
         }
 
+        internal static void Serialize(object value, Stream s)
+        {
+            using (var writer = new StreamWriter(s))
+            using (var jsonWriter = new JsonTextWriter(writer))
+            {
+                var ser = new JsonSerializer();
+                ser.Serialize(jsonWriter, value);
+                jsonWriter.Flush();
+            }
+        }
+
+        internal static object DeserializeFromStream(Stream stream, Type messageType)
+        {
+            var serializer = new JsonSerializer();
+
+            using (var sr = new StreamReader(stream))
+            using (var jsonTextReader = new JsonTextReader(sr))
+            {
+                return serializer.Deserialize(jsonTextReader, messageType);
+            }
+        }
+
         public void SendMessage<T>(T message)
         {
             if (connections == null)
@@ -263,7 +285,14 @@ namespace Animatroller.MonoExpander
                 try
                 {
                     if (tt.Item1.State == ConnectionState.Connected)
-                        tt.Item2.Invoke("HandleMessage", message.GetType(), message);
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            Serialize(message, ms);
+
+                            tt.Item2.Invoke("HandleMessage", message.GetType().FullName, ms.ToArray());
+                        }
+                    }
                     else
                         this.log.Debug("Not connected to {0}", tt.Item1.Url);
                 }

@@ -11,7 +11,7 @@ using NLog;
 namespace Animatroller.ExpanderCommunication
 {
     [HubName("ExpanderCommunicationHub")]
-    internal class SignalRHub : Hub
+    public class SignalRHub : Hub
     {
         private SignalRServer parent;
         private Logger log;
@@ -34,6 +34,11 @@ namespace Animatroller.ExpanderCommunication
             this.parent.UpdateInstance(Context.QueryString["InstanceId"], Context.ConnectionId);
 
             return base.OnConnected();
+        }
+
+        public void HandleMessage(string messageType, byte[] data)
+        {
+            this.parent.DataReceived(Context.ConnectionId, messageType, data);
         }
     }
 }
