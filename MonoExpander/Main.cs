@@ -13,8 +13,8 @@ using SupersonicSound.Exceptions;
 using System.Diagnostics;
 using org.freedesktop.DBus;
 using Animatroller.Framework.MonoExpanderMessages;
-using Microsoft.AspNet.SignalR.Client;
 using Newtonsoft.Json;
+using Animatroller.ExpanderCommunication;
 
 namespace Animatroller.MonoExpander
 {
@@ -53,8 +53,7 @@ namespace Animatroller.MonoExpander
         private int? lastPosBg;
         private int? lastPosTrk;
         private string fileStoragePath;
-        private List<Tuple<HubConnection, IHubProxy, MonoExpanderClient>> connections;
-        private bool attemptHubReconnect;
+        private List<Tuple<IClientCommunication, MonoExpanderClient>> connections;
 
         public Main(Arguments args)
         {
@@ -193,54 +192,26 @@ namespace Animatroller.MonoExpander
 
             this.log.Info("Initializing SignalR client");
 
-            this.attemptHubReconnect = true;
-            this.connections = new List<Tuple<HubConnection, IHubProxy, MonoExpanderClient>>();
+            this.connections = new List<Tuple<IClientCommunication, MonoExpanderClient>>();
             foreach (var server in args.Servers)
             {
-                var connection = new HubConnection(
-                    string.Format("http://{0}:{1}/", server.Host, server.Port),
-                    string.Format("InstanceId={0}", InstanceId));
+                var client = new MonoExpanderClient(this);
 
-#if DEBUG
-                connection.DeadlockErrorTimeout = TimeSpan.FromMinutes(15);
-#endif
-                connection.TransportConnectTimeout = TimeSpan.FromSeconds(15);
+                var communication = new SignalRClient(
+                    host: server.Host,
+                    port: server.Port,
+                    instanceId: InstanceId,
+                    dataReceivedAction: (t, d) => DataReceived(client, t, d));
 
-                connection.Closed += () =>
-                {
-                    if (this.attemptHubReconnect)
-                    {
-                        this.log.Warn("Connection to {0}:{1} disconnected, trying reconnect", server.Host, server.Port);
+                this.connections.Add(Tuple.Create((IClientCommunication)communication, client));
 
-                        Task.Delay(2000).ContinueWith(t => connection.Start());
-                    }
-                };
-
-                //connection.TraceLevel = TraceLevels.All;
-                //connection.TraceWriter = Console.Out;
-
-                connection.Error += error =>
-                {
-                    this.log.Warn("SignalR error {0} for host {1}:{2}", error.Message, server.Host, server.Port);
-                };
-
-                connection.StateChanged += state =>
-                {
-                    this.log.Trace("Connection to {0}:{1} changed state to {2}", server.Host, server.Port, state.NewState);
-                };
-
-                var hub = connection.CreateHubProxy("ExpanderCommunicationHub");
-
-                var client = new MonoExpanderClient(this, hub);
-
-                // Wire up messages
-                hub.On<string, byte[]>("HandleMessage", client.HandleMessage);
-
-                // Start, ignore result here (caught by the event handlers)
-                connection.Start();
-
-                this.connections.Add(Tuple.Create(connection, hub, client));
+                Task.Run(async () => await communication.StartAsync()).Wait();
             }
+        }
+
+        private void DataReceived(MonoExpanderClient client, string messageType, byte[] data)
+        {
+            client.HandleMessage(messageType, data);
         }
 
         public string FileStoragePath
@@ -275,7 +246,7 @@ namespace Animatroller.MonoExpander
             }
         }
 
-        public void SendMessage<T>(T message)
+        public void SendMessage(object message)
         {
             if (connections == null)
                 return;
@@ -284,17 +255,17 @@ namespace Animatroller.MonoExpander
             {
                 try
                 {
-                    if (tt.Item1.State == ConnectionState.Connected)
+                    using (var ms = new MemoryStream())
                     {
-                        using (var ms = new MemoryStream())
-                        {
-                            Serialize(message, ms);
+                        Serialize(message, ms);
 
-                            tt.Item2.Invoke("HandleMessage", message.GetType().FullName, ms.ToArray());
+                        if (!Task.Run(async () => await tt.Item1.SendData(
+                            messageType: message.GetType().FullName,
+                            data: ms.ToArray())).Result)
+                        {
+                            this.log.Debug("Not connected to {0}", tt.Item1.Server);
                         }
                     }
-                    else
-                        this.log.Debug("Not connected to {0}", tt.Item1.Url);
                 }
                 catch (Exception ex)
                 {
@@ -581,11 +552,9 @@ namespace Animatroller.MonoExpander
 
         public void Dispose()
         {
-            this.attemptHubReconnect = false;
             this.connections.ForEach(tt =>
             {
-                tt.Item1.Stop();
-                tt.Item1.Dispose();
+                Task.Run(async () => await tt.Item1.StopAsync()).Wait();
             });
             this.connections.Clear();
 

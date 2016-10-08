@@ -50,6 +50,10 @@
       <HintPath>..\packages\DotNetty.Transport-signed.0.3.2\lib\net45\DotNetty.Transport.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\..\MonoExpander\packages\Microsoft.AspNet.SignalR.Client.2.2.1\lib\net45\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.2.1\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
       <Private>True</Private>
@@ -98,9 +102,11 @@
   <ItemGroup>
     <None Include="Udp\BaseConnectionManager.cs" />
     <None Include="Udp\ClientConnectionManager.cs" />
+    <Compile Include="IClientCommunication.cs" />
     <Compile Include="IServerCommunication.cs" />
     <Compile Include="Netty\NettyServer.cs" />
     <Compile Include="Netty\NettyServerHandler.cs" />
+    <Compile Include="SignalR\SignalRClient.cs" />
     <Compile Include="SignalR\SignalRHub.cs" />
     <Compile Include="SignalR\SignalRServerStartup.cs" />
     <Compile Include="SignalR\SignalRServer.cs" />

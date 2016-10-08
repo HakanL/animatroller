@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using NLog;
 using Animatroller.Framework.MonoExpanderMessages;
-using System.IO;
-using Microsoft.AspNet.SignalR.Client;
-using Newtonsoft.Json.Linq;
 
 namespace Animatroller.MonoExpander
 {
@@ -88,14 +86,12 @@ namespace Animatroller.MonoExpander
         private Dictionary<string, DownloadInfo> downloadInfos;
         private const int ChunkSize = 16384;
         private const int BufferedChunks = 5;
-        private IHubProxy hub;
         private Dictionary<string, Type> typeCache;
         private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
 
-        public MonoExpanderClient(Main main, IHubProxy hub)
+        public MonoExpanderClient(Main main)
         {
             this.main = main;
-            this.hub = hub;
             this.downloadInfos = new Dictionary<string, DownloadInfo>();
             this.typeCache = new Dictionary<string, Type>();
             this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
@@ -121,10 +117,10 @@ namespace Animatroller.MonoExpander
             }
 
             if (messageObject != null)
-                InternalHandleMessage(type, messageObject);
+                InternalInvokeMessage(type, messageObject);
         }
 
-        private void InternalHandleMessage(Type messageType, object messageObject)
+        private void InternalInvokeMessage(Type messageType, object messageObject)
         {
             System.Reflection.MethodInfo methodInfo;
             lock (this)
@@ -148,8 +144,7 @@ namespace Animatroller.MonoExpander
         {
             try
             {
-                //FIXME
-                this.hub.Invoke("HandleMessage", message.GetType(), message);
+                this.main.SendMessage(message);
             }
             catch (InvalidOperationException ex)
             {
