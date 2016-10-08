@@ -49,6 +49,7 @@ namespace Animatroller.SceneRunner
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
+        Controller.Subroutine subCandyCane = new Controller.Subroutine();
 
         private VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
         private AnalogInput3 faderR = new AnalogInput3(persistState: true);
@@ -87,6 +88,7 @@ namespace Animatroller.SceneRunner
         private DigitalInput2 finalBeam = new DigitalInput2();
         private DigitalInput2 motion2 = new DigitalInput2();
         private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
+        private DigitalOutput2 catMrsPumpkin = new DigitalOutput2(initial: true);
         private DigitalOutput2 fog = new DigitalOutput2();
         private DateTime? lastFogRun = DateTime.Now;
         private DigitalOutput2 candyEyes = new DigitalOutput2();
@@ -170,9 +172,11 @@ namespace Animatroller.SceneRunner
 
 
             hoursSmall
-                .ControlsMasterPower(catAir);
+                .ControlsMasterPower(catAir)
+                .ControlsMasterPower(catMrsPumpkin);
             hoursFull
-                .ControlsMasterPower(catAir);
+                .ControlsMasterPower(catAir)
+                .ControlsMasterPower(catMrsPumpkin);
             //                .ControlsMasterPower(eyes);
 
             buttonOverrideHours.Output.Subscribe(x =>
@@ -322,6 +326,24 @@ namespace Animatroller.SceneRunner
             midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
             midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
 
+            subCandyCane
+                .LockWhenRunning(pixelsRoofEdge)
+                .RunAction(i =>
+                {
+                    const int spacing = 4;
+
+                    while (true)
+                    {
+                        for (int x = 0; x < spacing; x++)
+                        {
+                            pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, i.Token);
+
+                            i.WaitFor(S(0.30), true);
+                        }
+                    }
+                });
+
+
             raspberryLocal.AudioTrackStart.Subscribe(x =>
             {
                 // Next track
@@ -409,7 +431,7 @@ namespace Animatroller.SceneRunner
             timelineThunder8.AddMs(4200, "C");
             timelineThunder8.TimelineTrigger += TriggerThunderTimeline;
 
-            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50), 6, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, true), 6, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), 5, 1);
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), 1);
@@ -446,6 +468,7 @@ namespace Animatroller.SceneRunner
             raspberryPop.DigitalOutputs[2].Connect(dropSpiderEyes);
 
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(catMrsPumpkin, 50), 10);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), 4);
 
             oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
@@ -860,7 +883,9 @@ namespace Animatroller.SceneRunner
             midiInput.Note(midiChannel, 43).Subscribe(x =>
             {
                 if (x)
-                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                    //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                    subCandyCane.Run();
+
             });
 
             catMotion.Output.Subscribe(x =>

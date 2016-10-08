@@ -149,9 +149,9 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public VirtualPixel1D3 AddPixelDevice(int startVirtualPosition, int positions, Action<byte[]> pixelsChanged)
+        public VirtualPixel1D3 AddPixelDevice(int startVirtualPosition, int positions, bool reverse, Action<byte[]> pixelsChanged)
         {
-            var newPixelDevice = new PixelDevice(this.pixelCount, startVirtualPosition, startVirtualPosition + positions - 1, pixelsChanged);
+            var newPixelDevice = new PixelDevice(this.pixelCount, startVirtualPosition, startVirtualPosition + positions - 1, reverse, pixelsChanged);
 
             this.devices.Add(newPixelDevice);
 
@@ -192,11 +192,16 @@ namespace Animatroller.Framework.LogicalDevice
 
             private Action<byte[]> pixelsChangedAction;
 
+            private bool reverse;
+
             public int StartPosition { get; }
 
-            public PixelDevice(int pixelCount, int startPosition, int endPosition, Action<byte[]> pixelsChangedAction)
+            public PixelDevice(int pixelCount, int startPosition, int endPosition, bool reverse, Action<byte[]> pixelsChangedAction)
             {
+                this.reverse = reverse;
                 this.pixelsChangedAction = pixelsChangedAction;
+
+                StartPosition = startPosition;
 
                 this.outputBitmap = new Bitmap(endPosition - startPosition + 1, 1, PixelFormat.Format24bppRgb);
                 this.outputGraphics = Graphics.FromImage(this.outputBitmap);
@@ -213,7 +218,9 @@ namespace Animatroller.Framework.LogicalDevice
                     int stride;
                     lock (this)
                     {
-                        this.outputGraphics.DrawImageUnscaled(bitmap, StartPosition, 0);
+                        this.outputGraphics.DrawImageUnscaled(bitmap, -StartPosition, 0);
+                        if (this.reverse)
+                            this.outputBitmap.RotateFlip(RotateFlipType.RotateNoneFlipX);
 
                         BitmapData bitmapData = this.outputBitmap.LockBits(this.outputRectangle, ImageLockMode.ReadOnly, this.outputBitmap.PixelFormat);
                         stride = bitmapData.Stride;
