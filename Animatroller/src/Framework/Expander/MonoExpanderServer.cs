@@ -21,7 +21,6 @@ namespace Animatroller.Framework.Expander
         private Dictionary<string, MonoExpanderInstance> clientInstances;
         private Dictionary<string, string> connectionIdByInstanceId;
         private Dictionary<string, string> instanceIdByConnectionId;
-        private IDisposable signalrServer;
         private object lockObject = new object();
         private ExpanderCommunication.IServerCommunication serverCommunication;
         private Dictionary<string, Type> typeCache;
@@ -131,8 +130,7 @@ namespace Animatroller.Framework.Expander
 
         public void Stop()
         {
-            this.signalrServer?.Dispose();
-            this.signalrServer = null;
+            Task.Run(async () => await this.serverCommunication.StopAsync()).Wait();
         }
 
         public void Dispose()
