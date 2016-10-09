@@ -125,6 +125,7 @@ namespace Animatroller.SceneRunner
         private Dimmer3 stairs1Light = new Dimmer3("Stairs 1");
         private Dimmer3 stairs2Light = new Dimmer3("Stairs 2");
         private Dimmer3 treeGhosts = new Dimmer3();
+        private Dimmer3 treeSkulls = new Dimmer3();
         private StrobeDimmer3 underGeorge = new StrobeDimmer3("ADJ Flash");
         private StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
@@ -270,6 +271,7 @@ namespace Animatroller.SceneRunner
             flickerEffect.ConnectTo(stairs2Light);
             flickerEffect.ConnectTo(gorgoyleLightsEyes);
             pulsatingGorgoyle.ConnectTo(gorgoyleLightsCrystal);
+            pulsatingGorgoyle.ConnectTo(treeSkulls);
             pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
             pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
@@ -282,6 +284,7 @@ namespace Animatroller.SceneRunner
                         flickerEffect.Start();
                         pulsatingGorgoyle.Start();
                         treeGhosts.SetBrightness(1.0);
+                        treeSkulls.SetBrightness(1.0);
                         audioEeebox.SetBackgroundVolume(0.6);
 
                         var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
@@ -297,6 +300,7 @@ namespace Animatroller.SceneRunner
                         pulsatingGorgoyle.Stop();
                         flickerEffect.Stop();
                         treeGhosts.SetBrightness(0.0);
+                        treeSkulls.SetBrightness(0.0);
                     });
 
             stateMachine.For(States.BackgroundFull)
@@ -305,6 +309,7 @@ namespace Animatroller.SceneRunner
                     subVideo.Run();
                     flickerEffect.Start();
                     treeGhosts.SetBrightness(1.0);
+                    treeSkulls.SetBrightness(1.0);
                     audioMain.PlayBackground();
                     audioEeebox.SetBackgroundVolume(0.6);
                     audioEeebox.PlayBackground();
@@ -346,6 +351,7 @@ namespace Animatroller.SceneRunner
 
                     flickerEffect.Stop();
                     treeGhosts.SetBrightness(0.0);
+                    treeSkulls.SetBrightness(0.0);
                 });
 
             stateMachine.For(States.EmergencyStop)
@@ -481,6 +487,7 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 97), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 98), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(treeSkulls, 263), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.AmericanDJStrobe(underGeorge, 100), 1);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
@@ -926,10 +933,10 @@ namespace Animatroller.SceneRunner
             midiInput.Note(midiChannel, 43).Subscribe(x =>
             {
                 if (x)
-                    //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-                    //subCandyCane.Run();
-                    flickerEffect.Start();
-                pulsatingGorgoyle.Start();
+                //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                {
+                    pulsatingGorgoyle.Start();
+                }
 
             });
 
