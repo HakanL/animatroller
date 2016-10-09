@@ -40,21 +40,6 @@ namespace Animatroller.Framework.LogicalDevice
 
             this.outputData.Subscribe(x =>
             {
-                object value;
-                if (x.TryGetValue(DataElements.Color, out value))
-                {
-                    Color allColor = (Color)value;
-
-                    if (allColor != Color.Transparent)
-                    {
-                        var bitmap = (Bitmap)x[DataElements.PixelBitmap];
-                        using (var g = Graphics.FromImage(bitmap))
-                        {
-                            g.FillRectangle(new SolidBrush(allColor), 0, 0, bitmap.Width, bitmap.Height);
-                        }
-                    }
-                }
-
                 Output();
             });
 
@@ -78,6 +63,28 @@ namespace Animatroller.Framework.LogicalDevice
                 new float[] {0, 0, 0, 1, 0},
                 new float[] {0.5f, 0.5f, 0.5f, 1, 1}
                 });
+        }
+
+        protected override IData PreprocessPushData(IData data)
+        {
+            object value;
+            if (data.TryGetValue(DataElements.Color, out value))
+            {
+                Color allColor = (Color)value;
+
+                if (allColor != Color.Transparent)
+                {
+                    var bitmap = (Bitmap)data[DataElements.PixelBitmap];
+                    using (var g = Graphics.FromImage(bitmap))
+                    {
+                        g.FillRectangle(new SolidBrush(allColor), 0, 0, bitmap.Width, bitmap.Height);
+                    }
+                }
+
+                data.Remove(DataElements.Color);
+            }
+
+            return base.PreprocessPushData(data);
         }
 
         public int PixelWidth

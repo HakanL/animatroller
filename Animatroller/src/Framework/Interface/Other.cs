@@ -66,6 +66,8 @@ namespace Animatroller.Framework
     public interface IData : IDictionary<DataElements, object>
     {
         IControlToken CurrentToken { get; set; }
+
+        string CreationId { get; }
     }
 
     [Obsolete]

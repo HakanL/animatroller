@@ -19,6 +19,11 @@ namespace Animatroller.SceneRunner
 {
     internal class Halloween2016 : BaseScene
     {
+        const int SacnUniverseDMXCat = 4;
+        const int SacnUniverseDMXLedmx = 10;
+        const int SacnUniverse5 = 5;
+        const int SacnUniverse6 = 6;
+
         public enum States
         {
             BackgroundSmall,
@@ -43,7 +48,6 @@ namespace Animatroller.SceneRunner
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance();
-        private Expander.Raspberry raspberryCat = new Expander.Raspberry("rpi-eb81c94e:5005", 3333);
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
         private Expander.Raspberry monoExpanderEeebox = new Expander.Raspberry("192.168.240.237:5005", 3338);
         private Expander.Raspberry raspberryLocal = new Expander.Raspberry("127.0.0.1:5005", 3339);
@@ -192,9 +196,9 @@ namespace Animatroller.SceneRunner
             buttonOverrideHours.Output.Subscribe(x =>
             {
                 if (x)
-                    hoursFull.SetForced(true);
+                    hoursSmall.SetForced(true);
                 else
-                    hoursFull.SetForced(false);
+                    hoursSmall.SetForced(null);
             });
 
 
@@ -465,35 +469,35 @@ namespace Animatroller.SceneRunner
             timelineThunder8.AddMs(4200, "C");
             timelineThunder8.TimelineTrigger += TriggerThunderTimeline;
 
-            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, true), 6, 1);
-            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), 5, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, true), SacnUniverse6, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniverse5, 1);
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall1Light, 60), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 70), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall3Light, 40), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall4Light, 80), 1);
-            acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 300, 8), 4);
-            acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 97), 4);
-            acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 98), 4);
-            acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), 10);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 300, 8), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 97), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 98), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.AmericanDJStrobe(underGeorge, 100), 1);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
-            acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), 4);
-            acnOutput.Connect(new Physical.GenericDimmer(catMrsPumpkin, 50), 10);
-            acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), 4);
-            acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), 10);
-            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsCrystal, 128), 4);
-            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsEyes, 129), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(catMrsPumpkin, 50), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsCrystal, 128), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsEyes, 129), SacnUniverseDMXCat);
             //            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
             expander1.DigitalInputs[4].Connect(pumpkinMotion, false);
             expander4.DigitalInputs[4].Connect(catMotion, false);
-            raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
-            raspberryCat.DigitalInputs[6].Connect(finalBeam, false);
-            raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
+            //raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
+            //raspberryCat.DigitalInputs[6].Connect(finalBeam, false);
+            //raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
             expander1.Connect(audio1);
             expander4.Connect(audioCat);
             raspberryLocal.Connect(audioMain);
@@ -503,7 +507,7 @@ namespace Animatroller.SceneRunner
             raspberryPop.Connect(audioPop);
             raspberryDIN.Connect(audioDIN);
             raspberryDIN.DigitalInputs[4].Connect(motion2);
-            raspberryCat.DigitalOutputs[6].Connect(fog);
+            //raspberryCat.DigitalOutputs[6].Connect(fog);
             raspberryDIN.DigitalOutputs[1].Connect(candyEyes);
             raspberryPop.DigitalOutputs[7].Connect(george1);
             raspberryPop.DigitalOutputs[6].Connect(george2);
@@ -1095,9 +1099,9 @@ namespace Animatroller.SceneRunner
                     var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
                     pulsatingCat.Start();
-                //                catLights.SetBrightness(1.0, instance.Token);
+                    //                catLights.SetBrightness(1.0, instance.Token);
 
-                while (true)
+                    while (true)
                     {
                         switch (random.Next(4))
                         {
@@ -1130,9 +1134,9 @@ namespace Animatroller.SceneRunner
                 })
                 .TearDown(instance =>
                 {
-                //                Exec.MasterEffect.Fade(catLights, 1.0, 0.0, 1000, token: instance.Token);
-                //TODO: Fade out
-                pulsatingCat.Stop();
+                    //                Exec.MasterEffect.Fade(catLights, 1.0, 0.0, 1000, token: instance.Token);
+                    //TODO: Fade out
+                    pulsatingCat.Stop();
                 });
 
             pumpkinSeq.WhenExecuted

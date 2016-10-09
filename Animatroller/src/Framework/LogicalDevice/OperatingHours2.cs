@@ -20,12 +20,14 @@ namespace Animatroller.Framework.LogicalDevice
         private Timer timer;
         private bool? isOpen;
         private bool? forced;
+        private bool noRangesMeansClosed;
 
         private ISubject<bool> outputValue;
 
-        public OperatingHours2([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public OperatingHours2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool noRangesMeansClosed = true)
             : base(name)
         {
+            this.noRangesMeansClosed = noRangesMeansClosed;
             this.isOpen = null;
             this.ranges = new List<TimeRange>();
 
@@ -55,7 +57,7 @@ namespace Animatroller.Framework.LogicalDevice
 
             bool isOpenNow = false;
             if (!this.ranges.Any())
-                isOpenNow = true;
+                isOpenNow = !this.noRangesMeansClosed;
 
             var now = DateTime.Now.TimeOfDay;
             foreach (var range in this.ranges)
