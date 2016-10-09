@@ -21,7 +21,8 @@ namespace Animatroller.SceneRunner
     {
         public enum States
         {
-            Background,
+            BackgroundSmall,
+            BackgroundFull,
             EmergencyStop,
             Special1
         }
@@ -31,6 +32,7 @@ namespace Animatroller.SceneRunner
         private Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         private Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         private Expander.OscServer oscServer = new Expander.OscServer();
+        private AudioPlayer audio1 = new AudioPlayer();
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioMain = new AudioPlayer();
         private AudioPlayer audioEeebox = new AudioPlayer();
@@ -39,6 +41,7 @@ namespace Animatroller.SceneRunner
         private VideoPlayer video3dfx = new VideoPlayer();
         private VideoPlayer video2 = new VideoPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
+        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance();
         private Expander.Raspberry raspberryCat = new Expander.Raspberry("rpi-eb81c94e:5005", 3333);
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
@@ -49,7 +52,6 @@ namespace Animatroller.SceneRunner
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
-        Controller.Subroutine subCandyCane = new Controller.Subroutine();
 
         private VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
         private AnalogInput3 faderR = new AnalogInput3(persistState: true);
@@ -75,7 +77,9 @@ namespace Animatroller.SceneRunner
 
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingCat = new Effect.Pulsating(S(2), 0.5, 1.0, false);
+        Effect.Pulsating pulsatingPumpkin = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        private Effect.Pulsating pulsatingGorgoyle = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         private Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
         private Effect.PopOut2 popOut1 = new Effect.PopOut2(S(0.3));
         private Effect.PopOut2 popOut2 = new Effect.PopOut2(S(0.3));
@@ -83,6 +87,7 @@ namespace Animatroller.SceneRunner
 
         private DigitalOutput2 spiderCeiling = new DigitalOutput2("Spider Ceiling");
         private DigitalOutput2 spiderCeilingDrop = new DigitalOutput2("Spider Ceiling Drop");
+        private DigitalInput2 pumpkinMotion = new DigitalInput2();
         private DigitalInput2 catMotion = new DigitalInput2();
         private DigitalInput2 firstBeam = new DigitalInput2();
         private DigitalInput2 finalBeam = new DigitalInput2();
@@ -93,6 +98,9 @@ namespace Animatroller.SceneRunner
         private DateTime? lastFogRun = DateTime.Now;
         private DigitalOutput2 candyEyes = new DigitalOutput2();
         private Dimmer3 catLights = new Dimmer3();
+        private Dimmer3 pumpkinLights = new Dimmer3();
+        private Dimmer3 gorgoyleLightsCrystal = new Dimmer3();
+        private Dimmer3 gorgoyleLightsEyes = new Dimmer3();
         private DigitalOutput2 george1 = new DigitalOutput2();
         private DigitalOutput2 george2 = new DigitalOutput2();
         private DigitalOutput2 popper = new DigitalOutput2();
@@ -109,6 +117,7 @@ namespace Animatroller.SceneRunner
         private StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2");
         private StrobeColorDimmer3 wall3Light = new StrobeColorDimmer3("Wall 3");
         private StrobeColorDimmer3 wall4Light = new StrobeColorDimmer3("Wall 4");
+        private StrobeColorDimmer3 wall5Light = new StrobeColorDimmer3("Wall 5");
         private Dimmer3 stairs1Light = new Dimmer3("Stairs 1");
         private Dimmer3 stairs2Light = new Dimmer3("Stairs 2");
         private Dimmer3 treeGhosts = new Dimmer3();
@@ -116,6 +125,7 @@ namespace Animatroller.SceneRunner
         private StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
         private Controller.Sequence catSeq = new Controller.Sequence();
+        private Controller.Sequence pumpkinSeq = new Controller.Sequence();
         private Controller.Sequence welcomeSeq = new Controller.Sequence();
         private Controller.Sequence motionSeq = new Controller.Sequence();
 
@@ -168,8 +178,8 @@ namespace Animatroller.SceneRunner
                 }
             }
 
+            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);      // rpi-eb0092ca
             expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expander4);      // rpi-eb81c94e
-
 
             hoursSmall
                 .ControlsMasterPower(catAir)
@@ -197,7 +207,7 @@ namespace Animatroller.SceneRunner
                 else
                 {
                     if (hoursFull.IsOpen)
-                        stateMachine.GoToState(States.Background);
+                        stateMachine.GoToDefaultState();
                     else
                         stateMachine.GoToIdle();
                 }
@@ -207,12 +217,27 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                 {
-                    stateMachine.SetDefaultState(States.Background);
+                    stateMachine.SetDefaultState(States.BackgroundFull);
 
                     if (emergencyStop.Value)
                         stateMachine.GoToState(States.EmergencyStop);
                     else
-                        stateMachine.GoToState(States.Background);
+                        stateMachine.GoToDefaultState();
+                }
+                else
+                {
+                    stateMachine.GoToIdle();
+                    stateMachine.SetDefaultState(null);
+                }
+                SetPixelColor();
+            });
+
+            hoursSmall.Output.Subscribe(x =>
+            {
+                if (x)
+                {
+                    stateMachine.SetDefaultState(States.BackgroundSmall);
+                    stateMachine.GoToDefaultState();
                 }
                 else
                 {
@@ -229,68 +254,95 @@ namespace Animatroller.SceneRunner
             popOutAll.ConnectTo(wall2Light);
             popOutAll.ConnectTo(wall3Light);
             popOutAll.ConnectTo(wall4Light);
+            popOutAll.ConnectTo(wall5Light);
             popOutAll.ConnectTo(underGeorge);
             popOutAll.ConnectTo(pixelsRoofEdge);
             popOutAll.ConnectTo(pinSpot);
 
-            allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, underGeorge, pixelsRoofEdge, pinSpot, spiderLight);
-            purpleLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, pixelsRoofEdge);
+            allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, underGeorge, pixelsRoofEdge, pinSpot, spiderLight);
+            purpleLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, pixelsRoofEdge);
 
             flickerEffect.ConnectTo(stairs1Light);
             flickerEffect.ConnectTo(stairs2Light);
+            flickerEffect.ConnectTo(gorgoyleLightsEyes);
+            pulsatingGorgoyle.ConnectTo(gorgoyleLightsCrystal);
             pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
             pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
             pulsatingCat.ConnectTo(catLights);
+            pulsatingPumpkin.ConnectTo(pumpkinLights);
 
-            stateMachine.For(States.Background)
+            stateMachine.For(States.BackgroundSmall)
                 .Execute(i =>
                     {
-                        subVideo.Run();
                         flickerEffect.Start();
+                        pulsatingGorgoyle.Start();
                         treeGhosts.SetBrightness(1.0);
-                        audioMain.PlayBackground();
                         audioEeebox.SetBackgroundVolume(0.6);
-                        audioEeebox.PlayBackground();
 
-                        ColorBrightness purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
+                        var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
 
-                        purpleLights.SetBrightness(purpleColor.Brightness, new Data(DataElements.Color, purpleColor.Color));
+                        purpleLights.SetBrightness(purpleColor.Brightness, new Data(DataElements.Color, purpleColor.Color), i.Token);
 
-                        while (!i.IsCancellationRequested && stateMachine.CurrentState == States.Background)
-                        {
-                            i.WaitFor(S(0.5));
-                            if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 5)
-                            {
-                                // Run the fog for a little while
-                                fog.Value = true;
-                                i.WaitFor(S(4));
-                                fog.Value = false;
-                                this.lastFogRun = DateTime.Now;
-                            }
-                        }
+                        i.CancelToken.WaitHandle.WaitOne();
                     })
                 .TearDown(instance =>
                     {
                         purpleLights.SetBrightness(0.0);
-
-                        Exec.Cancel(subVideo);
-                        audioMain.PauseBackground();
-                        audioEeebox.PauseBackground();
-
-                        timelineThunder1.Stop();
-                        timelineThunder2.Stop();
-                        timelineThunder3.Stop();
-                        timelineThunder4.Stop();
-                        timelineThunder5.Stop();
-                        timelineThunder6.Stop();
-                        timelineThunder7.Stop();
-                        timelineThunder8.Stop();
-
+                        pulsatingGorgoyle.Stop();
                         flickerEffect.Stop();
                         treeGhosts.SetBrightness(0.0);
                     });
+
+            stateMachine.For(States.BackgroundFull)
+                .Execute(i =>
+                {
+                    subVideo.Run();
+                    flickerEffect.Start();
+                    treeGhosts.SetBrightness(1.0);
+                    audioMain.PlayBackground();
+                    audioEeebox.SetBackgroundVolume(0.6);
+                    audioEeebox.PlayBackground();
+
+                    var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
+                        0.16470588235294117);
+
+                    purpleLights.SetBrightness(purpleColor.Brightness, new Data(DataElements.Color, purpleColor.Color));
+
+                    while (!i.IsCancellationRequested && stateMachine.CurrentState == States.BackgroundFull)
+                    {
+                        i.WaitFor(S(0.5));
+                        if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 5)
+                        {
+                            // Run the fog for a little while
+                            fog.Value = true;
+                            i.WaitFor(S(4));
+                            fog.Value = false;
+                            this.lastFogRun = DateTime.Now;
+                        }
+                    }
+                })
+                .TearDown(instance =>
+                {
+                    purpleLights.SetBrightness(0.0);
+
+                    Exec.Cancel(subVideo);
+                    audioMain.PauseBackground();
+                    audioEeebox.PauseBackground();
+
+                    timelineThunder1.Stop();
+                    timelineThunder2.Stop();
+                    timelineThunder3.Stop();
+                    timelineThunder4.Stop();
+                    timelineThunder5.Stop();
+                    timelineThunder6.Stop();
+                    timelineThunder7.Stop();
+                    timelineThunder8.Stop();
+
+                    flickerEffect.Stop();
+                    treeGhosts.SetBrightness(0.0);
+                });
 
             stateMachine.For(States.EmergencyStop)
                 .Execute(i =>
@@ -325,24 +377,6 @@ namespace Animatroller.SceneRunner
             midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
             midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
             midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
-
-            subCandyCane
-                .LockWhenRunning(pixelsRoofEdge)
-                .RunAction(i =>
-                {
-                    const int spacing = 4;
-
-                    while (true)
-                    {
-                        for (int x = 0; x < spacing; x++)
-                        {
-                            pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, i.Token);
-
-                            i.WaitFor(S(0.30), true);
-                        }
-                    }
-                });
-
 
             raspberryLocal.AudioTrackStart.Subscribe(x =>
             {
@@ -439,19 +473,28 @@ namespace Animatroller.SceneRunner
             acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 70), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall3Light, 40), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall4Light, 80), 1);
-            acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 50), 1);
-            acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 51), 1);
-            acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), 1);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 300, 8), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 97), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 98), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), 10);
             acnOutput.Connect(new Physical.AmericanDJStrobe(underGeorge, 100), 1);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
+            acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(catMrsPumpkin, 50), 10);
+            acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), 10);
+            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsCrystal, 128), 4);
+            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsEyes, 129), 4);
             //            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
+            expander1.DigitalInputs[4].Connect(pumpkinMotion, false);
             expander4.DigitalInputs[4].Connect(catMotion, false);
             raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
             raspberryCat.DigitalInputs[6].Connect(finalBeam, false);
             raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
+            expander1.Connect(audio1);
             expander4.Connect(audioCat);
             raspberryLocal.Connect(audioMain);
             monoExpanderEeebox.Connect(audioEeebox);
@@ -466,10 +509,6 @@ namespace Animatroller.SceneRunner
             raspberryPop.DigitalOutputs[6].Connect(george2);
             raspberryPop.DigitalOutputs[5].Connect(popper);
             raspberryPop.DigitalOutputs[2].Connect(dropSpiderEyes);
-
-            acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), 4);
-            acnOutput.Connect(new Physical.GenericDimmer(catMrsPumpkin, 50), 10);
-            acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), 4);
 
             oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
             {
@@ -884,7 +923,9 @@ namespace Animatroller.SceneRunner
             {
                 if (x)
                     //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-                    subCandyCane.Run();
+                    //subCandyCane.Run();
+                    flickerEffect.Start();
+                pulsatingGorgoyle.Start();
 
             });
 
@@ -894,6 +935,14 @@ namespace Animatroller.SceneRunner
                     Executor.Current.Execute(catSeq);
 
                 touchOSC.Send("/1/led1", x ? 1 : 0);
+            });
+
+            pumpkinMotion.Output.Subscribe(x =>
+            {
+                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen))
+                    Executor.Current.Execute(pumpkinSeq);
+
+                //                touchOSC.Send("/1/led1", x ? 1 : 0);
             });
 
             firstBeam.Output.Subscribe(x =>
@@ -1040,51 +1089,63 @@ namespace Animatroller.SceneRunner
                 });
 
 
-        catSeq.WhenExecuted
-            .Execute(instance =>
-            {
-                var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
+            catSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
-                pulsatingCat.Start();
-//                catLights.SetBrightness(1.0, instance.Token);
+                    pulsatingCat.Start();
+                //                catLights.SetBrightness(1.0, instance.Token);
 
                 while (true)
-                {
-                    switch (random.Next(4))
                     {
-                        case 0:
-                            audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
-                            instance.WaitFor(TimeSpan.FromSeconds(2.0));
-                            break;
-                        case 1:
-                            audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
-                            instance.WaitFor(TimeSpan.FromSeconds(3.0));
-                            break;
-                        case 2:
-                            audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
-                            instance.WaitFor(TimeSpan.FromSeconds(2.5));
-                            break;
-                        case 3:
-                            audioCat.PlayEffect("287 Monster Snarl 4.wav", 1.0, 1.0);
-                            instance.WaitFor(TimeSpan.FromSeconds(1.5));
-                            break;
-                        default:
-                            instance.WaitFor(TimeSpan.FromSeconds(3.0));
+                        switch (random.Next(4))
+                        {
+                            case 0:
+                                audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
+                                instance.WaitFor(TimeSpan.FromSeconds(2.0));
+                                break;
+                            case 1:
+                                audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
+                                instance.WaitFor(TimeSpan.FromSeconds(3.0));
+                                break;
+                            case 2:
+                                audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
+                                instance.WaitFor(TimeSpan.FromSeconds(2.5));
+                                break;
+                            case 3:
+                                audioCat.PlayEffect("287 Monster Snarl 4.wav", 1.0, 1.0);
+                                instance.WaitFor(TimeSpan.FromSeconds(1.5));
+                                break;
+                            default:
+                                instance.WaitFor(TimeSpan.FromSeconds(3.0));
+                                break;
+                        }
+
+                        instance.CancelToken.ThrowIfCancellationRequested();
+
+                        if (maxRuntime.Elapsed.TotalSeconds > 10)
                             break;
                     }
-
-                    instance.CancelToken.ThrowIfCancellationRequested();
-
-                    if (maxRuntime.Elapsed.TotalSeconds > 10)
-                        break;
-                }
-            })
-            .TearDown(instance =>
-            {
+                })
+                .TearDown(instance =>
+                {
                 //                Exec.MasterEffect.Fade(catLights, 1.0, 0.0, 1000, token: instance.Token);
                 //TODO: Fade out
                 pulsatingCat.Stop();
-            });
+                });
+
+            pumpkinSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    pulsatingPumpkin.Start();
+                    audio1.PlayEffect("Thriller2.wav");
+                    instance.CancelToken.WaitHandle.WaitOne(40000);
+                })
+                .TearDown(instance =>
+                {
+                    pulsatingPumpkin.Stop();
+                });
 
             motionSeq.WhenExecuted
                 .Execute(instance =>
@@ -1105,8 +1166,8 @@ namespace Animatroller.SceneRunner
 
         private void SetPixelColor()
         {
-            if (manualFader.Value)
-                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
+            //if (manualFader.Value)
+            //    pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
         }
 
         private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
