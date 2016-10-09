@@ -126,7 +126,7 @@ namespace Animatroller.Framework.LogicalDevice
                 this.outputData.OnNext(data, finalToken);
         }
 
-        protected void SetData(IControlToken token, params Tuple<DataElements, object>[] values)
+        public void SetData(IControlToken token, params Tuple<DataElements, object>[] values)
         {
             var data = GetFrameBuffer(token, this);
 

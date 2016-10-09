@@ -935,7 +935,10 @@ namespace Animatroller.SceneRunner
                 if (x)
                 //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
                 {
-                    pulsatingGorgoyle.Start();
+                    //                    pulsatingGorgoyle.Start();
+                    wall5Light.SetData(null,
+                        Utils.AdditionalData(DataElements.Brightness, 1.0),
+                        Utils.AdditionalData(DataElements.Color, Color.Purple));
                 }
 
             });
