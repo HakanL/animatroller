@@ -19,8 +19,6 @@ namespace Animatroller.Framework.Expander
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private string name;
         private Dictionary<string, MonoExpanderInstance> clientInstances;
-        private Dictionary<string, string> connectionIdByInstanceId;
-        private Dictionary<string, string> instanceIdByConnectionId;
         private object lockObject = new object();
         private ExpanderCommunication.IServerCommunication serverCommunication;
         private Dictionary<string, Type> typeCache;
@@ -30,7 +28,7 @@ namespace Animatroller.Framework.Expander
             Initialize(
                 name: name,
                 listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081),
-                communicationType: CommunicationTypes.SignalR);
+                communicationType: CommunicationTypes.Netty);
         }
 
         public MonoExpanderServer(int listenPort, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
@@ -38,15 +36,13 @@ namespace Animatroller.Framework.Expander
             Initialize(
                 name: name,
                 listenPort: listenPort,
-                communicationType: CommunicationTypes.SignalR);
+                communicationType: CommunicationTypes.Netty);
         }
 
         private void Initialize(string name, int listenPort, CommunicationTypes communicationType)
         {
             this.name = name;
             this.clientInstances = new Dictionary<string, MonoExpanderInstance>();
-            this.connectionIdByInstanceId = new Dictionary<string, string>();
-            this.instanceIdByConnectionId = new Dictionary<string, string>();
             this.typeCache = new Dictionary<string, Type>();
 
             switch (communicationType)
@@ -54,13 +50,13 @@ namespace Animatroller.Framework.Expander
                 case CommunicationTypes.SignalR:
                     this.serverCommunication = new ExpanderCommunication.SignalRServer(
                         listenPort: listenPort,
-                        connectionIdUpdatedAction: AssociateInstanceIdToConnectionId,
                         dataReceivedAction: DataReceived);
                     break;
 
                 case CommunicationTypes.Netty:
                     this.serverCommunication = new ExpanderCommunication.NettyServer(
-                        listenPort: listenPort);
+                        listenPort: listenPort,
+                        dataReceivedAction: DataReceived);
                     break;
 
                 default:
@@ -94,23 +90,21 @@ namespace Animatroller.Framework.Expander
 
         private async Task SendData(string instanceId, object data)
         {
-            string connectionId;
-
-            lock (this.lockObject)
+            try
             {
-                if (!this.connectionIdByInstanceId.TryGetValue(instanceId, out connectionId))
+                using (var ms = new MemoryStream())
                 {
-                    log.Trace("InstanceId {0} not connected yet", instanceId);
+                    Serialize(data, ms);
 
-                    return;
+                    await this.serverCommunication.SendToClientAsync(instanceId, data.GetType().FullName, ms.ToArray());
                 }
             }
-
-            using (var ms = new MemoryStream())
+            catch (Exception ex)
             {
-                Serialize(data, ms);
+                if (ex is AggregateException)
+                    ex = ex.InnerException;
 
-                await this.serverCommunication.SendToClientAsync(connectionId, data.GetType().FullName, ms.ToArray());
+                log.Warn(ex, "Failed to SendData");
             }
         }
 
@@ -140,53 +134,31 @@ namespace Animatroller.Framework.Expander
 
         public string ExpanderSharedFiles { get; set; }
 
-        public void AssociateInstanceIdToConnectionId(string instanceId, string connectionId)
+        private void DataReceived(string instanceId, string connectionId, string messageType, byte[] data)
         {
-            log.Debug("Instance {0} connected on {1}", instanceId, connectionId);
+            // Find instance
+            MonoExpanderInstance instance;
+            if (!this.clientInstances.TryGetValue(instanceId, out instance))
+                return;
 
-            lock (this.lockObject)
+            object messageObject;
+            Type type;
+
+            using (var ms = new MemoryStream(data))
             {
-                this.connectionIdByInstanceId[instanceId] = connectionId;
-                this.instanceIdByConnectionId[connectionId] = instanceId;
-            }
-        }
-
-        private void DataReceived(string connectionId, string messageType, byte[] data)
-        {
-            string instanceId;
-            lock (this.lockObject)
-            {
-                // Find instance id
-                if (!this.instanceIdByConnectionId.TryGetValue(connectionId, out instanceId))
-                    return;
-            }
-
-            if (!string.IsNullOrEmpty(instanceId))
-            {
-                // Find instance
-                MonoExpanderInstance instance;
-                if (!this.clientInstances.TryGetValue(instanceId, out instance))
-                    return;
-
-                object messageObject;
-                Type type;
-
-                using (var ms = new MemoryStream(data))
+                lock (this.typeCache)
                 {
-                    lock (this.typeCache)
+                    if (!this.typeCache.TryGetValue(messageType, out type))
                     {
-                        if (!this.typeCache.TryGetValue(messageType, out type))
-                        {
-                            type = typeof(Animatroller.Framework.MonoExpanderMessages.Ping).Assembly.GetType(messageType, true);
-                            this.typeCache.Add(messageType, type);
-                        }
+                        type = typeof(Animatroller.Framework.MonoExpanderMessages.Ping).Assembly.GetType(messageType, true);
+                        this.typeCache.Add(messageType, type);
                     }
-
-                    messageObject = DeserializeFromStream(ms, type);
                 }
 
-                instance.HandleMessage(type, messageObject);
+                messageObject = DeserializeFromStream(ms, type);
             }
+
+            instance.HandleMessage(connectionId, type, messageObject);
         }
     }
 }

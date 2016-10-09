@@ -22,23 +22,28 @@ namespace Animatroller.ExpanderCommunication
             this.log = log;
         }
 
+        private string InstanceId
+        {
+            get { return Context.QueryString["InstanceId"]; }
+        }
+
         public override Task OnReconnected()
         {
-            this.parent.UpdateInstance(Context.QueryString["InstanceId"], Context.ConnectionId);
+            this.parent.UpdateInstance(InstanceId, Context.ConnectionId);
 
             return base.OnReconnected();
         }
 
         public override Task OnConnected()
         {
-            this.parent.UpdateInstance(Context.QueryString["InstanceId"], Context.ConnectionId);
+            this.parent.UpdateInstance(InstanceId, Context.ConnectionId);
 
             return base.OnConnected();
         }
 
         public void HandleMessage(string messageType, byte[] data)
         {
-            this.parent.DataReceived(Context.ConnectionId, messageType, data);
+            this.parent.DataReceived(InstanceId, Context.ConnectionId, messageType, data);
         }
     }
 }

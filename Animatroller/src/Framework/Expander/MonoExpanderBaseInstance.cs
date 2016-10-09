@@ -12,10 +12,12 @@ namespace Animatroller.Framework.Expander
 {
     public abstract class MonoExpanderBaseInstance
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         private string expanderSharedFiles;
         protected Action<object> sendAction;
         private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
+        protected string connectionId;
+        protected string name;
 
         public MonoExpanderBaseInstance()
         {
@@ -33,8 +35,10 @@ namespace Animatroller.Framework.Expander
             this.sendAction?.Invoke(message);
         }
 
-        public void HandleMessage(Type messageType, object messageObject)
+        public void HandleMessage(string connectionId, Type messageType, object messageObject)
         {
+            this.connectionId = connectionId;
+
             System.Reflection.MethodInfo methodInfo;
             lock (this)
             {
@@ -63,6 +67,11 @@ namespace Animatroller.Framework.Expander
                     return sha1.ComputeHash(bs);
                 }
             }
+        }
+
+        public void Handle(Ping message)
+        {
+            log.Trace($"Response from instance {this.name} at {this.connectionId}");
         }
 
         public void Handle(FileRequest message)

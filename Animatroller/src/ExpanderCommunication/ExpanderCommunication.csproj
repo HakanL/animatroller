@@ -104,7 +104,9 @@
     <None Include="Udp\ClientConnectionManager.cs" />
     <Compile Include="IClientCommunication.cs" />
     <Compile Include="IServerCommunication.cs" />
+    <Compile Include="Netty\NettyClient.cs" />
     <Compile Include="Netty\NettyServer.cs" />
+    <Compile Include="Netty\NettyClientHandler.cs" />
     <Compile Include="Netty\NettyServerHandler.cs" />
     <Compile Include="SignalR\SignalRClient.cs" />
     <Compile Include="SignalR\SignalRHub.cs" />

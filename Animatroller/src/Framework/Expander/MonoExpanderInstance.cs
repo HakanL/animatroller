@@ -9,8 +9,6 @@ namespace Animatroller.Framework.Expander
 {
     public class MonoExpanderInstance : MonoExpanderBaseInstance, IPort, IRunnable, IOutputHardware
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
-        private string name;
         private event EventHandler<EventArgs> AudioTrackDone;
         private event EventHandler<EventArgs> VideoTrackDone;
         private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
@@ -256,11 +254,6 @@ namespace Animatroller.Framework.Expander
                     RaiseAudioTrackDone();
                     break;
             }
-        }
-
-        public void Handle(Ping message)
-        {
-            log.Trace("Response from instance {0}", this.name);
         }
     }
 }

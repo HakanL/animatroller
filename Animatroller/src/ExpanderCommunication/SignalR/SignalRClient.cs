@@ -56,7 +56,7 @@ namespace Animatroller.ExpanderCommunication
             this.hub = connection.CreateHubProxy("ExpanderCommunicationHub");
 
             // Wire up messages
-            this.hub.On<string, byte[]>("HandleMessage", HandleMessage);
+            this.hub.On<string, byte[]>("HandleMessage", DataReceived);
         }
 
         public string Server
@@ -94,7 +94,7 @@ namespace Animatroller.ExpanderCommunication
             return Task.CompletedTask;
         }
 
-        public void HandleMessage(string messageType, byte[] data)
+        internal void DataReceived(string messageType, byte[] data)
         {
             this.dataReceivedAction?.Invoke(messageType, data);
         }

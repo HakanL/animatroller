@@ -1,4 +1,5 @@
-﻿//#define DEBUG_VERBOSE
+﻿#define NETTY
+//#define DEBUG_VERBOSE
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -190,19 +191,27 @@ namespace Animatroller.MonoExpander
                 }
             }
 
-            this.log.Info("Initializing SignalR client");
+            this.log.Info("Initializing ExpanderCommunication client");
 
             this.connections = new List<Tuple<IClientCommunication, MonoExpanderClient>>();
             foreach (var server in args.Servers)
             {
                 var client = new MonoExpanderClient(this);
 
+#if SIGNALR
                 var communication = new SignalRClient(
                     host: server.Host,
                     port: server.Port,
                     instanceId: InstanceId,
                     dataReceivedAction: (t, d) => DataReceived(client, t, d));
-
+#endif
+#if NETTY
+                var communication = new NettyClient(
+                    host: server.Host,
+                    port: server.Port,
+                    instanceId: InstanceId,
+                    dataReceivedAction: (t, d) => DataReceived(client, t, d));
+#endif
                 this.connections.Add(Tuple.Create((IClientCommunication)communication, client));
 
                 Task.Run(async () => await communication.StartAsync()).Wait();

@@ -12,6 +12,6 @@ namespace Animatroller.ExpanderCommunication
 
         Task StopAsync();
 
-        Task<bool> SendToClientAsync(string connectionId, string messageType, byte[] data);
+        Task<bool> SendToClientAsync(string instanceId, string messageType, byte[] data);
     }
 }

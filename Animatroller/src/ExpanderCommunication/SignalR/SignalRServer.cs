@@ -4,6 +4,7 @@ using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
 using Microsoft.Owin.Hosting;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Animatroller.ExpanderCommunication
 {
@@ -13,24 +14,27 @@ namespace Animatroller.ExpanderCommunication
         private int listenPort;
         private IDisposable signalrServer;
         private object lockObject = new object();
-        private Action<string, string, byte[]> dataReceivedAction;
-        private Action<string, string> connectionIdUpdatedAction;
+        private Action<string, string, string, byte[]> dataReceivedAction;
+        private Dictionary<string, string> instanceConnectionId;
 
         public SignalRServer(
             int listenPort,
-            Action<string, string> connectionIdUpdatedAction,
-            Action<string, string, byte[]> dataReceivedAction)
+            Action<string, string, string, byte[]> dataReceivedAction)
         {
             this.listenPort = listenPort;
-            this.connectionIdUpdatedAction = connectionIdUpdatedAction;
             this.dataReceivedAction = dataReceivedAction;
+            this.instanceConnectionId = new Dictionary<string, string>();
 
             GlobalHost.DependencyResolver.Register(typeof(SignalRHub), () =>
                 new SignalRHub(this, log));
         }
 
-        public Task<bool> SendToClientAsync(string connectionId, string messageType, byte[] data)
+        public Task<bool> SendToClientAsync(string instanceId, string messageType, byte[] data)
         {
+            string connectionId;
+            if (!this.instanceConnectionId.TryGetValue(instanceId, out connectionId))
+                return Task.FromResult(false);
+
             var context = GlobalHost.ConnectionManager.GetHubContext<SignalRHub>();
 
             IClientProxy client = context.Clients.Client(connectionId);
@@ -69,12 +73,12 @@ namespace Animatroller.ExpanderCommunication
 
         internal void UpdateInstance(string instanceId, string connectionId)
         {
-            this.connectionIdUpdatedAction(instanceId, connectionId);
+            this.instanceConnectionId[instanceId] = connectionId;
         }
 
-        internal void DataReceived(string connectionId, string messageType, byte[] data)
+        internal void DataReceived(string instanceId, string connectionId, string messageType, byte[] data)
         {
-            this.dataReceivedAction?.Invoke(connectionId, messageType, data);
+            this.dataReceivedAction?.Invoke(instanceId, connectionId, messageType, data);
         }
     }
 }

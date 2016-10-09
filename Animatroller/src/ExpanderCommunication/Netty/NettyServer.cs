@@ -10,6 +10,9 @@ using DotNetty.Handlers.Tls;
 using DotNetty.Transport.Bootstrapping;
 using DotNetty.Transport.Channels;
 using DotNetty.Transport.Channels.Sockets;
+using DotNetty.Transport.Channels.Groups;
+using DotNetty.Common.Concurrency;
+using DotNetty.Buffers;
 
 namespace Animatroller.ExpanderCommunication
 {
@@ -20,12 +23,13 @@ namespace Animatroller.ExpanderCommunication
         private ServerBootstrap bootstrap;
         private IChannel boundChannel;
         private int listenPort;
-        private Action<string, string, byte[]> dataReceivedAction;
+        private Dictionary<string, IChannel> channels;
 
-        public NettyServer(int listenPort)
+        public NettyServer(int listenPort, Action<string, string, string, byte[]> dataReceivedAction)
         {
             this.listenPort = listenPort;
 
+            this.channels = new Dictionary<string, IChannel>();
             this.bossGroup = new MultithreadEventLoopGroup(1);
             this.workerGroup = new MultithreadEventLoopGroup();
 
@@ -38,11 +42,12 @@ namespace Animatroller.ExpanderCommunication
                .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                {
                    IChannelPipeline pipeline = channel.Pipeline;
-                   //pipeline.AddLast(new LoggingHandler("SRV-CONN"));
-                   pipeline.AddLast("framing-enc", new LengthFieldPrepender(2));
-                   pipeline.AddLast("framing-dec", new LengthFieldBasedFrameDecoder(10240, 0, 2, 0, 2));
 
-                   pipeline.AddLast("main", new NettyServerHandler());
+                   //TODO: Receive InstanceId in the pipeline instead of part of the data buffer
+                   pipeline.AddLast("framing-enc", new LengthFieldPrepender(2));
+                   pipeline.AddLast("framing-dec", new LengthFieldBasedFrameDecoder(32 * 1024, 0, 2, 0, 2));
+
+                   pipeline.AddLast("main", new NettyServerHandler(dataReceivedAction, this));
                }));
         }
 
@@ -60,14 +65,25 @@ namespace Animatroller.ExpanderCommunication
                 this.workerGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)));
         }
 
-        public void SetDataReceivedCallback(Action<string, string, byte[]> dataReceived)
+        internal void SetInstanceIdChannel(string instanceId, IChannel channel)
         {
-            this.dataReceivedAction = dataReceived;
+            this.channels[instanceId] = channel;
         }
 
-        public Task<bool> SendToClientAsync(string connectionId, string messageType, byte[] data)
+        public async Task<bool> SendToClientAsync(string instanceId, string messageType, byte[] data)
         {
-            return Task.FromResult(false);
+            IChannel channel;
+            if (!this.channels.TryGetValue(instanceId, out channel))
+                return false;
+
+            var buffer = Unpooled.Buffer(512 + data.Length);
+
+            NettyClient.WriteStringToBuffer(buffer, messageType);
+            buffer.WriteBytes(data);
+
+            await channel.WriteAndFlushAsync(buffer);
+
+            return true;
         }
     }
 }
