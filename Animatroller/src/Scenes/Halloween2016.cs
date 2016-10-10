@@ -51,7 +51,6 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
-        private Expander.Raspberry raspberryLocal = new Expander.Raspberry("127.0.0.1:5005", 3339);
         private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
         private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
@@ -389,10 +388,10 @@ namespace Animatroller.Scenes
             });
 
 
-            raspberryLocal.AudioTrackStart.Subscribe(x =>
+            expanderHifi.AudioTrackStart.Subscribe(x =>
             {
                 // Next track
-                switch (x)
+                switch (x.Item2)
                 {
                     case "Thunder1.wav":
                         timelineThunder1.Start();
@@ -775,7 +774,6 @@ namespace Animatroller.Scenes
                 pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
             else
                 pixelsRoofEdge.SetColor(Color.Black);
-
         }
 
         private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)

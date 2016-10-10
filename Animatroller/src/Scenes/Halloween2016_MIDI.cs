@@ -67,18 +67,20 @@ namespace Animatroller.Scenes
                     manualFader.Value = !manualFader.Value;
                     SetPixelColor();
                 }
-//                    audioEeebox.PlayEffect("180 Babbling Lunatic.wav");
+                //                    audioEeebox.PlayEffect("180 Babbling Lunatic.wav");
             });
 
             midiInput.Note(midiChannel, 43).Subscribe(x =>
             {
                 if (x)
                 {
-                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                    //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
 
-                    treeSkulls.SetBrightness(1);
+                    //                    treeSkulls.SetBrightness(1);
+                    audioHifi.PlayBackground();
                 }
-
+                else
+                    audioHifi.PauseBackground();
             });
         }
     }

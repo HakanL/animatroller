@@ -111,6 +111,10 @@
       <Project>{97c48505-a92a-4fbd-b39c-bbb014aef34b}</Project>
       <Name>Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MonoExpanderMessage\MonoExpanderMessage.csproj">
+      <Project>{8a2b3891-435e-454f-8a9e-52a11ed12691}</Project>
+      <Name>MonoExpanderMessage</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Simulator\Simulator.csproj">
       <Project>{5ca4ee12-dd7f-49d0-9079-41ee3b067fce}</Project>
       <Name>Simulator</Name>
