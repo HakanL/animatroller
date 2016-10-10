@@ -9,7 +9,7 @@ using Controller = Animatroller.Framework.Controller;
 using Expander = Animatroller.Framework.Expander;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class PanTiltDemo : BaseScene
     {

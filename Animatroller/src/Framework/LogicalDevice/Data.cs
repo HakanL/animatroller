@@ -18,8 +18,17 @@ namespace Animatroller.Framework.LogicalDevice
 
         public Data(DataElements dataElement, object value)
         {
-            this[dataElement] = value;
             creationId = ++globalCreationId;
+
+            this[dataElement] = value;
+        }
+
+        public Data(params Tuple<DataElements, object>[] value)
+        {
+            creationId = ++globalCreationId;
+
+            foreach (var kvp in value)
+                this[kvp.Item1] = kvp.Item2;
         }
 
         public IControlToken CurrentToken { get; set; }

@@ -111,6 +111,9 @@ namespace Animatroller.Framework.LogicalDevice
                 float blackout = (float)Executor.Current.Blackout.Value;
 
                 //TODO: Optimize
+                this.brightnessMatrix.Matrix00 = 1;
+                this.brightnessMatrix.Matrix11 = 1;
+                this.brightnessMatrix.Matrix22 = 1;
                 this.brightnessMatrix.Matrix40 = whiteout;
                 this.brightnessMatrix.Matrix41 = whiteout;
                 this.brightnessMatrix.Matrix42 = whiteout;
@@ -119,7 +122,8 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     imageAttributes.SetColorMatrix(this.brightnessMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                    this.output.DrawImage(bitmap,
+                    this.output.DrawImage(
+                        bitmap,
                         this.outputRectangle,
                         0,
                         0,
@@ -129,15 +133,19 @@ namespace Animatroller.Framework.LogicalDevice
                         imageAttributes);
                 }
 
-                this.brightnessMatrix.Matrix40 = -1 + brightness - blackout;
-                this.brightnessMatrix.Matrix41 = -1 + brightness - blackout;
-                this.brightnessMatrix.Matrix42 = -1 + brightness - blackout;
+                this.brightnessMatrix.Matrix40 = 0;
+                this.brightnessMatrix.Matrix41 = 0;
+                this.brightnessMatrix.Matrix42 = 0;
+                this.brightnessMatrix.Matrix00 = brightness - blackout;
+                this.brightnessMatrix.Matrix11 = brightness - blackout;
+                this.brightnessMatrix.Matrix22 = brightness - blackout;
 
                 using (var imageAttributes = new ImageAttributes())
                 {
                     imageAttributes.SetColorMatrix(this.brightnessMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                    this.output.DrawImage(this.outputBitmap,
+                    this.output.DrawImage(
+                        this.outputBitmap,
                         this.outputRectangle,
                         0,
                         0,

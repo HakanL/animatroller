@@ -13,7 +13,7 @@ using Effect = Animatroller.Framework.Effect;
 using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class TestMidi1 : BaseScene
     {

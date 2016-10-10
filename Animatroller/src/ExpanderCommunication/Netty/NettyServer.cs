@@ -67,14 +67,20 @@ namespace Animatroller.ExpanderCommunication
 
         internal void SetInstanceIdChannel(string instanceId, IChannel channel)
         {
-            this.channels[instanceId] = channel;
+            lock (this)
+            {
+                this.channels[instanceId] = channel;
+            }
         }
 
         public async Task<bool> SendToClientAsync(string instanceId, string messageType, byte[] data)
         {
             IChannel channel;
-            if (!this.channels.TryGetValue(instanceId, out channel))
-                return false;
+            lock (this)
+            {
+                if (!this.channels.TryGetValue(instanceId, out channel))
+                    return false;
+            }
 
             var buffer = Unpooled.Buffer(512 + data.Length);
 

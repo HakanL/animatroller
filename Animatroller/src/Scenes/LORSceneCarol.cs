@@ -17,7 +17,7 @@ using CSCore;
 using CSCore.SoundOut;
 using CSCore.Codecs;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class LORSceneCarol : BaseScene
     {

@@ -13,6 +13,10 @@ namespace Animatroller.Framework
         PixelBrightness,
         PixelColor,
         Power,
-        PixelBitmap
+        PixelBitmap,
+        ColorRGB,
+        ColorUltraViolet,
+        ColorWhite,
+        ColorAmber
     }
 }

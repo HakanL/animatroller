@@ -13,7 +13,7 @@ using Effect = Animatroller.Framework.Effect;
 using Import = Animatroller.Framework.Import;
 using System.IO;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class Xmas2015 : BaseScene
     {

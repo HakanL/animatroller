@@ -15,14 +15,14 @@ using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 using System.Threading.Tasks;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
-    internal class Halloween2016 : BaseScene
+    internal partial class Halloween2016 : BaseScene
     {
         const int SacnUniverseDMXCat = 4;
         const int SacnUniverseDMXLedmx = 10;
-        const int SacnUniverse5 = 5;
-        const int SacnUniverse6 = 6;
+        const int SacnUniversePixel100 = 5;
+        const int SacnUniversePixel50 = 6;
 
         public enum States
         {
@@ -39,17 +39,18 @@ namespace Animatroller.SceneRunner
         private Expander.OscServer oscServer = new Expander.OscServer();
         private AudioPlayer audio1 = new AudioPlayer();
         private AudioPlayer audioCat = new AudioPlayer();
-        private AudioPlayer audioMain = new AudioPlayer();
+        private AudioPlayer audioHifi = new AudioPlayer();
         private AudioPlayer audioEeebox = new AudioPlayer();
         private AudioPlayer audioPop = new AudioPlayer();
         private AudioPlayer audioDIN = new AudioPlayer();
         private VideoPlayer video3dfx = new VideoPlayer();
         private VideoPlayer video2 = new VideoPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
-        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderEeebox = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
-        private Expander.Raspberry monoExpanderEeebox = new Expander.Raspberry("192.168.240.237:5005", 3338);
         private Expander.Raspberry raspberryLocal = new Expander.Raspberry("127.0.0.1:5005", 3339);
         private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
         private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
@@ -183,9 +184,10 @@ namespace Animatroller.SceneRunner
                 }
             }
 
-            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);      // rpi-eb0092ca
-            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expander4);      // rpi-eb81c94e
-
+            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);      // rpi-eb0092ca
+            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderCat);        // rpi-eb81c94e
+            expanderServer.AddInstance("4fabc4931566424c870ccb83984b3ffb", expanderEeebox);     // videoplayer1
+            expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHifi);       // rpi-eb428ef1
             hoursSmall
                 .ControlsMasterPower(catAir)
                 .ControlsMasterPower(catMrsPumpkin);
@@ -290,7 +292,9 @@ namespace Animatroller.SceneRunner
                         var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
 
-                        purpleLights.SetBrightness(purpleColor.Brightness, new Data(DataElements.Color, purpleColor.Color), i.Token);
+                        purpleLights.SetBrightness(purpleColor.Brightness, new Data(
+                            Utils.AdditionalData(DataElements.Color, purpleColor.Color),
+                            Utils.AdditionalData(DataElements.ColorUltraViolet, 1.0)));
 
                         i.CancelToken.WaitHandle.WaitOne();
                     })
@@ -310,7 +314,7 @@ namespace Animatroller.SceneRunner
                     flickerEffect.Start();
                     treeGhosts.SetBrightness(1.0);
                     treeSkulls.SetBrightness(1.0);
-                    audioMain.PlayBackground();
+                    audioHifi.PlayBackground();
                     audioEeebox.SetBackgroundVolume(0.6);
                     audioEeebox.PlayBackground();
 
@@ -337,7 +341,7 @@ namespace Animatroller.SceneRunner
                     purpleLights.SetBrightness(0.0);
 
                     Exec.Cancel(subVideo);
-                    audioMain.PauseBackground();
+                    audioHifi.PauseBackground();
                     audioEeebox.PauseBackground();
 
                     timelineThunder1.Stop();
@@ -384,9 +388,6 @@ namespace Animatroller.SceneRunner
                 //                testLight1.SetColor(HSV.ColorFromHSV(inputH.Value.GetByteScale(), x, 1.0));
             });
 
-            midiInput.Controller(midiChannel, 1).Controls(inputBrightness.Control);
-            midiInput.Controller(midiChannel, 2).Controls(inputH.Control);
-            midiInput.Controller(midiChannel, 3).Controls(inputS.Control);
 
             raspberryLocal.AudioTrackStart.Subscribe(x =>
             {
@@ -475,8 +476,8 @@ namespace Animatroller.SceneRunner
             timelineThunder8.AddMs(4200, "C");
             timelineThunder8.TimelineTrigger += TriggerThunderTimeline;
 
-            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, true), SacnUniverse6, 1);
-            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniverse5, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, true), SacnUniversePixel50, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniversePixel100, 1);
 
             acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), 1);
             acnOutput.Connect(new Physical.RGBStrobe(wall1Light, 60), 1);
@@ -500,15 +501,15 @@ namespace Animatroller.SceneRunner
             //            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
-            expander1.DigitalInputs[4].Connect(pumpkinMotion, false);
-            expander4.DigitalInputs[4].Connect(catMotion, false);
+            expanderLedmx.DigitalInputs[4].Connect(pumpkinMotion, false);
+            expanderCat.DigitalInputs[4].Connect(catMotion, false);
             //raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
             //raspberryCat.DigitalInputs[6].Connect(finalBeam, false);
             //raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
-            expander1.Connect(audio1);
-            expander4.Connect(audioCat);
-            raspberryLocal.Connect(audioMain);
-            monoExpanderEeebox.Connect(audioEeebox);
+            expanderLedmx.Connect(audio1);
+            expanderCat.Connect(audioCat);
+            expanderHifi.Connect(audioHifi);
+            expanderEeebox.Connect(audioEeebox);
             raspberry3dfx.Connect(video3dfx);
             raspberryVideo2.Connect(video2);
             raspberryPop.Connect(audioPop);
@@ -521,427 +522,9 @@ namespace Animatroller.SceneRunner
             raspberryPop.DigitalOutputs[5].Connect(popper);
             raspberryPop.DigitalOutputs[2].Connect(dropSpiderEyes);
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("sixthsense-deadpeople.wav");
-            });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/2", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-            });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/3", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("424 Coyote Howling.wav");
-            });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/4", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/6/5", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("242004__junkfood2121__fart-01.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/5/1", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("death-scream.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/5/2", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("scream.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/5/3", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("door-creak.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/5/4", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("violin screech.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/5/5", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("gollum_precious1.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/4/1", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayNewEffect("640 The Demon Exorcised.wav");
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/4/2", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/4/3", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/4/4", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/4/5", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("287 Monster Snarl 4.wav", 1.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/3/multipush1/3/1", d => d.First() != 0, (msg, data) =>
-            {
-                audioEeebox.PlayEffect("180 Babbling Lunatic.wav");
-            });
-
-            oscServer.RegisterAction<int>("/1/eStop", (msg, data) =>
-            {
-                emergencyStop.Control.OnNext(data.First() != 0);
-            });
-
-            oscServer.RegisterAction<int>("/1/push2", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/1/push3", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/1/push4", (msg, data) =>
-            {
-                // Flash
-                if (data.First() != 0)
-                {
-                    allLights.TakeAndHoldControl();
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
-                }
-                else
-                    allLights.ReleaseControl();
-            });
-
-            oscServer.RegisterAction<int>("/1/push5", (msg, data) =>
-            {
-                george1.Value = data.First() != 0;
-            });
-
-            oscServer.RegisterAction<int>("/1/push6", (msg, data) =>
-            {
-                george2.Value = data.First() != 0;
-            });
-
-            oscServer.RegisterAction<int>("/1/push7", (msg, data) =>
-            {
-                popper.Value = data.First() != 0;
-            });
-
-            oscServer.RegisterAction<int>("/1/push8", d => d.First() != 0, (msg, data) =>
-            {
-                audioPop.PlayEffect("laugh.wav", 1.0, 0.0);
-            });
-
-            oscServer.RegisterAction<int>("/1/spiderEyes", (msg, data) =>
-            {
-                dropSpiderEyes.Value = data.First() != 0;
-            });
-
-            oscServer.RegisterAction<int>("/1/push10", d => d.First() != 0, (msg, data) =>
-            {
-                audioPop.PlayEffect("348 Spider Hiss.wav", 0.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/1/push11", (msg, data) =>
-            {
-                spiderCeilingDrop.Value = data.First() != 0;
-            });
-
-            oscServer.RegisterAction<int>("/1/push12", (msg, data) =>
-            {
-                fog.Value = data.First() != 0;
-            });
-
-            oscServer.RegisterAction<int>("/1/special1", (msg, data) =>
-            {
-                if (data.First() != 0)
-                    stateMachine.GoToMomentaryState(States.Special1);
-                else
-                    stateMachine.StopCurrentJob();
-            });
-
-            oscServer.RegisterAction<int>("/1/push13", d => d.First() != 0, (msg, data) =>
-            {
-                //                Exec.MasterEffect.Fade(stairs1Light, 1.0, 0.0, 2000, token: testToken);
-                //popOut1.Pop();
-                //popOut2.Pop();
-                //popOut3.Pop();
-                popOutAll.Pop(color: Color.White);
-            });
-
-            oscServer.RegisterAction<int>("/1/toggle1", (msg, data) =>
-            {
-                //                candyEyes.Value = data.First() != 0;
-                if (data.First() != 0)
-                    audioMain.PlayBackground();
-                else
-                    audioMain.PauseBackground();
-            });
-
-            oscServer.RegisterAction<int>("/1/toggle2", (msg, data) =>
-            {
-                //                pinSpot.SetBrightness(data.First());
-            });
-
-            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
-            {
-                if (data.First() != 0)
-                    audioEeebox.PlayBackground();
-                else
-                    audioEeebox.PauseBackground();
-            });
-
-            oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
-            {
-                block.Value = data.First() != 0;
-                //                treeGhosts.SetBrightness(data.First() != 0 ? 1.0 : 0.0);
-            });
-
-            oscServer.RegisterAction<int>("/1/push14", (msg, data) =>
-            {
-                //                flickerEffect.Start();
-                //double brightness = data.First();
-
-                //spiderLight.SetColor(Color.Red, brightness);
-                //pinSpot.SetColor(Color.Purple, brightness);
-                //underGeorge.SetBrightness(brightness);
-                //wall1Light.SetColor(Color.Purple, brightness);
-                //wall2Light.SetColor(Color.Purple, brightness);
-                //wall3Light.SetColor(Color.Purple, brightness);
-                //wall4Light.SetColor(Color.Purple, brightness);
-                //                audioDIN.PlayEffect("gollum_precious1.wav");
-            });
-
-            oscServer.RegisterAction<int>("/1/push20", d => d.First() != 0, (msg, data) =>
-            {
-                video3dfx.PlayVideo("PHA_Wraith_StartleScare_3DFX_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/1/push21", d => d.First() != 0, (msg, data) =>
-            {
-                //               video2.PlayVideo("SkeletonSurprise_Door_Horz_HD.mp4");
-                video2.PlayVideo("Beauty_Startler_TVHolo_Hor_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/5/1", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("Beauty_Startler_TVHolo_Hor_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/5/2", d => d.First() != 0, (msg, data) =>
-            {
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/5/3", d => d.First() != 0, (msg, data) =>
-            {
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/5/4", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("FearTheReaper_Door_Horz_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/4/1", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("GatheringGhouls_Door_Horz_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/4/2", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("Girl_Startler_TVHolo_Hor_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/4/3", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("HeadOfHouse_Startler_TVHolo_Hor_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/4/4", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("JitteryBones_Door_Horz_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/3/1", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("PHA_Poltergeist_StartleScare_Holl_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/3/2", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("PHA_Siren_StartleScare_Holl_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/3/3", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("PHA_Spinster_StartleScare_Holl_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/3/4", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("PHA_Wraith_StartleScare_Holl_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/2/1", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("PopUpPanic_Door_Horz_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/2/2", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("SkeletonSurprise_Door_Horz_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/2/3", d => d.First() != 0, (msg, data) =>
-            {
-                video2.PlayVideo("Wraith_Startler_TVHolo_Hor_HD.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/2/4", d => d.First() != 0, (msg, data) =>
-            {
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/1/1", d => d.First() != 0, (msg, data) =>
-            {
-                video3dfx.PlayVideo("PHA_Wraith_StartleScare_3DFX_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/1/2", d => d.First() != 0, (msg, data) =>
-            {
-                video3dfx.PlayVideo("PHA_Spinster_StartleScare_3DFX_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/1/3", d => d.First() != 0, (msg, data) =>
-            {
-                video3dfx.PlayVideo("PHA_Siren_StartleScare_3DFX_H.mp4");
-            });
-
-            oscServer.RegisterAction<int>("/4/multipush2/1/4", d => d.First() != 0, (msg, data) =>
-            {
-                video3dfx.PlayVideo("PHA_Poltergeist_StartleScare_3DFX_H.mp4");
-            });
-
-
-            oscServer.RegisterAction("/1", msg =>
-            {
-                log.Info("Page 1");
-                //                manualFader.Value = false;
-
-                SetPixelColor();
-            });
-
-            oscServer.RegisterAction("/2", msg =>
-            {
-                log.Info("Page 2");
-                //                manualFader.Value = true;
-
-                SetPixelColor();
-            });
-
-            oscServer.RegisterAction<float>("/2/faderBright", (msg, data) =>
-            {
-                faderBright.Value = data.First();
-
-                SetPixelColor();
-            });
-
-            oscServer.RegisterAction<float>("/2/faderR", (msg, data) =>
-            {
-                faderR.Value = data.First();
-
-                SetPixelColor();
-            });
-
-            oscServer.RegisterAction<float>("/2/faderG", (msg, data) =>
-            {
-                faderG.Value = data.First();
-
-                SetPixelColor();
-            });
-
-            oscServer.RegisterAction<float>("/2/faderB", (msg, data) =>
-            {
-                faderB.Value = data.First();
-
-                SetPixelColor();
-            });
-
-
-
-            midiInput.Note(midiChannel, 36).Subscribe(x =>
-            {
-                if (x)
-                    audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
-            });
-
-            midiInput.Note(midiChannel, 37).Subscribe(x =>
-            {
-                if (x)
-                    audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
-            });
-
-            midiInput.Note(midiChannel, 38).Subscribe(x =>
-            {
-                if (x)
-                    audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
-            });
-
-            midiInput.Note(midiChannel, 39).Subscribe(x =>
-            {
-                if (x)
-                    audioCat.PlayEffect("287 Monster Snarl 4.wav", 1.0, 1.0);
-            });
-
-            midiInput.Note(midiChannel, 40).Subscribe(x =>
-            {
-                if (x)
-                {
-                    allLights.TakeAndHoldControl();
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
-                }
-                else
-                    allLights.ReleaseControl();
-            });
-
-            midiInput.Note(midiChannel, 41).Subscribe(x =>
-            {
-                if (x)
-                    audioEeebox.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
-            });
-
-            midiInput.Note(midiChannel, 42).Subscribe(x =>
-            {
-                if (x)
-                    audioEeebox.PlayEffect("180 Babbling Lunatic.wav");
-            });
-
-            midiInput.Note(midiChannel, 43).Subscribe(x =>
-            {
-                if (x)
-                //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-                {
-                    //                    pulsatingGorgoyle.Start();
-                    wall5Light.SetData(null,
-                        Utils.AdditionalData(DataElements.Brightness, 1.0),
-                        Utils.AdditionalData(DataElements.Color, Color.Purple));
-                }
-
-            });
 
             catMotion.Output.Subscribe(x =>
             {
@@ -1171,6 +754,14 @@ namespace Animatroller.SceneRunner
                 .TearDown(instance =>
                 {
                 });
+
+            faderR.WhenOutputChanges(v => { SetPixelColor(); });
+            faderG.WhenOutputChanges(v => { SetPixelColor(); });
+            faderB.WhenOutputChanges(v => { SetPixelColor(); });
+            faderBright.WhenOutputChanges(v => { SetPixelColor(); });
+
+            ConfigureOSC();
+            ConfigureMIDI();
         }
 
         private Color GetFaderColor()
@@ -1180,8 +771,11 @@ namespace Animatroller.SceneRunner
 
         private void SetPixelColor()
         {
-            //if (manualFader.Value)
-            //    pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
+            if (manualFader.Value)
+                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
+            else
+                pixelsRoofEdge.SetColor(Color.Black);
+
         }
 
         private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
@@ -1209,7 +803,7 @@ namespace Animatroller.SceneRunner
 
         public override void Stop()
         {
-            audioMain.PauseBackground();
+            audioHifi.PauseBackground();
             audioEeebox.PauseBackground();
         }
     }

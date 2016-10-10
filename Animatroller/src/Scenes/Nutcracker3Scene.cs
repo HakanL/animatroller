@@ -10,7 +10,7 @@ using Import = Animatroller.Framework.Import;
 using Physical = Animatroller.Framework.PhysicalDevice;
 using Effect2 = Animatroller.Framework.Effect2;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class Nutcracker3Scene : BaseScene,  ISceneRequiresAcnStream
     {

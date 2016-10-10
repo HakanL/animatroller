@@ -16,7 +16,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 using Import = Animatroller.Framework.Import;
 using System.IO;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class PixelTest1 : BaseScene
     {

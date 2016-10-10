@@ -8,7 +8,7 @@ using System.Windows.Forms;
 using Animatroller.Framework;
 using NLog;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     public class Program
     {

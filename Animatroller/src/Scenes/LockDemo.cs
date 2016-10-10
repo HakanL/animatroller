@@ -9,7 +9,7 @@ using Expander = Animatroller.Framework.Expander;
 using Physical = Animatroller.Framework.PhysicalDevice;
 using Effect = Animatroller.Framework.Effect;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class LockDemo : BaseScene
     {

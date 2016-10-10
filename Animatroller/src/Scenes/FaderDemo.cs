@@ -12,7 +12,7 @@ using Effect2 = Animatroller.Framework.Effect2;
 using Physical = Animatroller.Framework.PhysicalDevice;
 using System.Threading.Tasks;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class FaderDemo : BaseScene
     {

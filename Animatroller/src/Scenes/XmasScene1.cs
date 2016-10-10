@@ -12,7 +12,7 @@ using Animatroller.Framework.LogicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class XmasScene1 : BaseScene
     {

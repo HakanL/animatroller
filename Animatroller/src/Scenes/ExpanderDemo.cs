@@ -7,7 +7,7 @@ using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using Expander = Animatroller.Framework.Expander;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class ExpanderDemo : BaseScene
     {

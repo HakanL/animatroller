@@ -8,7 +8,7 @@ using Expander = Animatroller.Framework.Expander;
 using Import = Animatroller.Framework.Import;
 using Physical = Animatroller.Framework.PhysicalDevice;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.Scenes
 {
     internal class Nutcracker1Scene : BaseScene
     {
