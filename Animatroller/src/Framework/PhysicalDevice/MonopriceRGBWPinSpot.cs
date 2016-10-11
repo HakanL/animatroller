@@ -22,7 +22,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
             var color = GetColorFromColorBrightness();
 
-            var rgbw = RgbwConverter.GetRgbw(color);
+            var rgbw = RgbConverter.GetRGBW(color);
 
             byte autoRun = 0;
 

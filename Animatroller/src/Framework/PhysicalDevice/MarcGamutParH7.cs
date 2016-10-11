@@ -58,15 +58,14 @@ namespace Animatroller.Framework.PhysicalDevice
             }
             else
             {
-                var color = GetColorFromColorBrightness();
+                var rgbaw = RgbConverter.GetRGBAW(this.colorBrightness.Color);
 
-                var rgbw = RgbwConverter.GetRgbw(color);
-
-                componentMaster = 255;
-                componentRed = rgbw.R;
-                componentGreen = rgbw.G;
-                componentBlue = rgbw.B;
-                componentWhite = rgbw.W;
+                componentMaster = this.colorBrightness.Brightness.GetByteScale();
+                componentRed = rgbaw.R;
+                componentGreen = rgbaw.G;
+                componentBlue = rgbaw.B;
+                componentAmber = rgbaw.A;
+                componentWhite = rgbaw.W;
             }
         }
 

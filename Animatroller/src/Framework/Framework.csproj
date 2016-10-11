@@ -273,8 +273,8 @@
     <Compile Include="Import\FileFormat\LightORamaLMS.cs" />
     <Compile Include="Import\LorImport.cs" />
     <Compile Include="Import\FileFormat\VixenVIX.cs" />
-    <Compile Include="Utility\Rgbw.cs" />
-    <Compile Include="Utility\RgbwConverter.cs" />
+    <Compile Include="Utility\Rgbaw.cs" />
+    <Compile Include="Utility\RgbConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

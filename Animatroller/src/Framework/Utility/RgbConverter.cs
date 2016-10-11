@@ -7,12 +7,45 @@ using System.Drawing;
 
 namespace Animatroller.Framework.Utility
 {
-    public static class RgbwConverter
+    public static class RgbConverter
     {
-
-        public static Rgbw GetRgbw(Color rgb)
+        public static RGBAW GetRGBAW(Color inp)
         {
-            Rgbw result = new Rgbw
+            var result = new RGBAW();
+
+            result.W = (byte)(Math.Min(Math.Min(inp.R, inp.G), inp.B) / 3);
+
+            int amber = inp.R - result.W;
+            int a2 = (inp.G - result.W) * 2;
+            if (amber > a2)
+                result.A = (byte)a2;
+            else
+                result.A = (byte)amber;
+
+            result.R = (byte)(inp.R - result.W - result.A);
+            result.G = (byte)(inp.G - result.W - (result.A / 2));
+            result.B = (byte)(inp.B - result.W);
+
+            return result;
+        }
+
+        public static RGBW GetRGBW2(Color inp)
+        {
+            var result = new RGBW
+            {
+                R = inp.R,
+                G = inp.G,
+                B = inp.B
+            };
+
+            result.W = GetWhite(inp);
+
+            return result;
+        }
+
+        public static RGBW GetRGBW(Color rgb)
+        {
+            var result = new RGBW
             {
                 R = rgb.R,
                 G = rgb.G,
