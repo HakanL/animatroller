@@ -53,6 +53,11 @@ namespace Animatroller.Framework.Expander
 
         public OscClient Send(string address, params object[] data)
         {
+            return Send(address, true, data);
+        }
+
+        public OscClient Send(string address, bool convertDoubleToFloat, params object[] data)
+        {
             //            this.sender.WaitForAllMessagesToComplete();
 
             log.Info("Sending to {0}", address);
@@ -71,7 +76,16 @@ namespace Animatroller.Framework.Expander
             {
                 log.Info("   Data {0}", string.Join(" ", data));
 
-                var oscMessage = new OscMessage(address, data);
+                var sendData = new object[data.Length];
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (convertDoubleToFloat && data[i] is double)
+                        sendData[i] = (float)((double)data[i]);
+                    else
+                        sendData[i] = data[i];
+                }
+
+                var oscMessage = new OscMessage(address, sendData);
                 var oscPacket = new OscBundle(0, oscMessage);
 
                 lock (lockObject)

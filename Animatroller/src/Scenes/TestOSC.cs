@@ -14,87 +14,29 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.Scenes
 {
-    internal class TestOSC : BaseScene, ISceneRequiresAcnStream
+    internal class TestOSC : BaseScene
     {
-        public struct Finger
-        {
-            public double X;
-            public double Y;
-            public double Z;
-        }
-
-        private Expander.OscServer oscServer;
-        private Dimmer testDimmer;
-        private Finger[] fingers;
-        private Controller.Sequence loopSeq;
-        private VirtualPixel1D allPixels;
+        Expander.OscServer oscServer = new Expander.OscServer(8000);
+        Dimmer3 testDimmer1 = new Dimmer3();
+        Dimmer3 testDimmer2 = new Dimmer3();
+        Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.221", 8000);
 
         public TestOSC(IEnumerable<string> args)
         {
-            allPixels = new VirtualPixel1D(28 + 50);
-
-            loopSeq = new Controller.Sequence("Loop Seq");
-            fingers = new Finger[10];
-            for (int i = 0; i < 10; i++)
-                fingers[i] = new Finger();
-
-            testDimmer = new Dimmer("Test");
-
-            this.oscServer = new Expander.OscServer(5555);
-        }
-
-        public void WireUp(Expander.AcnStream port)
-        {
-            // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 0, 28), 1, 1);
-            // WS2811
-            port.Connect(new Physical.PixelRope(allPixels, 28, 50), 1, 151);
-        }
-
-        public override void Start()
-        {
-            loopSeq
-                .Loop
-                .WhenExecuted
-                .Execute(instance =>
-                    {
-//                        testDimmer.SetBrightness(Math.Abs(this.fingers[0].X));
-                        int r = (int)Math.Truncate(255.0 * (2.0 + fingers[0].X) / 4.0).Limit(0, 255);
-                        int g = (int)Math.Truncate(255.0 * (2.0 + fingers[0].Y) / 4.0).Limit(0, 255);
-                        int b = (int)Math.Truncate(255.0 * (2.0 + fingers[0].Z) / 4.0).Limit(0, 255);
-                        allPixels.Inject(Color.FromArgb(r, g, b), 1.0);
-                        instance.WaitFor(S(0.05));
-                    });
-            
-            this.oscServer.RegisterAction<double>("/1/fader*", (msg, data) =>
-                {
-                    int finger = int.Parse(msg.Address.Substring(8));
-                    if (finger >= 1 && finger <= 10 && data.Any())
-                        this.fingers[finger - 1].Y = data.First();
-                });
-
-            this.oscServer.RegisterAction<double>("/1/Xfader*", (msg, data) =>
+            this.oscServer.RegisterActionSimple<double>("/MasterVolume/x", (msg, data) =>
             {
-                int finger = int.Parse(msg.Address.Substring(9));
-                if (finger >= 1 && finger <= 10 && data.Any())
-                    this.fingers[finger - 1].X = data.First();
+                testDimmer1.SetBrightness(data);
+
+                touchOSC.Send("/Hakan/value", data);
             });
 
-            this.oscServer.RegisterAction<double>("/1/Zfader*", (msg, data) =>
+            this.oscServer.RegisterActionSimple<bool>("/Switches/x", (msg, data) =>
             {
-                int finger = int.Parse(msg.Address.Substring(9));
-                if (finger >= 1 && finger <= 10 && data.Any())
-                    this.fingers[finger - 1].Z = data.First();
+                testDimmer2.SetBrightness(data ? 1.0 : 0.0);
+
+
+                touchOSC.Send("/Pads/x", data ? 1.0f : 0.0f);
             });
-        }
-
-        public override void Run()
-        {
-            Exec.Execute(loopSeq);
-        }
-
-        public override void Stop()
-        {
         }
     }
 }

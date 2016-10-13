@@ -71,6 +71,7 @@
     <Compile Include="Halloween2016_MIDI.cs" />
     <Compile Include="Halloween2016_OSC.cs" />
     <Compile Include="PixelTest1.cs" />
+    <Compile Include="TestUsbDmxPro.cs" />
     <Compile Include="Xmas2015.cs" />
     <Compile Include="Halloween2015.cs" />
     <None Include="Halloween2015Manual.cs" />
@@ -96,7 +97,7 @@
     <None Include="SimpleTest1.cs" />
     <None Include="Halloween2014.cs" />
     <None Include="TestMidi1.cs" />
-    <None Include="TestOSC.cs" />
+    <Compile Include="TestOSC.cs" />
     <None Include="TestPiFace.cs" />
     <None Include="TestRenard1.cs" />
     <None Include="TestScene1.cs" />
