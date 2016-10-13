@@ -19,7 +19,7 @@ namespace Animatroller.Scenes
         Expander.OscServer oscServer = new Expander.OscServer(8000);
         Dimmer3 testDimmer1 = new Dimmer3();
         Dimmer3 testDimmer2 = new Dimmer3();
-        Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.221", 8000);
+        AnalogInput3 input = new AnalogInput3();
 
         public TestOSC(IEnumerable<string> args)
         {
@@ -27,7 +27,9 @@ namespace Animatroller.Scenes
             {
                 testDimmer1.SetBrightness(data);
 
-                touchOSC.Send("/Hakan/value", data);
+                oscServer.SendAllClients("/Hakan/value", data);
+
+                input.Value = data;
             });
 
             this.oscServer.RegisterActionSimple<bool>("/Switches/x", (msg, data) =>
@@ -35,7 +37,14 @@ namespace Animatroller.Scenes
                 testDimmer2.SetBrightness(data ? 1.0 : 0.0);
 
 
-                touchOSC.Send("/Pads/x", data ? 1.0f : 0.0f);
+                oscServer.SendAllClients("/Pads/x", data ? 1.0f : 0.0f);
+            });
+
+            input.Output.Subscribe(x =>
+            {
+                testDimmer1.SetBrightness(x);
+
+                oscServer.SendAllClients("/MasterVolume/x", x);
             });
         }
     }

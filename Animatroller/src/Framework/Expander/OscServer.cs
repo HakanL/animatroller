@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
 using NLog;
+using System.Net;
 
 namespace Animatroller.Framework.Expander
 {
@@ -32,6 +33,7 @@ namespace Animatroller.Framework.Expander
         private System.Threading.CancellationTokenSource cancelSource;
         private Dictionary<string, Action<Message>> dispatch;
         private Dictionary<string, Action<Message>> dispatchPartial;
+        private Dictionary<IPEndPoint, OscClient> clients;
 
         public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : this(Executor.Current.GetSetKey<int>(name, 9999))
@@ -44,6 +46,7 @@ namespace Animatroller.Framework.Expander
             this.cancelSource = new System.Threading.CancellationTokenSource();
             this.dispatch = new Dictionary<string, Action<Message>>();
             this.dispatchPartial = new Dictionary<string, Action<Message>>();
+            this.clients = new Dictionary<IPEndPoint, OscClient>();
 
             this.receiverTask = new Task(x =>
             {
@@ -56,6 +59,14 @@ namespace Animatroller.Framework.Expander
                             if (this.receiver.State == Rug.Osc.OscSocketState.Connected)
                             {
                                 var packet = this.receiver.Receive();
+
+                                lock (this.clients)
+                                {
+                                    if (!this.clients.ContainsKey(packet.Origin))
+                                    {
+                                        this.clients.Add(packet.Origin, new OscClient(packet.Origin.Address, packet.Origin.Port));
+                                    }
+                                }
 
                                 if (packet is Rug.Osc.OscBundle)
                                 {
@@ -99,6 +110,14 @@ namespace Animatroller.Framework.Expander
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
             Executor.Current.Register(this);
+        }
+
+        public void SendAllClients(string address, params object[] data)
+        {
+            foreach (var client in this.clients.Values)
+            {
+                client.Send(address, true, data);
+            }
         }
 
         private void Invoke(Rug.Osc.OscMessage oscMessage)
