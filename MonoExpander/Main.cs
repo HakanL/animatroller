@@ -16,6 +16,7 @@ using org.freedesktop.DBus;
 using Animatroller.Framework.MonoExpanderMessages;
 using Newtonsoft.Json;
 using Animatroller.ExpanderCommunication;
+using System.IO.Ports;
 
 namespace Animatroller.MonoExpander
 {
@@ -55,6 +56,7 @@ namespace Animatroller.MonoExpander
         private int? lastPosTrk;
         private string fileStoragePath;
         private List<Tuple<IClientCommunication, MonoExpanderClient>> connections;
+        private Dictionary<int, SerialPort> serialPorts;
 
         public Main(Arguments args)
         {
@@ -114,6 +116,7 @@ namespace Animatroller.MonoExpander
             this.currentBgTrack = -1;
             this.random = new Random();
             this.disposeList = new List<IDisposable>();
+            this.serialPorts = new Dictionary<int, SerialPort>();
 
             string fileStoragePath = Path.GetFullPath(args.FileStoragePath);
             Directory.CreateDirectory(fileStoragePath);
@@ -189,6 +192,17 @@ namespace Animatroller.MonoExpander
                 {
                     this.log.Warn(ex, "Failed to initialize PiFace");
                 }
+            }
+
+            if (!string.IsNullOrEmpty(args.SerialPort0) && args.SerialPort0BaudRate > 0)
+            {
+                this.log.Info("Initialize serial port 0 ({0}) for {1} bps", args.SerialPort0, args.SerialPort0BaudRate);
+
+                var serialPort = new SerialPort(args.SerialPort0, args.SerialPort0BaudRate);
+
+                serialPort.Open();
+
+                this.serialPorts.Add(0, serialPort);
             }
 
             this.log.Info("Initializing ExpanderCommunication client");
@@ -569,6 +583,9 @@ namespace Animatroller.MonoExpander
 
             if (this.fmodSystem != null)
                 this.fmodSystem.Dispose();
+
+            foreach (var serialPort in this.serialPorts.Values)
+                serialPort.Close();
         }
 
         private bool ReportChannelPosition(Channel? channel, string trackId, AudioTypes audioType, ref int? lastPos)

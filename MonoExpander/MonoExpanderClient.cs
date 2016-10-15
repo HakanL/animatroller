@@ -162,6 +162,11 @@ namespace Animatroller.MonoExpander
             this.main.Handle(message);
         }
 
+        public void Handle(SendSerialRequest message)
+        {
+            this.main.Handle(message);
+        }
+
         public void Handle(AudioEffectCue message)
         {
             if (CheckFile(message, FileTypes.AudioEffect, message.FileName))

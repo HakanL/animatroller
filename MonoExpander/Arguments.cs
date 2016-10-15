@@ -29,6 +29,14 @@ namespace Animatroller.MonoExpander
         [ArgDescription("Auto-start background tracks")]
         public bool BackgroundTrackAutoStart { get; set; }
 
+        [ArgShortcut("sp0")]
+        [ArgDescription("Serial port 0 port name")]
+        public string SerialPort0 { get; set; }
+
+        [ArgShortcut("sb0")]
+        [ArgDescription("Serial port 0 baud rate (2400, 9600, etc)")]
+        public int SerialPort0BaudRate { get; set; }
+
         [ArgShortcut("p")]
         [ArgDescription("Listen port")]
         public int ListenPort { get; set; }

@@ -12,6 +12,7 @@ using SupersonicSound.Exceptions;
 using System.Diagnostics;
 using Animatroller.Framework.MonoExpanderMessages;
 using Newtonsoft.Json.Linq;
+using System.IO.Ports;
 
 namespace Animatroller.MonoExpander
 {
@@ -36,6 +37,20 @@ namespace Animatroller.MonoExpander
                 this.piFace.OutputPins[outputId].State = message.Value != 0.0;
                 this.piFace.UpdatePiFaceOutputPins();
             }
+        }
+
+        public void Handle(SendSerialRequest message)
+        {
+            this.log.Info("Send serial data to port {0}", message.Port);
+
+            SerialPort serialPort;
+            if (!this.serialPorts.TryGetValue(message.Port, out serialPort))
+            {
+                this.log.Warn("Invalid serial port {0}", message.Port);
+                return;
+            }
+
+            serialPort.Write(message.Data, 0, message.Data.Length);
         }
 
         public void Handle(AudioEffectCue message)

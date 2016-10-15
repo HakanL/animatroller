@@ -85,6 +85,13 @@ namespace Animatroller.Framework.MonoExpanderMessages
 
     }
 
+    public class SendSerialRequest
+    {
+        public int Port { get; set; }
+
+        public byte[] Data { get; set; }
+    }
+
     public class AudioEffectCue
     {
         public string FileName { get; set; }
