@@ -201,7 +201,7 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
             {
-                block.Value = data.First() != 0;
+                masterBlock.Value = data.First() != 0;
                 //                treeGhosts.SetBrightness(data.First() != 0 ? 1.0 : 0.0);
             });
 

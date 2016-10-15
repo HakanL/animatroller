@@ -77,7 +77,9 @@ namespace Animatroller.Scenes
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 emergencyStop = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        private DigitalInput2 block = new DigitalInput2(persistState: true);
+        private DigitalInput2 masterBlock = new DigitalInput2(persistState: true);
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        private DigitalInput2 blockCat = new DigitalInput2(persistState: true);
 
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingCat = new Effect.Pulsating(S(2), 0.5, 1.0, false);
@@ -164,8 +166,13 @@ namespace Animatroller.Scenes
 
         public Halloween2016(IEnumerable<string> args)
         {
-            hoursSmall.AddRange("5:00 pm", "8:00 pm");
+            hoursSmall.AddRange("6:00 pm", "8:30 pm",
+                DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday);
+            hoursSmall.AddRange("5:00 pm", "9:00 pm",
+                DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday);
+
             //            hoursFull.AddRange("5:00 pm", "7:00 pm");
+            hoursFull.Disabled = true;
 
             // Logging
             hoursSmall.Output.Log("Hours small");
@@ -193,7 +200,6 @@ namespace Animatroller.Scenes
             hoursFull
                 .ControlsMasterPower(catAir)
                 .ControlsMasterPower(catMrsPumpkin);
-            //                .ControlsMasterPower(eyes);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -212,7 +218,7 @@ namespace Animatroller.Scenes
                 }
                 else
                 {
-                    if (hoursFull.IsOpen)
+                    if (hoursFull.IsOpen || hoursSmall.IsOpen)
                         stateMachine.GoToDefaultState();
                     else
                         stateMachine.GoToIdle();
@@ -527,7 +533,7 @@ namespace Animatroller.Scenes
 
             catMotion.Output.Subscribe(x =>
             {
-                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen))
+                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen) && !blockCat.Value)
                     Executor.Current.Execute(catSeq);
 
                 touchOSC.Send("/1/led1", x ? 1 : 0);
@@ -545,7 +551,7 @@ namespace Animatroller.Scenes
             {
                 touchOSC.Send("/1/led2", x ? 1 : 0);
 
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !block.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !masterBlock.Value)
                     subFirst.Run();
             });
 
@@ -553,7 +559,7 @@ namespace Animatroller.Scenes
             {
                 touchOSC.Send("/1/led3", x ? 1 : 0);
 
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !block.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !masterBlock.Value)
                     subFinal.Run();
             });
 

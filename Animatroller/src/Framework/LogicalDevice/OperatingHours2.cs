@@ -13,7 +13,10 @@ namespace Animatroller.Framework.LogicalDevice
         protected class TimeRange
         {
             public DateTime From { get; set; }
+
             public DateTime To { get; set; }
+
+            public List<DayOfWeek> DayOfWeek { get; set; }
         }
 
         private List<TimeRange> ranges;
@@ -21,6 +24,7 @@ namespace Animatroller.Framework.LogicalDevice
         private bool? isOpen;
         private bool? forced;
         private bool noRangesMeansClosed;
+        private bool disabled;
 
         private ISubject<bool> outputValue;
 
@@ -30,6 +34,7 @@ namespace Animatroller.Framework.LogicalDevice
             this.noRangesMeansClosed = noRangesMeansClosed;
             this.isOpen = null;
             this.ranges = new List<TimeRange>();
+            this.disabled = false;
 
             this.outputValue = new Subject<bool>();
 
@@ -49,6 +54,9 @@ namespace Animatroller.Framework.LogicalDevice
 
         private void EvaluateOpenHours()
         {
+            if (this.disabled)
+                return;
+
             if (this.forced.HasValue)
             {
                 IsOpen = this.forced.Value;
@@ -67,6 +75,9 @@ namespace Animatroller.Framework.LogicalDevice
                     if (now >= range.From.TimeOfDay &&
                         now <= range.To.TimeOfDay)
                     {
+                        if (range.DayOfWeek.Count > 0 && !range.DayOfWeek.Contains(DateTime.Today.DayOfWeek))
+                            continue;
+
                         isOpenNow = true;
                         break;
                     }
@@ -77,6 +88,9 @@ namespace Animatroller.Framework.LogicalDevice
                     if (now >= range.From.TimeOfDay ||
                         now <= range.To.TimeOfDay)
                     {
+                        if (range.DayOfWeek.Count > 0 && !range.DayOfWeek.Contains(DateTime.Today.DayOfWeek))
+                            continue;
+
                         isOpenNow = true;
                         break;
                     }
@@ -84,6 +98,17 @@ namespace Animatroller.Framework.LogicalDevice
             }
 
             IsOpen = isOpenNow;
+        }
+
+        public bool Disabled
+        {
+            get { return this.disabled; }
+            set
+            {
+                this.disabled = value;
+
+                EvaluateOpenHours();
+            }
         }
 
         public override void SetInitialState()
@@ -114,12 +139,13 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public OperatingHours2 AddRange(string from, string to)
+        public OperatingHours2 AddRange(string from, string to, params DayOfWeek[] daysOfWeek)
         {
             var range = new TimeRange
             {
                 From = DateTime.Parse(from),
-                To = DateTime.Parse(to)
+                To = DateTime.Parse(to),
+                DayOfWeek = daysOfWeek.ToList()
             };
 
             this.ranges.Add(range);
