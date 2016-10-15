@@ -777,7 +777,10 @@ namespace Animatroller.Scenes
         private void SetPixelColor()
         {
             if (manualFader.Value)
+            {
                 pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
+//                wall5Light.SetColor(GetFaderColor(), faderBright.Value);
+            }
             else
                 pixelsRoofEdge.SetColor(Color.Black);
         }

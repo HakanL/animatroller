@@ -13,7 +13,7 @@ namespace Animatroller.Framework.Utility
         {
             var result = new RGBAW();
 
-            result.W = (byte)(Math.Min(Math.Min(inp.R, inp.G), inp.B) / 3);
+            result.W = (byte)(Math.Min(Math.Min(inp.R, inp.G), inp.B));
 
             int amber = inp.R - result.W;
             int a2 = (inp.G - result.W) * 2;
