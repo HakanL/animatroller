@@ -175,7 +175,7 @@ namespace Animatroller.Framework.Expander
             return this;
         }
 
-        public OscServer RegisterAction<T>(string address, Func<IEnumerable<T>, bool> predicate, Action<Message, IEnumerable<T>> action)
+        public OscServer RegisterAction<T>(string address, Func<IReadOnlyList<T>, bool> predicate, Action<Message, IReadOnlyList<T>> action)
         {
             return RegisterAction<T>(address, (m, d) =>
             {
@@ -184,7 +184,7 @@ namespace Animatroller.Framework.Expander
             });
         }
 
-        public OscServer RegisterAction<T>(string address, Action<Message, IEnumerable<T>> action)
+        public OscServer RegisterAction<T>(string address, Action<Message, IReadOnlyList<T>> action)
         {
             Action<Message> invokeAction = msg =>
             {

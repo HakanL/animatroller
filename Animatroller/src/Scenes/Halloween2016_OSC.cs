@@ -13,6 +13,18 @@ namespace Animatroller.Scenes
     {
         public void ConfigureOSC()
         {
+            oscServer.RegisterAction<bool>("/Triggers/x", (msg, data) =>
+            {
+                if (data.Count() < 25)
+                    return;
+
+                if (data[0])
+                    expanderPicture.SendSerial(0, new byte[] { 0x01 });
+
+                if (data[1])
+                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
+            });
+
             oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
             {
                 audioEeebox.PlayEffect("sixthsense-deadpeople.wav");
@@ -108,10 +120,10 @@ namespace Animatroller.Scenes
                 audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
             });
 
-            oscServer.RegisterAction<int>("/1/push4", (msg, data) =>
+            oscServer.RegisterActionSimple<int>("/FlashBaby/x", (msg, data) =>
             {
                 // Flash
-                if (data.First() != 0)
+                if (data != 0)
                 {
                     allLights.TakeAndHoldControl();
                     allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
@@ -201,7 +213,7 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
             {
-                masterBlock.Value = data.First() != 0;
+                blockMaster.Value = data.First() != 0;
                 //                treeGhosts.SetBrightness(data.First() != 0 ? 1.0 : 0.0);
             });
 

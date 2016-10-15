@@ -46,18 +46,22 @@ namespace Animatroller.Scenes
             midiInput.Note(midiChannel, 40).Subscribe(x =>
             {
                 if (x)
-                {
-                    allLights.TakeAndHoldControl();
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
-                }
-                else
-                    allLights.ReleaseControl();
+                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
+
+                //if (x)
+                //{
+                //    allLights.TakeAndHoldControl();
+                //    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                //}
+                //else
+                //    allLights.ReleaseControl();
             });
 
             midiInput.Note(midiChannel, 41).Subscribe(x =>
             {
                 if (x)
-                    audioHifi.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+                    //                    audioHifi.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+                    expanderPicture.SendSerial(0, new byte[] { 0x01 });
             });
 
             midiInput.Note(midiChannel, 42).Subscribe(x =>

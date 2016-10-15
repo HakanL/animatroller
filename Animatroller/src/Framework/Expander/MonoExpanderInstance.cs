@@ -255,5 +255,16 @@ namespace Animatroller.Framework.Expander
                     break;
             }
         }
+
+        public void SendSerial(int port, byte[] data)
+        {
+            log.Debug("Send serial data to port {0}", port);
+
+            SendMessage(new SendSerialRequest
+            {
+                Port = port,
+                Data = data
+            });
+        }
     }
 }

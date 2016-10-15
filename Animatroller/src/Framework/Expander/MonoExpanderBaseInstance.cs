@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define VERBOSE_LOGGING
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -71,7 +72,10 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(Ping message)
         {
+#if VERBOSE_LOGGING
             log.Trace($"Response from instance {this.name} at {this.connectionId}");
+#endif
+
         }
 
         public void Handle(FileRequest message)

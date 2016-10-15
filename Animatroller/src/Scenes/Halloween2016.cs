@@ -36,7 +36,7 @@ namespace Animatroller.Scenes
 
         private Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         private Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
-        private Expander.OscServer oscServer = new Expander.OscServer();
+        private Expander.OscServer oscServer = new Expander.OscServer(8000);
         private AudioPlayer audio1 = new AudioPlayer();
         private AudioPlayer audioCat = new AudioPlayer();
         private AudioPlayer audioHifi = new AudioPlayer();
@@ -49,12 +49,12 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderEeebox = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
         private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
         private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
         private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
-        private Expander.OscClient touchOSC = new Expander.OscClient("192.168.240.163", 9000);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         private VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
@@ -70,6 +70,8 @@ namespace Animatroller.Scenes
 
         Controller.Subroutine subFinal = new Controller.Subroutine();
         Controller.Subroutine subFirst = new Controller.Subroutine();
+        Controller.Subroutine subPicture = new Controller.Subroutine();
+        Controller.Subroutine subGhost = new Controller.Subroutine();
         Controller.Subroutine subVideo = new Controller.Subroutine();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -77,7 +79,7 @@ namespace Animatroller.Scenes
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 emergencyStop = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        private DigitalInput2 masterBlock = new DigitalInput2(persistState: true);
+        private DigitalInput2 blockMaster = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 blockCat = new DigitalInput2(persistState: true);
 
@@ -96,7 +98,8 @@ namespace Animatroller.Scenes
         private DigitalInput2 pumpkinMotion = new DigitalInput2();
         private DigitalInput2 catMotion = new DigitalInput2();
         private DigitalInput2 firstBeam = new DigitalInput2();
-        private DigitalInput2 finalBeam = new DigitalInput2();
+        private DigitalInput2 secondBeam = new DigitalInput2();
+        private DigitalInput2 ghostBeam = new DigitalInput2();
         private DigitalInput2 motion2 = new DigitalInput2();
         private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
         private DigitalOutput2 catMrsPumpkin = new DigitalOutput2(initial: true);
@@ -105,6 +108,7 @@ namespace Animatroller.Scenes
         private DigitalOutput2 candyEyes = new DigitalOutput2();
         private Dimmer3 catLights = new Dimmer3();
         private Dimmer3 pumpkinLights = new Dimmer3();
+        private Dimmer3 spiderWebLights = new Dimmer3();
         private Dimmer3 gorgoyleLightsCrystal = new Dimmer3();
         private Dimmer3 gorgoyleLightsEyes = new Dimmer3();
         private DigitalOutput2 george1 = new DigitalOutput2();
@@ -194,6 +198,7 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderCat);        // rpi-eb81c94e
             expanderServer.AddInstance("4fabc4931566424c870ccb83984b3ffb", expanderEeebox);     // videoplayer1
             expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHifi);       // rpi-eb428ef1
+            expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);        // rpi-eb91bc26
             hoursSmall
                 .ControlsMasterPower(catAir)
                 .ControlsMasterPower(catMrsPumpkin);
@@ -271,7 +276,8 @@ namespace Animatroller.Scenes
             popOutAll.ConnectTo(pixelsRoofEdge);
             popOutAll.ConnectTo(pinSpot);
 
-            allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, underGeorge, pixelsRoofEdge, pinSpot, spiderLight);
+            allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, underGeorge, pixelsRoofEdge, pinSpot, spiderLight,
+                spiderWebLights, pumpkinLights, gorgoyleLightsEyes);
             purpleLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, pixelsRoofEdge);
 
             flickerEffect.ConnectTo(stairs1Light);
@@ -284,6 +290,7 @@ namespace Animatroller.Scenes
 
             pulsatingCat.ConnectTo(catLights);
             pulsatingPumpkin.ConnectTo(pumpkinLights);
+            pulsatingPumpkin.ConnectTo(spiderWebLights);
 
             stateMachine.For(States.BackgroundSmall)
                 .Execute(i =>
@@ -500,6 +507,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(catMrsPumpkin, 50), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(spiderWebLights, 99), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsCrystal, 128), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsEyes, 129), SacnUniverseDMXCat);
@@ -508,8 +516,9 @@ namespace Animatroller.Scenes
 
             expanderLedmx.DigitalInputs[4].Connect(pumpkinMotion, false);
             expanderCat.DigitalInputs[4].Connect(catMotion, false);
-            //raspberryCat.DigitalInputs[5].Connect(firstBeam, false);
-            //raspberryCat.DigitalInputs[6].Connect(finalBeam, false);
+            expanderCat.DigitalInputs[5].Connect(secondBeam);
+            expanderCat.DigitalInputs[6].Connect(firstBeam);
+            expanderLedmx.DigitalInputs[5].Connect(ghostBeam);
             //raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
             expanderLedmx.Connect(audio1);
             expanderCat.Connect(audioCat);
@@ -536,7 +545,7 @@ namespace Animatroller.Scenes
                 if (x && (hoursFull.IsOpen || hoursSmall.IsOpen) && !blockCat.Value)
                     Executor.Current.Execute(catSeq);
 
-                touchOSC.Send("/1/led1", x ? 1 : 0);
+                oscServer.SendAllClients("/1/led1", x ? 1 : 0);
             });
 
             pumpkinMotion.Output.Subscribe(x =>
@@ -544,23 +553,31 @@ namespace Animatroller.Scenes
                 if (x && (hoursFull.IsOpen || hoursSmall.IsOpen))
                     Executor.Current.Execute(pumpkinSeq);
 
-                //                touchOSC.Send("/1/led1", x ? 1 : 0);
+                //                oscServer.SendAllClients("/1/led1", x ? 1 : 0);
             });
 
             firstBeam.Output.Subscribe(x =>
             {
-                touchOSC.Send("/1/led2", x ? 1 : 0);
+                UpdateOSC();
 
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !masterBlock.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value)
                     subFirst.Run();
             });
 
-            finalBeam.Output.Subscribe(x =>
+            secondBeam.Output.Subscribe(x =>
             {
-                touchOSC.Send("/1/led3", x ? 1 : 0);
+                UpdateOSC();
 
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !masterBlock.Value)
-                    subFinal.Run();
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value)
+                    subPicture.Run();
+            });
+
+            ghostBeam.Output.Subscribe(x =>
+            {
+                UpdateOSC();
+
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value)
+                    subGhost.Run();
             });
 
             motion2.Output.Subscribe(x =>
@@ -568,7 +585,7 @@ namespace Animatroller.Scenes
                 //if (x && hoursFull.IsOpen)
                 //    Executor.Current.Execute(motionSeq);
 
-                touchOSC.Send("/1/led4", x ? 1 : 0);
+                oscServer.SendAllClients("/1/led4", x ? 1 : 0);
             });
 
             welcomeSeq.WhenExecuted
@@ -623,6 +640,26 @@ namespace Animatroller.Scenes
                 {
                     pulsatingEffect2.Stop();
                     Thread.Sleep(S(5));
+                });
+
+            subPicture
+                .RunAction(i =>
+                {
+                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
+                    i.WaitFor(S(10.0));
+                })
+                .TearDown(() =>
+                {
+                });
+
+            subGhost
+                .RunAction(i =>
+                {
+                    expanderLedmx.SendSerial(0, new byte[] { 0x01 });
+                    i.WaitFor(S(10.0));
+                })
+                .TearDown(() =>
+                {
                 });
 
             subVideo
@@ -783,6 +820,15 @@ namespace Animatroller.Scenes
             }
             else
                 pixelsRoofEdge.SetColor(Color.Black);
+        }
+
+        private void UpdateOSC()
+        {
+            oscServer.SendAllClients("/Beams/x",
+                firstBeam.Value ? 1 : 0,
+                secondBeam.Value ? 1 : 0,
+                ghostBeam.Value ? 1 : 0,
+                0);
         }
 
         private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
