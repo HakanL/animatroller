@@ -56,7 +56,8 @@ namespace Animatroller.Framework.Expander
                 case CommunicationTypes.Netty:
                     this.serverCommunication = new ExpanderCommunication.NettyServer(
                         listenPort: listenPort,
-                        dataReceivedAction: DataReceived);
+                        dataReceivedAction: DataReceived,
+                        clientConnectedAction: ClientConnected);
                     break;
 
                 default:
@@ -114,6 +115,7 @@ namespace Animatroller.Framework.Expander
 
             expanderLocal.Initialize(
                 expanderSharedFiles: ExpanderSharedFiles,
+                instanceId: instanceId,
                 sendAction: async msg => await SendData(instanceId, msg));
         }
 
@@ -133,6 +135,16 @@ namespace Animatroller.Framework.Expander
         }
 
         public string ExpanderSharedFiles { get; set; }
+
+        private void ClientConnected(string instanceId, string connectionId)
+        {
+            // Find instance
+            MonoExpanderInstance instance;
+            if (!this.clientInstances.TryGetValue(instanceId, out instance))
+                return;
+
+            instance.ClientConnected(connectionId);
+        }
 
         private void DataReceived(string instanceId, string connectionId, string messageType, byte[] data)
         {

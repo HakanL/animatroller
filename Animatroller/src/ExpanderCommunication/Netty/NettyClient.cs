@@ -30,15 +30,17 @@ namespace Animatroller.ExpanderCommunication
         private Bootstrap bootstrap;
         private IChannel clientChannel;
         private Action<string, byte[]> dataReceivedAction;
+        private Action connectedAction;
         private CancellationTokenSource cts;
         private Task connectionTask;
 
-        public NettyClient(string host, int port, string instanceId, Action<string, byte[]> dataReceivedAction)
+        public NettyClient(string host, int port, string instanceId, Action<string, byte[]> dataReceivedAction, Action connectedAction)
         {
             this.host = host;
             this.port = port;
             this.instanceId = instanceId;
             this.dataReceivedAction = dataReceivedAction;
+            this.connectedAction = connectedAction;
             this.cts = new CancellationTokenSource();
 
             var hostEntry = Dns.GetHostEntry(host);
@@ -130,6 +132,14 @@ namespace Animatroller.ExpanderCommunication
             Task.Run(() =>
             {
                 this.dataReceivedAction?.Invoke(messageType, data);
+            });
+        }
+
+        internal void Connected()
+        {
+            Task.Run(() =>
+            {
+                this.connectedAction?.Invoke();
             });
         }
     }

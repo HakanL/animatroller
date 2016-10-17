@@ -75,7 +75,7 @@ namespace Animatroller.Framework.Expander
                 {
                     Output = string.Format("d{0}", index),
                     Value = x ? 1.0 : 0.0
-                });
+                }, $"d-out{index}");
             });
         }
 
@@ -87,10 +87,10 @@ namespace Animatroller.Framework.Expander
                 };
 
             this.AudioTrackStart.Subscribe(x =>
-            {
-                if (x.Item1 == AudioTypes.Track)
-                    logicalDevice.RaiseAudioTrackStart(x.Item2);
-            });
+                {
+                    if (x.Item1 == AudioTypes.Track)
+                        logicalDevice.RaiseAudioTrackStart(x.Item2);
+                });
 
             logicalDevice.AudioChanged += (sender, e) =>
                 {
@@ -104,14 +104,6 @@ namespace Animatroller.Framework.Expander
                                     FileName = e.AudioFile,
                                     VolumeLeft = e.LeftVolume.Value,
                                     VolumeRight = e.RightVolume.Value,
-                                    Simultaneous = e.Command == LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX
-                                });
-                            else if (e.LeftVolume.HasValue)
-                                SendMessage(new AudioEffectPlay
-                                {
-                                    FileName = e.AudioFile,
-                                    VolumeLeft = e.LeftVolume.Value,
-                                    VolumeRight = e.LeftVolume.Value,
                                     Simultaneous = e.Command == LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX
                                 });
                             else
@@ -152,29 +144,50 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PlayBackground:
                             SendMessage(new AudioBackgroundResume());
                             break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseBackground:
                             SendMessage(new AudioBackgroundPause());
                             break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeFX:
                             SendMessage(new AudioEffectResume());
                             break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseFX:
                             SendMessage(new AudioEffectPause());
                             break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.NextBackground:
                             SendMessage(new AudioBackgroundNext());
                             break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.BackgroundVolume:
                             SendMessage(new AudioBackgroundSetVolume
                             {
                                 Volume = ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value
-                            });
+                            }, "mv-bg");
                             break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeTrack:
                             SendMessage(new AudioTrackResume());
                             break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseTrack:
                             SendMessage(new AudioTrackPause());
+                            break;
+
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.EffectVolume:
+                            SendMessage(new AudioEffectSetVolume
+                            {
+                                Volume = ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value
+                            }, "mv-fx");
+                            break;
+
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.TrackVolume:
+                            SendMessage(new AudioTrackSetVolume
+                            {
+                                Volume = ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value
+                            }, "mv-trk");
                             break;
                     }
                 };

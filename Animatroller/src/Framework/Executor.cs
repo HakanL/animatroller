@@ -53,6 +53,7 @@ namespace Animatroller.Framework
         private Dictionary<IOwnedDevice, IControlToken> controlTokens;
         private ControlSubject<double> blackout;
         private ControlSubject<double> whiteout;
+        private ControlSubject<double> masterVolume;
         private MasterToken masterToken;
 
         private Executor()
@@ -81,6 +82,7 @@ namespace Animatroller.Framework
 
             this.blackout = new ControlSubject<double>(0.0);
             this.whiteout = new ControlSubject<double>(0.0);
+            this.masterVolume = new ControlSubject<double>(1.0);
 
             threadStorage = new ThreadLocal<ThreadLocalStorage>(() => new ThreadLocalStorage());
         }
@@ -93,6 +95,11 @@ namespace Animatroller.Framework
         public ISubjectWithValue<double> Whiteout
         {
             get { return this.whiteout; }
+        }
+
+        public ISubjectWithValue<double> MasterVolume
+        {
+            get { return this.masterVolume; }
         }
 
         internal ThreadLocalStorage ThreadStorage { get { return threadStorage.Value; } }

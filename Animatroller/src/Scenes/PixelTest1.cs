@@ -137,7 +137,7 @@ namespace Animatroller.Scenes
                         Color rndCol = Color.FromArgb(random.Next(256), random.Next(256), random.Next(256));
                         pixelRope.Inject(rndCol, 1.0);
 
-                        pixelsMatrix.Inject(rndCol);
+//FIXME                        pixelsMatrix.Inject(rndCol);
                     }
                 });
 

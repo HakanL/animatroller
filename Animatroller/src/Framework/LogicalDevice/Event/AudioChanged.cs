@@ -44,7 +44,9 @@ namespace Animatroller.Framework.LogicalDevice.Event
             BackgroundVolume,
             NextBackground,
             ResumeTrack,
-            PauseTrack
+            PauseTrack,
+            EffectVolume,
+            TrackVolume
         };
 
         public Commands Command { get; private set; }

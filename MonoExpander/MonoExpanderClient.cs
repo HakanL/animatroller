@@ -194,6 +194,11 @@ namespace Animatroller.MonoExpander
             this.main.Handle(message);
         }
 
+        public void Handle(AudioTrackSetVolume message)
+        {
+            this.main.Handle(message);
+        }
+
         public void Handle(AudioBackgroundSetVolume message)
         {
             this.main.Handle(message);

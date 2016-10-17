@@ -38,6 +38,7 @@ namespace Animatroller.MonoExpander
         private string trackPath;
         private string videoPath;
         private ChannelGroup fxGroup;
+        private ChannelGroup trkGroup;
         private ChannelGroup bgGroup;
         private Channel? currentFxChannel;
         private Channel? currentBgChannel;
@@ -165,6 +166,7 @@ namespace Animatroller.MonoExpander
                 this.fmodSystem = new LowLevelSystem();
 
                 this.fxGroup = this.fmodSystem.CreateChannelGroup("FX");
+                this.trkGroup = this.fmodSystem.CreateChannelGroup("Track");
                 this.bgGroup = this.fmodSystem.CreateChannelGroup("Background");
             }
 
@@ -224,7 +226,8 @@ namespace Animatroller.MonoExpander
                     host: server.Host,
                     port: server.Port,
                     instanceId: InstanceId,
-                    dataReceivedAction: (t, d) => DataReceived(client, t, d));
+                    dataReceivedAction: (t, d) => DataReceived(client, t, d),
+                    connectedAction: () => SendMessage(new Ping()));
 #endif
                 this.connections.Add(Tuple.Create((IClientCommunication)communication, client));
 
@@ -411,7 +414,7 @@ namespace Animatroller.MonoExpander
                 // Ignore
             }
 
-            var channel = this.fmodSystem.PlaySound(sound.Value, null, true);
+            var channel = this.fmodSystem.PlaySound(sound.Value, this.trkGroup, true);
             string trackName = this.currentTrack;
 
             channel.SetCallback((type, data1, data2) =>

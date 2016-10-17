@@ -25,7 +25,10 @@ namespace Animatroller.ExpanderCommunication
         private int listenPort;
         private Dictionary<string, IChannel> channels;
 
-        public NettyServer(int listenPort, Action<string, string, string, byte[]> dataReceivedAction)
+        public NettyServer(
+            int listenPort,
+            Action<string, string, string, byte[]> dataReceivedAction,
+            Action<string, string> clientConnectedAction)
         {
             this.listenPort = listenPort;
 
@@ -47,7 +50,7 @@ namespace Animatroller.ExpanderCommunication
                    pipeline.AddLast("framing-enc", new LengthFieldPrepender(2));
                    pipeline.AddLast("framing-dec", new LengthFieldBasedFrameDecoder(32 * 1024, 0, 2, 0, 2));
 
-                   pipeline.AddLast("main", new NettyServerHandler(dataReceivedAction, this));
+                   pipeline.AddLast("main", new NettyServerHandler(this, dataReceivedAction, clientConnectedAction));
                }));
         }
 

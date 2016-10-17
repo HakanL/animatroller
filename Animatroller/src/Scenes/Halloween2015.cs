@@ -56,8 +56,8 @@ namespace Animatroller.Scenes
         private DigitalInput2 manualFader = new DigitalInput2(persistState: true);
 
         private AnalogInput3 inputBrightness = new AnalogInput3(true, name: "Brightness");
-        private AnalogInput3 inputH = new AnalogInput3(true, "Hue");
-        private AnalogInput3 inputS = new AnalogInput3(true, "Saturation");
+        private AnalogInput3 inputH = new AnalogInput3(true, name: "Hue");
+        private AnalogInput3 inputS = new AnalogInput3(true, name: "Saturation");
 
         Controller.Subroutine subFinal = new Controller.Subroutine();
         Controller.Subroutine subFirst = new Controller.Subroutine();
@@ -145,7 +145,7 @@ namespace Animatroller.Scenes
         public Halloween2015(IEnumerable<string> args)
         {
             hoursSmall.AddRange("5:00 pm", "7:00 pm");
-//            hoursFull.AddRange("5:00 pm", "7:00 pm");
+            //            hoursFull.AddRange("5:00 pm", "7:00 pm");
 
             // Logging
             hoursSmall.Output.Log("Hours small");

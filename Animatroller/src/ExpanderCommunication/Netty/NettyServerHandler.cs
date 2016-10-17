@@ -13,19 +13,25 @@ namespace Animatroller.ExpanderCommunication
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private Action<string, string, string, byte[]> dataReceivedAction;
+        private Action<string, string> clientConnectedAction;
         private NettyServer parent;
+        private bool clientConnectedInvoked;
 
         public NettyServerHandler(
+            NettyServer parent,
             Action<string, string, string, byte[]> dataReceivedAction,
-            NettyServer parent)
+            Action<string, string> clientConnectedAction)
         {
             this.dataReceivedAction = dataReceivedAction;
+            this.clientConnectedAction = clientConnectedAction;
             this.parent = parent;
         }
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
             log.Info($"Channel {context.Channel.Id.AsShortText()} connected");
+
+            this.clientConnectedInvoked = false;
 
             base.ChannelActive(context);
         }
@@ -46,6 +52,12 @@ namespace Animatroller.ExpanderCommunication
                 string messageType = Encoding.UTF8.GetString(b);
 
                 this.parent.SetInstanceIdChannel(instanceId, context.Channel);
+
+                if (!this.clientConnectedInvoked)
+                {
+                    this.clientConnectedAction?.Invoke(instanceId, context.Channel.Id.AsShortText());
+                    this.clientConnectedInvoked = true;
+                }
 
                 this.dataReceivedAction(instanceId, context.Channel.Id.AsShortText(), messageType, buffer.ToArray());
             }

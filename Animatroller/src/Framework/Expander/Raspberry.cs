@@ -248,8 +248,6 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayFX:
                             if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
                                 this.oscClient.Send("/audio/fx/play", e.AudioFile, (float)e.LeftVolume.Value, (float)e.RightVolume.Value);
-                            else if (e.LeftVolume.HasValue)
-                                this.oscClient.Send("/audio/fx/play", e.AudioFile, (float)e.LeftVolume.Value);
                             else
                                 this.oscClient.Send("/audio/fx/play", e.AudioFile);
                             break;
@@ -257,8 +255,6 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX:
                             if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
                                 this.oscClient.Send("/audio/fx/playnew", e.AudioFile, (float)e.LeftVolume.Value, (float)e.RightVolume.Value);
-                            else if (e.LeftVolume.HasValue)
-                                this.oscClient.Send("/audio/fx/playnew", e.AudioFile, (float)e.LeftVolume.Value);
                             else
                                 this.oscClient.Send("/audio/fx/playnew", e.AudioFile);
                             break;

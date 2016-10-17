@@ -14,12 +14,15 @@ namespace Animatroller.Framework.LogicalDevice
     public class AnalogInput3 : BaseDevice, ISupportsPersistence, ILogicalOutputDevice<double>
     {
         protected double currentValue;
+        protected double defaultValue;
         protected ISubject<double> control;
         protected ISubject<double> outputValue;
 
-        public AnalogInput3(bool persistState = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public AnalogInput3(bool persistState = false, double defaultValue = 0.0, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name, persistState)
         {
+            this.currentValue = defaultValue;
+            this.defaultValue = defaultValue;
             this.outputValue = new Subject<double>();
             this.control = new Subject<double>();
 
@@ -36,7 +39,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetValueFromPersistence(Func<string, string, string> getKeyFunc)
         {
-            double.TryParse(getKeyFunc("input", "0.0"), out this.currentValue);
+            double.TryParse(getKeyFunc("input", this.defaultValue.ToString()), out this.currentValue);
         }
 
         public void SaveValueToPersistence(Action<string, string> setKeyFunc)

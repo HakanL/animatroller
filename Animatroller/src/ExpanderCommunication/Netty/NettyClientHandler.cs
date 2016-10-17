@@ -21,6 +21,8 @@ namespace Animatroller.ExpanderCommunication
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
+            this.parent.Connected();
+
             base.ChannelActive(context);
         }
 

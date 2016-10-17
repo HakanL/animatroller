@@ -116,12 +116,17 @@ namespace Animatroller.Framework.MonoExpanderMessages
     {
     }
 
+    public class AudioBackgroundSetVolume
+    {
+        public double Volume { get; set; }
+    }
+
     public class AudioEffectSetVolume
     {
         public double Volume { get; set; }
     }
 
-    public class AudioBackgroundSetVolume
+    public class AudioTrackSetVolume
     {
         public double Volume { get; set; }
     }

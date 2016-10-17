@@ -32,19 +32,19 @@ namespace Animatroller.Scenes
             Special1
         }
 
-        private const int midiChannel = 0;
+        const int midiChannel = 0;
 
-        private Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
-        private Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
-        private Expander.OscServer oscServer = new Expander.OscServer(8000);
-        private AudioPlayer audio1 = new AudioPlayer();
-        private AudioPlayer audioCat = new AudioPlayer();
-        private AudioPlayer audioHifi = new AudioPlayer();
-        private AudioPlayer audioEeebox = new AudioPlayer();
-        private AudioPlayer audioPop = new AudioPlayer();
-        private AudioPlayer audioDIN = new AudioPlayer();
-        private VideoPlayer video3dfx = new VideoPlayer();
-        private VideoPlayer video2 = new VideoPlayer();
+        Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
+        Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
+        Expander.OscServer oscServer = new Expander.OscServer(8000);
+        AudioPlayer audio1 = new AudioPlayer();
+        AudioPlayer audioCat = new AudioPlayer();
+        AudioPlayer audioHifi = new AudioPlayer();
+        AudioPlayer audioEeebox = new AudioPlayer();
+        AudioPlayer audioPop = new AudioPlayer();
+        AudioPlayer audioDIN = new AudioPlayer();
+        VideoPlayer video3dfx = new VideoPlayer();
+        VideoPlayer video2 = new VideoPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderEeebox = new Expander.MonoExpanderInstance();
@@ -52,22 +52,23 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
-        //private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
-        //private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
-        //private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
-        //private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
-        private Expander.AcnStream acnOutput = new Expander.AcnStream();
+        //Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
+        //Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
+        //Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
+        //Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
+        Expander.AcnStream acnOutput = new Expander.AcnStream();
 
-        private VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
-        private AnalogInput3 faderR = new AnalogInput3(persistState: true);
-        private AnalogInput3 faderG = new AnalogInput3(persistState: true);
-        private AnalogInput3 faderB = new AnalogInput3(persistState: true);
-        private AnalogInput3 faderBright = new AnalogInput3(persistState: true);
-        private DigitalInput2 manualFader = new DigitalInput2(persistState: true);
+        VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
+        AnalogInput3 faderR = new AnalogInput3(persistState: true);
+        AnalogInput3 faderG = new AnalogInput3(persistState: true);
+        AnalogInput3 faderB = new AnalogInput3(persistState: true);
+        AnalogInput3 faderBright = new AnalogInput3(persistState: true);
+        DigitalInput2 manualFader = new DigitalInput2(persistState: true);
+        AnalogInput3 masterVolume = new AnalogInput3(persistState: true, defaultValue: 1.0);
 
-        private AnalogInput3 inputBrightness = new AnalogInput3(true, name: "Brightness");
-        private AnalogInput3 inputH = new AnalogInput3(true, "Hue");
-        private AnalogInput3 inputS = new AnalogInput3(true, "Saturation");
+        AnalogInput3 inputBrightness = new AnalogInput3(true, name: "Brightness");
+        AnalogInput3 inputH = new AnalogInput3(true, name: "Hue");
+        AnalogInput3 inputS = new AnalogInput3(true, name: "Saturation");
 
         Controller.Subroutine subFinal = new Controller.Subroutine();
         Controller.Subroutine subFirst = new Controller.Subroutine();
@@ -76,86 +77,86 @@ namespace Animatroller.Scenes
         Controller.Subroutine subVideo = new Controller.Subroutine();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
+        DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        private DigitalInput2 emergencyStop = new DigitalInput2(persistState: true);
+        DigitalInput2 emergencyStop = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        private DigitalInput2 blockMaster = new DigitalInput2(persistState: true);
+        DigitalInput2 blockMaster = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        private DigitalInput2 blockCat = new DigitalInput2(persistState: true);
+        DigitalInput2 blockCat = new DigitalInput2(persistState: true);
 
-        private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
+        Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingCatLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Effect.Pulsating pulsatingCatHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         Effect.Pulsating pulsatingPumpkinLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Effect.Pulsating pulsatingPumpkinHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
-        private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
-        private Effect.Pulsating pulsatingGargoyle = new Effect.Pulsating(S(4), 0.5, 1.0, false);
-        private Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
-        private Effect.PopOut2 popOut1 = new Effect.PopOut2(S(0.3));
-        private Effect.PopOut2 popOut2 = new Effect.PopOut2(S(0.3));
-        private Effect.PopOut2 popOutAll = new Effect.PopOut2(S(1.2));
+        Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        Effect.Pulsating pulsatingGargoyle = new Effect.Pulsating(S(4), 0.5, 1.0, false);
+        Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
+        Effect.PopOut2 popOut1 = new Effect.PopOut2(S(0.3));
+        Effect.PopOut2 popOut2 = new Effect.PopOut2(S(0.3));
+        Effect.PopOut2 popOutAll = new Effect.PopOut2(S(1.2));
 
-        private DigitalOutput2 spiderCeiling = new DigitalOutput2("Spider Ceiling");
-        private DigitalOutput2 spiderCeilingDrop = new DigitalOutput2("Spider Ceiling Drop");
-        private DigitalInput2 pumpkinMotion = new DigitalInput2();
-        private DigitalInput2 catMotion = new DigitalInput2();
-        private DigitalInput2 firstBeam = new DigitalInput2();
-        private DigitalInput2 secondBeam = new DigitalInput2();
-        private DigitalInput2 ghostBeam = new DigitalInput2();
-        private DigitalInput2 motion2 = new DigitalInput2();
-        private DigitalOutput2 catAir = new DigitalOutput2(initial: true);
-        private DigitalOutput2 catMrsPumpkin = new DigitalOutput2(initial: true);
-        private DigitalOutput2 fog = new DigitalOutput2();
-        private DateTime? lastFogRun = DateTime.Now;
-        private DigitalOutput2 candyEyes = new DigitalOutput2();
-        private Dimmer3 catLights = new Dimmer3();
-        private Dimmer3 pumpkinLights = new Dimmer3();
-        private Dimmer3 spiderWebLights = new Dimmer3();
-        private Dimmer3 gargoyleLightsCrystal = new Dimmer3();
-        private Dimmer3 gargoyleLightsEyes = new Dimmer3();
-        private Dimmer3 hazerFanSpeed = new Dimmer3();
-        private Dimmer3 hazerHazeOutput = new Dimmer3();
-        private DigitalOutput2 george1 = new DigitalOutput2();
-        private DigitalOutput2 george2 = new DigitalOutput2();
-        private DigitalOutput2 popper = new DigitalOutput2();
-        private DigitalOutput2 dropSpiderEyes = new DigitalOutput2();
+        DigitalOutput2 spiderCeiling = new DigitalOutput2("Spider Ceiling");
+        DigitalOutput2 spiderCeilingDrop = new DigitalOutput2("Spider Ceiling Drop");
+        DigitalInput2 pumpkinMotion = new DigitalInput2();
+        DigitalInput2 catMotion = new DigitalInput2();
+        DigitalInput2 firstBeam = new DigitalInput2();
+        DigitalInput2 secondBeam = new DigitalInput2();
+        DigitalInput2 ghostBeam = new DigitalInput2();
+        DigitalInput2 motion2 = new DigitalInput2();
+        DigitalOutput2 catAir = new DigitalOutput2(initial: true);
+        DigitalOutput2 catMrsPumpkin = new DigitalOutput2(initial: true);
+        DigitalOutput2 fog = new DigitalOutput2();
+        DateTime? lastFogRun = DateTime.Now;
+        DigitalOutput2 candyEyes = new DigitalOutput2();
+        Dimmer3 catLights = new Dimmer3();
+        Dimmer3 pumpkinLights = new Dimmer3();
+        Dimmer3 spiderWebLights = new Dimmer3();
+        Dimmer3 gargoyleLightsCrystal = new Dimmer3();
+        Dimmer3 gargoyleLightsEyes = new Dimmer3();
+        Dimmer3 hazerFanSpeed = new Dimmer3();
+        Dimmer3 hazerHazeOutput = new Dimmer3();
+        DigitalOutput2 george1 = new DigitalOutput2();
+        DigitalOutput2 george2 = new DigitalOutput2();
+        DigitalOutput2 popper = new DigitalOutput2();
+        DigitalOutput2 dropSpiderEyes = new DigitalOutput2();
 
-        private OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
-        private OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
+        OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
+        OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
 
-        private GroupDimmer allLights = new GroupDimmer();
-        private GroupDimmer purpleLights = new GroupDimmer();
+        GroupDimmer allLights = new GroupDimmer();
+        GroupDimmer purpleLights = new GroupDimmer();
 
-        private StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
-        private StrobeColorDimmer3 wall1Light = new StrobeColorDimmer3("Wall 1");
-        private StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2");
-        private StrobeColorDimmer3 wall3Light = new StrobeColorDimmer3("Wall 3");
-        private StrobeColorDimmer3 wall4Light = new StrobeColorDimmer3("Wall 4");
-        private StrobeColorDimmer3 wall5Light = new StrobeColorDimmer3("Wall 5");
-        private Dimmer3 stairs1Light = new Dimmer3("Stairs 1");
-        private Dimmer3 stairs2Light = new Dimmer3("Stairs 2");
-        private Dimmer3 treeGhosts = new Dimmer3();
-        private Dimmer3 treeSkulls = new Dimmer3();
-        private StrobeDimmer3 underGeorge = new StrobeDimmer3("ADJ Flash");
-        private StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
+        StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
+        StrobeColorDimmer3 wall1Light = new StrobeColorDimmer3("Wall 1");
+        StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2");
+        StrobeColorDimmer3 wall3Light = new StrobeColorDimmer3("Wall 3");
+        StrobeColorDimmer3 wall4Light = new StrobeColorDimmer3("Wall 4");
+        StrobeColorDimmer3 wall5Light = new StrobeColorDimmer3("Wall 5");
+        Dimmer3 stairs1Light = new Dimmer3("Stairs 1");
+        Dimmer3 stairs2Light = new Dimmer3("Stairs 2");
+        Dimmer3 treeGhosts = new Dimmer3();
+        Dimmer3 treeSkulls = new Dimmer3();
+        StrobeDimmer3 underGeorge = new StrobeDimmer3("ADJ Flash");
+        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
-        private Controller.Sequence catSeq = new Controller.Sequence();
-        private Controller.Sequence pumpkinSeq = new Controller.Sequence();
-        private Controller.Sequence welcomeSeq = new Controller.Sequence();
-        private Controller.Sequence motionSeq = new Controller.Sequence();
+        Controller.Sequence catSeq = new Controller.Sequence();
+        Controller.Sequence pumpkinSeq = new Controller.Sequence();
+        Controller.Sequence welcomeSeq = new Controller.Sequence();
+        Controller.Sequence motionSeq = new Controller.Sequence();
 
-        private Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
-        private Controller.Timeline<string> timelineThunder2 = new Controller.Timeline<string>(1);
-        private Controller.Timeline<string> timelineThunder3 = new Controller.Timeline<string>(1);
-        private Controller.Timeline<string> timelineThunder4 = new Controller.Timeline<string>(1);
-        private Controller.Timeline<string> timelineThunder5 = new Controller.Timeline<string>(1);
-        private Controller.Timeline<string> timelineThunder6 = new Controller.Timeline<string>(1);
-        private Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
-        private Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
-        private string currentVideoFile;
+        Controller.Timeline<string> timelineThunder1 = new Controller.Timeline<string>(1);
+        Controller.Timeline<string> timelineThunder2 = new Controller.Timeline<string>(1);
+        Controller.Timeline<string> timelineThunder3 = new Controller.Timeline<string>(1);
+        Controller.Timeline<string> timelineThunder4 = new Controller.Timeline<string>(1);
+        Controller.Timeline<string> timelineThunder5 = new Controller.Timeline<string>(1);
+        Controller.Timeline<string> timelineThunder6 = new Controller.Timeline<string>(1);
+        Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
+        Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
+        string currentVideoFile;
 
-        private string[] videoFiles = new string[]
+        string[] videoFiles = new string[]
         {
             "Beauty_Startler_TVHolo_Hor_HD.mp4",
             "FearTheReaper_Door_Horz_HD.mp4",
@@ -205,6 +206,8 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHifi);       // rpi-eb428ef1
             expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
+
+            masterVolume.ConnectTo(Exec.MasterVolume);
 
             hoursSmall
                 .ControlsMasterPower(catAir)
@@ -818,12 +821,12 @@ namespace Animatroller.Scenes
             ConfigureMIDI();
         }
 
-        private Color GetFaderColor()
+        Color GetFaderColor()
         {
             return HSV.ColorFromRGB(faderR.Value, faderG.Value, faderB.Value);
         }
 
-        private void SetPixelColor()
+        void SetPixelColor()
         {
             if (manualFader.Value)
             {
@@ -834,7 +837,7 @@ namespace Animatroller.Scenes
                 pixelsRoofEdge.SetColor(Color.Black);
         }
 
-        private void UpdateOSC()
+        void UpdateOSC()
         {
             oscServer.SendAllClients("/Beams/x",
                 firstBeam.Value ? 1 : 0,
@@ -843,7 +846,7 @@ namespace Animatroller.Scenes
                 0);
         }
 
-        private void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
+        void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
         {
             switch (e.Code)
             {

@@ -17,6 +17,7 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(8899);
         AudioPlayer audio1 = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
+        AnalogInput3 masterVolume = new AnalogInput3(persistState: true, defaultValue: 1.0);
 
         DigitalInput2 in1 = new DigitalInput2();
         DigitalOutput2 out1 = new DigitalOutput2();
@@ -38,7 +39,9 @@ namespace Animatroller.Scenes
             expanderLocal.DigitalInputs[6].Connect(in1);
             expanderLocal.DigitalOutputs[7].Connect(out1);
             expanderLocal.Connect(audio1);
-//            expander2.Connect(audio2);
+            //            expander2.Connect(audio2);
+
+            masterVolume.ConnectTo(Exec.MasterVolume);
 
             in1.Output.Subscribe(x =>
             {

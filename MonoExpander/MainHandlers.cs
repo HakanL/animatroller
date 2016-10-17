@@ -99,6 +99,13 @@ namespace Animatroller.MonoExpander
             this.fxGroup.Volume = (float)message.Volume;
         }
 
+        public void Handle(AudioTrackSetVolume message)
+        {
+            this.log.Info("Set Track audio volume to {0:P0}", message.Volume);
+
+            this.trkGroup.Volume = (float)message.Volume;
+        }
+
         public void Handle(AudioBackgroundSetVolume message)
         {
             this.log.Info("Set BG audio volume to {0:P0}", message.Volume);

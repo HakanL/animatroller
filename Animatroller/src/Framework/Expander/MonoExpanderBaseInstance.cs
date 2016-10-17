@@ -19,21 +19,39 @@ namespace Animatroller.Framework.Expander
         private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
         protected string connectionId;
         protected string name;
+        protected string instanceId;
+        private Dictionary<string, object> lastState;
 
         public MonoExpanderBaseInstance()
         {
             this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
+            this.lastState = new Dictionary<string, object>();
         }
 
-        internal void Initialize(string expanderSharedFiles, Action<object> sendAction)
+        internal void Initialize(string expanderSharedFiles, string instanceId, Action<object> sendAction)
         {
             this.expanderSharedFiles = expanderSharedFiles;
+            this.instanceId = instanceId;
             this.sendAction = sendAction;
         }
 
-        protected void SendMessage(object message)
+        protected void SendMessage(object message, string stateKey = null)
         {
             this.sendAction?.Invoke(message);
+
+            if (!string.IsNullOrEmpty(stateKey))
+                this.lastState[stateKey] = message;
+        }
+
+        public void ClientConnected(string connectionId)
+        {
+            this.connectionId = connectionId;
+
+            log.Info("Client {0} connected to instance {1}", connectionId, this.instanceId);
+
+            // Send all state data
+            foreach (var kvp in this.lastState)
+                SendMessage(kvp.Value);
         }
 
         public void HandleMessage(string connectionId, Type messageType, object messageObject)

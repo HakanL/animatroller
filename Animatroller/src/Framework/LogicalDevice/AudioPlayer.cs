@@ -10,6 +10,9 @@ namespace Animatroller.Framework.LogicalDevice
     public class AudioPlayer : BaseDevice
     {
         private bool silent;
+        private double currentBackgroundVolume = 1.0;
+        private double currentEffectVolume = 1.0;
+        private double currentTrackVolume = 1.0;
 
         public event EventHandler<AudioChangedEventArgs> AudioChanged;
         public event EventHandler<AudioCommandEventArgs> ExecuteCommand;
@@ -19,20 +22,22 @@ namespace Animatroller.Framework.LogicalDevice
         public AudioPlayer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+            Executor.Current.MasterVolume.Subscribe(mv =>
+                {
+                    RaiseExecuteCommand(AudioCommandEventArgs.Commands.BackgroundVolume, this.currentBackgroundVolume * mv);
+                    RaiseExecuteCommand(AudioCommandEventArgs.Commands.EffectVolume, this.currentEffectVolume * mv);
+                    RaiseExecuteCommand(AudioCommandEventArgs.Commands.TrackVolume, this.currentTrackVolume * mv);
+                });
         }
 
         internal void RaiseAudioTrackStart(string fileName)
         {
-            var handler = AudioTrackStart;
-            if (handler != null)
-                handler(this, new AudioStartEventArgs(fileName));
+            AudioTrackStart?.Invoke(this, new AudioStartEventArgs(fileName));
         }
 
         internal void RaiseAudioTrackDone()
         {
-            var handler = AudioTrackDone;
-            if (handler != null)
-                handler(this, EventArgs.Empty);
+            AudioTrackDone?.Invoke(this, EventArgs.Empty);
         }
 
         protected virtual void RaiseAudioChanged(AudioChangedEventArgs.Commands command, string audioFile, double? leftVolume = null, double? rightVolume = null)
@@ -40,9 +45,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (this.silent)
                 return;
 
-            var handler = AudioChanged;
-            if (handler != null)
-                handler(this, new AudioChangedEventArgs(command, audioFile, leftVolume, rightVolume));
+            AudioChanged?.Invoke(this, new AudioChangedEventArgs(command, audioFile, leftVolume, rightVolume));
         }
 
         protected virtual void RaiseExecuteCommand(AudioCommandEventArgs.Commands command)
@@ -50,9 +53,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (this.silent)
                 return;
 
-            var handler = ExecuteCommand;
-            if (handler != null)
-                handler(this, new AudioCommandEventArgs(command));
+            ExecuteCommand?.Invoke(this, new AudioCommandEventArgs(command));
         }
 
         protected virtual void RaiseExecuteCommand(AudioCommandEventArgs.Commands command, double value)
@@ -60,9 +61,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (this.silent)
                 return;
 
-            var handler = ExecuteCommand;
-            if (handler != null)
-                handler(this, new AudioCommandValueEventArgs(command, value));
+            ExecuteCommand?.Invoke(this, new AudioCommandValueEventArgs(command, value));
         }
 
         public AudioPlayer PlayEffect(string audioFile, double leftVolume, double rightVolume)
@@ -81,7 +80,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public AudioPlayer PlayEffect(string audioFile, double volume)
         {
-            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile, volume);
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile, volume, volume);
 
             return this;
         }
@@ -102,7 +101,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public AudioPlayer PlayNewEffect(string audioFile, double volume)
         {
-            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayNewFX, audioFile, volume);
+            RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayNewFX, audioFile, volume, volume);
 
             return this;
         }
@@ -123,7 +122,27 @@ namespace Animatroller.Framework.LogicalDevice
 
         public AudioPlayer SetBackgroundVolume(double volume)
         {
-            RaiseExecuteCommand(AudioCommandEventArgs.Commands.BackgroundVolume, volume);
+            this.currentBackgroundVolume = volume;
+
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.BackgroundVolume, volume * Executor.Current.MasterVolume.Value);
+
+            return this;
+        }
+
+        public AudioPlayer SetEffectVolume(double volume)
+        {
+            this.currentEffectVolume = volume;
+
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.EffectVolume, volume * Executor.Current.MasterVolume.Value);
+
+            return this;
+        }
+
+        public AudioPlayer SetTrackVolume(double volume)
+        {
+            this.currentTrackVolume = volume;
+
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.TrackVolume, volume * Executor.Current.MasterVolume.Value);
 
             return this;
         }
