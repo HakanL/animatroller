@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Animatroller.Framework.Effect;
 using NLog;
 
 namespace Animatroller.Framework.Controller
@@ -19,12 +20,14 @@ namespace Animatroller.Framework.Controller
             protected Action<ISequenceInstance> setUpAction;
             protected Action<ISequenceInstance> tearDownAction;
             protected List<Action<ISequenceInstance>> actions;
+            protected List<Tuple<int, Effect.IEffect>> effects;
             protected System.Threading.CancellationToken cancelToken;
 
             public SequenceJob(string name)
             {
                 this.name = name;
                 this.actions = new List<Action<ISequenceInstance>>();
+                this.effects = new List<Tuple<int, IEffect>>();
                 this.id = Guid.NewGuid().GetHashCode().ToString();
             }
 
@@ -103,6 +106,9 @@ namespace Animatroller.Framework.Controller
                     if (this.setUpAction != null)
                         this.setUpAction.Invoke(this);
 
+                    foreach (var effect in this.effects)
+                        effect.Item2.Start(effect.Item1);
+
                     do
                     {
                         if (!this.actions.Any())
@@ -121,6 +127,9 @@ namespace Animatroller.Framework.Controller
 
                     } while (loop && !cancelToken.IsCancellationRequested);
 
+                    foreach (var effect in this.effects)
+                        effect.Item2.Stop();
+
                     if (this.tearDownAction != null)
                         this.tearDownAction.Invoke(this);
 
@@ -129,6 +138,14 @@ namespace Animatroller.Framework.Controller
                     else
                         log.Info("SequenceJob {0} completed", this.name);
                 }
+            }
+
+            public IRunnableState Controls(int priority = 1, params IEffect[] effects)
+            {
+                foreach (var effect in effects)
+                    this.effects.Add(Tuple.Create(priority, effect));
+
+                return this;
             }
 
             public string Id

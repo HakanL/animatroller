@@ -52,10 +52,10 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
-        private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
-        private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
-        private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
-        private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
+        //private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
+        //private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
+        //private Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
+        //private Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         private Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         private VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
@@ -302,12 +302,9 @@ namespace Animatroller.Scenes
             pulsatingGargoyle.ConnectTo(spiderWebLights);
 
             stateMachine.For(States.BackgroundSmall)
+                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingCatLow, pulsatingPumpkinLow)
                 .Execute(i =>
                     {
-                        flickerEffect.Start();
-                        pulsatingGargoyle.Start();
-                        pulsatingCatLow.Start();
-                        pulsatingPumpkinLow.Start();
                         treeGhosts.SetBrightness(1.0);
                         treeSkulls.SetBrightness(1.0);
                         audioEeebox.SetBackgroundVolume(0.6);
@@ -319,15 +316,11 @@ namespace Animatroller.Scenes
                             Utils.AdditionalData(DataElements.Color, purpleColor.Color),
                             Utils.AdditionalData(DataElements.ColorUltraViolet, 1.0)));
 
-                        i.CancelToken.WaitHandle.WaitOne();
+                        i.WaitUntilCancel();
                     })
                 .TearDown(instance =>
                     {
                         purpleLights.SetBrightness(0.0);
-                        pulsatingGargoyle.Stop();
-                        pulsatingCatLow.Stop();
-                        pulsatingGargoyle.Stop();
-                        flickerEffect.Stop();
                         treeGhosts.SetBrightness(0.0);
                         treeSkulls.SetBrightness(0.0);
                     });
@@ -539,17 +532,17 @@ namespace Animatroller.Scenes
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
             expanderEeebox.Connect(audioEeebox);
-            raspberry3dfx.Connect(video3dfx);
-            raspberryVideo2.Connect(video2);
-            raspberryPop.Connect(audioPop);
-            raspberryDIN.Connect(audioDIN);
-            raspberryDIN.DigitalInputs[4].Connect(motion2);
-            //raspberryCat.DigitalOutputs[6].Connect(fog);
-            raspberryDIN.DigitalOutputs[1].Connect(candyEyes);
-            raspberryPop.DigitalOutputs[7].Connect(george1);
-            raspberryPop.DigitalOutputs[6].Connect(george2);
-            raspberryPop.DigitalOutputs[5].Connect(popper);
-            raspberryPop.DigitalOutputs[2].Connect(dropSpiderEyes);
+            //raspberry3dfx.Connect(video3dfx);
+            //raspberryVideo2.Connect(video2);
+            //raspberryPop.Connect(audioPop);
+            //raspberryDIN.Connect(audioDIN);
+            //raspberryDIN.DigitalInputs[4].Connect(motion2);
+            ////raspberryCat.DigitalOutputs[6].Connect(fog);
+            //raspberryDIN.DigitalOutputs[1].Connect(candyEyes);
+            //raspberryPop.DigitalOutputs[7].Connect(george1);
+            //raspberryPop.DigitalOutputs[6].Connect(george2);
+            //raspberryPop.DigitalOutputs[5].Connect(popper);
+            //raspberryPop.DigitalOutputs[2].Connect(dropSpiderEyes);
 
 
 

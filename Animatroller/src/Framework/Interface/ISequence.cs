@@ -44,5 +44,7 @@ namespace Animatroller.Framework
         IRunnableState TearDown(Action<ISequenceInstance> action);
 
         IRunnableState Execute(Action<ISequenceInstance> action);
+
+        IRunnableState Controls(int priority = 1, params Effect.IEffect[] effects);
     }
 }

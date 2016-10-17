@@ -8,11 +8,37 @@ using System.Threading.Tasks;
 using System.IO.Ports;
 using NLog;
 using System.Net;
+using Newtonsoft.Json;
 
 namespace Animatroller.Framework.Expander
 {
-    public class OscServer : IPort, IRunnable
+    public class OscServer : IPort, IRunnable, ISupportsPersistence
     {
+        protected class ConnectedClient
+        {
+            protected static readonly TimeSpan Timeout = TimeSpan.FromHours(2);
+
+            private DateTime lastAccess;
+
+            public OscClient Client { get; private set; }
+
+            public ConnectedClient(IPAddress address, int port)
+            {
+                Client = new OscClient(address, port);
+                this.lastAccess = DateTime.Now;
+            }
+
+            public bool Expired
+            {
+                get { return (DateTime.Now - this.lastAccess) > Timeout; }
+            }
+
+            public void Touch()
+            {
+                this.lastAccess = DateTime.Now;
+            }
+        }
+
         public class Message
         {
             public string Address { get; private set; }
@@ -33,7 +59,7 @@ namespace Animatroller.Framework.Expander
         private System.Threading.CancellationTokenSource cancelSource;
         private Dictionary<string, Action<Message>> dispatch;
         private Dictionary<string, Action<Message>> dispatchPartial;
-        private Dictionary<IPEndPoint, OscClient> clients;
+        private Dictionary<IPEndPoint, ConnectedClient> clients;
 
         public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : this(Executor.Current.GetSetKey<int>(name, 9999))
@@ -46,7 +72,7 @@ namespace Animatroller.Framework.Expander
             this.cancelSource = new System.Threading.CancellationTokenSource();
             this.dispatch = new Dictionary<string, Action<Message>>();
             this.dispatchPartial = new Dictionary<string, Action<Message>>();
-            this.clients = new Dictionary<IPEndPoint, OscClient>();
+            this.clients = new Dictionary<IPEndPoint, ConnectedClient>();
 
             this.receiverTask = new Task(x =>
             {
@@ -62,10 +88,16 @@ namespace Animatroller.Framework.Expander
 
                                 lock (this.clients)
                                 {
-                                    if (!this.clients.ContainsKey(packet.Origin))
+                                    ConnectedClient connectedClient;
+
+                                    if (!this.clients.TryGetValue(packet.Origin, out connectedClient))
                                     {
-                                        this.clients.Add(packet.Origin, new OscClient(packet.Origin.Address, packet.Origin.Port));
+                                        connectedClient = new ConnectedClient(packet.Origin.Address, packet.Origin.Port);
+
+                                        this.clients.Add(packet.Origin, connectedClient);
                                     }
+
+                                    connectedClient.Touch();
                                 }
 
                                 if (packet is Rug.Osc.OscBundle)
@@ -114,9 +146,15 @@ namespace Animatroller.Framework.Expander
 
         public void SendAllClients(string address, params object[] data)
         {
-            foreach (var client in this.clients.Values)
+            foreach (var kvp in this.clients.ToList())
             {
-                client.Send(address, true, data);
+                if (kvp.Value.Expired)
+                {
+                    this.clients.Remove(kvp.Key);
+                    continue;
+                }
+
+                kvp.Value.Client.Send(address, true, data);
             }
         }
 
@@ -239,6 +277,33 @@ namespace Animatroller.Framework.Expander
                 this.dispatch[address] = invokeAction;
 
             return this;
+        }
+
+        public bool PersistState
+        {
+            get { return true; }
+        }
+
+        public void SetValueFromPersistence(Func<string, string, string> getKeyFunc)
+        {
+            var clientsIPList = JsonConvert.DeserializeObject<List<string>>(getKeyFunc("clients", "[]"));
+
+            foreach (var clientEP in clientsIPList)
+            {
+                string[] parts = clientEP.Split(':');
+                if (parts.Length != 2)
+                    continue;
+
+                var ep = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
+
+                this.clients.Add(ep, new ConnectedClient(ep.Address, ep.Port));
+            }
+        }
+
+        public void SaveValueToPersistence(Action<string, string> setKeyFunc)
+        {
+            string clientsIPList = JsonConvert.SerializeObject(this.clients.Select(x => $"{x.Key.Address}:{x.Key.Port}").ToList());
+            setKeyFunc("clients", clientsIPList);
         }
     }
 }
