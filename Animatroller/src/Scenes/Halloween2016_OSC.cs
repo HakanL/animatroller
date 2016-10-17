@@ -13,6 +13,16 @@ namespace Animatroller.Scenes
     {
         public void ConfigureOSC()
         {
+            oscServer.RegisterActionSimple<double>("/HazerFan/x", (msg, data) =>
+            {
+                hazerFanSpeed.SetBrightness(data);
+            });
+
+            oscServer.RegisterActionSimple<double>("/HazerHaze/x", (msg, data) =>
+            {
+                hazerHazeOutput.SetBrightness(data);
+            });
+
             oscServer.RegisterAction<bool>("/Triggers/x", (msg, data) =>
             {
                 if (data.Count() < 25)
@@ -23,6 +33,9 @@ namespace Animatroller.Scenes
 
                 if (data[1])
                     expanderPicture.SendSerial(0, new byte[] { 0x02 });
+
+                if (data[2])
+                    expanderGhost.SendSerial(0, new byte[] { 0x01 });
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>

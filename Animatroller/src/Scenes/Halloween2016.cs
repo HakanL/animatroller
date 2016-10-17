@@ -50,6 +50,7 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderEeebox = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
         private Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
         private Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
@@ -84,10 +85,12 @@ namespace Animatroller.Scenes
         private DigitalInput2 blockCat = new DigitalInput2(persistState: true);
 
         private Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
-        Effect.Pulsating pulsatingCat = new Effect.Pulsating(S(2), 0.5, 1.0, false);
-        Effect.Pulsating pulsatingPumpkin = new Effect.Pulsating(S(2), 0.5, 1.0, false);
+        Effect.Pulsating pulsatingCatLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
+        Effect.Pulsating pulsatingCatHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
+        Effect.Pulsating pulsatingPumpkinLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
+        Effect.Pulsating pulsatingPumpkinHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         private Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
-        private Effect.Pulsating pulsatingGorgoyle = new Effect.Pulsating(S(2), 0.1, 1.0, false);
+        private Effect.Pulsating pulsatingGargoyle = new Effect.Pulsating(S(4), 0.5, 1.0, false);
         private Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
         private Effect.PopOut2 popOut1 = new Effect.PopOut2(S(0.3));
         private Effect.PopOut2 popOut2 = new Effect.PopOut2(S(0.3));
@@ -109,8 +112,10 @@ namespace Animatroller.Scenes
         private Dimmer3 catLights = new Dimmer3();
         private Dimmer3 pumpkinLights = new Dimmer3();
         private Dimmer3 spiderWebLights = new Dimmer3();
-        private Dimmer3 gorgoyleLightsCrystal = new Dimmer3();
-        private Dimmer3 gorgoyleLightsEyes = new Dimmer3();
+        private Dimmer3 gargoyleLightsCrystal = new Dimmer3();
+        private Dimmer3 gargoyleLightsEyes = new Dimmer3();
+        private Dimmer3 hazerFanSpeed = new Dimmer3();
+        private Dimmer3 hazerHazeOutput = new Dimmer3();
         private DigitalOutput2 george1 = new DigitalOutput2();
         private DigitalOutput2 george2 = new DigitalOutput2();
         private DigitalOutput2 popper = new DigitalOutput2();
@@ -198,7 +203,9 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderCat);        // rpi-eb81c94e
             expanderServer.AddInstance("4fabc4931566424c870ccb83984b3ffb", expanderEeebox);     // videoplayer1
             expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHifi);       // rpi-eb428ef1
-            expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);        // rpi-eb91bc26
+            expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
+            expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
+
             hoursSmall
                 .ControlsMasterPower(catAir)
                 .ControlsMasterPower(catMrsPumpkin);
@@ -277,26 +284,30 @@ namespace Animatroller.Scenes
             popOutAll.ConnectTo(pinSpot);
 
             allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, underGeorge, pixelsRoofEdge, pinSpot, spiderLight,
-                spiderWebLights, pumpkinLights, gorgoyleLightsEyes);
+                spiderWebLights, pumpkinLights, gargoyleLightsEyes);
             purpleLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, pixelsRoofEdge);
 
             flickerEffect.ConnectTo(stairs1Light);
             flickerEffect.ConnectTo(stairs2Light);
-            flickerEffect.ConnectTo(gorgoyleLightsEyes);
-            pulsatingGorgoyle.ConnectTo(gorgoyleLightsCrystal);
-            pulsatingGorgoyle.ConnectTo(treeSkulls);
+            flickerEffect.ConnectTo(gargoyleLightsEyes);
+            pulsatingGargoyle.ConnectTo(gargoyleLightsCrystal);
+            pulsatingGargoyle.ConnectTo(treeSkulls);
             pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
             pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
-            pulsatingCat.ConnectTo(catLights);
-            pulsatingPumpkin.ConnectTo(pumpkinLights);
-            pulsatingPumpkin.ConnectTo(spiderWebLights);
+            pulsatingCatLow.ConnectTo(catLights);
+            pulsatingCatHigh.ConnectTo(catLights);
+            pulsatingPumpkinLow.ConnectTo(pumpkinLights);
+            pulsatingPumpkinHigh.ConnectTo(pumpkinLights);
+            pulsatingGargoyle.ConnectTo(spiderWebLights);
 
             stateMachine.For(States.BackgroundSmall)
                 .Execute(i =>
                     {
                         flickerEffect.Start();
-                        pulsatingGorgoyle.Start();
+                        pulsatingGargoyle.Start();
+                        pulsatingCatLow.Start();
+                        pulsatingPumpkinLow.Start();
                         treeGhosts.SetBrightness(1.0);
                         treeSkulls.SetBrightness(1.0);
                         audioEeebox.SetBackgroundVolume(0.6);
@@ -313,7 +324,9 @@ namespace Animatroller.Scenes
                 .TearDown(instance =>
                     {
                         purpleLights.SetBrightness(0.0);
-                        pulsatingGorgoyle.Stop();
+                        pulsatingGargoyle.Stop();
+                        pulsatingCatLow.Stop();
+                        pulsatingGargoyle.Stop();
                         flickerEffect.Stop();
                         treeGhosts.SetBrightness(0.0);
                         treeSkulls.SetBrightness(0.0);
@@ -509,8 +522,10 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(spiderWebLights, 99), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsCrystal, 128), SacnUniverseDMXCat);
-            acnOutput.Connect(new Physical.GenericDimmer(gorgoyleLightsEyes, 129), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsCrystal, 128), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsEyes, 129), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(hazerFanSpeed, 500), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(hazerHazeOutput, 501), SacnUniverseDMXCat);
             //            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
@@ -733,7 +748,8 @@ namespace Animatroller.Scenes
                 {
                     var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
-                    pulsatingCat.Start();
+                    pulsatingCatLow.Stop();
+                    pulsatingCatHigh.Start();
                     //                catLights.SetBrightness(1.0, instance.Token);
 
                     while (true)
@@ -771,19 +787,22 @@ namespace Animatroller.Scenes
                 {
                     //                Exec.MasterEffect.Fade(catLights, 1.0, 0.0, 1000, token: instance.Token);
                     //TODO: Fade out
-                    pulsatingCat.Stop();
+                    pulsatingCatHigh.Stop();
+                    pulsatingCatLow.Start();
                 });
 
             pumpkinSeq.WhenExecuted
                 .Execute(instance =>
                 {
-                    pulsatingPumpkin.Start();
+                    pulsatingPumpkinLow.Stop();
+                    pulsatingPumpkinHigh.Start();
                     audio1.PlayEffect("Thriller2.wav");
                     instance.CancelToken.WaitHandle.WaitOne(40000);
                 })
                 .TearDown(instance =>
                 {
-                    pulsatingPumpkin.Stop();
+                    pulsatingPumpkinHigh.Stop();
+                    pulsatingPumpkinLow.Start();
                 });
 
             motionSeq.WhenExecuted
@@ -816,7 +835,7 @@ namespace Animatroller.Scenes
             if (manualFader.Value)
             {
                 pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
-//                wall5Light.SetColor(GetFaderColor(), faderBright.Value);
+                //                wall5Light.SetColor(GetFaderColor(), faderBright.Value);
             }
             else
                 pixelsRoofEdge.SetColor(Color.Black);
