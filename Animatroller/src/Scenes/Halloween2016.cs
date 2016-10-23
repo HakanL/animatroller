@@ -324,6 +324,11 @@ namespace Animatroller.Scenes
                 .TearDown(instance =>
                     {
                         purpleLights.SetBrightness(0.0);
+                        pulsatingGargoyle.Stop();
+                        pulsatingCatLow.Stop();
+                        pulsatingPumpkinLow.Stop();
+                        pulsatingGargoyle.Stop();
+                        flickerEffect.Stop();
                         treeGhosts.SetBrightness(0.0);
                         treeSkulls.SetBrightness(0.0);
                     });
