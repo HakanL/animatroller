@@ -39,7 +39,10 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetValueFromPersistence(Func<string, string, string> getKeyFunc)
         {
-            double.TryParse(getKeyFunc("input", this.defaultValue.ToString()), out this.currentValue);
+            double value;
+            double.TryParse(getKeyFunc("input", this.defaultValue.ToString()), out value);
+
+            Value = value;
         }
 
         public void SaveValueToPersistence(Action<string, string> setKeyFunc)

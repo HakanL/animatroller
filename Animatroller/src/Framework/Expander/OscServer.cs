@@ -146,15 +146,18 @@ namespace Animatroller.Framework.Expander
 
         public void SendAllClients(string address, params object[] data)
         {
-            foreach (var kvp in this.clients.ToList())
+            lock (this.clients)
             {
-                if (kvp.Value.Expired)
+                foreach (var kvp in this.clients.ToList())
                 {
-                    this.clients.Remove(kvp.Key);
-                    continue;
-                }
+                    if (kvp.Value.Expired)
+                    {
+                        this.clients.Remove(kvp.Key);
+                        continue;
+                    }
 
-                kvp.Value.Client.Send(address, true, data);
+                    kvp.Value.Client.Send(address, true, data);
+                }
             }
         }
 
@@ -286,24 +289,30 @@ namespace Animatroller.Framework.Expander
 
         public void SetValueFromPersistence(Func<string, string, string> getKeyFunc)
         {
-            var clientsIPList = JsonConvert.DeserializeObject<List<string>>(getKeyFunc("clients", "[]"));
-
-            foreach (var clientEP in clientsIPList)
+            lock (this.clients)
             {
-                string[] parts = clientEP.Split(':');
-                if (parts.Length != 2)
-                    continue;
+                var clientsIPList = JsonConvert.DeserializeObject<List<string>>(getKeyFunc("clients", "[]"));
 
-                var ep = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
+                foreach (var clientEP in clientsIPList)
+                {
+                    string[] parts = clientEP.Split(':');
+                    if (parts.Length != 2)
+                        continue;
 
-                this.clients.Add(ep, new ConnectedClient(ep.Address, ep.Port));
+                    var ep = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
+
+                    this.clients.Add(ep, new ConnectedClient(ep.Address, ep.Port));
+                }
             }
         }
 
         public void SaveValueToPersistence(Action<string, string> setKeyFunc)
         {
-            string clientsIPList = JsonConvert.SerializeObject(this.clients.Select(x => $"{x.Key.Address}:{x.Key.Port}").ToList());
-            setKeyFunc("clients", clientsIPList);
+            lock (this.clients)
+            {
+                string clientsIPList = JsonConvert.SerializeObject(this.clients.Select(x => $"{x.Key.Address}:{x.Key.Port}").ToList());
+                setKeyFunc("clients", clientsIPList);
+            }
         }
     }
 }

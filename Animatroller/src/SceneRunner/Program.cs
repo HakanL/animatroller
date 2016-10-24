@@ -80,6 +80,8 @@ namespace Animatroller.Scenes
             // Run
             Executor.Current.Run();
 
+            Executor.Current.SetScenePersistance(scene);
+
             if (simForm != null)
             {
                 simForm.Show();

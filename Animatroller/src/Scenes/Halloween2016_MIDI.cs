@@ -19,6 +19,8 @@ namespace Animatroller.Scenes
             midiInput.Controller(midiChannel, 3).Controls(faderB.Control);
             midiInput.Controller(midiChannel, 4).Controls(faderBright.Control);
 
+            midiInput.Controller(midiChannel, 8).Controls(Exec.MasterVolume);
+
             midiInput.Note(midiChannel, 36).Subscribe(x =>
             {
                 if (x)

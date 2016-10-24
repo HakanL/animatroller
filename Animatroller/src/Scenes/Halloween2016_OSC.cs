@@ -36,61 +36,71 @@ namespace Animatroller.Scenes
 
                 if (data[2])
                     expanderGhost.SendSerial(0, new byte[] { 0x01 });
+
+                spiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
+
+                if (data[6])
+                    audio2.PlayEffect("sixthsense-deadpeople.wav");
+
+                flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
+
+                if (data[8])
+                    audioPicture.PlayEffect("162 Blood Curdling Scream of Terror.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("sixthsense-deadpeople.wav");
+                audio2.PlayEffect("sixthsense-deadpeople.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/2", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                audio2.PlayEffect("162 Blood Curdling Scream of Terror.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/3", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("424 Coyote Howling.wav");
+                audio2.PlayEffect("424 Coyote Howling.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/4", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+                audio2.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/5", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("242004__junkfood2121__fart-01.wav");
+                audio2.PlayEffect("242004__junkfood2121__fart-01.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/5/1", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("death-scream.wav");
+                audio2.PlayEffect("death-scream.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/5/2", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("scream.wav");
+                audio2.PlayEffect("scream.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/5/3", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("door-creak.wav");
+                audio2.PlayEffect("door-creak.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/5/4", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("violin screech.wav");
+                audio2.PlayEffect("violin screech.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/5/5", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("gollum_precious1.wav");
+                audio2.PlayEffect("gollum_precious1.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/4/1", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayNewEffect("640 The Demon Exorcised.wav");
+                audio2.PlayNewEffect("640 The Demon Exorcised.wav");
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/4/2", d => d.First() != 0, (msg, data) =>
@@ -115,7 +125,7 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<int>("/3/multipush1/3/1", d => d.First() != 0, (msg, data) =>
             {
-                audioEeebox.PlayEffect("180 Babbling Lunatic.wav");
+                audio2.PlayEffect("180 Babbling Lunatic.wav");
             });
 
             oscServer.RegisterAction<int>("/1/eStop", (msg, data) =>
@@ -138,7 +148,7 @@ namespace Animatroller.Scenes
                 // Flash
                 if (data != 0)
                 {
-                    allLights.TakeAndHoldControl();
+                    allLights.TakeAndHoldControl(100);
                     allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
                 }
                 else
@@ -219,9 +229,9 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
             {
                 if (data.First() != 0)
-                    audioEeebox.PlayBackground();
+                    audio2.PlayBackground();
                 else
-                    audioEeebox.PauseBackground();
+                    audio2.PauseBackground();
             });
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>

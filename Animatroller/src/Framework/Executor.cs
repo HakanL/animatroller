@@ -282,6 +282,11 @@ namespace Animatroller.Framework
 
             this.scenes.Add(scene);
 
+            return this;
+        }
+
+        public Executor SetScenePersistance(IScene scene)
+        {
             // Set field names
             SetFieldNamesForPersistence(scene);
 
@@ -354,6 +359,7 @@ namespace Animatroller.Framework
             foreach (var runnable in this.runnable.Where(x => !(x is IOutputHardware)))
                 runnable.Start();
 
+            // Set device initial state
             foreach (var device in this.devices)
                 device.SetInitialState();
 
