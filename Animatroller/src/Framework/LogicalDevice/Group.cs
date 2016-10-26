@@ -47,10 +47,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public IData GetFrameBuffer(IControlToken token, IReceivesData device)
         {
-            if (token == null)
-                return Executor.Current.MasterToken.GetDataForDevice(device);
-
-            return token.GetDataForDevice(device);
+            return device.GetFrameBuffer(token, device);
         }
 
         protected override void UpdateOutput()

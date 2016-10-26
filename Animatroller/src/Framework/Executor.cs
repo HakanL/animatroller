@@ -54,7 +54,6 @@ namespace Animatroller.Framework
         private ControlSubject<double> blackout;
         private ControlSubject<double> whiteout;
         private ControlSubject<double> masterVolume;
-        private MasterToken masterToken;
 
         private Executor()
         {
@@ -71,7 +70,6 @@ namespace Animatroller.Framework
             this.masterTimer2 = new Controller.HighPrecisionTimer2(MasterTimerIntervalMs);
             this.timerJobRunner = new Effect2.TimerJobRunner(this.masterTimer2);
             this.controlTokens = new Dictionary<IOwnedDevice, IControlToken>();
-            this.masterToken = new Framework.MasterToken();
 
             this.masterEffect = new Effect2.MasterEffect(this.timerJobRunner);
 
@@ -112,10 +110,7 @@ namespace Animatroller.Framework
             return token;
         }
 
-        public IControlToken MasterToken
-        {
-            get { return this.masterToken; }
-        }
+        public bool IsOffline { get; set; }
 
         public void SetControlToken(IOwnedDevice device, IControlToken token)
         {

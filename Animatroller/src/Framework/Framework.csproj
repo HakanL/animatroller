@@ -110,7 +110,6 @@
     <Compile Include="LogicalDevice\ControlledGroupData.cs" />
     <Compile Include="LogicalDevice\VirtualPixel2D3.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D3.cs" />
-    <Compile Include="MasterToken.cs" />
     <Compile Include="PhysicalDevice\MarcGamutParH7.cs" />
     <Compile Include="PhysicalDevice\Pixel2D.cs" />
     <Compile Include="Utility\PixelMapping.cs" />

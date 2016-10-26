@@ -109,21 +109,21 @@ namespace Animatroller.Framework.LogicalDevice
         public IData GetFrameBuffer(IControlToken token, IReceivesData device)
         {
             if (token == null)
-                return Executor.Current.MasterToken.GetDataForDevice(device);
+                return GetOwnerlessData();
 
             return token.GetDataForDevice(device);
         }
 
         public void PushOutput(IControlToken token)
         {
-            var finalToken = token;
-            if (finalToken == null)
-                finalToken = Executor.Current.MasterToken;
-
-            var data = finalToken.GetDataForDevice(this);
+            IData data;
+            if (token != null)
+                data = token.GetDataForDevice(this);
+            else
+                data = GetOwnerlessData();
 
             if (data != null)
-                this.outputData.OnNext(data, finalToken);
+                this.outputData.OnNext(data, token);
         }
 
         public void SetData(IControlToken token, params Tuple<DataElements, object>[] values)

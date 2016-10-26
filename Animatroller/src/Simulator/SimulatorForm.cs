@@ -388,13 +388,15 @@ namespace Animatroller.Simulator
 
             control.Checked = logicalDevice.Value;
 
-            if (showOutput)
-            {
-                logicalDevice.Output.Subscribe(x =>
-                    {
+            logicalDevice.Output
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(x =>
+                {
+                    control.Checked = x;
+
+                    if (showOutput)
                         control.Image = x ? imageOn : imageOff;
-                    });
-            }
+                });
 
             return device;
         }

@@ -37,6 +37,9 @@ namespace Animatroller.Framework.Expander
 
         protected void SendMessage(object message, string stateKey = null)
         {
+            if (Executor.Current.IsOffline)
+                return;
+
             this.sendAction?.Invoke(message);
 
             if (!string.IsNullOrEmpty(stateKey))

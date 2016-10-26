@@ -66,6 +66,7 @@ namespace Animatroller.Scenes
         AnalogInput3 faderBright = new AnalogInput3(persistState: true);
         DigitalInput2 manualFader = new DigitalInput2(persistState: true);
         AnalogInput3 masterVolume = new AnalogInput3(persistState: true, defaultValue: 1.0);
+        DigitalInput2 flashBaby = new DigitalInput2();
 
         AnalogInput3 inputBrightness = new AnalogInput3(true, name: "Brightness");
         AnalogInput3 inputH = new AnalogInput3(true, name: "Hue");
@@ -227,6 +228,18 @@ namespace Animatroller.Scenes
                     hoursSmall.SetForced(null);
             });
 
+
+            flashBaby.Output.Subscribe(x =>
+            {
+                // Flash
+                if (x)
+                {
+                    allLights.TakeAndHoldControl(100, "FlashBaby");
+                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                }
+                else
+                    allLights.ReleaseControl();
+            });
 
             emergencyStop.Output.Subscribe(x =>
             {

@@ -41,6 +41,10 @@ namespace Animatroller.Scenes
                         simForm = new Animatroller.Simulator.SimulatorForm();
                         break;
 
+                    case "OFFLINE":
+                        Executor.Current.IsOffline = true;
+                        break;
+
                     default:
                         // Pass other parameters to the scene. Can be used to load test data to operating hours, etc
                         sceneArgs.Add(arg);

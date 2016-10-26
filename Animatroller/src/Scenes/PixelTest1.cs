@@ -168,9 +168,9 @@ namespace Animatroller.Scenes
             buttonFader.Output.Subscribe(x =>
             {
                 if (x)
-                    Exec.MasterEffect.Fade(pixelsMatrix, 1.0, 0.0, 2000, token: Exec.MasterToken);
+                    Exec.MasterEffect.Fade(pixelsMatrix, 1.0, 0.0, 2000);
                 else
-                    Exec.MasterEffect.Fade(pixelsMatrix, 0.0, 1.0, 2000, token: Exec.MasterToken);
+                    Exec.MasterEffect.Fade(pixelsMatrix, 0.0, 1.0, 2000);
             });
 
             buttonFader2.Output.Subscribe(x =>

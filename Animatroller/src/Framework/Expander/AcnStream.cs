@@ -155,7 +155,7 @@ namespace Animatroller.Framework.Expander
 
             public SendStatus SendDimmerValue(int channel, byte value)
             {
-                if (!this.parent.Muted)
+                if (!Executor.Current.IsOffline)
                     this.dmxUniverse.SetDmx(channel, value);
 
                 return SendStatus.NotSet;
@@ -178,7 +178,7 @@ namespace Animatroller.Framework.Expander
                         dmxData[chn] = values[offset + i];
                 }
 
-                if (!this.parent.Muted)
+                if (!Executor.Current.IsOffline)
                 {
                     // Force a send
                     this.dmxUniverse.SetDmx(dmxData);
@@ -227,8 +227,6 @@ namespace Animatroller.Framework.Expander
         {
             log.Debug("Received DMX packet on ACN stream");
         }
-
-        public bool Muted { get; set; }
 
         protected AcnUniverse GetSendingUniverse(int universe)
         {
