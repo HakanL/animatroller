@@ -14,47 +14,36 @@ namespace Animatroller.Simulator
     {
         private Bitmap outputBitmap;
         private object lockObject = new object();
-        private Task senderTask;
-        private System.Threading.CancellationTokenSource cancelSource;
         private ILogicalDevice logicalDevice;
         private Control.PixelLight2D control;
         private int pixelWidth;
         private int pixelHeight;
         private bool newDataAvailable;
 
-        public TestPixel2D(int pixelWidth, int pixelHeight)
+        public TestPixel2D(IUpdateActionParent parent, int pixelWidth, int pixelHeight)
         {
             this.pixelWidth = pixelWidth;
             this.pixelHeight = pixelHeight;
 
-            this.cancelSource = new System.Threading.CancellationTokenSource();
-
-            this.senderTask = new Task(x =>
+            parent.AddUpdateAction(() =>
             {
-                while (!this.cancelSource.IsCancellationRequested)
+                lock (lockObject)
                 {
-                    lock (lockObject)
+                    if (this.newDataAvailable)
                     {
-                        if (this.newDataAvailable)
-                        {
-                            this.newDataAvailable = false;
+                        this.newDataAvailable = false;
 
-                            if (control != null)
-                                control.SetImage(this.outputBitmap);
-                        }
+                        if (control != null)
+                            control.SetImage(this.outputBitmap);
                     }
-
-                    System.Threading.Thread.Sleep(100);
                 }
-            }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
-
-            this.senderTask.Start();
+            });
 
             Executor.Current.Register(this);
         }
 
-        public TestPixel2D(IPixel2D2 logicalDevice)
-            : this(logicalDevice.PixelWidth, logicalDevice.PixelHeight)
+        public TestPixel2D(IUpdateActionParent parent, IPixel2D2 logicalDevice)
+            : this(parent, logicalDevice.PixelWidth, logicalDevice.PixelHeight)
         {
             this.logicalDevice = logicalDevice;
 

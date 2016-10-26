@@ -19,10 +19,13 @@ using System.Threading;
 
 namespace Animatroller.Simulator
 {
-    public partial class SimulatorForm : Form, IPort
+    public partial class SimulatorForm : Form, IPort, IUpdateActionParent
     {
-        private List<IUpdateableControl> updateableControls = new List<IUpdateableControl>();
         protected static Logger log = LogManager.GetCurrentClassLogger();
+        private List<IUpdateableControl> updateableControls = new List<IUpdateableControl>();
+        private Task senderTask;
+        private System.Threading.CancellationTokenSource cancelSource;
+        private List<Action> updateActions;
 
         public SimulatorForm()
         {
@@ -32,6 +35,32 @@ namespace Animatroller.Simulator
               ControlStyles.AllPaintingInWmPaint |
               ControlStyles.UserPaint |
               ControlStyles.DoubleBuffer, true);
+
+            this.updateActions = new List<Action>();
+            this.cancelSource = new System.Threading.CancellationTokenSource();
+            this.senderTask = new Task(x =>
+            {
+                while (!this.cancelSource.IsCancellationRequested)
+                {
+                    lock (this.updateActions)
+                    {
+                        foreach (var action in this.updateActions)
+                            action();
+                    }
+
+                    System.Threading.Thread.Sleep(100);
+                }
+            }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
+
+            this.senderTask.Start();
+        }
+
+        public void AddUpdateAction(Action action)
+        {
+            lock (this.updateActions)
+            {
+                this.updateActions.Add(action);
+            }
         }
 
         public SimulatorForm AutoWireUsingReflection(IScene scene, params IRunningDevice[] excludeDevices)
@@ -61,15 +90,15 @@ namespace Animatroller.Simulator
                     continue;
 
                 if (field.FieldType == typeof(Dimmer3))
-                    this.Connect(new Animatroller.Simulator.TestLight((Dimmer3)fieldValue));
+                    this.Connect(new Animatroller.Simulator.TestLight(this, (Dimmer3)fieldValue));
                 else if (field.FieldType == typeof(ColorDimmer3))
-                    this.Connect(new Animatroller.Simulator.TestLight((ColorDimmer3)fieldValue));
+                    this.Connect(new Animatroller.Simulator.TestLight(this, (ColorDimmer3)fieldValue));
                 else if (field.FieldType == typeof(StrobeColorDimmer3))
-                    this.Connect(new Animatroller.Simulator.TestLight((StrobeColorDimmer3)fieldValue));
+                    this.Connect(new Animatroller.Simulator.TestLight(this, (StrobeColorDimmer3)fieldValue));
                 else if (field.FieldType == typeof(StrobeDimmer3))
-                    this.Connect(new Animatroller.Simulator.TestLight((StrobeDimmer3)fieldValue));
+                    this.Connect(new Animatroller.Simulator.TestLight(this, (StrobeDimmer3)fieldValue));
                 else if (field.FieldType == typeof(MovingHead))
-                    this.Connect(new Animatroller.Simulator.TestLight((MovingHead)fieldValue));
+                    this.Connect(new Animatroller.Simulator.TestLight(this, (MovingHead)fieldValue));
                 //else if (field.FieldType == typeof(Pixel1D))
                 //    this.Connect(new Animatroller.Simulator.TestPixel1D((Pixel1D)fieldValue));
                 //else if (field.FieldType == typeof(Pixel1D))
@@ -77,9 +106,9 @@ namespace Animatroller.Simulator
                 //else if (field.FieldType == typeof(VirtualPixel1D2))
                 //    this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D2)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel1D3))
-                    this.Connect(new Animatroller.Simulator.TestPixel1D((VirtualPixel1D3)fieldValue));
+                    this.Connect(new Animatroller.Simulator.TestPixel1D(this, (VirtualPixel1D3)fieldValue));
                 else if (field.FieldType == typeof(VirtualPixel2D3))
-                    this.Connect(new Animatroller.Simulator.TestPixel2D((VirtualPixel2D3)fieldValue));
+                    this.Connect(new Animatroller.Simulator.TestPixel2D(this, (VirtualPixel2D3)fieldValue));
                 //else if (field.FieldType == typeof(VirtualPixel2D))
                 //    this.Connect(new Animatroller.Simulator.TestPixel2D((VirtualPixel2D)fieldValue));
                 else if (field.FieldType == typeof(AnalogInput3))
@@ -509,6 +538,11 @@ namespace Animatroller.Simulator
                     Monitor.Exit(this.updateableControls);
                 }
             }
+        }
+
+        private void SimulatorForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.cancelSource.Cancel();
         }
     }
 }

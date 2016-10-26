@@ -17,8 +17,6 @@ namespace Animatroller.Simulator
         private Control.StrobeBulb control;
         private double? pan;
         private double? tilt;
-        private Task senderTask;
-        private System.Threading.CancellationTokenSource cancelSource;
         private object lockObject = new object();
         private bool newDataAvailable;
 
@@ -27,29 +25,21 @@ namespace Animatroller.Simulator
             set { this.control = value; }
         }
 
-        public TestLight(IApiVersion3 logicalDevice)
+        public TestLight(IUpdateActionParent parent, IApiVersion3 logicalDevice)
             : base(logicalDevice)
         {
-            this.cancelSource = new System.Threading.CancellationTokenSource();
-            this.senderTask = new Task(x =>
+            parent.AddUpdateAction(() =>
             {
-                while (!this.cancelSource.IsCancellationRequested)
+                lock (lockObject)
                 {
-                    lock (lockObject)
+                    if (this.newDataAvailable)
                     {
-                        if (this.newDataAvailable)
-                        {
-                            this.newDataAvailable = false;
+                        this.newDataAvailable = false;
 
-                            Output();
-                        }
+                        Output();
                     }
-
-                    System.Threading.Thread.Sleep(100);
                 }
-            }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
-
-            this.senderTask.Start();
+            });
         }
 
         protected override void SetFromIData(IData data)

@@ -34,13 +34,13 @@ namespace Animatroller.ExpanderCommunication
 
             this.channels = new Dictionary<string, IChannel>();
             this.bossGroup = new MultithreadEventLoopGroup(1);
-            this.workerGroup = new MultithreadEventLoopGroup();
+            this.workerGroup = new MultithreadEventLoopGroup(1);
 
             this.bootstrap = new ServerBootstrap();
             bootstrap
                .Group(bossGroup, workerGroup)
                .Channel<TcpServerSocketChannel>()
-               .Option(ChannelOption.SoBacklog, 100)
+               .Option(ChannelOption.SoBacklog, 10)
                .Handler(new LoggingHandler("SRV-LSTN"))
                .ChildHandler(new ActionChannelInitializer<ISocketChannel>(channel =>
                {

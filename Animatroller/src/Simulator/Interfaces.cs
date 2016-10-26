@@ -8,6 +8,11 @@ using Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.Simulator
 {
+    public interface IUpdateActionParent
+    {
+        void AddUpdateAction(Action action);
+    }
+
     public interface IUpdateableControl
     {
         void Update();

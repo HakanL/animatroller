@@ -14,44 +14,34 @@ namespace Animatroller.Simulator
     {
         private Bitmap outputBitmap;
         private object lockObject = new object();
-        private Task senderTask;
-        private System.Threading.CancellationTokenSource cancelSource;
         private ILogicalDevice logicalDevice;
         private Control.PixelLight1D control;
         private int numberOfPixels;
         private bool newDataAvailable;
 
-        private TestPixel1D(int numberOfPixels)
+        private TestPixel1D(IUpdateActionParent parent, int numberOfPixels)
         {
             this.numberOfPixels = numberOfPixels;
-            this.cancelSource = new System.Threading.CancellationTokenSource();
 
-            this.senderTask = new Task(x =>
+            parent.AddUpdateAction(() =>
             {
-                while (!this.cancelSource.IsCancellationRequested)
+                lock (lockObject)
                 {
-                    lock (lockObject)
+                    if (this.newDataAvailable)
                     {
-                        if (this.newDataAvailable)
-                        {
-                            this.newDataAvailable = false;
+                        this.newDataAvailable = false;
 
-                            if (control != null)
-                                control.SetImage(this.outputBitmap);
-                        }
+                        if (control != null)
+                            control.SetImage(this.outputBitmap);
                     }
-
-                    System.Threading.Thread.Sleep(100);
                 }
-            }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
-
-            this.senderTask.Start();
+            });
 
             Executor.Current.Register(this);
         }
 
-        public TestPixel1D(IPixel1D2 logicalDevice)
-            : this(logicalDevice.Pixels)
+        public TestPixel1D(IUpdateActionParent parent, IPixel1D2 logicalDevice)
+            : this(parent, logicalDevice.Pixels)
         {
             this.logicalDevice = logicalDevice;
 

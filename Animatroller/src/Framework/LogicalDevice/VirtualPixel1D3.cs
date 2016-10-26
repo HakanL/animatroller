@@ -299,9 +299,12 @@ namespace Animatroller.Framework.LogicalDevice
                     length = this.pixelCount;
             }
 
-            var bitmap = (Bitmap)data[DataElements.PixelBitmap];
-            for (int i = 0; i < length.Value; i++)
-                bitmap.SetPixel(startPosition + i, 0, injectColor);
+            lock (this.lockObject)
+            {
+                var bitmap = (Bitmap)data[DataElements.PixelBitmap];
+                for (int i = 0; i < length.Value; i++)
+                    bitmap.SetPixel(startPosition + i, 0, injectColor);
+            }
 
             PushOutput(token);
         }
@@ -313,11 +316,14 @@ namespace Animatroller.Framework.LogicalDevice
 
             Color injectColor = GetColorFromColorAndBrightness(color, brightness);
 
-            using (var g = Graphics.FromImage(bitmap))
+            lock (this.lockObject)
             {
-                g.DrawImageUnscaled(bitmap, 1, 0);
+                using (var g = Graphics.FromImage(bitmap))
+                {
+                    g.DrawImageUnscaled(bitmap, 1, 0);
 
-                bitmap.SetPixel(0, 0, injectColor);
+                    bitmap.SetPixel(0, 0, injectColor);
+                }
             }
 
             PushOutput(token);
@@ -330,11 +336,14 @@ namespace Animatroller.Framework.LogicalDevice
 
             Color injectColor = GetColorFromColorAndBrightness(color, brightness);
 
-            using (var g = Graphics.FromImage(bitmap))
+            lock (this.lockObject)
             {
-                g.DrawImageUnscaled(bitmap, -1, 0);
+                using (var g = Graphics.FromImage(bitmap))
+                {
+                    g.DrawImageUnscaled(bitmap, -1, 0);
 
-                bitmap.SetPixel(bitmap.Width - 1, 0, injectColor);
+                    bitmap.SetPixel(bitmap.Width - 1, 0, injectColor);
+                }
             }
 
             PushOutput(token);

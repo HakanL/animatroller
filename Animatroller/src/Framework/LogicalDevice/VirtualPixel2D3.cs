@@ -330,10 +330,13 @@ namespace Animatroller.Framework.LogicalDevice
 
             var bitmap = (Bitmap)data[DataElements.PixelBitmap];
 
-            using (var g = Graphics.FromImage(bitmap))
-            using (var b = new SolidBrush(injectColor))
+            lock (this.lockObject)
             {
-                g.FillRectangle(b, startX, startY, width.Value, height.Value);
+                using (var g = Graphics.FromImage(bitmap))
+                using (var b = new SolidBrush(injectColor))
+                {
+                    g.FillRectangle(b, startX, startY, width.Value, height.Value);
+                }
             }
 
             PushOutput(token);

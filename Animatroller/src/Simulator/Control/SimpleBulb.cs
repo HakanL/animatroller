@@ -22,6 +22,7 @@ namespace Animatroller.Simulator.Control.Bulb
         private bool _on = true;
         private string text;
         private Bitmap offScreenBitmap;
+        private static SolidBrush blackSolidBrush = new SolidBrush(Color.Black);
 
         /// <summary>
         /// Gets or Sets the color of the LED light
@@ -81,7 +82,6 @@ namespace Animatroller.Simulator.Control.Bulb
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-
         }
 
         #endregion
@@ -103,7 +103,7 @@ namespace Animatroller.Simulator.Control.Bulb
                 this.offScreenBitmap = new Bitmap(this.ClientRectangle.Width, this.ClientRectangle.Height);
             }
 
-            using (System.Drawing.Graphics g = Graphics.FromImage(this.offScreenBitmap))
+            using (var g = Graphics.FromImage(this.offScreenBitmap))
             {
                 g.SmoothingMode = SmoothingMode.HighQuality;
                 // Draw the control
@@ -121,49 +121,74 @@ namespace Animatroller.Simulator.Control.Bulb
         {
             var drawColor = this.On ? this.Color : Color.Black;
 
-            Rectangle paddedRectangle = new Rectangle(this.Padding.Left, this.Padding.Top, this.Width - (this.Padding.Left + this.Padding.Right) - 1, this.Height - (this.Padding.Top + this.Padding.Bottom) - 1);
+            var paddedRectangle = new Rectangle(
+                this.Padding.Left,
+                this.Padding.Top,
+                this.Width - (this.Padding.Left + this.Padding.Right) - 1,
+                this.Height - (this.Padding.Top + this.Padding.Bottom) - 1);
+
             int width = (paddedRectangle.Width < paddedRectangle.Height) ? paddedRectangle.Width : paddedRectangle.Height;
             int offsetX = (paddedRectangle.Width - width) / 2;
             int offsetY = (paddedRectangle.Height - width) / 2;
-            Rectangle drawRectangle = new Rectangle(paddedRectangle.X + offsetX, paddedRectangle.Y + offsetY, width, width);
+            var drawRectangle = new Rectangle(paddedRectangle.X + offsetX, paddedRectangle.Y + offsetY, width, width);
 
             // Draw the background ellipse
-            if (drawRectangle.Width < 1) drawRectangle.Width = 1;
-            if (drawRectangle.Height < 1) drawRectangle.Height = 1;
-            g.FillEllipse(new SolidBrush(drawColor), drawRectangle);
+            if (drawRectangle.Width < 1)
+                drawRectangle.Width = 1;
+            if (drawRectangle.Height < 1)
+                drawRectangle.Height = 1;
+            using (var drawSolidBrush = new SolidBrush(drawColor))
+                g.FillEllipse(drawSolidBrush, drawRectangle);
 
             // Draw the glow gradient
-            GraphicsPath path = new GraphicsPath();
-            path.AddEllipse(drawRectangle);
-            PathGradientBrush pathBrush = new PathGradientBrush(path);
-            pathBrush.CenterColor = drawColor;
-            pathBrush.SurroundColors = new Color[] { Color.FromArgb(0, drawColor) };
-            g.FillEllipse(pathBrush, drawRectangle);
+            using (var path = new GraphicsPath())
+            {
+                path.AddEllipse(drawRectangle);
+                using (var pathBrush = new PathGradientBrush(path))
+                {
+                    pathBrush.CenterColor = drawColor;
+                    pathBrush.SurroundColors = new Color[] { Color.FromArgb(0, drawColor) };
+                    g.FillEllipse(pathBrush, drawRectangle);
+                }
 
-            // Set the clip boundary  to the edge of the ellipse
-            GraphicsPath gp = new GraphicsPath();
-            gp.AddEllipse(drawRectangle);
-            g.SetClip(gp);
-
-            // Draw the white reflection gradient
-            GraphicsPath path1 = new GraphicsPath();
-            Rectangle whiteRect = new Rectangle(drawRectangle.X - Convert.ToInt32(drawRectangle.Width * .15F), drawRectangle.Y - Convert.ToInt32(drawRectangle.Width * .15F), Convert.ToInt32(drawRectangle.Width * .8F), Convert.ToInt32(drawRectangle.Height * .8F));
-            path1.AddEllipse(whiteRect);
-            PathGradientBrush pathBrush1 = new PathGradientBrush(path);
-            pathBrush1.CenterColor = Color.FromArgb(180, 255, 255, 255);
-            pathBrush1.SurroundColors = new Color[] { Color.FromArgb(0, 255, 255, 255) };
-            g.FillEllipse(pathBrush1, whiteRect);
+                // Set the clip boundary  to the edge of the ellipse
+                using (var gp = new GraphicsPath())
+                {
+                    gp.AddEllipse(drawRectangle);
+                    g.SetClip(gp);
+                }
+                // Draw the white reflection gradient
+                using (var path1 = new GraphicsPath())
+                {
+                    var whiteRect = new Rectangle(
+                        drawRectangle.X - Convert.ToInt32(drawRectangle.Width * .15F),
+                        drawRectangle.Y - Convert.ToInt32(drawRectangle.Width * .15F),
+                        Convert.ToInt32(drawRectangle.Width * .8F),
+                        Convert.ToInt32(drawRectangle.Height * .8F));
+                    path1.AddEllipse(whiteRect);
+                    using (var pathBrush1 = new PathGradientBrush(path))
+                    {
+                        pathBrush1.CenterColor = Color.FromArgb(180, 255, 255, 255);
+                        pathBrush1.SurroundColors = new Color[] { Color.FromArgb(0, 255, 255, 255) };
+                        g.FillEllipse(pathBrush1, whiteRect);
+                    }
+                }
+            }
 
             // Draw the border
             float w = drawRectangle.Width;
             g.SetClip(this.ClientRectangle);
-            if (this.On) g.DrawEllipse(new Pen(Color.FromArgb(85, Color.Black), 1F), drawRectangle);
+            if (this.On)
+            {
+                using (var blackPen = new Pen(Color.FromArgb(85, Color.Black), 1F))
+                    g.DrawEllipse(blackPen, drawRectangle);
+            }
 
             if (!string.IsNullOrEmpty(Text))
             {
                 var textSize = g.MeasureString(Text, Font);
                 var pos = new PointF((Width - textSize.Width) / 2, (Height - textSize.Height) / 2);
-                g.DrawString(Text, Font, new SolidBrush(Color.Black), pos);
+                g.DrawString(Text, Font, blackSolidBrush, pos);
             }
         }
 
