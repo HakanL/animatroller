@@ -220,7 +220,7 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(InputChanged message)
         {
-            log.Info("Input {0} set to {1}", message.Input, message.Value);
+            log.Info("Input {0} on {1} set to {2}", message.Input, this.name, message.Value);
 
             if (message.Input.StartsWith("d"))
             {

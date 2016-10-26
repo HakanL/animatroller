@@ -591,7 +591,7 @@ namespace Animatroller.Scenes
             {
                 UpdateOSC();
 
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value)
+                if (x && /*hoursFull.IsOpen &&*/ !emergencyStop.Value && !blockMaster.Value)
                     subPicture.Run();
             });
 
@@ -639,7 +639,7 @@ namespace Animatroller.Scenes
             subPicture
                 .RunAction(i =>
                 {
-                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
+                    expanderPicture.SendSerial(0, new byte[] { 0x01 });
                     i.WaitFor(S(10.0));
                 })
                 .TearDown(() =>
