@@ -76,8 +76,9 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     var bitmap = (Bitmap)data[DataElements.PixelBitmap];
                     using (var g = Graphics.FromImage(bitmap))
+                    using (var allColorBrush = new SolidBrush(allColor))
                     {
-                        g.FillRectangle(new SolidBrush(allColor), 0, 0, bitmap.Width, bitmap.Height);
+                        g.FillRectangle(allColorBrush, 0, 0, bitmap.Width, bitmap.Height);
                     }
                 }
 

@@ -87,7 +87,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected override void UpdateOutput()
         {
-            this.outputValue.NotifyOn(TaskPoolScheduler.Default).OnNext(this.currentValue);
+            this.outputValue.OnNext(this.currentValue);
         }
     }
 }

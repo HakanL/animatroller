@@ -386,50 +386,6 @@ namespace Animatroller.Simulator
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_FlipFlop(DigitalInput2 logicalDevice, bool showOutput)
-        {
-            var control = new CheckBox();
-            control.Text = logicalDevice.Name;
-            control.Size = new System.Drawing.Size(80, 60);
-            control.ImageAlign = ContentAlignment.TopLeft;
-
-            var indicator = new Animatroller.Simulator.Control.Bulb.LedBulb();
-            indicator.On = false;
-            indicator.Size = new System.Drawing.Size(12, 12);
-            indicator.Left = 0;
-            indicator.Top = 0;
-            var imageOff = new Bitmap(12, 12);
-            indicator.DrawToBitmap(imageOff, new Rectangle(0, 0, 12, 12));
-            var imageOn = new Bitmap(12, 12);
-            indicator.On = true;
-            indicator.DrawToBitmap(imageOn, new Rectangle(0, 0, 12, 12));
-
-            flowLayoutPanelLights.Controls.Add(control);
-
-            var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
-
-            control.CheckedChanged += (sender, e) =>
-            {
-                device.Trigger((sender as CheckBox).Checked);
-            };
-
-            device.Connect(logicalDevice);
-
-            control.Checked = logicalDevice.Value;
-
-            logicalDevice.Output
-                .ObserveOn(SynchronizationContext.Current)
-                .Subscribe(x =>
-                {
-                    control.Checked = x;
-
-                    if (showOutput)
-                        control.Image = x ? imageOn : imageOff;
-                });
-
-            return device;
-        }
-
         public Animatroller.Framework.PhysicalDevice.AnalogInput AddAnalogInput(AnalogInput3 logicalDevice)
         {
             var moduleControl = new Control.ModuleControl();
@@ -473,7 +429,7 @@ namespace Animatroller.Simulator
             return device;
         }
 
-        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Momentarily(DigitalInput2 logicalDevice)
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_MomentarilyOLD(DigitalInput2 logicalDevice)
         {
             var control = new Button();
             control.Text = logicalDevice.Name;
@@ -495,6 +451,86 @@ namespace Animatroller.Simulator
                 };
 
             device.Connect(logicalDevice);
+
+            return device;
+        }
+
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_Momentarily(DigitalInput2 logicalDevice)
+        {
+            var control = new Control.SimpleButton();
+            control.Text = logicalDevice.Name;
+            control.UseMnemonic = false;
+            control.Size = new System.Drawing.Size(80, 80);
+            control.TextAlign = ContentAlignment.MiddleCenter;
+
+            flowLayoutPanelLights.Controls.Add(control);
+
+            var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
+
+            control.MouseDown += (sender, e) =>
+            {
+                device.Trigger(true);
+            };
+
+            control.MouseUp += (sender, e) =>
+            {
+                device.Trigger(false);
+            };
+
+            device.Connect(logicalDevice);
+
+            control.Checked = logicalDevice.Value;
+
+            logicalDevice.Output
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(x =>
+                {
+                    control.Checked = x;
+                });
+
+            return device;
+        }
+
+        public Animatroller.Framework.PhysicalDevice.DigitalInput AddDigitalInput_FlipFlop(DigitalInput2 logicalDevice, bool showOutput)
+        {
+            var control = new CheckBox();
+            control.Text = logicalDevice.Name;
+            control.Size = new System.Drawing.Size(80, 60);
+            control.ImageAlign = ContentAlignment.TopLeft;
+
+            var indicator = new Animatroller.Simulator.Control.Bulb.LedBulb();
+            indicator.On = false;
+            indicator.Size = new System.Drawing.Size(12, 12);
+            indicator.Left = 0;
+            indicator.Top = 0;
+            var imageOff = new Bitmap(12, 12);
+            indicator.DrawToBitmap(imageOff, new Rectangle(0, 0, 12, 12));
+            var imageOn = new Bitmap(12, 12);
+            indicator.On = true;
+            indicator.DrawToBitmap(imageOn, new Rectangle(0, 0, 12, 12));
+
+            flowLayoutPanelLights.Controls.Add(control);
+
+            var device = new Animatroller.Framework.PhysicalDevice.DigitalInput();
+
+            control.CheckedChanged += (sender, e) =>
+            {
+                device.Trigger((sender as CheckBox).Checked);
+            };
+
+            device.Connect(logicalDevice);
+
+            control.Checked = logicalDevice.Value;
+
+            logicalDevice.Output
+                .ObserveOn(SynchronizationContext.Current)
+                .Subscribe(x =>
+                {
+                    control.Checked = x;
+
+                    if (showOutput)
+                        control.Image = x ? imageOn : imageOff;
+                });
 
             return device;
         }

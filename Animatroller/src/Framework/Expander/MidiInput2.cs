@@ -82,7 +82,6 @@ namespace Animatroller.Framework.Expander
                 Name);
 
             this.midiMessages.OnNext(e.Message);
-            //this.midiMessages.NotifyOn(TaskPoolScheduler.Default).OnNext(e.Message);
 
             try
             {
@@ -128,7 +127,6 @@ namespace Animatroller.Framework.Expander
             this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.Controller, controller), m =>
             {
                 result.OnNext(new DoubleZeroToOne(m.Data2 / 127.0));
-                //result.NotifyOn(TaskPoolScheduler.Default).OnNext(new DoubleZeroToOne(m.Data2 / 127.0));
             });
 
             return result;
@@ -141,12 +139,10 @@ namespace Animatroller.Framework.Expander
             this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOn, note), m =>
             {
                 result.OnNext(true);
-                //result.NotifyOn(TaskPoolScheduler.Default).OnNext(true);
             });
 
             this.messageMapper.Add(Tuple.Create(midiChannel, ChannelCommand.NoteOff, note), m =>
             {
-                //result.NotifyOn(TaskPoolScheduler.Default).OnNext(false);
                 result.OnNext(false);
             });
 

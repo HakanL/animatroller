@@ -27,6 +27,8 @@ namespace Animatroller.Simulator.Control.Bulb
         private double? _pan;
         private double? _tilt;
         private Font _tinyFont;
+        private static SolidBrush blackSolidBrush = new SolidBrush(Color.Black);
+        private static SolidBrush whiteSolidBrush = new SolidBrush(Color.White);
 
         /// <summary>
         /// Gets or Sets the color of the LED light
@@ -171,13 +173,22 @@ namespace Animatroller.Simulator.Control.Bulb
 
             var drawColor = this.On ? this.Color : Color.Black;
 
-            Rectangle paddedRectangle = new Rectangle(this.Padding.Left, this.Padding.Top, this.Width - (this.Padding.Left + this.Padding.Right) - 1, this.Height - (this.Padding.Top + this.Padding.Bottom) - 1);
+            var paddedRectangle = new Rectangle(
+                this.Padding.Left,
+                this.Padding.Top,
+                this.Width - (this.Padding.Left + this.Padding.Right) - 1,
+                this.Height - (this.Padding.Top + this.Padding.Bottom) - 1);
             int width = (paddedRectangle.Width < paddedRectangle.Height) ? paddedRectangle.Width : paddedRectangle.Height;
             int offsetX = (paddedRectangle.Width - width) / 2;
             int offsetY = (paddedRectangle.Height - width) / 2;
-            Rectangle drawRectangle = new Rectangle(paddedRectangle.X + offsetX + intensityColumnWidth, paddedRectangle.Y + offsetY, width - intensityColumnWidth, width);
+            var drawRectangle = new Rectangle(
+                paddedRectangle.X + offsetX + intensityColumnWidth,
+                paddedRectangle.Y + offsetY,
+                width - intensityColumnWidth,
+                width);
 
-            g.FillRectangle(new SolidBrush(drawColor), drawRectangle);
+            using (var drawColorBrush = new SolidBrush(drawColor))
+                g.FillRectangle(drawColorBrush, drawRectangle);
 
             Color invertedColor;
             double brightness = Math.Max(Math.Max(drawColor.R, drawColor.G), drawColor.B) / 255.0;
@@ -186,44 +197,48 @@ namespace Animatroller.Simulator.Control.Bulb
             else
                 invertedColor = Color.Black;
 
-            if (!string.IsNullOrEmpty(Text))
+            using (var invertedBrush = new SolidBrush(invertedColor))
             {
-                var textSize = g.MeasureString(Text, Font);
-                var pos = new PointF((Width - textSize.Width) / 2, (Height - textSize.Height) / 2);
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    var textSize = g.MeasureString(Text, Font);
+                    var pos = new PointF((Width - textSize.Width) / 2, (Height - textSize.Height) / 2);
 
-                g.DrawString(Text, Font, new SolidBrush(invertedColor), pos);
-            }
+                    g.DrawString(Text, Font, invertedBrush, pos);
+                }
 
-            if (_pan.HasValue)
-            {
-                string text = string.Format("P: {0:F0}", _pan.Value);
+                if (_pan.HasValue)
+                {
+                    string text = string.Format("P: {0:F0}", _pan.Value);
 
-                var textSize = g.MeasureString(text, _tinyFont);
-                var pos = new PointF(drawRectangle.Right - textSize.Width, 2);
+                    var textSize = g.MeasureString(text, _tinyFont);
+                    var pos = new PointF(drawRectangle.Right - textSize.Width, 2);
 
-                g.DrawString(text, _tinyFont, new SolidBrush(invertedColor), pos);
-            }
+                    g.DrawString(text, _tinyFont, invertedBrush, pos);
+                }
 
-            if (_tilt.HasValue)
-            {
-                string text = string.Format("T: {0:F0}", _tilt.Value);
+                if (_tilt.HasValue)
+                {
+                    string text = string.Format("T: {0:F0}", _tilt.Value);
 
-                var textSize = g.MeasureString(text, _tinyFont);
-                var pos = new PointF(drawRectangle.Right - textSize.Width, 10);
+                    var textSize = g.MeasureString(text, _tinyFont);
+                    var pos = new PointF(drawRectangle.Right - textSize.Width, 10);
 
-                g.DrawString(text, _tinyFont, new SolidBrush(invertedColor), pos);
+                    g.DrawString(text, _tinyFont, invertedBrush, pos);
+                }
             }
 
             // Draw Color Gel
             Rectangle gelRectangle = new Rectangle(drawRectangle.Right - 16, drawRectangle.Bottom - 16, 16, 16);
-            g.FillRectangle(new SolidBrush(this.ColorGel), gelRectangle);
+            using (var gelBrush = new SolidBrush(ColorGel))
+                g.FillRectangle(gelBrush, gelRectangle);
 
             // Draw intensity
             Rectangle intensityRectangle1 = new Rectangle(paddedRectangle.X + offsetX, drawRectangle.Top, intensityColumnWidth, (int)(drawRectangle.Height * (1.0 - Intensity)));
-            g.FillRectangle(new SolidBrush(Color.Black), intensityRectangle1);
+            g.FillRectangle(blackSolidBrush, intensityRectangle1);
 
             Rectangle intensityRectangle2 = new Rectangle(intensityRectangle1.Left, intensityRectangle1.Bottom, intensityColumnWidth, drawRectangle.Height - intensityRectangle1.Height);
-            g.FillRectangle(new SolidBrush(Color.White), intensityRectangle2);
+            g.FillRectangle(whiteSolidBrush, intensityRectangle2);
         }
 
         #endregion
