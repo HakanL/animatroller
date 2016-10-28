@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice;
 using NLog;
+using System.Runtime.Remoting.Messaging;
 
 namespace Animatroller.Framework.Controller
 {
@@ -22,6 +23,7 @@ namespace Animatroller.Framework.Controller
         private HashSet<IOwnedDevice> handleLocks;
         protected GroupControlToken groupControlToken;
         private int lockPriority;
+        private bool autoAddDevices;
 
         public Subroutine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -108,6 +110,7 @@ namespace Animatroller.Framework.Controller
             }
 
             this.groupControlToken = new GroupControlToken(heldLocks, disposeLocks: true, priority: this.lockPriority);
+            this.groupControlToken.AutoAddDevices = this.autoAddDevices;
         }
 
         private void Release()
@@ -133,6 +136,8 @@ namespace Animatroller.Framework.Controller
 
                 Lock();
 
+                CallContext.LogicalSetData("TOKEN", this.groupControlToken);
+
                 try
                 {
                     if (this.mainAction != null)
@@ -143,6 +148,8 @@ namespace Animatroller.Framework.Controller
                     if (!(ex is OperationCanceledException))
                         log.Debug(ex, "Exception when executing subroutine/mainAction");
                 }
+
+                CallContext.LogicalSetData("TOKEN", null);
 
                 Executor.Current.WaitForManagedTasks(true);
 
@@ -209,6 +216,14 @@ namespace Animatroller.Framework.Controller
         public Subroutine LockWhenRunning(params IOwnedDevice[] devices)
         {
             return LockWhenRunning(1, devices);
+        }
+
+        public Subroutine AutoAddDevices(int lockPriority = 1, bool enabled = true)
+        {
+            this.lockPriority = lockPriority;
+            this.autoAddDevices = enabled;
+
+            return this;
         }
     }
 }

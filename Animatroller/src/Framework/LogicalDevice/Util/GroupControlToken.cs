@@ -16,12 +16,14 @@ namespace Animatroller.Framework.LogicalDevice
             Dictionary<IOwnedDevice, IControlToken> memberTokens,
             bool disposeLocks = false,
             Action<IControlToken> disposeAction = null,
-            int priority = 1)
+            int priority = 1,
+            [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             MemberTokens = memberTokens;
             this.disposeAction = disposeAction;
             this.ownsTokens = disposeLocks;
             Priority = priority;
+            Name = name;
         }
 
         public GroupControlToken(IEnumerable<IOwnedDevice> devices, Action<IControlToken> disposeAction, string name, int priority = 1)
@@ -37,6 +39,10 @@ namespace Animatroller.Framework.LogicalDevice
         }
 
         public int Priority { get; set; }
+
+        public string Name { get; private set; }
+
+        public bool AutoAddDevices { get; set; }
 
         public IData GetDataForDevice(IOwnedDevice device)
         {
@@ -71,6 +77,11 @@ namespace Animatroller.Framework.LogicalDevice
         public bool IsOwner(IControlToken checkToken)
         {
             return MemberTokens.ContainsValue(checkToken);
+        }
+
+        public void Add(IOwnedDevice device, IControlToken token)
+        {
+            MemberTokens.Add(device, token);
         }
     }
 }

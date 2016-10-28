@@ -109,6 +109,18 @@ namespace Animatroller.Framework.LogicalDevice
         public IData GetFrameBuffer(IControlToken token, IReceivesData device)
         {
             if (token == null)
+            {
+                // Attempt to get from call context
+                token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
+
+                var groupToken = token as GroupControlToken;
+                if (groupToken != null && groupToken.AutoAddDevices)
+                {
+                    groupToken.Add(device, device.TakeControl(groupToken.Priority, groupToken.Name));
+                }
+            }
+
+            if (token == null)
                 return GetOwnerlessData();
 
             return token.GetDataForDevice(device);
@@ -116,11 +128,18 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void PushOutput(IControlToken token)
         {
+            if (token == null)
+            {
+                // Attempt to get from call context
+                token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
+            }
+
             IData data;
-            if (token != null)
-                data = token.GetDataForDevice(this);
-            else
+
+            if (token == null)
                 data = GetOwnerlessData();
+            else
+                data = token.GetDataForDevice(this);
 
             if (data != null)
                 this.outputData.OnNext(data, token);
