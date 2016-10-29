@@ -412,7 +412,7 @@ namespace Animatroller.Scenes
 
                     ins.WaitFor(S(30));
                 })
-                .TearDown(() =>
+                .TearDown(i =>
                 {
                     snowMachine.Value = false;
                 });
@@ -454,7 +454,7 @@ namespace Animatroller.Scenes
                     {
                         audioMain.PlayTrack("08 Feel the Light.wav");
                         ins.WaitFor(S(240));
-                    }).TearDown(() =>
+                    }).TearDown(i =>
                     {
                         lorFeelTheLight.Stop();
                         audioMain.PauseTrack();
@@ -466,7 +466,7 @@ namespace Animatroller.Scenes
                     snowMachine.Value = true;
                     audioMain.PlayTrack("T.P.E. - 04 - Josh Groban - Believe.flac");
                     ins.WaitFor(S(260));
-                }).TearDown(() =>
+                }).TearDown(i =>
                 {
                     snowMachine.Value = false;
                     lorBelieve.Stop();
@@ -596,7 +596,7 @@ namespace Animatroller.Scenes
                     //elJesus.TurnOff();
                     //instance.WaitFor(S(2));
                 })
-                .TearDown(() =>
+                .TearDown(i =>
                 {
                     audioMain.PauseTrack();
                 });

@@ -923,7 +923,7 @@ namespace Animatroller.Scenes
                     spiderCeilingDrop.Value = false;
                     i.WaitFor(S(3.0));
                 })
-                .TearDown(() =>
+                .TearDown(i =>
                 {
                     pulsatingEffect2.Stop();
                     Thread.Sleep(S(5));
@@ -987,7 +987,7 @@ namespace Animatroller.Scenes
                     i.WaitFor(S(1.0));
                     //                    underGeorge.SetBrightness(0.0, i.Token);
                 })
-                .TearDown(() =>
+                .TearDown(i =>
                 {
                     candyEyes.Value = false;
                     pulsatingEffect1.Stop();

@@ -71,7 +71,7 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     manualFader.Value = !manualFader.Value;
-                    SetPixelColor();
+                    SetManualColor();
                 }
                 //                    audioEeebox.PlayEffect("180 Babbling Lunatic.wav");
             });

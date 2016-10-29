@@ -17,7 +17,7 @@ namespace Animatroller.Framework.Controller
         private string id;
         private string name;
         protected Action setUpAction;
-        protected Action tearDownAction;
+        protected Action<ISequenceInstance> tearDownAction;
         protected Action<ISequenceInstance> mainAction;
         protected System.Threading.CancellationToken cancelToken;
         private HashSet<IOwnedDevice> handleLocks;
@@ -54,7 +54,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        public void TearDown(Action action)
+        public void TearDown(Action<ISequenceInstance> action)
         {
             this.tearDownAction = action;
         }
@@ -149,14 +149,13 @@ namespace Animatroller.Framework.Controller
                         log.Debug(ex, "Exception when executing subroutine/mainAction");
                 }
 
-                CallContext.LogicalSetData("TOKEN", null);
-
                 Executor.Current.WaitForManagedTasks(true);
 
-                Release();
-
                 if (this.tearDownAction != null)
-                    this.tearDownAction.Invoke();
+                    this.tearDownAction.Invoke(this);
+
+                CallContext.LogicalSetData("TOKEN", null);
+                Release();
 
                 if (cancelToken.IsCancellationRequested)
                     log.Info("SequenceJob {0} canceled and stopped", Name);

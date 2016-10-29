@@ -16,6 +16,7 @@ namespace Animatroller.Scenes
 
         public static void Main(string[] args)
         {
+            Console.SetWindowSize(180, 70);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 

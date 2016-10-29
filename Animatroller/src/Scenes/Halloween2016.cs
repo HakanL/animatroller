@@ -62,6 +62,7 @@ namespace Animatroller.Scenes
         AnalogInput3 faderG = new AnalogInput3(persistState: true);
         AnalogInput3 faderB = new AnalogInput3(persistState: true);
         AnalogInput3 faderBright = new AnalogInput3(persistState: true);
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 manualFader = new DigitalInput2(persistState: true);
         AnalogInput3 masterVolume = new AnalogInput3(persistState: true, defaultValue: 1.0);
         DigitalInput2 flashBaby = new DigitalInput2();
@@ -74,6 +75,7 @@ namespace Animatroller.Scenes
         Controller.Subroutine subFirst = new Controller.Subroutine();
         Controller.Subroutine subPicture = new Controller.Subroutine();
         Controller.Subroutine subGhost = new Controller.Subroutine();
+        Controller.Subroutine subLast = new Controller.Subroutine();
         Controller.Subroutine subVideo = new Controller.Subroutine();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -90,6 +92,8 @@ namespace Animatroller.Scenes
         DigitalInput2 blockPicture = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockGhost = new DigitalInput2(persistState: true);
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 blockLast = new DigitalInput2(persistState: true);
 
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingCatLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
@@ -108,9 +112,10 @@ namespace Animatroller.Scenes
         DigitalInput2 firstBeam = new DigitalInput2();
         DigitalInput2 secondBeam = new DigitalInput2();
         DigitalInput2 ghostBeam = new DigitalInput2();
+        DigitalInput2 lastBeam = new DigitalInput2();
         DigitalInput2 motion2 = new DigitalInput2();
         DigitalOutput2 catAir = new DigitalOutput2(initial: true);
-        DigitalOutput2 catMrsPumpkin = new DigitalOutput2(initial: true);
+        DigitalOutput2 mrPumpkinAir = new DigitalOutput2(initial: true);
         DigitalOutput2 fog = new DigitalOutput2();
         DateTime? lastFogRun = DateTime.Now;
         DigitalOutput2 candyEyes = new DigitalOutput2();
@@ -162,6 +167,8 @@ namespace Animatroller.Scenes
         Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
         Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
+        IControlToken manualFaderToken;
+
         public Halloween2016(IEnumerable<string> args)
         {
             hoursSmall.AddRange("6:00 pm", "8:30 pm",
@@ -199,10 +206,10 @@ namespace Animatroller.Scenes
 
             hoursSmall
                 .ControlsMasterPower(catAir)
-                .ControlsMasterPower(catMrsPumpkin);
+                .ControlsMasterPower(mrPumpkinAir);
             hoursFull
                 .ControlsMasterPower(catAir)
-                .ControlsMasterPower(catMrsPumpkin);
+                .ControlsMasterPower(mrPumpkinAir);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -256,7 +263,7 @@ namespace Animatroller.Scenes
                     stateMachine.GoToIdle();
                     stateMachine.SetDefaultState(null);
                 }
-                SetPixelColor();
+                SetManualColor();
             });
 
             hoursSmall.Output.Subscribe(x =>
@@ -271,7 +278,7 @@ namespace Animatroller.Scenes
                     stateMachine.GoToIdle();
                     stateMachine.SetDefaultState(null);
                 }
-                SetPixelColor();
+                SetManualColor();
             });
 
             popOut1.ConnectTo(wall1Light);
@@ -509,6 +516,10 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.RGBStrobe(wall4Light, 80), 1);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 310, 8), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall2Light, 300, 8), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.MFL7x10WPar(wall3Light, 320), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall4Light, 330, 8), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 340, 8), SacnUniverseDMXLedmx);
+//            acnOutput.Connect(new Physical.MarcGamutParH7(wall6Light, 350, 8), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 97), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 98), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), SacnUniverseDMXLedmx);
@@ -518,7 +529,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXCat);
-            acnOutput.Connect(new Physical.GenericDimmer(catMrsPumpkin, 50), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 50), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(spiderWebLights, 99), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), SacnUniverseDMXLedmx);
@@ -535,6 +546,7 @@ namespace Animatroller.Scenes
             expanderCat.DigitalInputs[5].Connect(secondBeam);
             expanderCat.DigitalInputs[6].Connect(firstBeam);
             expanderLedmx.DigitalInputs[5].Connect(ghostBeam);
+            expanderLedmx.DigitalInputs[6].Connect(lastBeam);
             //raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
             expanderLedmx.Connect(audio1);
             expanderCat.Connect(audioCat);
@@ -600,6 +612,14 @@ namespace Animatroller.Scenes
                     subGhost.Run();
             });
 
+            lastBeam.Output.Subscribe(x =>
+            {
+                UpdateOSC();
+
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockLast.Value)
+                    subLast.Run();
+            });
+
             motion2.Output.Subscribe(x =>
             {
                 //if (x && hoursFull.IsOpen)
@@ -621,35 +641,44 @@ namespace Animatroller.Scenes
                 .RunAction(i =>
                 {
                     flyingSkeletonEyes.SetBrightness(1.0);
+                    wall3Light.SetColor(Color.FromArgb(255, 0, 100), 0.5);
 
                     //                    audioPicture.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-                    audioPicture.PlayEffect("05 I'm a Little Teapot.wav", 0.3);
+                    audioPicture.PlayEffect("05 I'm a Little Teapot.wav", 0.05);
 
-                    i.WaitFor(S(16.0));
+                    i.WaitFor(S(15.0));
                 })
-                .TearDown(() =>
+                .TearDown(i =>
                 {
-                    pulsatingEffect2.Stop();
-                    Thread.Sleep(S(5));
+                    Exec.MasterEffect.Fade(wall3Light, 0.5, 0.0, 2000, token: i.Token).Wait();
                 });
 
             subPicture
                 .RunAction(i =>
                 {
-                    expanderPicture.SendSerial(0, new byte[] { 0x01 });
+                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
                     i.WaitFor(S(10.0));
                 })
-                .TearDown(() =>
+                .TearDown(i =>
                 {
                 });
 
             subGhost
                 .RunAction(i =>
                 {
-                    expanderLedmx.SendSerial(0, new byte[] { 0x01 });
+                    expanderGhost.SendSerial(0, new byte[] { 0x01 });
                     i.WaitFor(S(10.0));
                 })
-                .TearDown(() =>
+                .TearDown(i =>
+                {
+                });
+
+            subLast
+                .RunAction(i =>
+                {
+                    i.WaitFor(S(10.0));
+                })
+                .TearDown(i =>
                 {
                 });
 
@@ -726,10 +755,25 @@ namespace Animatroller.Scenes
                 {
                 });
 
-            faderR.WhenOutputChanges(v => { SetPixelColor(); });
-            faderG.WhenOutputChanges(v => { SetPixelColor(); });
-            faderB.WhenOutputChanges(v => { SetPixelColor(); });
-            faderBright.WhenOutputChanges(v => { SetPixelColor(); });
+            faderR.WhenOutputChanges(v => { SetManualColor(); });
+            faderG.WhenOutputChanges(v => { SetManualColor(); });
+            faderB.WhenOutputChanges(v => { SetManualColor(); });
+            faderBright.WhenOutputChanges(v => { SetManualColor(); });
+
+            manualFader.WhenOutputChanges(v =>
+            {
+                if (v)
+                    this.manualFaderToken = pixelsRoofEdge.TakeControl(200);
+                else
+                {
+                    this.manualFaderToken?.Dispose();
+                    this.manualFaderToken = null;
+                }
+
+                oscServer.SendAllClients("/ManualFader/x", v ? 1 : 0);
+
+                SetManualColor();
+            });
 
             ConfigureOSC();
             ConfigureMIDI();
@@ -740,15 +784,13 @@ namespace Animatroller.Scenes
             return HSV.ColorFromRGB(faderR.Value, faderG.Value, faderB.Value);
         }
 
-        void SetPixelColor()
+        void SetManualColor()
         {
-            if (manualFader.Value)
+            if (manualFaderToken != null)
             {
-                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value);
-                //                wall5Light.SetColor(GetFaderColor(), faderBright.Value);
+                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value, manualFaderToken);
+                wall3Light.SetColor(GetFaderColor(), faderBright.Value, manualFaderToken);
             }
-            else
-                pixelsRoofEdge.SetColor(Color.Black);
         }
 
         void UpdateOSC()
@@ -757,7 +799,7 @@ namespace Animatroller.Scenes
                 firstBeam.Value ? 1 : 0,
                 secondBeam.Value ? 1 : 0,
                 ghostBeam.Value ? 1 : 0,
-                0);
+                lastBeam.Value ? 1 : 0);
         }
 
         void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
@@ -780,7 +822,7 @@ namespace Animatroller.Scenes
 
         public override void Run()
         {
-            SetPixelColor();
+            SetManualColor();
         }
 
         public override void Stop()

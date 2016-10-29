@@ -143,6 +143,31 @@ namespace Animatroller.Scenes
                 audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
             });
 
+            oscServer.RegisterActionSimple<bool>("/ManualFader/x", (msg, data) =>
+            {
+                manualFader.Value = data;
+            });
+
+            oscServer.RegisterActionSimple<double>("/FaderR/x", (msg, data) =>
+            {
+                faderR.Value = data;
+            });
+
+            oscServer.RegisterActionSimple<double>("/FaderG/x", (msg, data) =>
+            {
+                faderG.Value = data;
+            });
+
+            oscServer.RegisterActionSimple<double>("/FaderB/x", (msg, data) =>
+            {
+                faderB.Value = data;
+            });
+
+            oscServer.RegisterActionSimple<double>("/FaderBrightness/x", (msg, data) =>
+            {
+                faderBright.Value = data;
+            });
+
             oscServer.RegisterActionSimple<int>("/FlashBaby/x", (msg, data) =>
             {
                 // Flash
@@ -220,7 +245,7 @@ namespace Animatroller.Scenes
                 log.Info("Page 1");
                 //                manualFader.Value = false;
 
-                SetPixelColor();
+                SetManualColor();
             });
 
             oscServer.RegisterAction("/2", msg =>
@@ -228,35 +253,35 @@ namespace Animatroller.Scenes
                 log.Info("Page 2");
                 //                manualFader.Value = true;
 
-                SetPixelColor();
+                SetManualColor();
             });
 
             oscServer.RegisterAction<float>("/2/faderBright", (msg, data) =>
             {
                 faderBright.Value = data.First();
 
-                SetPixelColor();
+                SetManualColor();
             });
 
             oscServer.RegisterAction<float>("/2/faderR", (msg, data) =>
             {
                 faderR.Value = data.First();
 
-                SetPixelColor();
+                SetManualColor();
             });
 
             oscServer.RegisterAction<float>("/2/faderG", (msg, data) =>
             {
                 faderG.Value = data.First();
 
-                SetPixelColor();
+                SetManualColor();
             });
 
             oscServer.RegisterAction<float>("/2/faderB", (msg, data) =>
             {
                 faderB.Value = data.First();
 
-                SetPixelColor();
+                SetManualColor();
             });
         }
     }

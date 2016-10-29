@@ -43,7 +43,10 @@ namespace Animatroller.Framework.Expander
             this.sendAction?.Invoke(message);
 
             if (!string.IsNullOrEmpty(stateKey))
-                this.lastState[stateKey] = message;
+            {
+                lock (this.lastState)
+                    this.lastState[stateKey] = message;
+            }
         }
 
         public void ClientConnected(string connectionId)
@@ -53,8 +56,11 @@ namespace Animatroller.Framework.Expander
             log.Info("Client {0} connected to instance {1}", connectionId, this.instanceId);
 
             // Send all state data
-            foreach (var kvp in this.lastState)
-                SendMessage(kvp.Value);
+            lock (this.lastState)
+            {
+                foreach (var kvp in this.lastState)
+                    SendMessage(kvp.Value);
+            }
         }
 
         public void HandleMessage(string connectionId, Type messageType, object messageObject)

@@ -29,30 +29,15 @@ namespace Animatroller.Framework.Utility
             return result;
         }
 
-        public static RGBW GetRGBW2(Color inp)
+        public static RGBW GetRGBW(Color inp)
         {
-            var result = new RGBW
-            {
-                R = inp.R,
-                G = inp.G,
-                B = inp.B
-            };
+            var result = new RGBW();
 
-            result.W = GetWhite(inp);
+            result.W = (byte)(Math.Min(Math.Min(inp.R, inp.G), inp.B));
 
-            return result;
-        }
-
-        public static RGBW GetRGBW(Color rgb)
-        {
-            var result = new RGBW
-            {
-                R = rgb.R,
-                G = rgb.G,
-                B = rgb.B
-            };
-
-            result.W = GetWhite(rgb);
+            result.R = (byte)(inp.R - result.W);
+            result.G = (byte)(inp.G - result.W);
+            result.B = (byte)(inp.B - result.W);
 
             return result;
         }

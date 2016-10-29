@@ -59,13 +59,17 @@ namespace Animatroller.ExpanderCommunication
                     this.clientConnectedInvoked = true;
                 }
 
-                this.dataReceivedAction(instanceId, context.Channel.Id.AsShortText(), messageType, buffer.ToArray());
+                Task.Run(() =>
+                {
+                    this.dataReceivedAction(instanceId, context.Channel.Id.AsShortText(), messageType, buffer.ToArray());
+                });
             }
         }
 
         public override void ExceptionCaught(IChannelHandlerContext context, Exception exception)
         {
-            log.Warn($"Exception in NettyServerHandler {context.Channel.Id.AsShortText()}: {exception.Message}");
+            if (!(exception is ObjectDisposedException))
+                log.Warn($"Exception in NettyServerHandler {context.Channel.Id.AsShortText()}: {exception.Message}");
 
             context.CloseAsync();
         }
