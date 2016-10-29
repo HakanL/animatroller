@@ -142,11 +142,11 @@ namespace Animatroller.Framework.Expander
                     switch (e.Command)
                     {
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PlayBackground:
-                            SendMessage(new AudioBackgroundResume());
+                            SendMessage(new AudioBackgroundResume(), "play-bg");
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseBackground:
-                            SendMessage(new AudioBackgroundPause());
+                            SendMessage(new AudioBackgroundPause(), "pause-bg");
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeFX:
@@ -253,7 +253,7 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(AudioStarted message)
         {
-            log.Debug("Playing {0} track {1}", message.Type, message.Id);
+            log.Debug("Playing {0} track {1} on {2}", message.Type, message.Id, this.name);
 
             this.audioTrackStart.OnNext(Tuple.Create(message.Type, message.Id));
         }

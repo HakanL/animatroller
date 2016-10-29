@@ -53,6 +53,18 @@ namespace Animatroller.Framework.LogicalDevice
                 return token.GetDataForDevice(device);
             }
 
+            if (AutoAddDevices)
+            {
+                token = device.TakeControl(priority: Priority, name: Name);
+                Add(device, token);
+
+                return token.GetDataForDevice(device);
+            }
+
+            var sod = device as SingleOwnerDevice;
+            if (sod != null)
+                return sod.GetOwnerlessData();
+
             throw new ArgumentException("Unhandled device");
         }
 
@@ -82,6 +94,25 @@ namespace Animatroller.Framework.LogicalDevice
         public void Add(IOwnedDevice device, IControlToken token)
         {
             MemberTokens.Add(device, token);
+        }
+
+        /// <summary>
+        /// Lock if group token is configured for auto add
+        /// </summary>
+        /// <param name="device"></param>
+        /// <returns>True if device is controlled by this group token</returns>
+        public bool LockAndGetDataFromDevice(IOwnedDevice device)
+        {
+            if (MemberTokens.ContainsKey(device))
+                return true;
+
+            if (!AutoAddDevices)
+                return false;
+
+            // Add
+            MemberTokens.Add(device, device.TakeControl(Priority, Name));
+
+            return true;
         }
     }
 }

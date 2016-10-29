@@ -66,7 +66,7 @@ namespace Animatroller.Framework.LogicalDevice
             this.outputChanged.OnNext(CurrentData);
         }
 
-        protected IData GetOwnerlessData()
+        internal IData GetOwnerlessData()
         {
             lock (this)
             {
@@ -114,9 +114,10 @@ namespace Animatroller.Framework.LogicalDevice
                 token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
 
                 var groupToken = token as GroupControlToken;
-                if (groupToken != null && groupToken.AutoAddDevices)
+                if (groupToken != null)
                 {
-                    groupToken.Add(device, device.TakeControl(groupToken.Priority, groupToken.Name));
+                    if (!groupToken.LockAndGetDataFromDevice(this))
+                        token = null;
                 }
             }
 
@@ -132,6 +133,13 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 // Attempt to get from call context
                 token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
+
+                var groupToken = token as GroupControlToken;
+                if (groupToken != null)
+                {
+                    if (!groupToken.LockAndGetDataFromDevice(this))
+                        token = null;
+                }
             }
 
             IData data;

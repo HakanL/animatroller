@@ -46,6 +46,14 @@ namespace Animatroller.Scenes
 
                 if (data[8])
                     audioPicture.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+
+                fog.Value = data[9];
+
+                if (data[11])
+                    audioPop.PlayEffect("sixthsense-deadpeople.wav");
+
+                if (data[12])
+                    subLast.Run();
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
