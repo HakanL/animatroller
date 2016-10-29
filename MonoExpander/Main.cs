@@ -549,6 +549,7 @@ namespace Animatroller.MonoExpander
                 return;
 
             var sound = LoadSound(fileName);
+            sound.LoopCount = 0;
 
             if (!playOnNewChannel)
             {
