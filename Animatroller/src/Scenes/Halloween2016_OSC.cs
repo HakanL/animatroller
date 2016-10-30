@@ -25,9 +25,6 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<bool>("/Triggers/x", (msg, data) =>
             {
-                if (data.Count() < 25)
-                    return;
-
                 if (data[0])
                     expanderPicture.SendSerial(0, new byte[] { 0x01 });
 
@@ -37,6 +34,9 @@ namespace Animatroller.Scenes
                 if (data[2])
                     expanderGhost.SendSerial(0, new byte[] { 0x01 });
 
+                if (data[3])
+                    subFog.Run();
+
                 spiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
 
                 if (data[6])
@@ -45,15 +45,141 @@ namespace Animatroller.Scenes
                 flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
 
                 if (data[8])
-                    audioPicture.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                    audioFlying.PlayEffect("162 Blood Curdling Scream of Terror.wav");
 
-                fog.Value = data[9];
+                if (data[10])
+                    audio2.PlayEffect("Happy Halloween.wav");
 
                 if (data[11])
-                    audioPop.PlayEffect("sixthsense-deadpeople.wav");
+                    audioPop.PlayEffect("Leave Now.wav");
 
                 if (data[12])
                     subLast.Run();
+
+                if (data[13])
+                    sub3dfxLady.Run();
+
+                if (data[14])
+                    sub3dfxMan.Run();
+
+                if (data[15])
+                    sub3dfxKids.Run();
+            }, 25);
+
+            oscServer.RegisterAction<bool>("/SoundBoard/x", (msg, data) =>
+            {
+                string fileName = null;
+
+                if (data[0])
+                    fileName = "Happy Halloween.wav";
+
+                if (data[1])
+                    fileName = "sixthsense-deadpeople.wav";
+
+                if (data[2])
+                    fileName = "Leave Now.wav";
+
+                if (data[3])
+                    fileName = "scream.wav";
+
+                if (data[4])
+                    fileName = "424 Coyote Howling.wav";
+
+                if (data[5])
+                    fileName = "125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav";
+
+                if (data[6])
+                    fileName = "348 Spider Hiss.wav";
+
+                if (data[7])
+                    fileName = "Thriller2.wav";
+
+                if (data[8])
+                    fileName = "266 Monster Growl 7.wav";
+
+                if (data[9])
+                    fileName = "285 Monster Snarl 2.wav";
+
+                if (data[10])
+                    fileName = "286 Monster Snarl 3.wav";
+
+                if (data[11])
+                    fileName = "287 Monster Snarl 4.wav";
+
+                if (data[12])
+                    fileName = "Short Laugh.wav";
+
+                if (data[13])
+                    fileName = "Evil-Laugh.wav";
+
+                if (data[14])
+                    fileName = "Who is that knocking.wav";
+
+                if (data[15])
+                    fileName = "05 I'm a Little Teapot.wav";
+
+                if (data[16])
+                    fileName = "162 Blood Curdling Scream of Terror.wav";
+
+                if (data[17])
+                    fileName = "180 Babbling Lunatic.wav";
+
+                if (data[18])
+                    fileName = "386 Demon Creature Growls.wav";
+
+                if (data[19])
+                    fileName = "242004__junkfood2121__fart-01.wav";
+
+                if (data[20])
+                    fileName = "death-scream.wav";
+
+                if (data[21])
+                    fileName = "gollum_precious1.wav";
+
+                if (data[22])
+                    fileName = "laugh.wav";
+
+                if (data[23])
+                    fileName = "violin screech.wav";
+
+                if (data[24])
+                    fileName = "WarmHugs.wav";
+
+                if (string.IsNullOrEmpty(fileName))
+                    // Ignore
+                    return;
+
+                switch (soundBoardOutputIndex)
+                {
+                    case 0:
+                        audioHifi.PlayNewEffect(fileName);
+                        break;
+
+                    case 1:
+                        audio2.PlayNewEffect(fileName);
+                        break;
+
+                    case 2:
+                        audioFlying.PlayNewEffect(fileName);
+                        break;
+
+                    case 3:
+                        audioPop.PlayNewEffect(fileName);
+                        break;
+
+                    case 4:
+                        audioCat.PlayNewEffect(fileName);
+                        break;
+
+                    case 5:
+                        audioPumpkin.PlayNewEffect(fileName);
+                        break;
+                }
+            }, 25);
+
+            oscServer.RegisterActionSimple<int>("/AudioOutput/selection", (msg, data) =>
+            {
+                soundBoardOutputIndex = data;
             });
 
             oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
@@ -174,6 +300,11 @@ namespace Animatroller.Scenes
             oscServer.RegisterActionSimple<double>("/FaderBrightness/x", (msg, data) =>
             {
                 faderBright.Value = data;
+            });
+
+            oscServer.RegisterActionSimple<double>("/MasterVolume/x", (msg, data) =>
+            {
+                masterVolume.Value = data;
             });
 
             oscServer.RegisterActionSimple<int>("/FlashBaby/x", (msg, data) =>

@@ -37,13 +37,13 @@ namespace Animatroller.Scenes
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         Expander.OscServer oscServer = new Expander.OscServer(8000);
-        AudioPlayer audio1 = new AudioPlayer();
+        AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioCat = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
         AudioPlayer audioPop = new AudioPlayer();
         AudioPlayer audioDIN = new AudioPlayer();
-        AudioPlayer audioPicture = new AudioPlayer();
+        AudioPlayer audioFlying = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderAudio2 = new Expander.MonoExpanderInstance();
@@ -74,9 +74,13 @@ namespace Animatroller.Scenes
 
         Controller.Subroutine subFinal = new Controller.Subroutine();
         Controller.Subroutine subFirst = new Controller.Subroutine();
+        Controller.Subroutine sub3dfxLady = new Controller.Subroutine();
+        Controller.Subroutine sub3dfxMan = new Controller.Subroutine();
+        Controller.Subroutine sub3dfxKids = new Controller.Subroutine();
         Controller.Subroutine subPicture = new Controller.Subroutine();
         Controller.Subroutine subGhost = new Controller.Subroutine();
         Controller.Subroutine subLast = new Controller.Subroutine();
+        Controller.Subroutine subFog = new Controller.Subroutine();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
@@ -113,7 +117,6 @@ namespace Animatroller.Scenes
         DigitalInput2 secondBeam = new DigitalInput2();
         DigitalInput2 ghostBeam = new DigitalInput2();
         DigitalInput2 lastBeam = new DigitalInput2();
-        DigitalInput2 motion2 = new DigitalInput2();
         DigitalOutput2 catAir = new DigitalOutput2(initial: true);
         DigitalOutput2 mrPumpkinAir = new DigitalOutput2(initial: true);
         DigitalOutput2 fog = new DigitalOutput2();
@@ -170,6 +173,7 @@ namespace Animatroller.Scenes
         Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
         IControlToken manualFaderToken;
+        int soundBoardOutputIndex = 0;
 
         public Halloween2016(IEnumerable<string> args)
         {
@@ -179,7 +183,7 @@ namespace Animatroller.Scenes
                 DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday);
 
             //            hoursFull.AddRange("5:00 pm", "7:00 pm");
-//            hoursFull.Disabled = true;
+            //            hoursFull.Disabled = true;
 
             // Logging
             hoursSmall.Output.Log("Hours small");
@@ -293,10 +297,11 @@ namespace Animatroller.Scenes
             popOutAll.ConnectTo(wall4Light);
             popOutAll.ConnectTo(wall5Light);
             popOutAll.ConnectTo(flash1);
+            popOutAll.ConnectTo(flash2);
             popOutAll.ConnectTo(pixelsRoofEdge);
             popOutAll.ConnectTo(pinSpot);
 
-            allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, wall6Light, wall7Light, wall8Light, wall9Light, flash1, pixelsRoofEdge, pinSpot, spiderLight,
+            allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, wall6Light, wall7Light, wall8Light, wall9Light, flash1, flash2, pixelsRoofEdge, pinSpot, spiderLight,
                 spiderWebLights, pumpkinLights, gargoyleLightsEyes);
             purpleLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, wall6Light, wall7Light, wall8Light, wall9Light, pixelsRoofEdge);
 
@@ -322,7 +327,7 @@ namespace Animatroller.Scenes
                     {
                         treeGhosts.SetBrightness(1.0);
                         treeSkulls.SetBrightness(1.0);
-                        audio2.SetBackgroundVolume(0.6);
+                        audio2.SetBackgroundVolume(0.5);
 
                         var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
@@ -347,7 +352,7 @@ namespace Animatroller.Scenes
                     treeGhosts.SetBrightness(1.0);
                     treeSkulls.SetBrightness(1.0);
                     audioHifi.PlayBackground();
-                    audio2.SetBackgroundVolume(0.6);
+                    audio2.SetBackgroundVolume(0.5);
                     audio2.PlayBackground();
 
                     var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
@@ -522,14 +527,15 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.MFL7x10WPar(wall3Light, 320), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall4Light, 330, 8), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 340, 8), SacnUniverseDMXLedmx);
-//            acnOutput.Connect(new Physical.MarcGamutParH7(wall6Light, 350, 8), SacnUniverseDMXLedmx);
+            //            acnOutput.Connect(new Physical.MarcGamutParH7(wall6Light, 350, 8), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 97), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 98), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(treeSkulls, 263), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(spiderEyes, 262), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 259), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.AmericanDJStrobe(flash1, 100), 1);
+            acnOutput.Connect(new Physical.AmericanDJStrobe(flash1, 100), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXCat);
@@ -554,12 +560,12 @@ namespace Animatroller.Scenes
             expanderPop.DigitalOutputs[7].Connect(popper);
             expanderPop.DigitalOutputs[6].Connect(fog);
             //raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
-            expanderLedmx.Connect(audio1);
+            expanderLedmx.Connect(audioPumpkin);
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
             expanderPop.Connect(audioPop);
             expanderAudio2.Connect(audio2);
-            expanderPicture.Connect(audioPicture);
+            expanderPicture.Connect(audioFlying);
             //raspberry3dfx.Connect(video3dfx);
             //raspberryVideo2.Connect(video2);
             //raspberryPop.Connect(audioPop);
@@ -596,10 +602,7 @@ namespace Animatroller.Scenes
             {
                 UpdateOSC();
 
-                //if (x)
-                //    audio2.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
-
-                if (x && /*hoursFull.IsOpen &&*/ !emergencyStop.Value && !blockMaster.Value && !blockFirst.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockFirst.Value)
                     subFirst.Run();
             });
 
@@ -607,7 +610,7 @@ namespace Animatroller.Scenes
             {
                 UpdateOSC();
 
-                if (x && /*hoursFull.IsOpen &&*/ !emergencyStop.Value && !blockMaster.Value && !blockPicture.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockPicture.Value)
                     subPicture.Run();
             });
 
@@ -615,7 +618,7 @@ namespace Animatroller.Scenes
             {
                 UpdateOSC();
 
-                if (x && /*hoursFull.IsOpen &&*/ !emergencyStop.Value && !blockMaster.Value && !blockGhost.Value)
+                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockGhost.Value)
                     subGhost.Run();
             });
 
@@ -627,20 +630,13 @@ namespace Animatroller.Scenes
                     subLast.Run();
             });
 
-            motion2.Output.Subscribe(x =>
-            {
-                //if (x && hoursFull.IsOpen)
-                //    Executor.Current.Execute(motionSeq);
-
-                oscServer.SendAllClients("/1/led4", x ? 1 : 0);
-            });
-
-            welcomeSeq.WhenExecuted
-                .Execute(i =>
+            subFog
+                .RunAction(i =>
                 {
-                    audioPop.PlayEffect("100471__robinhood76__01886-welcome-spell.wav");
-
-                    i.WaitFor(S(3));
+                    fog.Value = true;
+                    lastFogRun = DateTime.Now;
+                    i.WaitFor(S(6));
+                    fog.Value = false;
                 });
 
             subFirst
@@ -652,9 +648,12 @@ namespace Animatroller.Scenes
                     wall3Light.SetStrobeSpeed(1.0, i.Token);
 
                     //                    audioPicture.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-                    audioPicture.PlayEffect("05 I'm a Little Teapot.wav", 0.05);
+                    //audioFlying.PlayEffect("05 I'm a Little Teapot.wav", 0.05);
+                    audioFlying.PlayEffect("Who is that knocking.wav");
+                    i.WaitFor(S(3.0));
+                    audioFlying.PlayEffect("Evil-Laugh.wav");
 
-                    i.WaitFor(S(15.0));
+                    i.WaitFor(S(2.0));
                 })
                 .TearDown(i =>
                 {
@@ -664,8 +663,39 @@ namespace Animatroller.Scenes
             subPicture
                 .RunAction(i =>
                 {
+                    audio2.PlayEffect("Happy Halloween.wav");
                     expanderPicture.SendSerial(0, new byte[] { 0x02 });
-                    i.WaitFor(S(10.0));
+                    i.WaitFor(S(12.0));
+                })
+                .TearDown(i =>
+                {
+                });
+
+            sub3dfxLady
+                .RunAction(i =>
+                {
+                    expanderLedmx.SendSerial(0, new byte[] { 0x02 });
+                    i.WaitFor(S(12.0));
+                })
+                .TearDown(i =>
+                {
+                });
+
+            sub3dfxMan
+                .RunAction(i =>
+                {
+                    expanderLedmx.SendSerial(0, new byte[] { 0x03 });
+                    i.WaitFor(S(12.0));
+                })
+                .TearDown(i =>
+                {
+                });
+
+            sub3dfxKids
+                .RunAction(i =>
+                {
+                    expanderLedmx.SendSerial(0, new byte[] { 0x01 });
+                    i.WaitFor(S(12.0));
                 })
                 .TearDown(i =>
                 {
@@ -685,9 +715,13 @@ namespace Animatroller.Scenes
                 .RunAction(i =>
                 {
                     popperEyes.SetBrightness(1.0);
-                    popper.Value = true;
                     fog.Value = true;
-                    audioPop.PlayEffect("death-scream.wav");
+                    lastFogRun = DateTime.Now;
+                    audioPop.PlayEffect("Short Laugh.wav");
+                    i.WaitFor(S(1.0));
+                    popper.Value = true;
+                    i.WaitFor(S(2.0));
+                    audioPop.PlayEffect("Leave Now.wav");
                     i.WaitFor(S(3.0));
                     var tsk = Exec.MasterEffect.Fade(popperEyes, 1.0, 0.0, 2000, token: i.Token);
                     popper.Value = false;
@@ -696,6 +730,7 @@ namespace Animatroller.Scenes
                 .TearDown(i =>
                 {
                     fog.Value = false;
+                    i.WaitFor(S(1.0));
                 });
 
             catSeq.WhenExecuted
@@ -751,7 +786,7 @@ namespace Animatroller.Scenes
                 {
                     pulsatingPumpkinLow.Stop();
                     pulsatingPumpkinHigh.Start();
-                    audio1.PlayEffect("Thriller2.wav");
+                    audioPumpkin.PlayEffect("Thriller2.wav");
                     instance.CancelToken.WaitHandle.WaitOne(40000);
                 })
                 .TearDown(instance =>

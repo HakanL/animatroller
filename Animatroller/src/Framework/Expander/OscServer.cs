@@ -225,13 +225,18 @@ namespace Animatroller.Framework.Expander
             });
         }
 
-        public OscServer RegisterAction<T>(string address, Action<Message, IReadOnlyList<T>> action)
+        public OscServer RegisterAction<T>(string address, Action<Message, IReadOnlyList<T>> action, int? expectedArraySize = null)
         {
             Action<Message> invokeAction = msg =>
             {
                 try
                 {
                     var list = msg.Data.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
+
+                    if (expectedArraySize.HasValue && expectedArraySize.Value != list.Count)
+                        // Ignore so we don't have to check in the action method
+                        return;
+
                     action(msg, list);
                 }
                 catch
