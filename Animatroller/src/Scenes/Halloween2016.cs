@@ -77,6 +77,7 @@ namespace Animatroller.Scenes
         Controller.Subroutine sub3dfxLady = new Controller.Subroutine();
         Controller.Subroutine sub3dfxMan = new Controller.Subroutine();
         Controller.Subroutine sub3dfxKids = new Controller.Subroutine();
+        Controller.Subroutine subSpiderJump = new Controller.Subroutine();
         Controller.Subroutine subPicture = new Controller.Subroutine();
         Controller.Subroutine subGhost = new Controller.Subroutine();
         Controller.Subroutine subLast = new Controller.Subroutine();
@@ -98,6 +99,8 @@ namespace Animatroller.Scenes
         DigitalInput2 blockGhost = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockLast = new DigitalInput2(persistState: true);
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 floodLights = new DigitalInput2();
 
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingCatLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
@@ -121,12 +124,15 @@ namespace Animatroller.Scenes
         DigitalOutput2 mrPumpkinAir = new DigitalOutput2(initial: true);
         DigitalOutput2 fog = new DigitalOutput2();
         DigitalOutput2 popper = new DigitalOutput2();
+        DigitalOutput2 spiderJump1 = new DigitalOutput2();
+        DigitalOutput2 spiderJump2 = new DigitalOutput2();
         DateTime? lastFogRun = DateTime.Now;
-        DigitalOutput2 candyEyes = new DigitalOutput2();
         Dimmer3 catLights = new Dimmer3();
         Dimmer3 pumpkinLights = new Dimmer3();
         Dimmer3 spiderWebLights = new Dimmer3();
         Dimmer3 spiderEyes = new Dimmer3();
+        Dimmer3 streetNumberEyes = new Dimmer3();
+        Dimmer3 bigSpiderEyes = new Dimmer3();
         Dimmer3 gargoyleLightsCrystal = new Dimmer3();
         Dimmer3 gargoyleLightsEyes = new Dimmer3();
         Dimmer3 flyingSkeletonEyes = new Dimmer3();
@@ -173,6 +179,7 @@ namespace Animatroller.Scenes
         Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
         IControlToken manualFaderToken;
+        IControlToken bigSpiderEyesToken;
         int soundBoardOutputIndex = 0;
 
         public Halloween2016(IEnumerable<string> args)
@@ -182,8 +189,9 @@ namespace Animatroller.Scenes
             hoursSmall.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday);
 
-            //            hoursFull.AddRange("5:00 pm", "7:00 pm");
-            //            hoursFull.Disabled = true;
+            hoursFull.AddRange("5:00 pm", "9:30 pm");
+            //hoursFull.Disabled = true;
+            hoursSmall.Disabled = true;
 
             // Logging
             hoursSmall.Output.Log("Hours small");
@@ -207,7 +215,7 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHifi);       // rpi-eb428ef1
             expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
-            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderPop);      // rpi-ebd43a38
+            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderPop);        // rpi-ebd43a38
 
             masterVolume.ConnectTo(Exec.MasterVolume);
 
@@ -233,6 +241,18 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     allLights.TakeAndHoldControl(100, "FlashBaby");
+                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                }
+                else
+                    allLights.ReleaseControl();
+            });
+
+            floodLights.Output.Subscribe(x =>
+            {
+                // Flash
+                if (x)
+                {
+                    allLights.TakeAndHoldControl(200, "FlashBaby");
                     allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
                 }
                 else
@@ -301,14 +321,42 @@ namespace Animatroller.Scenes
             popOutAll.ConnectTo(pixelsRoofEdge);
             popOutAll.ConnectTo(pinSpot);
 
-            allLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, wall6Light, wall7Light, wall8Light, wall9Light, flash1, flash2, pixelsRoofEdge, pinSpot, spiderLight,
-                spiderWebLights, pumpkinLights, gargoyleLightsEyes);
-            purpleLights.Add(wall1Light, wall2Light, wall3Light, wall4Light, wall5Light, wall6Light, wall7Light, wall8Light, wall9Light, pixelsRoofEdge);
+            allLights.Add(
+                wall1Light,
+                wall2Light,
+                wall3Light,
+                wall4Light,
+                wall5Light,
+                wall6Light,
+                wall7Light,
+                wall8Light,
+                wall9Light,
+                flash1,
+                flash2,
+                pixelsRoofEdge,
+                pinSpot,
+                spiderLight,
+                spiderWebLights,
+                pumpkinLights);
+
+            purpleLights.Add(
+                wall1Light,
+                wall2Light,
+                wall3Light,
+                wall4Light,
+                wall5Light,
+                wall6Light,
+                wall7Light,
+                wall8Light,
+                wall9Light,
+                pixelsRoofEdge);
 
             flickerEffect.ConnectTo(stairs1Light);
             flickerEffect.ConnectTo(stairs2Light);
             flickerEffect.ConnectTo(gargoyleLightsEyes);
             flickerEffect.ConnectTo(flyingSkeletonEyes);
+            flickerEffect.ConnectTo(streetNumberEyes);
+            flickerEffect.ConnectTo(bigSpiderEyes);
             pulsatingGargoyle.ConnectTo(gargoyleLightsCrystal);
             pulsatingGargoyle.ConnectTo(treeSkulls);
             pulsatingGargoyle.ConnectTo(spiderEyes);
@@ -546,6 +594,8 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsCrystal, 128), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsEyes, 129), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(flyingSkeletonEyes, 130), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(streetNumberEyes, 131), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(bigSpiderEyes, 132), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(hazerFanSpeed, 500), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(hazerHazeOutput, 501), SacnUniverseDMXCat);
             //            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
@@ -559,24 +609,14 @@ namespace Animatroller.Scenes
             expanderLedmx.DigitalInputs[6].Connect(lastBeam);
             expanderPop.DigitalOutputs[7].Connect(popper);
             expanderPop.DigitalOutputs[6].Connect(fog);
-            //raspberryCat.DigitalOutputs[7].Connect(spiderCeilingDrop);
+            expanderCat.DigitalOutputs[7].Connect(spiderJump1);
+            expanderCat.DigitalOutputs[6].Connect(spiderJump2);
             expanderLedmx.Connect(audioPumpkin);
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
             expanderPop.Connect(audioPop);
             expanderAudio2.Connect(audio2);
             expanderPicture.Connect(audioFlying);
-            //raspberry3dfx.Connect(video3dfx);
-            //raspberryVideo2.Connect(video2);
-            //raspberryPop.Connect(audioPop);
-            //raspberryDIN.Connect(audioDIN);
-            //raspberryDIN.DigitalInputs[4].Connect(motion2);
-            ////raspberryCat.DigitalOutputs[6].Connect(fog);
-            //raspberryDIN.DigitalOutputs[1].Connect(candyEyes);
-            //raspberryPop.DigitalOutputs[7].Connect(george1);
-            //raspberryPop.DigitalOutputs[6].Connect(george2);
-            //raspberryPop.DigitalOutputs[5].Connect(popper);
-            //raspberryPop.DigitalOutputs[2].Connect(dropSpiderEyes);
 
 
 
@@ -663,12 +703,41 @@ namespace Animatroller.Scenes
             subPicture
                 .RunAction(i =>
                 {
+                    if (bigSpiderEyesToken != null)
+                        bigSpiderEyesToken.Dispose();
+
+                    bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
+                    bigSpiderEyes.SetBrightness(0, bigSpiderEyesToken);
                     audio2.PlayEffect("Happy Halloween.wav");
                     expanderPicture.SendSerial(0, new byte[] { 0x02 });
-                    i.WaitFor(S(12.0));
+                    i.WaitFor(S(4.0));
+                    subSpiderJump.Run();
+                    sub3dfxLady.Run();
+                    i.WaitFor(S(8.0));
                 })
                 .TearDown(i =>
                 {
+                });
+
+            subSpiderJump
+                .RunAction(i =>
+                {
+                    if (bigSpiderEyesToken == null)
+                        bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
+
+                    audio2.PlayEffect("348 Spider Hiss.wav", 0, 1);
+                    bigSpiderEyes.SetBrightness(1, bigSpiderEyesToken);
+                    spiderJump1.Value = true;
+                    i.WaitFor(S(0.5));
+                    spiderJump2.Value = true;
+                    i.WaitFor(S(2.0));
+                    spiderJump1.Value = false;
+                    spiderJump2.Value = false;
+                })
+                .TearDown(i =>
+                {
+                    bigSpiderEyesToken?.Dispose();
+                    bigSpiderEyesToken = null;
                 });
 
             sub3dfxLady

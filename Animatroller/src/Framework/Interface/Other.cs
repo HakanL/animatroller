@@ -68,6 +68,8 @@ namespace Animatroller.Framework
         IControlToken CurrentToken { get; set; }
 
         string CreationId { get; }
+
+        IData Copy();
     }
 
     [Obsolete]

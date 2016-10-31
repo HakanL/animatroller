@@ -187,6 +187,8 @@ namespace Animatroller.Framework.LogicalDevice
                             else
                                 restoreData = GetOwnerlessData();
 
+                            restoreData = restoreData.Copy();
+
                             this.currentOwner = nextOwner;
 
                             Executor.Current.SetControlToken(this, nextOwner);

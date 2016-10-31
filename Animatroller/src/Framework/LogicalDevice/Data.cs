@@ -37,5 +37,10 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get { return this.creationId.ToString(); }
         }
+
+        public IData Copy()
+        {
+            return new Data(this.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
+        }
     }
 }

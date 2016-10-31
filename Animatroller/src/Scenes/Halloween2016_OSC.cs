@@ -37,21 +37,26 @@ namespace Animatroller.Scenes
                 if (data[3])
                     subFog.Run();
 
-                spiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
+                if (data[4])
+                {
+                    floodLights.Value = !floodLights.Value;
+                }
+
+                bigSpiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
 
                 if (data[6])
                     audio2.PlayEffect("sixthsense-deadpeople.wav");
 
-                flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
+                //                flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
+
+                if (data[7])
+                    subSpiderJump.Run();
 
                 if (data[8])
                     audioFlying.PlayEffect("162 Blood Curdling Scream of Terror.wav");
 
-                if (data[10])
-                    audio2.PlayEffect("Happy Halloween.wav");
-
-                if (data[11])
-                    audioPop.PlayEffect("Leave Now.wav");
+                //spiderJump1.Value = data[10];
+                //spiderJump2.Value = data[11];
 
                 if (data[12])
                     subLast.Run();
