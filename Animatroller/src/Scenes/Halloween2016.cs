@@ -165,7 +165,7 @@ namespace Animatroller.Scenes
         StrobeColorDimmer3 wall9Light = new StrobeColorDimmer3("Wall 9");
         StrobeDimmer3 flash1 = new StrobeDimmer3("ADJ Flash");
         StrobeDimmer3 flash2 = new StrobeDimmer3("Eliminator Flash");
-//        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
+        //        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
         Controller.Sequence catSeq = new Controller.Sequence();
         Controller.Sequence pumpkinSeq = new Controller.Sequence();
@@ -193,7 +193,7 @@ namespace Animatroller.Scenes
             hoursSmall.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday);
 
-            hoursFull.AddRange("6:00 pm", "9:00 pm");
+            hoursFull.AddRange("6:00 pm", "8:30 pm");
             //hoursFull.Disabled = true;
             hoursSmall.Disabled = true;
 
@@ -331,7 +331,7 @@ namespace Animatroller.Scenes
             popOutAll.ConnectTo(flash1);
             popOutAll.ConnectTo(flash2);
             popOutAll.ConnectTo(pixelsRoofEdge);
-//            popOutAll.ConnectTo(pinSpot);
+            //            popOutAll.ConnectTo(pinSpot);
 
             allLights.Add(
                 wall1Light,
@@ -346,7 +346,7 @@ namespace Animatroller.Scenes
                 flash1,
                 flash2,
                 pixelsRoofEdge,
-//                pinSpot,
+                //                pinSpot,
                 spiderLight,
                 spiderWebLights,
                 pumpkinLights);
@@ -596,7 +596,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 259), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.AmericanDJStrobe(flash1, 100), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
-//            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
+            //            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 50), SacnUniverseDMXLedmx);
@@ -894,7 +894,10 @@ namespace Animatroller.Scenes
                 {
                     pulsatingPumpkinLow.Stop();
                     pulsatingPumpkinHigh.Start();
-                    audioPumpkin.PlayEffect("Thriller2.wav");
+                    if (hoursFull.IsOpen)
+                        audioPumpkin.PlayEffect("Thriller2.wav");
+                    else
+                        audioPumpkin.PlayEffect("Happy Halloween.wav");
                     instance.CancelToken.WaitHandle.WaitOne(40000);
                 })
                 .TearDown(instance =>

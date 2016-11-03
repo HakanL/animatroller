@@ -33,6 +33,8 @@ namespace Animatroller.Framework.LogicalDevice
 
                     var usedKeys = new HashSet<DataElements>();
 
+                    var dataList = this.currentData.Copy();
+
                     foreach (var kvp in data.ToList())
                     {
                         usedKeys.Add(kvp.Key);
@@ -40,17 +42,19 @@ namespace Animatroller.Framework.LogicalDevice
                         switch (kvp.Key)
                         {
                             case DataElements.PixelBitmap:
-                                this.currentData[kvp.Key] = new System.Drawing.Bitmap((System.Drawing.Bitmap)kvp.Value);
+                                dataList[kvp.Key] = new System.Drawing.Bitmap((System.Drawing.Bitmap)kvp.Value);
                                 break;
 
                             default:
-                                this.currentData[kvp.Key] = kvp.Value;
+                                dataList[kvp.Key] = kvp.Value;
                                 break;
                         }
                     }
 
-                    this.currentData.Where(k => !usedKeys.Contains(k.Key)).ToList()
+                    dataList.Where(k => !usedKeys.Contains(k.Key)).ToList()
                         .ForEach(k => this.currentData.Remove(k.Key));
+
+                    this.currentData = dataList;
 
                     this.outputChanged.OnNext(CurrentData);
                 }
