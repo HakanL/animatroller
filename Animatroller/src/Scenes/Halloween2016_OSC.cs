@@ -55,8 +55,11 @@ namespace Animatroller.Scenes
                 if (data[8])
                     audioFlying.PlayEffect("162 Blood Curdling Scream of Terror.wav");
 
-                //spiderJump1.Value = data[10];
-                //spiderJump2.Value = data[11];
+                if (data[9])
+                    sub3dfxRandom.Run();
+
+                //wall8Light.SetBrightness(data[10] ? 1 : 0);
+                //wall9Light.SetBrightness(data[11] ? 1 : 0);
 
                 if (data[12])
                     subLast.Run();
@@ -181,6 +184,17 @@ namespace Animatroller.Scenes
                         break;
                 }
             }, 25);
+
+            oscServer.RegisterAction<bool>("/Blocks/x", (msg, data) =>
+            {
+                blockMaster.Value = data[0];
+                blockCat.Value = data[1];
+                blockFirst.Value = data[2];
+                blockPicture.Value = data[3];
+                blockGhost.Value = data[4];
+                blockLast.Value = data[5];
+                blockPumpkin.Value = data[6];
+            }, 7);
 
             oscServer.RegisterActionSimple<int>("/AudioOutput/selection", (msg, data) =>
             {

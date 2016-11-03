@@ -74,6 +74,7 @@ namespace Animatroller.Scenes
 
         Controller.Subroutine subFinal = new Controller.Subroutine();
         Controller.Subroutine subFirst = new Controller.Subroutine();
+        Controller.Subroutine sub3dfxRandom = new Controller.Subroutine();
         Controller.Subroutine sub3dfxLady = new Controller.Subroutine();
         Controller.Subroutine sub3dfxMan = new Controller.Subroutine();
         Controller.Subroutine sub3dfxKids = new Controller.Subroutine();
@@ -99,6 +100,8 @@ namespace Animatroller.Scenes
         DigitalInput2 blockGhost = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockLast = new DigitalInput2(persistState: true);
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 blockPumpkin = new DigitalInput2(persistState: true);
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 floodLights = new DigitalInput2();
 
@@ -162,7 +165,7 @@ namespace Animatroller.Scenes
         StrobeColorDimmer3 wall9Light = new StrobeColorDimmer3("Wall 9");
         StrobeDimmer3 flash1 = new StrobeDimmer3("ADJ Flash");
         StrobeDimmer3 flash2 = new StrobeDimmer3("Eliminator Flash");
-        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
+//        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
         Controller.Sequence catSeq = new Controller.Sequence();
         Controller.Sequence pumpkinSeq = new Controller.Sequence();
@@ -181,6 +184,7 @@ namespace Animatroller.Scenes
         IControlToken manualFaderToken;
         IControlToken bigSpiderEyesToken;
         int soundBoardOutputIndex = 0;
+        byte last3dfxVideo = 0;
 
         public Halloween2016(IEnumerable<string> args)
         {
@@ -189,7 +193,7 @@ namespace Animatroller.Scenes
             hoursSmall.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday);
 
-            hoursFull.AddRange("5:00 pm", "9:30 pm");
+            hoursFull.AddRange("6:00 pm", "9:00 pm");
             //hoursFull.Disabled = true;
             hoursSmall.Disabled = true;
 
@@ -310,16 +314,24 @@ namespace Animatroller.Scenes
 
             popOut1.ConnectTo(wall1Light);
             popOut1.ConnectTo(wall4Light);
+            popOut1.ConnectTo(wall6Light);
+            popOut1.ConnectTo(flash1);
             popOut2.ConnectTo(wall2Light);
+            popOut2.ConnectTo(wall7Light);
+            popOut2.ConnectTo(flash2);
             popOutAll.ConnectTo(wall1Light);
             popOutAll.ConnectTo(wall2Light);
             popOutAll.ConnectTo(wall3Light);
             popOutAll.ConnectTo(wall4Light);
             popOutAll.ConnectTo(wall5Light);
+            popOutAll.ConnectTo(wall6Light);
+            popOutAll.ConnectTo(wall7Light);
+            popOutAll.ConnectTo(wall8Light);
+            popOutAll.ConnectTo(wall9Light);
             popOutAll.ConnectTo(flash1);
             popOutAll.ConnectTo(flash2);
             popOutAll.ConnectTo(pixelsRoofEdge);
-            popOutAll.ConnectTo(pinSpot);
+//            popOutAll.ConnectTo(pinSpot);
 
             allLights.Add(
                 wall1Light,
@@ -334,7 +346,7 @@ namespace Animatroller.Scenes
                 flash1,
                 flash2,
                 pixelsRoofEdge,
-                pinSpot,
+//                pinSpot,
                 spiderLight,
                 spiderWebLights,
                 pumpkinLights);
@@ -360,8 +372,8 @@ namespace Animatroller.Scenes
             pulsatingGargoyle.ConnectTo(gargoyleLightsCrystal);
             pulsatingGargoyle.ConnectTo(treeSkulls);
             pulsatingGargoyle.ConnectTo(spiderEyes);
-            pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
-            pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
+            //pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
+            //pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
             pulsatingCatLow.ConnectTo(catLights);
             pulsatingCatHigh.ConnectTo(catLights);
@@ -565,11 +577,11 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, true), SacnUniversePixel50, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniversePixel100, 1);
 
-            //acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), 1);
-            //acnOutput.Connect(new Physical.RGBStrobe(wall1Light, 60), 1);
-            //acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 70), 1);
-            //acnOutput.Connect(new Physical.RGBStrobe(wall3Light, 40), 1);
-            //acnOutput.Connect(new Physical.RGBStrobe(wall4Light, 80), 1);
+            //acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.RGBStrobe(wall6Light, 60), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.RGBStrobe(wall8Light, 40), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.RGBStrobe(wall7Light, 80), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 310, 8), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall2Light, 300, 8), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.MFL7x10WPar(wall3Light, 320), SacnUniverseDMXLedmx);
@@ -584,7 +596,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 259), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.AmericanDJStrobe(flash1, 100), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
+//            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 50), SacnUniverseDMXLedmx);
@@ -619,7 +631,13 @@ namespace Animatroller.Scenes
             expanderPicture.Connect(audioFlying);
 
 
-
+            blockMaster.WhenOutputChanges(x => UpdateOSC());
+            blockCat.WhenOutputChanges(x => UpdateOSC());
+            blockFirst.WhenOutputChanges(x => UpdateOSC());
+            blockPicture.WhenOutputChanges(x => UpdateOSC());
+            blockGhost.WhenOutputChanges(x => UpdateOSC());
+            blockLast.WhenOutputChanges(x => UpdateOSC());
+            blockPumpkin.WhenOutputChanges(x => UpdateOSC());
 
 
             catMotion.Output.Subscribe(x =>
@@ -632,7 +650,7 @@ namespace Animatroller.Scenes
 
             pumpkinMotion.Output.Subscribe(x =>
             {
-                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen))
+                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen) && !blockMaster.Value && !blockPumpkin.Value)
                     Executor.Current.Execute(pumpkinSeq);
 
                 //                oscServer.SendAllClients("/1/led1", x ? 1 : 0);
@@ -706,14 +724,18 @@ namespace Animatroller.Scenes
                     if (bigSpiderEyesToken != null)
                         bigSpiderEyesToken.Dispose();
 
+                    wall8Light.SetColor(Color.White, 1, bigSpiderEyesToken);
+                    wall8Light.SetStrobeSpeed(1, bigSpiderEyesToken);
                     bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
                     bigSpiderEyes.SetBrightness(0, bigSpiderEyesToken);
-                    audio2.PlayEffect("Happy Halloween.wav");
+                    audioHifi.PlayNewEffect("Happy Halloween.wav");
                     expanderPicture.SendSerial(0, new byte[] { 0x02 });
                     i.WaitFor(S(4.0));
+                    sub3dfxRandom.Run();
+                    i.WaitFor(S(10.0));
+                    wall8Light.SetBrightness(0);
                     subSpiderJump.Run();
-                    sub3dfxLady.Run();
-                    i.WaitFor(S(8.0));
+                    i.WaitFor(S(4.0));
                 })
                 .TearDown(i =>
                 {
@@ -725,7 +747,7 @@ namespace Animatroller.Scenes
                     if (bigSpiderEyesToken == null)
                         bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
 
-                    audio2.PlayEffect("348 Spider Hiss.wav", 0, 1);
+                    audio2.PlayNewEffect("348 Spider Hiss.wav", 0, 1);
                     bigSpiderEyes.SetBrightness(1, bigSpiderEyesToken);
                     spiderJump1.Value = true;
                     i.WaitFor(S(0.5));
@@ -738,6 +760,23 @@ namespace Animatroller.Scenes
                 {
                     bigSpiderEyesToken?.Dispose();
                     bigSpiderEyesToken = null;
+                });
+
+            sub3dfxRandom
+                .RunAction(i =>
+                {
+                    byte video;
+                    do
+                    {
+                        video = (byte)(random.Next(3) + 1);
+                    } while (video == last3dfxVideo);
+                    last3dfxVideo = video;
+
+                    expanderLedmx.SendSerial(0, new byte[] { video });
+                    i.WaitFor(S(12.0));
+                })
+                .TearDown(i =>
+                {
                 });
 
             sub3dfxLady
@@ -920,6 +959,15 @@ namespace Animatroller.Scenes
                 secondBeam.Value ? 1 : 0,
                 ghostBeam.Value ? 1 : 0,
                 lastBeam.Value ? 1 : 0);
+
+            oscServer.SendAllClients("/Blocks/x",
+                blockMaster.Value ? 1 : 0,
+                blockCat.Value ? 1 : 0,
+                blockFirst.Value ? 1 : 0,
+                blockPicture.Value ? 1 : 0,
+                blockGhost.Value ? 1 : 0,
+                blockLast.Value ? 1 : 0,
+                blockPumpkin.Value ? 1 : 0);
         }
 
         void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)
