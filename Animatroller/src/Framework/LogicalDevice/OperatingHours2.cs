@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class OperatingHours2 : BaseDevice
+    public class OperatingHours2 : IRunnable, IInputHardware
     {
         protected class TimeRange
         {
@@ -25,12 +25,13 @@ namespace Animatroller.Framework.LogicalDevice
         private bool? forced;
         private bool noRangesMeansClosed;
         private bool disabled;
+        private string name;
 
         private ISubject<bool> outputValue;
 
         public OperatingHours2([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool noRangesMeansClosed = true)
-            : base(name)
         {
+            this.name = name;
             this.noRangesMeansClosed = noRangesMeansClosed;
             this.isOpen = null;
             this.ranges = new List<TimeRange>();
@@ -111,14 +112,6 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public override void SetInitialState()
-        {
-            EvaluateOpenHours();
-            // No need to call the base class to output state, EvaluateOpenHours already did that via IsOpen
-
-            this.timer.Change(0, 1000);
-        }
-
         public void SetForced(bool? forcedIsOpen)
         {
             this.forced = forcedIsOpen;
@@ -160,9 +153,22 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        protected override void UpdateOutput()
+        private void UpdateOutput()
         {
             this.outputValue.OnNext(this.isOpen.GetValueOrDefault());
+        }
+
+        public void Start()
+        {
+            EvaluateOpenHours();
+            // No need to call the base class to output state, EvaluateOpenHours already did that via IsOpen
+
+            this.timer.Change(0, 1000);
+        }
+
+        public void Stop()
+        {
+            this.timer.Change(Timeout.Infinite, Timeout.Infinite);
         }
     }
 }

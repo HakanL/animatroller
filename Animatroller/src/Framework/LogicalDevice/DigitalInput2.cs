@@ -11,7 +11,7 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class DigitalInput2 : BaseDevice, ISupportsPersistence, ILogicalOutputDevice<bool>, ILogicalControlDevice<bool>
+    public class DigitalInput2 : BaseDevice, ISupportsPersistence, ILogicalOutputDevice<bool>, ILogicalControlDevice<bool>, IInputHardware
     {
         protected bool currentValue;
         protected ISubject<bool> controlValue;

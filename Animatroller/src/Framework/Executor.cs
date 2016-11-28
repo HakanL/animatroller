@@ -351,7 +351,7 @@ namespace Animatroller.Framework
         public Executor Run()
         {
             // First start non-hardware outputs
-            foreach (var runnable in this.runnable.Where(x => !(x is IOutputHardware)))
+            foreach (var runnable in this.runnable.Where(x => !(x is IOutputHardware) && !(x is IInputHardware)))
                 runnable.Start();
 
             // Set device initial state
@@ -360,6 +360,10 @@ namespace Animatroller.Framework
 
             // Then start hardware outputs, all devices should have their initial states now
             foreach (var runnable in this.runnable.Where(x => (x is IOutputHardware)))
+                runnable.Start();
+
+            // Then start hardware inputs
+            foreach (var runnable in this.runnable.Where(x => (x is IInputHardware)))
                 runnable.Start();
 
             foreach (var scene in this.scenes)

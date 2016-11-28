@@ -24,7 +24,7 @@ namespace Animatroller.Framework.Controller
         string Name { get; }
     }
 
-    public class EnumStateMachine<T> : IRunnable, IStateMachine where T : struct, IConvertible
+    public class EnumStateMachine<T> : IRunnable, IStateMachine, IInputHardware where T : struct, IConvertible
     {
         public class StateChangedEventArgs : EventArgs
         {

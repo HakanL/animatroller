@@ -72,6 +72,9 @@
     <Compile Include="Halloween2016_OSC.cs" />
     <Compile Include="PixelTest1.cs" />
     <Compile Include="TestUsbDmxPro.cs" />
+    <Compile Include="Xmas2016_MIDI.cs" />
+    <Compile Include="Xmas2016_OSC.cs" />
+    <Compile Include="Xmas2016.cs" />
     <Compile Include="Xmas2015.cs" />
     <Compile Include="Halloween2015.cs" />
     <None Include="Halloween2015Manual.cs" />
