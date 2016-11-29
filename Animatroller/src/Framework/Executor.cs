@@ -350,9 +350,14 @@ namespace Animatroller.Framework
 
         public Executor Run()
         {
+            var startedObjects = new HashSet<object>();
+
             // First start non-hardware outputs
             foreach (var runnable in this.runnable.Where(x => !(x is IOutputHardware) && !(x is IInputHardware)))
+            {
+                startedObjects.Add(runnable);
                 runnable.Start();
+            }
 
             // Set device initial state
             foreach (var device in this.devices)
@@ -360,11 +365,33 @@ namespace Animatroller.Framework
 
             // Then start hardware outputs, all devices should have their initial states now
             foreach (var runnable in this.runnable.Where(x => (x is IOutputHardware)))
+            {
+                if (startedObjects.Contains(runnable))
+                    continue;
+
+                startedObjects.Add(runnable);
                 runnable.Start();
+            }
 
             // Then start hardware inputs
             foreach (var runnable in this.runnable.Where(x => (x is IInputHardware)))
+            {
+                if (startedObjects.Contains(runnable))
+                    continue;
+
+                startedObjects.Add(runnable);
                 runnable.Start();
+            }
+
+            // Anything missing
+            foreach (var runnable in this.runnable)
+            {
+                if (startedObjects.Contains(runnable))
+                    continue;
+
+                startedObjects.Add(runnable);
+                runnable.Start();
+            }
 
             foreach (var scene in this.scenes)
                 scene.Run();

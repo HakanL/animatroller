@@ -12,6 +12,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Import = Animatroller.Framework.Import;
 using System.IO;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes
 {
@@ -142,6 +143,8 @@ namespace Animatroller.Scenes
         {
             hours.AddRange("4:00 pm", "10:00 pm");
 
+            hours.Output.Log("Hours");
+
             string expanderFilesFolder = string.Empty;
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
@@ -268,6 +271,7 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.GenericDimmer(lightRedButton, 263), SacnUniverseDMX);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 50), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 64), SacnUniverseLedmx);
 
             //acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 16), SacnUniverseRenardBig);
             //acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 10), SacnUniverseRenardBig);

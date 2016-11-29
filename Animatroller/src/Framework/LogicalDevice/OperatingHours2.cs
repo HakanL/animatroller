@@ -43,6 +43,8 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     EvaluateOpenHours();
                 }, null, Timeout.Infinite, Timeout.Infinite);
+
+            Executor.Current.Register(this);
         }
 
         public IObservable<bool> Output
