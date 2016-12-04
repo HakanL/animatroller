@@ -240,9 +240,9 @@ namespace Animatroller.Scenes
                             if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 5)
                             {
                                 // Run the fog for a little while
-                                fog.Value = true;
+                                fog.SetValue(true);
                                 i.WaitFor(S(4));
-                                fog.Value = false;
+                                fog.SetValue(false);
                                 this.lastFogRun = DateTime.Now;
                             }
                         }
@@ -537,17 +537,17 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<int>("/1/push5", (msg, data) =>
             {
-                george1.Value = data.First() != 0;
+                george1.SetValue(data.First() != 0);
             });
 
             oscServer.RegisterAction<int>("/1/push6", (msg, data) =>
             {
-                george2.Value = data.First() != 0;
+                george2.SetValue(data.First() != 0);
             });
 
             oscServer.RegisterAction<int>("/1/push7", (msg, data) =>
             {
-                popper.Value = data.First() != 0;
+                popper.SetValue(data.First() != 0);
             });
 
             oscServer.RegisterAction<int>("/1/push8", d => d.First() != 0, (msg, data) =>
@@ -557,7 +557,7 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<int>("/1/spiderEyes", (msg, data) =>
             {
-                dropSpiderEyes.Value = data.First() != 0;
+                dropSpiderEyes.SetValue(data.First() != 0);
             });
 
             oscServer.RegisterAction<int>("/1/push10", d => d.First() != 0, (msg, data) =>
@@ -567,12 +567,12 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<int>("/1/push11", (msg, data) =>
             {
-                spiderCeilingDrop.Value = data.First() != 0;
+                spiderCeilingDrop.SetValue(data.First() != 0);
             });
 
             oscServer.RegisterAction<int>("/1/push12", (msg, data) =>
             {
-                fog.Value = data.First() != 0;
+                fog.SetValue(data.First() != 0);
             });
 
             oscServer.RegisterAction<int>("/1/special1", (msg, data) =>
@@ -887,18 +887,18 @@ namespace Animatroller.Scenes
                 .LockWhenRunning(10, spiderLight)
                 .RunAction(i =>
                 {
-                    fog.Value = true;
+                    fog.SetValue(true);
                     this.lastFogRun = DateTime.Now;
                     pulsatingEffect2.Start();
                     i.WaitFor(S(5.0));
 
                     spiderLight.SetColor(Color.Red, token: i.Token);
-                    dropSpiderEyes.Value = true;
-                    spiderCeilingDrop.Value = true;
+                    dropSpiderEyes.SetValue(true);
+                    spiderCeilingDrop.SetValue(true);
                     audioPop.PlayEffect("348 Spider Hiss.wav", 1.0, 0.0);
 
                     i.WaitFor(S(2.0));
-                    dropSpiderEyes.Value = false;
+                    dropSpiderEyes.SetValue(false);
                     spiderLight.SetBrightness(0.0, i.Token);
                     switch (random.Next(4))
                     {
@@ -918,9 +918,9 @@ namespace Animatroller.Scenes
                             video3dfx.PlayVideo("PHA_Poltergeist_StartleScare_3DFX_H.mp4");
                             break;
                     }
-                    fog.Value = false;
+                    fog.SetValue(false);
                     i.WaitFor(S(2.0));
-                    spiderCeilingDrop.Value = false;
+                    spiderCeilingDrop.SetValue(false);
                     i.WaitFor(S(3.0));
                 })
                 .TearDown(i =>
@@ -954,15 +954,15 @@ namespace Animatroller.Scenes
                 {
                     pulsatingEffect2.Stop();
                     pulsatingEffect1.Start();
-                    candyEyes.Value = true;
+                    candyEyes.SetValue(true);
                     underGeorge.SetStrobeSpeed(0.5, i.Token);
                     underGeorge.SetBrightness(1.0, i.Token);
                     audioPop.PlayEffect("laugh.wav", 1.0, 0.0);
                     for (int r = 0; r < 2; r++)
                     {
-                        george1.Value = true;
+                        george1.SetValue(true);
                         i.WaitFor(S(0.2));
-                        george1.Value = false;
+                        george1.SetValue(false);
                         i.WaitFor(S(0.2));
                     }
                     i.WaitFor(S(1));
@@ -971,25 +971,25 @@ namespace Animatroller.Scenes
                     underGeorge.SetBrightness(0.0, i.Token);
                     i.WaitFor(S(1));
 
-                    popper.Value = true;
+                    popper.SetValue(true);
                     audioPop.PlayEffect("180 Babbling Lunatic.wav", 0.0, 1.0);
                     i.WaitFor(S(3));
-                    popper.Value = false;
+                    popper.SetValue(false);
 
                     i.WaitFor(S(8));
 
                     Exec.MasterEffect.Fade(underGeorge, 0.5, 0.0, 1000, token: i.Token);
                     //                    underGeorge.SetBrightness(0.3, i.Token);
                     i.WaitFor(S(0.5));
-                    george2.Value = true;
+                    george2.SetValue(true);
                     i.WaitFor(S(1.0));
-                    george2.Value = false;
+                    george2.SetValue(false);
                     i.WaitFor(S(1.0));
                     //                    underGeorge.SetBrightness(0.0, i.Token);
                 })
                 .TearDown(i =>
                 {
-                    candyEyes.Value = false;
+                    candyEyes.SetValue(false);
                     pulsatingEffect1.Stop();
                     Thread.Sleep(S(5));
                 });
@@ -1000,7 +1000,7 @@ namespace Animatroller.Scenes
         {
             var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
-            catLights.Value = true;
+            catLights.SetValue(true);
 
             while (true)
             {
@@ -1035,7 +1035,7 @@ namespace Animatroller.Scenes
         })
         .TearDown(instance =>
         {
-            catLights.Value = false;
+            catLights.SetValue(false);
         });
 
             motionSeq.WhenExecuted

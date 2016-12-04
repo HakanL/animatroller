@@ -85,14 +85,18 @@ namespace Animatroller.Framework.LogicalDevice
 
         public bool Value
         {
-            get { return this.currentValue; }
-            set { this.controlValue.OnNext(value); }
+            get { return (bool)this.currentData[DataElements.Power]; }
+        }
+
+        public void SetValue(bool value, IControlToken token = null)
+        {
+            SetData(token, Utils.AdditionalData(DataElements.Power, value));
         }
 
         protected override void UpdateOutput()
         {
             // Doesn't seem to use the new IData interface
-//FIXME            base.UpdateOutput();
+            //FIXME            base.UpdateOutput();
             this.outputValue.OnNext(this.currentValue && this.MasterPower);
         }
     }

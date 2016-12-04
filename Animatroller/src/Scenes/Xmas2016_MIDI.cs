@@ -24,38 +24,50 @@ namespace Animatroller.Scenes
 
             midiAkai.Note(midiChannel, 36).Subscribe(x =>
             {
-                if (x)
-                    subOlaf.Run();
+                lightNet4.SetBrightness(x ? 1 : 0);
+//                if (x)
+//                    audioHiFi.PlayEffect("242004__junkfood2121__fart-01.wav");
+//                    subOlaf.Run();
             });
 
             midiAkai.Note(midiChannel, 37).Subscribe(x =>
             {
-                if (x)
-                    subR2D2.Run();
+                lightNet5.SetBrightness(x ? 1 : 0);
+                //if (x)
+                //    audioHiFi.PlayEffect("WarmHugs.wav");
+                //                subR2D2.Run();
             });
 
             midiAkai.Note(midiChannel, 38).Subscribe(x =>
             {
-                if (x)
-                    stateMachine.GoToState(States.Music1);
+                lightNet6.SetBrightness(x ? 1 : 0);
+                //if (x)
+                //    stateMachine.GoToState(States.Music1);
                 //                    audio2.PlayTrack("08 Feel the Light.wav");
             });
 
             midiAkai.Note(midiChannel, 39).Subscribe(x =>
             {
-                if (x)
-                {
-                    lorFeelTheLight.Stop();
-                    audioMain.PauseTrack();
-                }
+               lightNet7.SetBrightness(x ? 1 : 0);
+                //if (x)
+                //{
+                //    lorFeelTheLight.Stop();
+                //    audioHiFi.PauseTrack();
+                //}
             });
 
             midiAkai.Note(midiChannel, 40).Subscribe(x =>
             {
-                if (x)
-                {
-                    stateMachine.GoToState(States.SantaVideo);
-                }
+                lightNet8.SetBrightness(x ? 1 : 0);
+                //if (x)
+                //{
+                //    stateMachine.GoToState(States.SantaVideo);
+                //}
+            });
+
+            midiAkai.Note(midiChannel, 41).Subscribe(x =>
+            {
+//                lightHangingStar.SetBrightness(x ? 1 : 0);
             });
         }
     }

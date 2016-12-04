@@ -51,7 +51,7 @@ namespace Animatroller.Scenes
                         //                    audio2.PlayTrack("08 Feel the Light.wav");
                         //                    audioLocal.PlayEffect("WarmHugs.wav");
 
-                        out1.Value = x;
+                        out1.SetValue(x);
             });
         }
 

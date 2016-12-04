@@ -16,7 +16,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             this.inputBrightness = Observer.Create<DoubleZeroToOne>(x =>
                 {
-                    device.Value = x.Value > 0.1;
+                    device.SetValue(x.Value > 0.1);
                 });
         }
 

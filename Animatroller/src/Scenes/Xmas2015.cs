@@ -203,7 +203,7 @@ namespace Animatroller.Scenes
 
             inflatablesRunning.Subscribe(x =>
             {
-                airReindeer.Value = x;
+                airReindeer.SetValue(x);
 
                 Exec.SetKey("InflatablesRunning", x.ToString());
             });
@@ -219,10 +219,10 @@ namespace Animatroller.Scenes
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
-            airR2D2.Value = true;
-            airSanta1.Value = true;
-            airOlaf.Value = true;
-            laser.Value = true;
+            airR2D2.SetValue(true);
+            airSanta1.SetValue(true);
+            airOlaf.SetValue(true);
+            laser.SetValue(true);
 
             hours
             //    .ControlsMasterPower(packages)
@@ -408,13 +408,13 @@ namespace Animatroller.Scenes
             subSnow
                 .RunAction(ins =>
                 {
-                    snowMachine.Value = true;
+                    snowMachine.SetValue(true);
 
                     ins.WaitFor(S(30));
                 })
                 .TearDown(i =>
                 {
-                    snowMachine.Value = false;
+                    snowMachine.SetValue(false);
                 });
 
             subStarWarsCane
@@ -463,12 +463,12 @@ namespace Animatroller.Scenes
             subMusic2
                 .RunAction(ins =>
                 {
-                    snowMachine.Value = true;
+                    snowMachine.SetValue(true);
                     audioMain.PlayTrack("T.P.E. - 04 - Josh Groban - Believe.flac");
                     ins.WaitFor(S(260));
                 }).TearDown(i =>
                 {
-                    snowMachine.Value = false;
+                    snowMachine.SetValue(false);
                     lorBelieve.Stop();
                     audioMain.PauseTrack();
                 });
@@ -701,7 +701,7 @@ namespace Animatroller.Scenes
 
             inShowMachine.Output.Subscribe(x =>
             {
-                snowMachine.Value = x;
+                snowMachine.SetValue(x);
                 //                lightRedButton.SetBrightness(x ? 1.0 : 0.0);
                 //if (x)
                 //    stateMachine.GoToState(States.Music1);

@@ -426,9 +426,9 @@ namespace Animatroller.Scenes
                         if (!this.lastFogRun.HasValue || (DateTime.Now - this.lastFogRun.Value).TotalMinutes > 5)
                         {
                             // Run the fog for a little while
-                            fog.Value = true;
+                            fog.SetValue(true);
                             i.WaitFor(S(4));
-                            fog.Value = false;
+                            fog.SetValue(false);
                             this.lastFogRun = DateTime.Now;
                         }
                     }
@@ -691,10 +691,10 @@ namespace Animatroller.Scenes
             subFog
                 .RunAction(i =>
                 {
-                    fog.Value = true;
+                    fog.SetValue(true);
                     lastFogRun = DateTime.Now;
                     i.WaitFor(S(6));
-                    fog.Value = false;
+                    fog.SetValue(false);
                 });
 
             subFirst
@@ -749,12 +749,12 @@ namespace Animatroller.Scenes
 
                     audio2.PlayNewEffect("348 Spider Hiss.wav", 0, 1);
                     bigSpiderEyes.SetBrightness(1, bigSpiderEyesToken);
-                    spiderJump1.Value = true;
+                    spiderJump1.SetValue(true);
                     i.WaitFor(S(0.5));
-                    spiderJump2.Value = true;
+                    spiderJump2.SetValue(true);
                     i.WaitFor(S(2.0));
-                    spiderJump1.Value = false;
-                    spiderJump2.Value = false;
+                    spiderJump1.SetValue(false);
+                    spiderJump2.SetValue(false);
                 })
                 .TearDown(i =>
                 {
@@ -823,21 +823,21 @@ namespace Animatroller.Scenes
                 .RunAction(i =>
                 {
                     popperEyes.SetBrightness(1.0);
-                    fog.Value = true;
+                    fog.SetValue(true);
                     lastFogRun = DateTime.Now;
                     audioPop.PlayEffect("Short Laugh.wav");
                     i.WaitFor(S(1.0));
-                    popper.Value = true;
+                    popper.SetValue(true);
                     i.WaitFor(S(2.0));
                     audioPop.PlayEffect("Leave Now.wav");
                     i.WaitFor(S(3.0));
                     var tsk = Exec.MasterEffect.Fade(popperEyes, 1.0, 0.0, 2000, token: i.Token);
-                    popper.Value = false;
+                    popper.SetValue(false);
                     tsk.Wait();
                 })
                 .TearDown(i =>
                 {
-                    fog.Value = false;
+                    fog.SetValue(false);
                     i.WaitFor(S(1.0));
                 });
 
