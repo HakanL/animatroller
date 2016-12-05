@@ -40,12 +40,12 @@ namespace Animatroller.Framework.Effect
             set { this.maxBrightness = value.Limit(0, 1); }
         }
 
-        protected override double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        protected override double GetValue(double zeroToOne, double negativeOneToOne, double zeroToOneToZero, bool final)
         {
             if (final)
                 return 0;
 
-            return easeTransform.Transform(oneToZeroToOne)
+            return easeTransform.Transform(zeroToOneToZero)
                 .ScaleToMinMax(this.minBrightness, this.maxBrightness);
         }
     }
@@ -81,7 +81,7 @@ namespace Animatroller.Framework.Effect
             set { this.maxBrightness = value; }
         }
 
-        protected override double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        protected override double GetValue(double zeroToOne, double negativeOneToOne, double zeroToOneToZero, bool final)
         {
             return zeroToOne.ScaleToMinMax(this.minBrightness, this.maxBrightness);
         }
@@ -112,7 +112,7 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
-        protected override double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final)
+        protected override double GetValue(double zeroToOne, double negativeOneToOne, double zeroToOneToZero, bool final)
         {
             if (final)
                 return 0;

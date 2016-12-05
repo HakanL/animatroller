@@ -21,7 +21,7 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, zeroToOneToZero, forced, totalTicks, final) =>
                 {
                     double brightness = zeroToOne.ScaleToMinMax(this.startBrightness, this.endBrightness);
 
@@ -56,9 +56,9 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, zeroToOneToZero, forced, totalTicks, final) =>
             {
-                double brightness = easeTransform.Transform(oneToZeroToOne)
+                double brightness = easeTransform.Transform(zeroToOneToZero)
                     .ScaleToMinMax(this.minBrightness, this.maxBrightness);
 
                 setBrightnessAction.Invoke(brightness);
@@ -93,7 +93,7 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, zeroToOneToZero, forced, totalTicks, final) =>
             {
                 double brightness = easeTransform.Transform(zeroToOne)
                     .ScaleToMinMax(this.startBrightness, this.endBrightness);
@@ -121,7 +121,7 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, zeroToOneToZero, forced, totalTicks, final) =>
             {
                 double brightness = zeroToOne.ScaleToMinMax(this.minBrightness, this.maxBrightness);
 
@@ -148,7 +148,7 @@ namespace Animatroller.Framework.Effect2
 
         public Effect.EffectAction.Action GetEffectAction(Action<double> setBrightnessAction)
         {
-            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
+            return new Effect.EffectAction.Action((zeroToOne, negativeOneToOne, zeroToOneToZero, forced, totalTicks, final) =>
             {
                 setBrightnessAction.Invoke((totalTicks % 2) == 0 ? this.minBrightness : this.maxBrightness);
             });

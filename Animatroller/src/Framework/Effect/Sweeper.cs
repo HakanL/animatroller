@@ -23,6 +23,7 @@ namespace Animatroller.Framework.Effect
         private TimeSpan interval;
         private bool oneShot;
         private bool ended;
+        private int iterations;
         private int hitCounter;
         private long ticks;
 
@@ -50,6 +51,8 @@ namespace Animatroller.Framework.Effect
 
             return this;
         }
+
+        public Action<int> NewIterationAction { get; set; }
 
         public Sweeper Pause()
         {
@@ -97,12 +100,12 @@ namespace Animatroller.Framework.Effect
             return this;
         }
 
-        public Sweeper ForceValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, long totalTicks)
+        public Sweeper ForceValue(double zeroToOne, double negativeOneToOne, double zeroToOneToZero, long totalTicks)
         {
             lock (lockJobs)
             {
                 foreach (var job in jobs)
-                    job(zeroToOne, negativeOneToOne, oneToZeroToOne, true, totalTicks, true);
+                    job(zeroToOne, negativeOneToOne, zeroToOneToZero, true, totalTicks, true);
             }
 
             return this;
@@ -143,9 +146,16 @@ namespace Animatroller.Framework.Effect
 
                 this.ticks++;
 
-                if (++this.hitCounter >= this.positions && this.oneShot)
+                if (++this.hitCounter >= this.positions)
                 {
-                    this.ended = true;
+                    // Next iteration
+                    this.iterations++;
+                    this.hitCounter = 0;
+
+                    if (this.oneShot)
+                        this.ended = true;
+
+                    NewIterationAction?.Invoke(this.iterations);
                 }
             }
         }
@@ -171,7 +181,13 @@ namespace Animatroller.Framework.Effect
                 try
                 {
                     foreach (var job in jobs)
-                        job(value1, value2, value3, false, valueTicks, this.ended);
+                        job(
+                            zeroToOne: value1,
+                            negativeOneToOne: value2,
+                            zeroToOneToZero: value3,
+                            forced: false,
+                            totalTicks: valueTicks,
+                            final: this.ended);
                 }
                 catch (Exception ex)
                 {

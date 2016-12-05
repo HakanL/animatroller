@@ -61,7 +61,7 @@ namespace Animatroller.Framework.Effect
             this.devices = new List<DeviceController>();
             this.sweeper = new Sweeper(sweepDuration, dataPoints, startRunning);
 
-            this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, oneToZeroToOne, forced, totalTicks, final) =>
+            this.sweeper.RegisterJob((zeroToOne, negativeOneToOne, zeroToOneToZero, forced, totalTicks, final) =>
                 {
                     bool isUnlocked = false;
                     if (forced)
@@ -76,7 +76,7 @@ namespace Animatroller.Framework.Effect
                     {
                         try
                         {
-                            double value = GetValue(zeroToOne, negativeOneToOne, oneToZeroToOne, final);
+                            double value = GetValue(zeroToOne, negativeOneToOne, zeroToOneToZero, final);
 
                             SendOutput(value);
                         }
@@ -111,7 +111,7 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        protected abstract double GetValue(double zeroToOne, double negativeOneToOne, double oneToZeroToOne, bool final);
+        protected abstract double GetValue(double zeroToOne, double negativeOneToOne, double zeroToOneToZero, bool final);
 
         protected void SendOutput(double value)
         {
@@ -218,12 +218,33 @@ namespace Animatroller.Framework.Effect
         {
             IData data = additionalData.GenerateIData();
 
-            lock (lockObject)
+            lock (this.lockObject)
             {
                 this.devices.Add(new DeviceController(device, data));
             }
 
             return this;
+        }
+
+        public void SetAdditionalData(IReceivesBrightness device, params Tuple<DataElements, object>[] additionalData)
+        {
+            lock (this.lockObject)
+            {
+                var foundDevice = this.devices.FirstOrDefault(x => x.Device == device);
+
+                if (foundDevice != null)
+                {
+                    foundDevice.AdditionalData = additionalData.GenerateIData();
+
+                    foundDevice.Observer.SetDataFromIData(foundDevice.AdditionalData);
+                }
+            }
+        }
+
+        public Action<int> NewIterationAction
+        {
+            get { return this.sweeper.NewIterationAction; }
+            set { this.sweeper.NewIterationAction = value; }
         }
     }
 }
