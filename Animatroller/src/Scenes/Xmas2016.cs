@@ -25,6 +25,7 @@ namespace Animatroller.Scenes
         const int SacnUniverseRenard18 = 18;
         const int SacnUniverseLED100 = 5;
         const int SacnUniverseLED50 = 6;
+        const int SacnUniverseLEDTree50 = 7;
         const int SacnUniversePixelMatrix = 50;
         const int SacnUniverse11 = 11;
         const int SacnUniverse12 = 12;
@@ -44,13 +45,13 @@ namespace Animatroller.Scenes
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
 
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderHiFi = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderOla1 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderControlPanel = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
-        AudioPlayer audio1 = new AudioPlayer();
+        AudioPlayer audioLedmx = new AudioPlayer();
         AudioPlayer audioHiFi = new AudioPlayer();
         AudioPlayer audioDarthVader = new AudioPlayer();
 
@@ -77,8 +78,8 @@ namespace Animatroller.Scenes
         DigitalInput2 in3 = new DigitalInput2();
         DigitalOutput2 out1 = new DigitalOutput2();
 
-        DigitalOutput2 laser = new DigitalOutput2();
-        DigitalOutput2 airR2D2 = new DigitalOutput2();
+        DigitalOutput2 laser = new DigitalOutput2(initial: true);
+        DigitalOutput2 airR2D2 = new DigitalOutput2(initial: true);
         DigitalOutput2 airSanta1 = new DigitalOutput2();
         DigitalOutput2 airOlaf = new DigitalOutput2();
         DigitalOutput2 airReindeerBig = new DigitalOutput2();
@@ -121,8 +122,9 @@ namespace Animatroller.Scenes
         //StrobeColorDimmer3 lightWall3 = new StrobeColorDimmer3();
 
         //Dimmer3 lightOlaf = new Dimmer3();
-        //Dimmer3 lightR2D2 = new Dimmer3();
+        Dimmer3 lightR2D2 = new Dimmer3();
         VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
+        VirtualPixel1D3 pixelsTree = new VirtualPixel1D3(50);
         VirtualPixel2D3 pixelsMatrix = new VirtualPixel2D3(20, 10);
         VirtualPixel1D3 saberPixels = new VirtualPixel1D3(32);
         Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
@@ -171,23 +173,24 @@ namespace Animatroller.Scenes
             }
 
             //pulsatingEffect1.ConnectTo(lightOlaf);
-            //pulsatingEffect2.ConnectTo(lightR2D2);
+            pulsatingEffect2.ConnectTo(lightR2D2);
             pulsatingEffect3.ConnectTo(pixelsRoofEdge, Utils.AdditionalData(Color.Red));
             //pulsatingEffect4.ConnectTo(lightBlueButton);
             //pulsatingEffect4.ConnectTo(lightRedButton);
             pulsatingEffect4.ConnectTo(lightHangingStar);
+            pulsatingEffect4.ConnectTo(pixelsTree, Utils.AdditionalData(Color.Red));
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
-            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expander1);      // rpi-eb0092ca
+            expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);      // rpi-eb0092ca
             expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHiFi);      // rpi-eb428ef1
             expanderServer.AddInstance("4ea781ef257442edb524493da8f52220", expanderOla1);      // rpi-eba6cbc7
             expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expander4);      // rpi-eb81c94e
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderControlPanel);      // rpi-eb6a047c
 
-            expander1.DigitalInputs[5].Connect(inR2D2);
-            expander1.DigitalInputs[4].Connect(inOlaf);
-            expander1.DigitalInputs[6].Connect(inShowMachine);
-            expander1.DigitalOutputs[7].Connect(out1);
+            expanderLedmx.DigitalInputs[5].Connect(inR2D2);
+            expanderLedmx.DigitalInputs[4].Connect(inOlaf);
+            expanderLedmx.DigitalInputs[6].Connect(inShowMachine);
+            expanderLedmx.DigitalOutputs[7].Connect(out1);
             //expander4.DigitalOutputs[7].Connect(snowMachine);
 
             expander4.DigitalInputs[5].Connect(inBlueButton);
@@ -200,7 +203,7 @@ namespace Animatroller.Scenes
             expanderControlPanel.DigitalInputs[4].Connect(controlButtonBlack);
             expanderControlPanel.DigitalInputs[5].Connect(controlButtonRed);
 
-            expander1.Connect(audio1);
+            expanderLedmx.Connect(audioLedmx);
             expanderHiFi.Connect(audioHiFi);
             //expander3.Connect(video3);
             expander4.Connect(audioDarthVader);
@@ -241,16 +244,15 @@ namespace Animatroller.Scenes
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
-            //airR2D2.Value = true;
             //airSanta1.Value = true;
             //airOlaf.Value = true;
             //laser.Value = true;
 
-            //hours
+            hours
             ////    .ControlsMasterPower(packages)
             ////    .ControlsMasterPower(airSnowman)
-            //    .ControlsMasterPower(airOlaf)
-            //    .ControlsMasterPower(laser)
+                .ControlsMasterPower(airR2D2)
+                .ControlsMasterPower(laser);
             //    .ControlsMasterPower(airSanta1)
             //    .ControlsMasterPower(airR2D2);
             ////    .ControlsMasterPower(airSanta);
@@ -266,11 +268,13 @@ namespace Animatroller.Scenes
 //            buttonTestInflatables.WhenOutputChanges(x => airReindeer.Value = x);
             buttonTestButton.WhenOutputChanges(x =>
             {
-//                lightNet8.SetBrightness(x ? 1 : 0);
+//                airR2D2.SetValue(x);
             });
 
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, reverse: true), SacnUniverseLED50, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniverseLED100, 1);
+
+            acnOutput.Connect(new Physical.Pixel1D(pixelsTree, 0, 50), SacnUniverseLEDTree50, 1);
 
             var pixelMapping2D = Framework.Utility.PixelMapping.GeneratePixelMapping(20, 10, pixelOrder: Framework.Utility.PixelOrder.HorizontalSnakeBottomLeft);
             acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrix, 1);
@@ -279,7 +283,7 @@ namespace Animatroller.Scenes
 
             //acnOutput.Connect(new Physical.GenericDimmer(airOlaf, 10), SacnUniverseDMX);
             acnOutput.Connect(new Physical.GenericDimmer(airReindeerBig, 10), SacnUniverseLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(airR2D2, 11), SacnUniverseDMX);
+            acnOutput.Connect(new Physical.GenericDimmer(airR2D2, 33), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 96), SacnUniverseDMX);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 97), SacnUniverseDMX);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 98), SacnUniverseDMX);
@@ -304,7 +308,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 25), SacnUniverseRenard18);
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs3, 2), SacnUniverseRenard18);
 
-            //acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 16), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 37), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 10), SacnUniverseRenardBig);
             //acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 11), SacnUniverseRenardBig);
             //acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 19), SacnUniverseRenardBig);
@@ -395,7 +399,6 @@ namespace Animatroller.Scenes
                     lightStairs2.SetBrightness(1);
                     lightStairs3.SetBrightness(1);
                     lightReindeerBig.SetBrightness(1);
-                    laser.SetValue(true);
                     pulsatingEffect4.Start();
                     //lightR2D2.SetBrightness(1, i.Token);
                     //lightOlaf.SetBrightness(1, i.Token);
@@ -561,7 +564,7 @@ namespace Animatroller.Scenes
                 .RunAction(i =>
                 {
                     pulsatingEffect1.Start();
-                    audio1.PlayNewEffect("WarmHugs.wav", 0.0, 1.0);
+                    audioLedmx.PlayNewEffect("WarmHugs.wav", 0.0, 1.0);
                     i.WaitFor(S(10));
                     pulsatingEffect1.Stop();
                 });
@@ -570,9 +573,9 @@ namespace Animatroller.Scenes
                 .RunAction(i =>
                 {
                     pulsatingEffect2.Start();
-                    audio1.PlayNewEffect("Im C3PO.wav", 1.0, 0.0);
+                    audioLedmx.PlayNewEffect("Im C3PO.wav", 1.0, 0.0);
                     i.WaitFor(S(4));
-                    audio1.PlayNewEffect("Processing R2D2.wav", 0.5, 0.0);
+                    audioLedmx.PlayNewEffect("Processing R2D2.wav", 0.5, 0.0);
                     i.WaitFor(S(5));
                     pulsatingEffect2.Stop();
                 });

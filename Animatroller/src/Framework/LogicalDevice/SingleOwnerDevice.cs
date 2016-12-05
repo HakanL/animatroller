@@ -61,6 +61,11 @@ namespace Animatroller.Framework.LogicalDevice
             });
         }
 
+        protected void RefreshOutput()
+        {
+            this.outputChanged.OnNext(CurrentData);
+        }
+
         public override void SetInitialState()
         {
             BuildDefaultData(this.currentData);
@@ -96,6 +101,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.currentData; }
         }
 
+        [Obsolete]
         protected override void UpdateOutput()
         {
             // Don't think we need this any more

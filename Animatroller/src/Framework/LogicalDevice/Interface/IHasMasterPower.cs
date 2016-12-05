@@ -13,5 +13,7 @@ namespace Animatroller.Framework.LogicalDevice
     public interface IHasMasterPower
     {
         IObserver<bool> InputMasterPower { get; }
+
+        bool MasterPower { get; }
     }
 }

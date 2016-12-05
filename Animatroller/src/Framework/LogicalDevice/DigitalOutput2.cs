@@ -47,6 +47,13 @@ namespace Animatroller.Framework.LogicalDevice
                     UpdateOutput();
                 }
             });
+
+            OutputChanged.Subscribe(x =>
+            {
+                bool? power = x.GetValue<bool>(DataElements.Power);
+                if (power.HasValue)
+                    this.outputValue.OnNext(power.Value && MasterPower);
+            });
         }
 
         public override void BuildDefaultData(IData data)
@@ -91,13 +98,6 @@ namespace Animatroller.Framework.LogicalDevice
         public void SetValue(bool value, IControlToken token = null)
         {
             SetData(token, Utils.AdditionalData(DataElements.Power, value));
-        }
-
-        protected override void UpdateOutput()
-        {
-            // Doesn't seem to use the new IData interface
-            //FIXME            base.UpdateOutput();
-            this.outputValue.OnNext(this.currentValue && this.MasterPower);
         }
     }
 }

@@ -92,6 +92,8 @@ namespace Animatroller.Scenes
                 simForm.Show();
                 simForm.FormClosing += (sender, e) =>
                     {
+                        simForm.PendingClose = true;
+
                         // Do this on a separate thread so it won't block the Main UI thread
                         var stopTask = new Task(() => Executor.Current.Stop());
                         stopTask.Start();

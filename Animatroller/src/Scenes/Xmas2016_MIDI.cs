@@ -24,10 +24,8 @@ namespace Animatroller.Scenes
 
             midiAkai.Note(midiChannel, 36).Subscribe(x =>
             {
-                lightNet4.SetBrightness(x ? 1 : 0);
-//                if (x)
-//                    audioHiFi.PlayEffect("242004__junkfood2121__fart-01.wav");
-//                    subOlaf.Run();
+                if (x)
+                    subOlaf.Run();
             });
 
             midiAkai.Note(midiChannel, 37).Subscribe(x =>

@@ -55,6 +55,8 @@ namespace Animatroller.Simulator
             this.senderTask.Start();
         }
 
+        public bool PendingClose { get; set; }
+
         public void AddUpdateAction(Action action)
         {
             lock (this.updateActions)
@@ -233,6 +235,9 @@ namespace Animatroller.Simulator
 
                     stateMachine.StateChangedString += (sender, e) =>
                     {
+                        if (PendingClose)
+                            return;
+
                         this.UIThread(delegate
                         {
                             if (string.IsNullOrEmpty(e.NewState))
@@ -375,6 +380,9 @@ namespace Animatroller.Simulator
 
             var device = new Animatroller.Framework.PhysicalDevice.DigitalOutput(x =>
             {
+                if (PendingClose)
+                    return;
+
                 this.UIThread(delegate
                 {
                     control.On = x;

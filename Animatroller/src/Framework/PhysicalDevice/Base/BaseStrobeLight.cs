@@ -17,9 +17,9 @@ namespace Animatroller.Framework.PhysicalDevice
         {
         }
 
-        protected override void SetFromIData(IData data)
+        protected override void SetFromIData(ILogicalDevice logicalDevice, IData data)
         {
-            base.SetFromIData(data);
+            base.SetFromIData(logicalDevice, data);
 
             object value;
             if (data.TryGetValue(DataElements.StrobeSpeed, out value))

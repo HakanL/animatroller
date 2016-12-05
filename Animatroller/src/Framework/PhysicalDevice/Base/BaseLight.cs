@@ -14,12 +14,18 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             this.colorBrightness = new ColorBrightness(Color.White, 0.0);
 
-            logicalDevice.Output.Subscribe(x =>
+            var sendsData = logicalDevice as ISendsData;
+            if (sendsData != null)
             {
-                this.colorBrightness.Brightness = x ? 1.0 : 0.0;
+                sendsData.OutputChanged.Subscribe(x =>
+                {
+                    SetFromIData(logicalDevice, x);
 
-                Output();
-            });
+                    Output();
+                });
+
+                SetFromIData(logicalDevice, sendsData.CurrentData);
+            }
         }
 
         public BaseLight(IApiVersion3 logicalDevice)
@@ -32,12 +38,12 @@ namespace Animatroller.Framework.PhysicalDevice
             {
                 sendsData.OutputChanged.Subscribe(x =>
                 {
-                    SetFromIData(x);
+                    SetFromIData(logicalDevice, x);
 
                     Output();
                 });
 
-                SetFromIData(sendsData.CurrentData);
+                SetFromIData(logicalDevice, sendsData.CurrentData);
             }
 
             Executor.Current.Blackout.Subscribe(_ => Output());
@@ -46,12 +52,22 @@ namespace Animatroller.Framework.PhysicalDevice
 
         protected abstract void Output();
 
-        protected virtual void SetFromIData(IData data)
+        protected virtual void SetFromIData(ILogicalDevice logicalDevice, IData data)
         {
             object value;
+            bool masterPower = true;
+            var masterPowerDevice = logicalDevice as IHasMasterPower;
+            if (masterPowerDevice != null)
+                masterPower = masterPowerDevice.MasterPower;
 
             if (data.TryGetValue(DataElements.Brightness, out value))
-                this.colorBrightness.Brightness = (double)value;
+                this.colorBrightness.Brightness = (double)value * (masterPower ? 1 : 0);
+            else
+            {
+                bool? power = data.GetValue<bool>(DataElements.Power);
+                if (power.HasValue)
+                    this.colorBrightness.Brightness = (power.Value && masterPower) ? 1 : 0;
+            }
 
             if (data.TryGetValue(DataElements.Color, out value))
                 this.colorBrightness.Color = (Color)value;

@@ -413,6 +413,9 @@ namespace Animatroller.Framework
             foreach (var scene in this.scenes)
                 scene.Stop();
 
+            foreach (var device in this.devices.OfType<LogicalDevice.IHasMasterPower>())
+                device.InputMasterPower.OnNext(false);
+
             foreach (var runnable in this.runnable)
                 runnable.Stop();
 

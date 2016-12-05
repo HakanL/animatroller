@@ -70,6 +70,8 @@ namespace Animatroller.Framework
         string CreationId { get; }
 
         IData Copy();
+
+        T? GetValue<T>(DataElements dataElement) where T : struct;
     }
 
     [Obsolete]

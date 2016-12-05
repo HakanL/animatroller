@@ -22,7 +22,7 @@ namespace Animatroller.Framework.LogicalDevice
                 {
                     this.currentMasterPower = x;
 
-                    UpdateOutput();
+                    RefreshOutput();
                 }
             });
         }
@@ -32,7 +32,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.inputMasterPower; }
         }
 
-        protected bool MasterPower
+        public bool MasterPower
         {
             get { return this.currentMasterPower; }
         }

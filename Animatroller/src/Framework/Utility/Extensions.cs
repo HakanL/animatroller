@@ -110,10 +110,10 @@ namespace Animatroller.Framework.Extensions
             return subject.MostRecent(defaultValue).First();
         }
 
-        public static void ConnectTo<T>(this Animatroller.Framework.LogicalDevice.ILogicalOutputDevice<T> device, IObserver<T> component)
-        {
-            device.Output.Subscribe(component);
-        }
+        //public static void ConnectTo<T>(this Animatroller.Framework.LogicalDevice.ILogicalOutputDevice<T> device, IObserver<T> component)
+        //{
+        //    device.Output.Subscribe(component);
+        //}
 
         public static void WhenOutputChanges<T>(this Animatroller.Framework.LogicalDevice.ILogicalOutputDevice<T> device, Action<T> onNext)
         {
