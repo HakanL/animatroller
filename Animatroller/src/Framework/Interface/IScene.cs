@@ -11,5 +11,7 @@ namespace Animatroller.Framework
         void Run();
 
         void Stop();
+
+        bool Initialized { get; set; }
     }
 }

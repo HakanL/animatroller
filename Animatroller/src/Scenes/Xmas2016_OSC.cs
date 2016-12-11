@@ -19,6 +19,15 @@ namespace Animatroller.Scenes
     {
         public void ConfigureOSC()
         {
+            oscServer.RegisterActionSimple<double>("/HazerFan/x", (msg, data) =>
+            {
+                hazerFanSpeed.SetBrightness(data);
+            });
+
+            oscServer.RegisterActionSimple<double>("/HazerHaze/x", (msg, data) =>
+            {
+                hazerHazeOutput.SetBrightness(data);
+            });
         }
     }
 }

@@ -236,7 +236,8 @@ namespace Animatroller.Framework.Effect
                 {
                     foundDevice.AdditionalData = additionalData.GenerateIData();
 
-                    foundDevice.Observer.SetDataFromIData(foundDevice.AdditionalData);
+                    if (foundDevice.Observer != null)
+                        foundDevice.Observer.SetDataFromIData(foundDevice.AdditionalData);
                 }
             }
         }

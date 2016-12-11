@@ -394,7 +394,10 @@ namespace Animatroller.Framework
             }
 
             foreach (var scene in this.scenes)
+            {
+                scene.Initialized = true;
                 scene.Run();
+            }
 
             return this;
         }

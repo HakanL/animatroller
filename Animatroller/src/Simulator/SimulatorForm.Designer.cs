@@ -38,7 +38,7 @@
             this.flowLayoutPanelLights.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanelLights.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanelLights.Name = "flowLayoutPanelLights";
-            this.flowLayoutPanelLights.Size = new System.Drawing.Size(1179, 579);
+            this.flowLayoutPanelLights.Size = new System.Drawing.Size(1307, 769);
             this.flowLayoutPanelLights.TabIndex = 4;
             // 
             // updateTimer
@@ -48,9 +48,9 @@
             // 
             // SimulatorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1179, 579);
+            this.ClientSize = new System.Drawing.Size(1307, 769);
             this.Controls.Add(this.flowLayoutPanelLights);
             this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Name = "SimulatorForm";

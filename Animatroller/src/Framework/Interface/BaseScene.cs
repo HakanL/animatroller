@@ -11,6 +11,7 @@ namespace Animatroller.Framework
     {
         protected static Logger log = LogManager.GetCurrentClassLogger();
         protected static Random random = new Random();
+        protected bool initialized = false;
 
         //protected HashFile.HashFile hashFile;
 
@@ -18,6 +19,12 @@ namespace Animatroller.Framework
         {
             //this.hashFile = new HashFile.HashFile();
             //this.hashFile.Initialize(this.GetType().Name, 50, 100);
+        }
+
+        public bool Initialized
+        {
+            get { return this.initialized; }
+            set { this.initialized = value; }
         }
 
         protected static TimeSpan S(double seconds)
