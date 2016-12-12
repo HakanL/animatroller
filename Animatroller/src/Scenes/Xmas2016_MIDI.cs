@@ -32,11 +32,14 @@ namespace Animatroller.Scenes
 
             midiAkai.Note(midiChannel, 37).Subscribe(x =>
             {
-                //                lightFlood7.SetColor(Color.Red, x ? 1 : 0);
+                if (x)
+                    stateMachine.GoToState(States.Music1);
             });
 
             midiAkai.Note(midiChannel, 38).Subscribe(x =>
             {
+                if (x)
+                    stateMachine.GoToState(States.Music2);
             });
 
             midiAkai.Note(midiChannel, 39).Subscribe(x =>

@@ -101,7 +101,7 @@ namespace Animatroller.Framework.Import
                     }};
 
                 case "twinkle":
-                    if(!string.IsNullOrEmpty(effect.intensity))
+                    if (!string.IsNullOrEmpty(effect.intensity))
                         return new List<ChannelEffect>() { new TwinkleChannelEffect
                         {
                             StartMs = startMs,
@@ -178,6 +178,25 @@ namespace Animatroller.Framework.Import
             {
                 device.SetBrightness(Brightness, token);
             }
+
+            public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
+            {
+                var currentColor = device.Color;
+                switch (deviceType)
+                {
+                    case ChannelEffectInstance.DeviceType.ColorR:
+                        device.SetColor(Color.FromArgb((int)(Brightness * 255), currentColor.G, currentColor.B), 1, token);
+                        break;
+
+                    case ChannelEffectInstance.DeviceType.ColorG:
+                        device.SetColor(Color.FromArgb(currentColor.R, (int)(Brightness * 255), currentColor.B), 1, token);
+                        break;
+
+                    case ChannelEffectInstance.DeviceType.ColorB:
+                        device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(Brightness * 255)), 1, token);
+                        break;
+                }
+            }
         }
 
         protected class FadeChannelEffect : ChannelEffectRange
@@ -190,6 +209,28 @@ namespace Animatroller.Framework.Import
             {
                 Executor.Current.MasterEffect.Fade(device, StartBrightness, EndBrightness, DurationMs, token: token);
             }
+
+            public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
+            {
+                Executor.Current.MasterEffect.Fade(new LogicalDevice.VirtualDevice((b, t) =>
+                {
+                    var currentColor = device.Color;
+                    switch (deviceType)
+                    {
+                        case ChannelEffectInstance.DeviceType.ColorR:
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, t);
+                            break;
+
+                        case ChannelEffectInstance.DeviceType.ColorG:
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, t);
+                            break;
+
+                        case ChannelEffectInstance.DeviceType.ColorB:
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, t);
+                            break;
+                    }
+                }), StartBrightness, EndBrightness, DurationMs, token: token);
+            }
         }
 
         protected class ShimmerChannelEffect : ChannelEffectRange
@@ -197,6 +238,28 @@ namespace Animatroller.Framework.Import
             public override void Execute(IReceivesBrightness device, IControlToken token)
             {
                 Executor.Current.MasterEffect.Shimmer(device, 0, 1, DurationMs, token: token);
+            }
+
+            public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
+            {
+                Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice((b, t) =>
+                {
+                    var currentColor = device.Color;
+                    switch (deviceType)
+                    {
+                        case ChannelEffectInstance.DeviceType.ColorR:
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, t);
+                            break;
+
+                        case ChannelEffectInstance.DeviceType.ColorG:
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, t);
+                            break;
+
+                        case ChannelEffectInstance.DeviceType.ColorB:
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, t);
+                            break;
+                    }
+                }), 0, 1, DurationMs, token: token);
             }
         }
 
@@ -209,6 +272,28 @@ namespace Animatroller.Framework.Import
             public override void Execute(IReceivesBrightness device, IControlToken token)
             {
                 Executor.Current.MasterEffect.Shimmer(device, StartBrightness, EndBrightness, DurationMs, token: token);
+            }
+
+            public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
+            {
+                Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice((b, t) =>
+                {
+                    var currentColor = device.Color;
+                    switch (deviceType)
+                    {
+                        case ChannelEffectInstance.DeviceType.ColorR:
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, t);
+                            break;
+
+                        case ChannelEffectInstance.DeviceType.ColorG:
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, t);
+                            break;
+
+                        case ChannelEffectInstance.DeviceType.ColorB:
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, t);
+                            break;
+                    }
+                }), StartBrightness, EndBrightness, DurationMs, token: token);
             }
         }
     }

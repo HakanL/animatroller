@@ -94,7 +94,7 @@ namespace Animatroller.Scenes
         DigitalInput2 controlButtonWhite = new DigitalInput2();
         DigitalInput2 controlButtonGreen = new DigitalInput2();
         DigitalInput2 controlButtonBlack = new DigitalInput2();
-        DigitalInput2 controlButtonRed = new DigitalInput2();
+        DigitalInput2 controlButtonRed = new DigitalInput2(holdTimeout: S(5));
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 inShowMachine = new DigitalInput2();
@@ -132,7 +132,7 @@ namespace Animatroller.Scenes
         Dimmer3 lightStairs1 = new Dimmer3();
         Dimmer3 lightStairs2 = new Dimmer3();
         Dimmer3 lightStairs3 = new Dimmer3();
-        Dimmer3 lightTreeStar = new Dimmer3();
+        Dimmer3 lightTreeStars = new Dimmer3();
         StrobeColorDimmer3 lightPinSpot = new StrobeColorDimmer3();
 
         Dimmer3 lightSanta = new Dimmer3();
@@ -160,6 +160,7 @@ namespace Animatroller.Scenes
         Dimmer3 lightR2D2 = new Dimmer3();
         VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
         VirtualPixel1D3 pixelsTree = new VirtualPixel1D3(50);
+        VirtualPixel1D3 pixelsBetweenTrees = new VirtualPixel1D3(50);
         VirtualPixel1D3 pixelsHeart = new VirtualPixel1D3(50);
         VirtualPixel1D3 pixelsGround = new VirtualPixel1D3(50);
         VirtualPixel2D3 pixelsMatrix = new VirtualPixel2D3(20, 10);
@@ -172,12 +173,13 @@ namespace Animatroller.Scenes
         DigitalInput2 buttonStartInflatables = new DigitalInput2();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        DigitalInput2 buttonTestButton = new DigitalInput2();
+        DigitalInput2 buttonTest = new DigitalInput2();
+        DigitalInput2 buttonReset = new DigitalInput2();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 laserActivated = new DigitalInput2(persistState: true);
 
-        Import.LorImport2 lorFeelTheLight = new Import.LorImport2();
+        Import.LorImport2 lorChristmasCanon = new Import.LorImport2();
         Import.LorImport2 lorBelieve = new Import.LorImport2();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -227,13 +229,15 @@ namespace Animatroller.Scenes
             pulsatingEffectGeneral.ConnectTo(lightOlaf);
             pulsatingEffectGeneral.ConnectTo(lightR2D2);
             pulsatingEffectGeneral.ConnectTo(lightPoppy);
-            pulsatingEffectGeneral.ConnectTo(lightTreeStar);
+            pulsatingEffectGeneral.ConnectTo(lightTreeStars);
             pulsatingPinSpot.ConnectTo(lightPinSpot, Utils.AdditionalData(Color.Red));
             pulsatingEffectTree.ConnectTo(pixelsTree, Utils.AdditionalData(treeColors[0]));
+            pulsatingEffectTree.ConnectTo(pixelsBetweenTrees, Utils.AdditionalData(treeColors[0]));
             pulsatingEffectTree.NewIterationAction = i =>
                 {
                     Color newColor = treeColors[i % treeColors.Length];
                     pulsatingEffectTree.SetAdditionalData(pixelsTree, Utils.AdditionalData(newColor));
+                    pulsatingEffectTree.SetAdditionalData(pixelsBetweenTrees, Utils.AdditionalData(newColor));
                 };
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
@@ -252,12 +256,12 @@ namespace Animatroller.Scenes
             //expander4.DigitalInputs[5].Connect(inBlueButton);
             //expander4.DigitalInputs[4].Connect(inRedButton);
 
-            expanderControlPanel.DigitalInputs[0].Connect(controlButtonYellow);
-            expanderControlPanel.DigitalInputs[1].Connect(controlButtonBlue);
-            expanderControlPanel.DigitalInputs[2].Connect(controlButtonWhite);
-            expanderControlPanel.DigitalInputs[3].Connect(controlButtonGreen);
-            expanderControlPanel.DigitalInputs[4].Connect(controlButtonBlack);
-            expanderControlPanel.DigitalInputs[5].Connect(controlButtonRed);
+            expanderControlPanel.DigitalInputs[0].Connect(controlButtonYellow, true);
+            expanderControlPanel.DigitalInputs[1].Connect(controlButtonBlue, true);
+            expanderControlPanel.DigitalInputs[2].Connect(controlButtonWhite, true);
+            expanderControlPanel.DigitalInputs[3].Connect(controlButtonGreen, true);
+            expanderControlPanel.DigitalInputs[4].Connect(controlButtonBlack, true);
+            expanderControlPanel.DigitalInputs[5].Connect(controlButtonRed, true);
 
             expanderLedmx.Connect(audioLedmx);
             expanderHiFi.Connect(audioHiFi);
@@ -315,21 +319,23 @@ namespace Animatroller.Scenes
                 laser.SetValue(x);
             });
 
-            buttonTestButton.WhenOutputChanges(x =>
+            buttonTest.WhenOutputChanges(x =>
             {
-                lightReindeers.SetBrightness(x ? 1 : 0);
-                //airSnowman.SetValue(x);
-                //if (x)
-                //    //                    expanderVideo1.SendSerial(0, new byte[] { 0x05 });
-                //    stateMachine.GoToState(States.Music2);
+                //                pixelsBetweenTrees.Inject(Color.Red);
+            });
+
+            buttonReset.WhenOutputChanges(x =>
+            {
+                if (x)
+                    stateMachine.GoToDefaultState();
             });
 
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, reverse: true), SacnUniverseLED50, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniverseLED100, 1);
 
             acnOutput.Connect(new Physical.Pixel1D(pixelsTree, 0, 50), SacnUniverseLEDTree50, 1);
-            acnOutput.Connect(new Physical.Pixel1D(pixelsTree, 0, 50), SacnUniversePixelString1, 1);
-            acnOutput.Connect(new Physical.Pixel1D(pixelsTree, 0, 50), SacnUniversePixelString2, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsBetweenTrees, 0, 50), SacnUniversePixelString1, 1);
+            //acnOutput.Connect(new Physical.Pixel1D(pixelsTree, 0, 50), SacnUniversePixelString2, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsGround, 0, 50), SacnUniversePixelGround, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsHeart, 0, 50), SacnUniversePixelString4, 1);
 
@@ -377,7 +383,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 25), SacnUniverseRenard18);
             acnOutput.Connect(new Physical.GenericDimmer(lightStairs3, 2), SacnUniverseRenard18);
             acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(lightPinSpot, 20), SacnUniverseEdmx4);
-            acnOutput.Connect(new Physical.GenericDimmer(lightTreeStar, 39), SacnUniverseRenard18);
+            acnOutput.Connect(new Physical.GenericDimmer(lightTreeStars, 39), SacnUniverseRenard18);
 
             acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 37), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 11), SacnUniverseRenardBig);
@@ -624,25 +630,31 @@ namespace Animatroller.Scenes
                     });
 
             subMusic1
+                .AutoAddDevices()
                 .RunAction(ins =>
                     {
-                        audioHiFi.PlayTrack("08 Feel the Light.wav");
-                        ins.WaitFor(S(240));
+                        lightSantaPopup.SetBrightness(1);
+                        movingHead.SetColor(Color.Red, 1);
+                        lightXmasTree.SetValue(true);
+                        audioHiFi.PlayTrack("21. Christmas Canon Rock.wav");
+                        ins.WaitFor(S(300));
                     }).TearDown(i =>
                     {
-                        lorFeelTheLight.Stop();
+                        lorChristmasCanon.Stop();
                         audioHiFi.PauseTrack();
                     });
 
             subMusic2
+                .AutoAddDevices()
                 .RunAction(ins =>
                 {
-                    //                    snowMachine.SetValue(true);
+                    lightSantaPopup.SetBrightness(1);
+                    movingHead.SetColor(Color.Red, 1);
+                    lightXmasTree.SetValue(true);
                     audioHiFi.PlayTrack("T.P.E. - 04 - Josh Groban - Believe.flac");
                     ins.WaitFor(S(260));
                 }).TearDown(i =>
                 {
-                    //                    snowMachine.SetValue(false);
                     lorBelieve.Stop();
                     audioHiFi.PauseTrack();
                 });
@@ -786,19 +798,19 @@ namespace Animatroller.Scenes
 
             inOlaf.Output.Subscribe(x =>
             {
-                if (x && hours.IsOpen)
+                if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
                     subOlaf.Run();
             });
 
             inR2D2.Output.Subscribe(x =>
             {
-                if (x && hours.IsOpen)
+                if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
                     subR2D2.Run();
             });
 
             inPoppy.Output.Subscribe(x =>
             {
-                if (x && hours.IsOpen)
+                if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
                     subPoppy.Run();
             });
 
@@ -822,14 +834,20 @@ namespace Animatroller.Scenes
 
             controlButtonGreen.WhenOutputChanges(x =>
             {
-                if (x)
-                    audioHiFi.PlayEffect("WarmHugs.wav");
+                if (x && hours.IsOpen)
+                    stateMachine.GoToState(States.Music1);
             });
 
             controlButtonBlack.WhenOutputChanges(x =>
             {
                 if (x)
                     audioHiFi.PlayEffect("force1.wav");
+            });
+
+            controlButtonRed.IsHeld.Subscribe(x =>
+            {
+                if (x)
+                    this.stateMachine.GoToDefaultState();
             });
 
             controlButtonRed.WhenOutputChanges(x =>
@@ -871,8 +889,8 @@ namespace Animatroller.Scenes
             {
                 switch (e.FileName)
                 {
-                    case "08 Feel the Light.wav":
-                        lorFeelTheLight.Start(27830);
+                    case "21. Christmas Canon Rock.wav":
+                        lorChristmasCanon.Start();
                         break;
 
                     case "T.P.E. - 04 - Josh Groban - Believe.flac":
@@ -895,7 +913,7 @@ namespace Animatroller.Scenes
                 //    stateMachine.GoToState(States.Music1);
             });
 
-            ImportAndMapFeelTheLight();
+            ImportAndMapChristmasCanon();
             ImportAndMapBelieve();
 
             ConfigureMIDI();
@@ -915,75 +933,146 @@ namespace Animatroller.Scenes
             //}
         }
 
-        private void ImportAndMapFeelTheLight()
+        private void ImportAndMapChristmasCanon()
         {
-            /*            lorFeelTheLight.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Feel The Light, Jennifer Lopez.lms"));
+            lorChristmasCanon.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Cannon Rock104.lms"));
 
-                        lorFeelTheLight.Progress.Subscribe(x =>
-                        {
-                            log.Trace("Feel the Light {0:N0} ms", x);
-                        });
+            lorChristmasCanon.Progress.Subscribe(x =>
+            {
+                log.Trace("Christmas Canon {0:N0} ms", x);
+            });
 
-                        //            lorFeelTheLight.Dump();
+            //            lorChristmasCanon.Dump();
 
-                        lorFeelTheLight.MapDevice("Unit 01.7 arch 1.7", lightNet8);
-                        lorFeelTheLight.MapDevice("Unit 01.8 arch 2.1", lightNet7);
-                        lorFeelTheLight.MapDevice("Unit 01.9 arch 2.2", lightNet6);
-                        lorFeelTheLight.MapDevice("Unit 01.10 arch 2.3", lightNet5);
-                        lorFeelTheLight.MapDevice("Unit 01.11 arch 2.4", lightNet4);
-                        lorFeelTheLight.MapDevice("Unit 01.12 arch 2.5", lightNet3);
-                        lorFeelTheLight.MapDevice("Unit 01.13arch 2.6", lightNet2);
-                        lorFeelTheLight.MapDevice("Unit 01.14 arch 2.7", lightNet1);
+            lorChristmasCanon.MapDevice("Roof 1", pixelsGround, Utils.AdditionalData(Color.Red));
+            lorChristmasCanon.MapDevice("Roof 2", pixelsTree, Utils.AdditionalData(Color.Green));
+            lorChristmasCanon.MapDevice("Roof 3", pixelsHeart, Utils.AdditionalData(Color.Red));
 
-                        lorFeelTheLight.MapDevice("windows 01", lightStairs1);
-                        lorFeelTheLight.MapDevice("windows 02", lightStairs2);
+            lorChristmasCanon.ControlDevice(pixelsBetweenTrees);
+            lorChristmasCanon.MapDevice("Big Tree 1",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 0, 6, t)));
+            lorChristmasCanon.MapDevice("Big Tree 2",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 6, 6, t)));
+            lorChristmasCanon.MapDevice("Big Tree 3",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 12, 6, t)));
+            lorChristmasCanon.MapDevice("Big Tree 4",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 18, 6, t)));
+            lorChristmasCanon.MapDevice("Big Tree 5",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 24, 6, t)));
+            lorChristmasCanon.MapDevice("Big Tree 6",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 30, 6, t)));
+            lorChristmasCanon.MapDevice("Big Tree 7",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 36, 6, t)));
+            lorChristmasCanon.MapDevice("Big Tree 8",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 42, 6, t)));
 
-                        lorFeelTheLight.MapDevice("04.01 Sing tree outline", lightHat1);
-                        lorFeelTheLight.MapDevice("04.09  Sing tree outline", lightHat2);
-                        lorFeelTheLight.MapDevice("05.01 Sing tree outline", lightHat3);
-                        lorFeelTheLight.MapDevice("05.09 Sing tree Outline", lightHat4);
+            lorChristmasCanon.MapDevice("Sidewalk 1", lightNet1);
+            lorChristmasCanon.MapDevice("Sidewalk 2", lightNet2);
+            lorChristmasCanon.MapDevice("Sidewalk 3", lightNet3);
+            lorChristmasCanon.MapDevice("Sidewalk 4", lightNet4);
+            lorChristmasCanon.MapDevice("Sidewalk 5", lightNet5);
+            lorChristmasCanon.MapDevice("Sidewalk 6", lightNet6);
+            lorChristmasCanon.MapDevice("Sidewalk 7", lightNet7);
+            lorChristmasCanon.MapDevice("Sidewalk 8", lightNet8);
+            lorChristmasCanon.MapDevice("Sidewalk 1", lightNet9);
+            lorChristmasCanon.MapDevice("Sidewalk 2", lightNet10);
 
-                        lorFeelTheLight.MapDevice("03.15 candy cane lane", lightTopper1);
-                        lorFeelTheLight.MapDevice("03.13 deer rudolf", lightTopper2);
-                        lorFeelTheLight.MapDevice("03.10 house eve 01", lightRail1);
-                        lorFeelTheLight.MapDevice("03.11 house eve 02", lightRail2);
-                        lorFeelTheLight.MapDevice("03.12 house eve 03", lightReindeer1);
-                        lorFeelTheLight.MapDevice("03.14 deer 02", lightReindeer2);
+            lorChristmasCanon.MapDevice("Sidewalk 1", lightHat1);
+            lorChristmasCanon.MapDevice("Sidewalk 2", lightHat2);
+            lorChristmasCanon.MapDevice("Sidewalk 3", lightHat3);
+            lorChristmasCanon.MapDevice("Sidewalk 4", lightHat4);
 
-                        lorFeelTheLight.MapDevice("03.9 mini tree 08", lightWall1, Utils.AdditionalData(Color.Red));
-                        lorFeelTheLight.MapDevice("03.8 mini tree 07", lightWall2, Utils.AdditionalData(Color.Red));
-                        lorFeelTheLight.MapDevice("03.7 mini tree 06", lightWall3, Utils.AdditionalData(Color.Red));
-                        lorFeelTheLight.MapDevice("03.6 mini tree 05", lightSanta);
-                        lorFeelTheLight.MapDevice("03.5 mini tree 04", lightSnowman);
-                        lorFeelTheLight.MapDevice("03.4 mini tree 03", lightVader, Utils.AdditionalData(Color.Red));
-                        lorFeelTheLight.MapDevice("03.3 mini tree 02",
-                            new VirtualDevice((b, t) => saberPixels.SetColorRange(Color.Red, b, 0, 32, t)));
+            lorChristmasCanon.MapDevice("Bush Right", lightSanta);
+            lorChristmasCanon.MapDevice("Bush Right", lightTopper1);
+            lorChristmasCanon.MapDevice("Column Red Right", lightFlood1, Utils.AdditionalData(Color.Red));
+            lorChristmasCanon.MapDevice("Column Blue Right", lightFlood2, Utils.AdditionalData(Color.Blue));
+            lorChristmasCanon.MapDevice("Column Red Right", lightFlood5, Utils.AdditionalData(Color.Red));
+            lorChristmasCanon.MapDevice("Column Blue Right", lightFlood6, Utils.AdditionalData(Color.Blue));
+            lorChristmasCanon.MapDevice("Rail Right", lightStairRail1);
+            lorChristmasCanon.MapDevice("Column Red Left", lightFlood3, Utils.AdditionalData(Color.Red));
+            lorChristmasCanon.MapDevice("Column Blue Left", lightFlood4, Utils.AdditionalData(Color.Blue));
+            lorChristmasCanon.MapDevice("Column Blue Left", lightFlood7, Utils.AdditionalData(Color.Blue));
+            lorChristmasCanon.MapDevice("Rail Left", lightStairRail2);
+            lorChristmasCanon.MapDevice("Ice Cycles", lightHangingStar);
+            lorChristmasCanon.MapDevice("Ice Cycles", lightTreeStars);
+            lorChristmasCanon.MapDevice("Left Window April", lightOlaf);
+            lorChristmasCanon.MapDevice("Left Wreif", lightR2D2);
+            lorChristmasCanon.MapDevice("Left Wreif", lightStairs3);
+            lorChristmasCanon.MapDevice("Main Door", lightPoppy);
+            lorChristmasCanon.MapDevice("Right Wreif", lightReindeers);
+            lorChristmasCanon.MapDevice("Right Wreif", lightStairs2);
+            lorChristmasCanon.MapDevice("Right Window", lightReindeerBig);
+            lorChristmasCanon.MapDevice("Right Window", lightStairs1);
+            lorChristmasCanon.MapDevice("Bush Left", lightSnowman);
+            lorChristmasCanon.MapDevice("Bush Left", lightTopper2);
 
-                        lorFeelTheLight.ControlDevice(pixelsMatrix);
-                        lorFeelTheLight.ControlDevice(saberPixels);
-                        lorFeelTheLight.MapDevice("Unit 02.1 Mega tree 1",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 0, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.2 Mega tree 2",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 0, 1, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.3 Mege tree 3",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 2, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.4 Mega tree 4",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.9 Mega tree 9",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 4, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.10 Mega tree 10",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 0, 5, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.11 Mega tree 11",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 6, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.12 Mega tree 12",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 0, 7, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.15 Mega tree 15",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("Unit 02.16 Mega tree 16",
-                            new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, t)));
-                        lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.AdditionalData(Color.White));
+            lorChristmasCanon.ControlDevice(pixelsMatrix);
+            lorChristmasCanon.MapDevice("Tree 1",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.White, b, 0, 0, 3, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 2",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 3, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 3",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 4, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 4",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 5, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 5",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 6, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 6",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 7, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 7",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 8, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 8",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 9, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 01",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 10, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 02",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 11, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 03",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 12, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 04",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 13, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 05",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 14, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 06",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Red, b, 15, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 07",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 16, 0, 1, 10, t)));
+            lorChristmasCanon.MapDevice("Tree 08",
+                new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.White, b, 17, 0, 3, 10, t)));
 
-                        lorFeelTheLight.Prepare();*/
+            lorChristmasCanon.ControlDevice(pixelsRoofEdge);
+            lorChristmasCanon.MapDevice("Arch 1",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 0, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 2",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 10, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 3",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 20, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 4",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 30, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 5",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 40, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 6",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 50, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 7",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 60, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 8",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 70, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 9",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 80, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 10",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 90, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 11",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 100, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 12",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 110, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 13",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 120, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 14",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 130, 10, t)));
+            lorChristmasCanon.MapDevice("Arch 15",
+                new VirtualDevice((b, t) => pixelsRoofEdge.SetColorRange(Color.Red, b, 140, 10, t)));
+
+            lorChristmasCanon.Prepare();
         }
 
         private void ImportAndMapBelieve()
@@ -1012,33 +1101,40 @@ namespace Animatroller.Scenes
             lorBelieve.MapDevice("Yard 7", lightHat3);
             lorBelieve.MapDevice("Yard 8", lightHat4);
 
+            lorBelieve.MapDevice("Yard 9", lightTreeStars);
+            lorBelieve.MapDevice("Yard 10", lightReindeerBig);
+
             lorBelieve.MapDevice("House 1", lightR2D2);
             lorBelieve.MapDevice("House 2", lightOlaf);
+            lorBelieve.MapDevice("House 3", lightPoppy);
 
             lorBelieve.MapDevice("Wreath W", lightStairs1);
             lorBelieve.MapDevice("Wreath R", lightStairs2);
-            lorBelieve.MapDevice("Mega Star", lightHangingStar);
+            lorBelieve.MapDevice("Wreath W", lightStairs3);
+            lorBelieve.MapDevice("Wreath W", lightStairRail1);
+            lorBelieve.MapDevice("Wreath R", lightStairRail2);
 
-            //FIXME
-            lorBelieve.MapDevice("Floods B", lightFlood1, Utils.AdditionalData(Color.Blue));
-            lorBelieve.MapDevice("Floods G", lightFlood2, Utils.AdditionalData(Color.Green));
-            lorBelieve.MapDevice("Floods R", lightFlood3, Utils.AdditionalData(Color.Red));
+            lorBelieve.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood1);
+            lorBelieve.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood2);
+            lorBelieve.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood3);
+            lorBelieve.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood4);
+            lorBelieve.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood5);
+            lorBelieve.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood6);
+            lorBelieve.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood7);
 
             lorBelieve.MapDevice("Ferris Wheel 1", lightTopper1);
             lorBelieve.MapDevice("Ferris Wheel 2", lightTopper2);
             lorBelieve.MapDevice("Ferris Wheel 3", lightRail1);
             lorBelieve.MapDevice("Ferris Wheel 4", lightRail2);
             lorBelieve.MapDevice("Ferris Wheel 5", lightReindeers);
+            lorBelieve.MapDevice("Ferris Wheel 5", lightRail3);
+            lorBelieve.MapDevice("Ferris Wheel 6", lightRail4);
             lorBelieve.MapDevice("Ferris Wheel 7", lightSanta);
             lorBelieve.MapDevice("Ferris Wheel 8", lightSnowman);
 
-            //            lorBelieve.MapDevice("NATIVITY", lightVader, Utils.AdditionalData(Color.Red));
-            lorBelieve.MapDevice("NATIVITY", lightTreeStar);
-            lorBelieve.MapDevice("House 3",
-                new VirtualDevice((b, t) => saberPixels.SetColorRange(Color.Red, b, 0, 32, t)));
+            lorBelieve.MapDevice("NATIVITY", lightHangingStar);
 
             lorBelieve.ControlDevice(pixelsMatrix);
-            lorBelieve.ControlDevice(saberPixels);
             lorBelieve.MapDevice("Mega Tree 1",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 0, 20, 1, t)));
             lorBelieve.MapDevice("Mega Tree 2",
@@ -1059,9 +1155,45 @@ namespace Animatroller.Scenes
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, t)));
             lorBelieve.MapDevice("Mega Tree 10",
                 new VirtualDevice((b, t) => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, t)));
+
+            lorBelieve.ControlDevice(pixelsBetweenTrees);
+            lorBelieve.MapDevice("Mega Tree 1",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 0, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 2",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 3, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 3",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 6, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 4",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 9, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 5",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 12, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 6",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 15, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 7",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 18, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 8",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 21, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 9",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 24, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 10",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 27, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 11",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 30, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 12",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 33, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 13",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 36, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 14",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 39, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 15",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 42, 3, t)));
+            lorBelieve.MapDevice("Mega Tree 16",
+                new VirtualDevice((b, t) => pixelsBetweenTrees.SetColorRange(Color.Red, b, 45, 3, t)));
+
             lorBelieve.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
             lorBelieve.MapDevice("Mega Star", pixelsGround, Utils.AdditionalData(Color.White));
             lorBelieve.MapDevice("Mega Star", pixelsTree, Utils.AdditionalData(Color.Red));
+            lorBelieve.MapDevice("Mega Star", pixelsHeart, Utils.AdditionalData(Color.Red));
 
             lorBelieve.Prepare();
         }

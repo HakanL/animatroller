@@ -11,13 +11,13 @@ namespace Animatroller.Framework.Import
 {
     public abstract class BaseImporter2
     {
-        protected class DeviceController : Controller.BaseDeviceController<IReceivesBrightness>
+        protected class DeviceController : Controller.BaseDeviceController<IReceivesData>
         {
             public IPushDataController Observer { get; set; }
 
             public IData AdditionalData { get; set; }
 
-            public DeviceController(IReceivesBrightness device, IData additionalData)
+            public DeviceController(IReceivesData device, IData additionalData)
                 : base(device, 0)
             {
                 AdditionalData = additionalData;
@@ -72,15 +72,20 @@ namespace Animatroller.Framework.Import
         protected Dictionary<IChannelIdentity, ChannelData> channelData;
         //        private List<IChannelIdentity> channels;
         protected Dictionary<IChannelIdentity, HashSet<DeviceController>> mappedDevices;
-        protected Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>> mappedRgbDevices;
+        protected Dictionary<RGBChannelIdentity, HashSet<DeviceController>> mappedRgbDevices;
         protected HashSet<IControlledDevice> controlledDevices;
+        protected string name;
+        protected int priority;
 
-        public BaseImporter2()
+        public BaseImporter2(string name, int priority)
         {
+            this.name = name;
+            this.priority = priority;
+
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
             //            this.channels = new List<IChannelIdentity>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<DeviceController>>();
-            this.mappedRgbDevices = new Dictionary<RGBChannelIdentity, HashSet<IReceivesColor>>();
+            this.mappedRgbDevices = new Dictionary<RGBChannelIdentity, HashSet<DeviceController>>();
             this.controlledDevices = new HashSet<IControlledDevice>();
         }
 
@@ -165,12 +170,12 @@ namespace Animatroller.Framework.Import
                 log.Warn("Channel {0}/{1} is mapped, but has no effects", channelIdentity, channelData.Name);
         }
 
-        protected void InternalMapDevice(RGBChannelIdentity channelIdentity, IReceivesColor device)
+        protected void InternalMapDevice(RGBChannelIdentity channelIdentity, DeviceController device)
         {
-            HashSet<IReceivesColor> devices;
+            HashSet<DeviceController> devices;
             if (!mappedRgbDevices.TryGetValue(channelIdentity, out devices))
             {
-                devices = new HashSet<IReceivesColor>();
+                devices = new HashSet<DeviceController>();
                 mappedRgbDevices[channelIdentity] = devices;
             }
             devices.Add(device);

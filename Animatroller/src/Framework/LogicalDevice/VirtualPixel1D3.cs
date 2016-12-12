@@ -296,15 +296,19 @@ namespace Animatroller.Framework.LogicalDevice
                 length = this.pixelCount;
             else
             {
-                if (length.Value > this.pixelCount)
-                    length = this.pixelCount;
+                if (startPosition + length.Value > this.pixelCount)
+                    length = this.pixelCount - startPosition;
             }
+
+            var bitmap = (Bitmap)data[DataElements.PixelBitmap];
 
             lock (this.lockObject)
             {
-                var bitmap = (Bitmap)data[DataElements.PixelBitmap];
-                for (int i = 0; i < length.Value; i++)
-                    bitmap.SetPixel(startPosition + i, 0, injectColor);
+                using (var g = Graphics.FromImage(bitmap))
+                using (var b = new SolidBrush(injectColor))
+                {
+                    g.FillRectangle(b, startPosition, 0, length.Value, 1);
+                }
             }
 
             PushOutput(token);
