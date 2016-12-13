@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<channelConfig channelConfigFileVersion="4">
+	<channels>
+		<channel name="Whole Yard" color="15724527" deviceType="LOR" unit="1" circuit="1" savedIndex="0"/>
+		<channel name="Whole Yard" color="255" deviceType="LOR" unit="1" circuit="2" savedIndex="1"/>
+		<channel name="House 1" color="32768" deviceType="LOR" unit="1" circuit="3" savedIndex="2"/>
+		<channel name="House 2" color="16777215" deviceType="LOR" unit="1" circuit="4" savedIndex="3"/>
+		<channel name="House 3" color="255" deviceType="LOR" unit="1" circuit="5" savedIndex="4"/>
+		<channel name="Yard 1" color="9408399" deviceType="LOR" unit="1" circuit="6" savedIndex="5"/>
+		<channel name="Yard 2" color="9408399" deviceType="LOR" unit="1" circuit="7" savedIndex="6"/>
+		<channel name="Yard 3" color="9408399" deviceType="LOR" unit="1" circuit="8" savedIndex="7"/>
+		<channel name="Yard 4" color="9408399" deviceType="LOR" unit="1" circuit="9" savedIndex="8"/>
+		<channel name="Yard 5" color="9408399" deviceType="LOR" unit="1" circuit="10" savedIndex="9"/>
+		<channel name="Yard 6" color="9408399" deviceType="LOR" unit="1" circuit="11" savedIndex="10"/>
+		<channel name="Yard 7" color="9408399" deviceType="LOR" unit="1" circuit="12" savedIndex="11"/>
+		<channel name="Yard 8" color="9408399" deviceType="LOR" unit="1" circuit="13" savedIndex="12"/>
+		<channel name="Yard 9" color="9408399" deviceType="LOR" unit="1" circuit="14" savedIndex="13"/>
+		<channel name="Yard 10" color="9408399" deviceType="LOR" unit="1" circuit="15" savedIndex="14"/>
+		<channel name="Mega Star" color="65535" deviceType="LOR" unit="1" circuit="16" savedIndex="15"/>
+		<channel name="Mega Tree 1" color="16777215" deviceType="LOR" unit="2" circuit="16" savedIndex="16"/>
+		<channel name="Mega Tree 2" color="16777215" deviceType="LOR" unit="2" circuit="15" savedIndex="17"/>
+		<channel name="Mega Tree 3" color="16777215" deviceType="LOR" unit="2" circuit="14" savedIndex="18"/>
+		<channel name="Mega Tree 4" color="16777215" deviceType="LOR" unit="2" circuit="13" savedIndex="19"/>
+		<channel name="Mega Tree 5" color="16777215" deviceType="LOR" unit="2" circuit="12" savedIndex="20"/>
+		<channel name="Mega Tree 6" color="16777215" deviceType="LOR" unit="2" circuit="11" savedIndex="21"/>
+		<channel name="Mega Tree 7" color="16777215" deviceType="LOR" unit="2" circuit="10" savedIndex="22"/>
+		<channel name="Mega Tree 8" color="16777215" deviceType="LOR" unit="2" circuit="9" savedIndex="23"/>
+		<channel name="Mega Tree 9" color="16777215" deviceType="LOR" unit="2" circuit="8" savedIndex="24"/>
+		<channel name="Mega Tree 10" color="16777215" deviceType="LOR" unit="2" circuit="7" savedIndex="25"/>
+		<channel name="Mega Tree 11" color="16777215" deviceType="LOR" unit="2" circuit="6" savedIndex="26"/>
+		<channel name="Mega Tree 12" color="16777215" deviceType="LOR" unit="2" circuit="5" savedIndex="27"/>
+		<channel name="Mega Tree 13" color="16777215" deviceType="LOR" unit="2" circuit="4" savedIndex="28"/>
+		<channel name="Mega Tree 14" color="16777215" deviceType="LOR" unit="2" circuit="3" savedIndex="29"/>
+		<channel name="Mega Tree 15" color="16777215" deviceType="LOR" unit="2" circuit="2" savedIndex="30"/>
+		<channel name="Mega Tree 16" color="16777215" deviceType="LOR" unit="2" circuit="1" savedIndex="31"/>
+		<channel name="Wreath W" color="15724527" deviceType="LOR" unit="3" circuit="1" savedIndex="32"/>
+		<channel name="Wreath R" color="255" deviceType="LOR" unit="3" circuit="2" savedIndex="33"/>
+		<channel name="Wreath W" color="15724527" deviceType="LOR" unit="3" circuit="3" savedIndex="34"/>
+		<channel name="Wreath R" color="255" deviceType="LOR" unit="3" circuit="4" savedIndex="35"/>
+		<channel name="Ferris Wheel 1" color="8421504" deviceType="LOR" unit="3" circuit="5" savedIndex="36"/>
+		<channel name="Ferris Wheel 2" color="8421504" deviceType="LOR" unit="3" circuit="6" savedIndex="37"/>
+		<channel name="Ferris Wheel 3" color="8421504" deviceType="LOR" unit="3" circuit="7" savedIndex="38"/>
+		<channel name="Ferris Wheel 4" color="8421504" deviceType="LOR" unit="3" circuit="8" savedIndex="39"/>
+		<channel name="Ferris Wheel 5" color="8421504" deviceType="LOR" unit="3" circuit="9" savedIndex="40"/>
+		<channel name="Ferris Wheel 6" color="8421504" deviceType="LOR" unit="3" circuit="10" savedIndex="41"/>
+		<channel name="Ferris Wheel 7" color="8421504" deviceType="LOR" unit="3" circuit="11" savedIndex="42"/>
+		<channel name="Ferris Wheel 8" color="8421504" deviceType="LOR" unit="3" circuit="12" savedIndex="43"/>
+		<channel name="Floods B" color="16711680" deviceType="LOR" unit="3" circuit="13" savedIndex="44"/>
+		<channel name="Floods G" color="32768" deviceType="LOR" unit="3" circuit="14" savedIndex="45"/>
+		<channel name="Floods R" color="255" deviceType="LOR" unit="3" circuit="15" savedIndex="46"/>
+		<channel name="Floods W" color="16777215" deviceType="LOR" unit="3" circuit="16" savedIndex="47"/>
+		<channel name="Strobes" color="16711935" deviceType="LOR" unit="4" circuit="1" savedIndex="48"/>
+		<channel name="NATIVITY" color="65535" deviceType="LOR" unit="4" circuit="2" savedIndex="49"/>
+		<channel name="Street Bush 1" color="16711680" deviceType="LOR" unit="4" circuit="3" savedIndex="50"/>
+		<channel name="Street Bush 2" color="16711680" deviceType="LOR" unit="4" circuit="4" savedIndex="51"/>
+		<channel name="Street Bush 3" color="16711680" deviceType="LOR" unit="4" circuit="5" savedIndex="52"/>
+		<channel name="Street Bush 4" color="16711680" deviceType="LOR" unit="4" circuit="6" savedIndex="53"/>
+		<channel name="Street Bush 5" color="16711680" deviceType="LOR" unit="4" circuit="7" savedIndex="54"/>
+		<channel name="Street Bush 6" color="16711680" deviceType="LOR" unit="4" circuit="8" savedIndex="55"/>
+		<channel name="Street Bush 1" color="16777215" deviceType="LOR" unit="4" circuit="9" savedIndex="56"/>
+		<channel name="Street Bush 2" color="16777215" deviceType="LOR" unit="4" circuit="10" savedIndex="57"/>
+		<channel name="Street Bush 3" color="16777215" deviceType="LOR" unit="4" circuit="11" savedIndex="58"/>
+		<channel name="Street Bush 4" color="16777215" deviceType="LOR" unit="4" circuit="12" savedIndex="59"/>
+		<channel name="Street Bush 5" color="16777215" deviceType="LOR" unit="4" circuit="13" savedIndex="60"/>
+		<channel name="Street Bush 6" color="16777215" deviceType="LOR" unit="4" circuit="14" savedIndex="61"/>
+		<channel name="Other" color="16711680" deviceType="LOR" unit="4" circuit="15" savedIndex="62"/>
+		<channel name="Other" color="16711680" deviceType="LOR" unit="4" circuit="16" savedIndex="63"/>
+	</channels>
+	<tracks>
+		<track>
+			<channels>
+				<channel savedIndex="0"/>
+				<channel savedIndex="1"/>
+				<channel savedIndex="2"/>
+				<channel savedIndex="3"/>
+				<channel savedIndex="4"/>
+				<channel savedIndex="5"/>
+				<channel savedIndex="6"/>
+				<channel savedIndex="7"/>
+				<channel savedIndex="8"/>
+				<channel savedIndex="9"/>
+				<channel savedIndex="10"/>
+				<channel savedIndex="11"/>
+				<channel savedIndex="12"/>
+				<channel savedIndex="13"/>
+				<channel savedIndex="14"/>
+				<channel savedIndex="15"/>
+				<channel savedIndex="16"/>
+				<channel savedIndex="17"/>
+				<channel savedIndex="18"/>
+				<channel savedIndex="19"/>
+				<channel savedIndex="20"/>
+				<channel savedIndex="21"/>
+				<channel savedIndex="22"/>
+				<channel savedIndex="23"/>
+				<channel savedIndex="24"/>
+				<channel savedIndex="25"/>
+				<channel savedIndex="26"/>
+				<channel savedIndex="27"/>
+				<channel savedIndex="28"/>
+				<channel savedIndex="29"/>
+				<channel savedIndex="30"/>
+				<channel savedIndex="31"/>
+				<channel savedIndex="32"/>
+				<channel savedIndex="33"/>
+				<channel savedIndex="34"/>
+				<channel savedIndex="35"/>
+				<channel savedIndex="36"/>
+				<channel savedIndex="37"/>
+				<channel savedIndex="38"/>
+				<channel savedIndex="39"/>
+				<channel savedIndex="40"/>
+				<channel savedIndex="41"/>
+				<channel savedIndex="42"/>
+				<channel savedIndex="43"/>
+				<channel savedIndex="44"/>
+				<channel savedIndex="45"/>
+				<channel savedIndex="46"/>
+				<channel savedIndex="47"/>
+				<channel savedIndex="48"/>
+				<channel savedIndex="49"/>
+				<channel savedIndex="50"/>
+				<channel savedIndex="51"/>
+				<channel savedIndex="52"/>
+				<channel savedIndex="53"/>
+				<channel savedIndex="54"/>
+				<channel savedIndex="55"/>
+				<channel savedIndex="56"/>
+				<channel savedIndex="57"/>
+				<channel savedIndex="58"/>
+				<channel savedIndex="59"/>
+				<channel savedIndex="60"/>
+				<channel savedIndex="61"/>
+				<channel savedIndex="62"/>
+				<channel savedIndex="63"/>
+			</channels>
+		</track>
+	</tracks>
+	<animation rows="62" columns="90" image="" hideControls="false">
+		<row index="2">
+			<column index="73" channel="0"/>
+			<column index="74" channel="0"/>
+			<column index="75" channel="0"/>
+			<column index="76" channel="0"/>
+			<column index="77" channel="0"/>
+			<column index="78" channel="0"/>
+			<column index="79" channel="0"/>
+			<column index="80" channel="0"/>
+			<column index="81" channel="0"/>
+			<column index="82" channel="0"/>
+		</row>
+		<row index="3">
+			<column index="71" channel="0"/>
+			<column index="72" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="74" channel="0"/>
+			<column index="75" channel="0"/>
+			<column index="76" channel="0"/>
+			<column index="77" channel="0"/>
+			<column index="78" channel="0"/>
+			<column index="79" channel="0"/>
+			<column index="80" channel="0"/>
+			<column index="81" channel="0"/>
+			<column index="82" channel="0"/>
+			<column index="83" channel="0"/>
+			<column index="84" channel="0"/>
+		</row>
+		<row index="4">
+			<column index="71" channel="0"/>
+			<column index="72" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="74" channel="0"/>
+			<column index="75" channel="0"/>
+			<column index="76" channel="0"/>
+			<column index="77" channel="0"/>
+			<column index="78" channel="0"/>
+			<column index="79" channel="0"/>
+			<column index="80" channel="0"/>
+			<column index="81" channel="0"/>
+			<column index="82" channel="0"/>
+			<column index="83" channel="0"/>
+			<column index="84" channel="0"/>
+		</row>
+		<row index="5">
+			<column index="70" channel="0"/>
+			<column index="71" channel="0"/>
+			<column index="72" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="74" channel="0"/>
+			<column index="75" channel="0"/>
+			<column index="76" channel="0"/>
+			<column index="77" channel="0"/>
+			<column index="78" channel="0"/>
+			<column index="79" channel="0"/>
+			<column index="80" channel="0"/>
+			<column index="81" channel="0"/>
+			<column index="82" channel="0"/>
+			<column index="83" channel="0"/>
+			<column index="84" channel="0"/>
+		</row>
+		<row index="6">
+			<column index="43" channel="4"/>
+			<column index="44" channel="4"/>
+			<column index="70" channel="0"/>
+			<column index="71" channel="0"/>
+			<column index="72" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="74" channel="0"/>
+			<column index="75" channel="0"/>
+			<column index="76" channel="0"/>
+			<column index="77" channel="0"/>
+			<column index="78" channel="0"/>
+			<column index="79" channel="0"/>
+			<column index="80" channel="0"/>
+			<column index="81" channel="0"/>
+			<column index="82" channel="0"/>
+			<column index="83" channel="0"/>
+			<column index="84" channel="0"/>
+		</row>
+		<row index="7">
+			<column index="41" channel="4"/>
+			<column index="42" channel="4"/>
+			<column index="43" channel="3"/>
+			<column index="44" channel="3"/>
+			<column index="45" channel="4"/>
+			<column index="46" channel="4"/>
+			<column index="69" channel="0"/>
+			<column index="70" channel="0"/>
+			<column index="71" channel="0"/>
+			<column index="72" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="74" channel="0"/>
+			<column index="82" channel="0"/>
+			<column index="83" channel="0"/>
+			<column index="84" channel="0"/>
+		</row>
+		<row index="8">
+			<column index="39" channel="4"/>
+			<column index="40" channel="4"/>
+			<column index="41" channel="3"/>
+			<column index="42" channel="3"/>
+			<column index="45" channel="3"/>
+			<column index="46" channel="3"/>
+			<column index="47" channel="4"/>
+			<column index="48" channel="4"/>
+			<column index="69" channel="0"/>
+			<column index="70" channel="0"/>
+			<column index="71" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="76" channel="0"/>
+			<column index="80" channel="0"/>
+			<column index="83" channel="0"/>
+		</row>
+		<row index="9">
+			<column index="37" channel="4"/>
+			<column index="38" channel="4"/>
+			<column index="39" channel="3"/>
+			<column index="40" channel="3"/>
+			<column index="47" channel="3"/>
+			<column index="48" channel="3"/>
+			<column index="49" channel="4"/>
+			<column index="50" channel="4"/>
+			<column index="69" channel="0"/>
+			<column index="70" channel="0"/>
+			<column index="71" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="76" channel="0"/>
+			<column index="80" channel="0"/>
+			<column index="83" channel="0"/>
+		</row>
+		<row index="10">
+			<column index="35" channel="4"/>
+			<column index="36" channel="4"/>
+			<column index="37" channel="3"/>
+			<column index="38" channel="3"/>
+			<column index="49" channel="3"/>
+			<column index="50" channel="3"/>
+			<column index="51" channel="4"/>
+			<column index="52" channel="4"/>
+			<column index="70" channel="0"/>
+			<column index="71" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="78" channel="0"/>
+			<column index="83" channel="0"/>
+		</row>
+		<row index="11">
+			<column index="33" channel="4"/>
+			<column index="34" channel="4"/>
+			<column index="35" channel="3"/>
+			<column index="36" channel="3"/>
+			<column index="51" channel="3"/>
+			<column index="52" channel="3"/>
+			<column index="53" channel="4"/>
+			<column index="54" channel="4"/>
+			<column index="70" channel="0"/>
+			<column index="71" channel="0"/>
+			<column index="73" channel="0"/>
+			<column index="83" channel="0"/>
+		</row>
+		<row index="12">
+			<column index="31" channel="4"/>
+			<column index="32" channel="4"/>
+			<column index="33" channel="3"/>
+			<column index="34" channel="3"/>
+			<column index="53" channel="3"/>
+			<column index="54" channel="3"/>
+			<column index="55" channel="4"/>
+			<column index="56" channel="4"/>
+			<column index="73" channel="0"/>
+			<column index="75" channel="1"/>
+			<column index="76" channel="1"/>
+			<column index="80" channel="1"/>
+			<column index="81" channel="1"/>
+			<column index="83" channel="0"/>
+		</row>
+		<row index="13">
+			<column index="29" channel="4"/>
+			<column index="30" channel="4"/>
+			<column index="31" channel="3"/>
+			<column index="32" channel="3"/>
+			<column index="55" channel="3"/>
+			<column index="56" channel="3"/>
+			<column index="57" channel="4"/>
+			<column index="58" channel="4"/>
+			<column index="73" channel="0"/>
+			<column index="75" channel="2"/>
+			<column index="76" channel="1"/>
+			<column index="77" channel="1"/>
+			<column index="78" channel="1"/>
+			<column index="79" channel="1"/>
+			<column index="80" channel="1"/>
+			<column index="81" channel="2"/>
+			<column index="83" channel="0"/>
+		</row>
+		<row index="14">
+			<column index="27" channel="4"/>
+			<column index="28" channel="4"/>
+			<column index="29" channel="3"/>
+			<column index="30" channel="3"/>
+			<column index="57" channel="3"/>
+			<column index="58" channel="3"/>
+			<column index="59" channel="4"/>
+			<column index="60" channel="4"/>
+			<column index="73" channel="0"/>
+			<column index="76" channel="2"/>
+			<column index="77" channel="2"/>
+			<column index="78" channel="2"/>
+			<column index="79" channel="2"/>
+			<column index="80" channel="2"/>
+			<column index="83" channel="0"/>
+		</row>
+		<row index="15">
+			<column index="25" channel="4"/>
+			<column index="26" channel="4"/>
+			<column index="27" channel="3"/>
+			<column index="28" channel="3"/>
+			<column index="59" channel="3"/>
+			<column index="60" channel="3"/>
+			<column index="61" channel="4"/>
+			<column index="62" channel="4"/>
+			<column index="74" channel="0"/>
+			<column index="82" channel="0"/>
+		</row>
+		<row index="16">
+			<column index="23" channel="4"/>
+			<column index="24" channel="4"/>
+			<column index="25" channel="3"/>
+			<column index="26" channel="3"/>
+			<column index="27" channel="4"/>
+			<column index="28" channel="4"/>
+			<column index="29" channel="4"/>
+			<column index="30" channel="4"/>
+			<column index="31" channel="4"/>
+			<column index="32" channel="4"/>
+			<column index="33" channel="4"/>
+			<column index="34" channel="4"/>
+			<column index="35" channel="4"/>
+			<column index="36" channel="4"/>
+			<column index="37" channel="4"/>
+			<column index="38" channel="4"/>
+			<column index="39" channel="4"/>
+			<column index="40" channel="4"/>
+			<column index="41" channel="4"/>
+			<column index="42" channel="4"/>
+			<column index="43" channel="4"/>
+			<column index="44" channel="4"/>
+			<column index="45" channel="4"/>
+			<column index="46" channel="4"/>
+			<column index="47" channel="4"/>
+			<column index="48" channel="4"/>
+			<column index="49" channel="4"/>
+			<column index="50" channel="4"/>
+			<column index="51" channel="4"/>
+			<column index="52" channel="4"/>
+			<column index="53" channel="4"/>
+			<column index="54" channel="4"/>
+			<column index="55" channel="4"/>
+			<column index="56" channel="4"/>
+			<column index="57" channel="4"/>
+			<column index="58" channel="4"/>
+			<column index="59" channel="4"/>
+			<column index="60" channel="4"/>
+			<column index="61" channel="3"/>
+			<column index="62" channel="3"/>
+			<column index="63" channel="4"/>
+			<column index="64" channel="4"/>
+			<column index="75" channel="0"/>
+			<column index="81" channel="0"/>
+		</row>
+		<row index="17">
+			<column index="23" channel="3"/>
+			<column index="24" channel="3"/>
+			<column index="25" channel="3"/>
+			<column index="26" channel="3"/>
+			<column index="27" channel="3"/>
+			<column index="28" channel="3"/>
+			<column index="29" channel="3"/>
+			<column index="30" channel="3"/>
+			<column index="31" channel="3"/>
+			<column index="32" channel="3"/>
+			<column index="33" channel="3"/>
+			<column index="34" channel="3"/>
+			<column index="35" channel="3"/>
+			<column index="36" channel="3"/>
+			<column index="37" channel="3"/>
+			<column index="38" channel="3"/>
+			<column index="39" channel="3"/>
+			<column index="40" channel="3"/>
+			<column index="41" channel="3"/>
+			<column index="42" channel="3"/>
+			<column index="43" channel="3"/>
+			<column index="44" channel="3"/>
+			<column index="45" channel="3"/>
+			<column index="46" channel="3"/>
+			<column index="47" channel="3"/>
+			<column index="48" channel="3"/>
+			<column index="49" channel="3"/>
+			<column index="50" channel="3"/>
+			<column index="51" channel="3"/>
+			<column index="52" channel="3"/>
+			<column index="53" channel="3"/>
+			<column index="54" channel="3"/>
+			<column index="55" channel="3"/>
+			<column index="56" channel="3"/>
+			<column index="57" channel="3"/>
+			<column index="58" channel="3"/>
+			<column index="59" channel="3"/>
+			<column index="60" channel="3"/>
+			<column index="61" channel="3"/>
+			<column index="62" channel="3"/>
+			<column index="63" channel="3"/>
+			<column index="64" channel="3"/>
+			<column index="76" channel="0"/>
+			<column index="77" channel="0"/>
+			<column index="78" channel="0"/>
+			<column index="79" channel="0"/>
+			<column index="80" channel="0"/>
+		</row>
+		<row index="20">
+			<column index="43" channel="16"/>
+		</row>
+		<row index="21">
+			<column index="39" channel="31"/>
+			<column index="43" channel="16"/>
+			<column index="47" channel="17"/>
+		</row>
+		<row index="22">
+			<column index="40" channel="31"/>
+			<column index="43" channel="16"/>
+			<column index="46" channel="17"/>
+			<column index="50" channel="18"/>
+		</row>
+		<row index="23">
+			<column index="37" channel="30"/>
+			<column index="40" channel="31"/>
+			<column index="43" channel="16"/>
+			<column index="46" channel="17"/>
+			<column index="49" channel="18"/>
+		</row>
+		<row index="24">
+			<column index="38" channel="30"/>
+			<column index="41" channel="31"/>
+			<column index="43" channel="16"/>
+			<column index="45" channel="17"/>
+			<column index="48" channel="18"/>
+		</row>
+		<row index="25">
+			<column index="35" channel="29"/>
+			<column index="39" channel="30"/>
+			<column index="41" channel="31"/>
+			<column index="43" channel="16"/>
+			<column index="45" channel="17"/>
+			<column index="47" channel="18"/>
+			<column index="51" channel="19"/>
+		</row>
+		<row index="26">
+			<column index="36" channel="29"/>
+			<column index="37" channel="29"/>
+			<column index="40" channel="30"/>
+			<column index="42" channel="31"/>
+			<column index="43" channel="16"/>
+			<column index="44" channel="17"/>
+			<column index="46" channel="18"/>
+			<column index="49" channel="19"/>
+			<column index="50" channel="19"/>
+		</row>
+		<row index="27">
+			<column index="38" channel="29"/>
+			<column index="39" channel="29"/>
+			<column index="41" channel="30"/>
+			<column index="42" channel="31"/>
+			<column index="43" channel="16"/>
+			<column index="44" channel="17"/>
+			<column index="45" channel="18"/>
+			<column index="47" channel="19"/>
+			<column index="48" channel="19"/>
+		</row>
+		<row index="28">
+			<column index="40" channel="29"/>
+			<column index="41" channel="29"/>
+			<column index="42" channel="30"/>
+			<column index="43" channel="15"/>
+			<column index="44" channel="18"/>
+			<column index="45" channel="19"/>
+			<column index="46" channel="19"/>
+		</row>
+		<row index="29">
+			<column index="34" channel="28"/>
+			<column index="35" channel="28"/>
+			<column index="36" channel="28"/>
+			<column index="37" channel="28"/>
+			<column index="38" channel="28"/>
+			<column index="39" channel="28"/>
+			<column index="40" channel="28"/>
+			<column index="41" channel="28"/>
+			<column index="42" channel="15"/>
+			<column index="43" channel="15"/>
+			<column index="44" channel="15"/>
+			<column index="45" channel="20"/>
+			<column index="46" channel="20"/>
+			<column index="47" channel="20"/>
+			<column index="48" channel="20"/>
+			<column index="49" channel="20"/>
+			<column index="50" channel="20"/>
+			<column index="51" channel="20"/>
+			<column index="52" channel="20"/>
+		</row>
+		<row index="30">
+			<column index="40" channel="27"/>
+			<column index="41" channel="27"/>
+			<column index="42" channel="26"/>
+			<column index="43" channel="15"/>
+			<column index="44" channel="22"/>
+			<column index="45" channel="21"/>
+			<column index="46" channel="21"/>
+		</row>
+		<row index="31">
+			<column index="38" channel="27"/>
+			<column index="39" channel="27"/>
+			<column index="41" channel="26"/>
+			<column index="42" channel="25"/>
+			<column index="43" channel="24"/>
+			<column index="44" channel="23"/>
+			<column index="45" channel="22"/>
+			<column index="47" channel="21"/>
+			<column index="48" channel="21"/>
+		</row>
+		<row index="32">
+			<column index="36" channel="27"/>
+			<column index="37" channel="27"/>
+			<column index="40" channel="26"/>
+			<column index="42" channel="25"/>
+			<column index="43" channel="24"/>
+			<column index="44" channel="23"/>
+			<column index="46" channel="22"/>
+			<column index="49" channel="21"/>
+			<column index="50" channel="21"/>
+		</row>
+		<row index="33">
+			<column index="35" channel="27"/>
+			<column index="39" channel="26"/>
+			<column index="41" channel="25"/>
+			<column index="43" channel="24"/>
+			<column index="45" channel="23"/>
+			<column index="47" channel="22"/>
+			<column index="51" channel="21"/>
+		</row>
+		<row index="34">
+			<column index="38" channel="26"/>
+			<column index="41" channel="25"/>
+			<column index="43" channel="24"/>
+			<column index="45" channel="23"/>
+			<column index="48" channel="22"/>
+		</row>
+		<row index="35">
+			<column index="37" channel="26"/>
+			<column index="40" channel="25"/>
+			<column index="43" channel="24"/>
+			<column index="46" channel="23"/>
+			<column index="49" channel="22"/>
+		</row>
+		<row index="36">
+			<column index="36" channel="26"/>
+			<column index="40" channel="25"/>
+			<column index="43" channel="24"/>
+			<column index="46" channel="23"/>
+			<column index="50" channel="22"/>
+		</row>
+		<row index="37">
+			<column index="39" channel="25"/>
+			<column index="43" channel="24"/>
+			<column index="47" channel="23"/>
+		</row>
+		<row index="38">
+			<column index="43" channel="24"/>
+		</row>
+		<row index="43">
+			<column index="15" channel="5"/>
+			<column index="16" channel="5"/>
+			<column index="17" channel="5"/>
+			<column index="18" channel="5"/>
+			<column index="21" channel="6"/>
+			<column index="22" channel="6"/>
+			<column index="23" channel="6"/>
+			<column index="24" channel="6"/>
+			<column index="27" channel="7"/>
+			<column index="28" channel="7"/>
+			<column index="29" channel="7"/>
+			<column index="30" channel="7"/>
+			<column index="33" channel="8"/>
+			<column index="34" channel="8"/>
+			<column index="35" channel="8"/>
+			<column index="36" channel="8"/>
+			<column index="39" channel="9"/>
+			<column index="40" channel="9"/>
+			<column index="41" channel="9"/>
+			<column index="42" channel="9"/>
+			<column index="45" channel="10"/>
+			<column index="46" channel="10"/>
+			<column index="47" channel="10"/>
+			<column index="48" channel="10"/>
+			<column index="51" channel="11"/>
+			<column index="52" channel="11"/>
+			<column index="53" channel="11"/>
+			<column index="54" channel="11"/>
+			<column index="57" channel="12"/>
+			<column index="58" channel="12"/>
+			<column index="59" channel="12"/>
+			<column index="60" channel="12"/>
+			<column index="63" channel="13"/>
+			<column index="64" channel="13"/>
+			<column index="65" channel="13"/>
+			<column index="66" channel="13"/>
+			<column index="69" channel="14"/>
+			<column index="70" channel="14"/>
+			<column index="71" channel="14"/>
+			<column index="72" channel="14"/>
+		</row>
+		<row index="44">
+			<column index="15" channel="5"/>
+			<column index="16" channel="5"/>
+			<column index="17" channel="5"/>
+			<column index="18" channel="5"/>
+			<column index="21" channel="6"/>
+			<column index="22" channel="6"/>
+			<column index="23" channel="6"/>
+			<column index="24" channel="6"/>
+			<column index="27" channel="7"/>
+			<column index="28" channel="7"/>
+			<column index="29" channel="7"/>
+			<column index="30" channel="7"/>
+			<column index="33" channel="8"/>
+			<column index="34" channel="8"/>
+			<column index="35" channel="8"/>
+			<column index="36" channel="8"/>
+			<column index="39" channel="9"/>
+			<column index="40" channel="9"/>
+			<column index="41" channel="9"/>
+			<column index="42" channel="9"/>
+			<column index="45" channel="10"/>
+			<column index="46" channel="10"/>
+			<column index="47" channel="10"/>
+			<column index="48" channel="10"/>
+			<column index="51" channel="11"/>
+			<column index="52" channel="11"/>
+			<column index="53" channel="11"/>
+			<column index="54" channel="11"/>
+			<column index="57" channel="12"/>
+			<column index="58" channel="12"/>
+			<column index="59" channel="12"/>
+			<column index="60" channel="12"/>
+			<column index="63" channel="13"/>
+			<column index="64" channel="13"/>
+			<column index="65" channel="13"/>
+			<column index="66" channel="13"/>
+			<column index="69" channel="14"/>
+			<column index="70" channel="14"/>
+			<column index="71" channel="14"/>
+			<column index="72" channel="14"/>
+		</row>
+		<row index="45">
+			<column index="15" channel="5"/>
+			<column index="16" channel="5"/>
+			<column index="17" channel="5"/>
+			<column index="18" channel="5"/>
+			<column index="21" channel="6"/>
+			<column index="22" channel="6"/>
+			<column index="23" channel="6"/>
+			<column index="24" channel="6"/>
+			<column index="27" channel="7"/>
+			<column index="28" channel="7"/>
+			<column index="29" channel="7"/>
+			<column index="30" channel="7"/>
+			<column index="33" channel="8"/>
+			<column index="34" channel="8"/>
+			<column index="35" channel="8"/>
+			<column index="36" channel="8"/>
+			<column index="39" channel="9"/>
+			<column index="40" channel="9"/>
+			<column index="41" channel="9"/>
+			<column index="42" channel="9"/>
+			<column index="45" channel="10"/>
+			<column index="46" channel="10"/>
+			<column index="47" channel="10"/>
+			<column index="48" channel="10"/>
+			<column index="51" channel="11"/>
+			<column index="52" channel="11"/>
+			<column index="53" channel="11"/>
+			<column index="54" channel="11"/>
+			<column index="57" channel="12"/>
+			<column index="58" channel="12"/>
+			<column index="59" channel="12"/>
+			<column index="60" channel="12"/>
+			<column index="63" channel="13"/>
+			<column index="64" channel="13"/>
+			<column index="65" channel="13"/>
+			<column index="66" channel="13"/>
+			<column index="69" channel="14"/>
+			<column index="70" channel="14"/>
+			<column index="71" channel="14"/>
+			<column index="72" channel="14"/>
+		</row>
+		<row index="46">
+			<column index="15" channel="5"/>
+			<column index="16" channel="5"/>
+			<column index="17" channel="5"/>
+			<column index="18" channel="5"/>
+			<column index="21" channel="6"/>
+			<column index="22" channel="6"/>
+			<column index="23" channel="6"/>
+			<column index="24" channel="6"/>
+			<column index="27" channel="7"/>
+			<column index="28" channel="7"/>
+			<column index="29" channel="7"/>
+			<column index="30" channel="7"/>
+			<column index="33" channel="8"/>
+			<column index="34" channel="8"/>
+			<column index="35" channel="8"/>
+			<column index="36" channel="8"/>
+			<column index="39" channel="9"/>
+			<column index="40" channel="9"/>
+			<column index="41" channel="9"/>
+			<column index="42" channel="9"/>
+			<column index="45" channel="10"/>
+			<column index="46" channel="10"/>
+			<column index="47" channel="10"/>
+			<column index="48" channel="10"/>
+			<column index="51" channel="11"/>
+			<column index="52" channel="11"/>
+			<column index="53" channel="11"/>
+			<column index="54" channel="11"/>
+			<column index="57" channel="12"/>
+			<column index="58" channel="12"/>
+			<column index="59" channel="12"/>
+			<column index="60" channel="12"/>
+			<column index="63" channel="13"/>
+			<column index="64" channel="13"/>
+			<column index="65" channel="13"/>
+			<column index="66" channel="13"/>
+			<column index="69" channel="14"/>
+			<column index="70" channel="14"/>
+			<column index="71" channel="14"/>
+			<column index="72" channel="14"/>
+		</row>
+		<row index="47">
+			<column index="15" channel="5"/>
+			<column index="16" channel="5"/>
+			<column index="17" channel="5"/>
+			<column index="18" channel="5"/>
+			<column index="21" channel="6"/>
+			<column index="22" channel="6"/>
+			<column index="23" channel="6"/>
+			<column index="24" channel="6"/>
+			<column index="27" channel="7"/>
+			<column index="28" channel="7"/>
+			<column index="29" channel="7"/>
+			<column index="30" channel="7"/>
+			<column index="33" channel="8"/>
+			<column index="34" channel="8"/>
+			<column index="35" channel="8"/>
+			<column index="36" channel="8"/>
+			<column index="39" channel="9"/>
+			<column index="40" channel="9"/>
+			<column index="41" channel="9"/>
+			<column index="42" channel="9"/>
+			<column index="45" channel="10"/>
+			<column index="46" channel="10"/>
+			<column index="47" channel="10"/>
+			<column index="48" channel="10"/>
+			<column index="51" channel="11"/>
+			<column index="52" channel="11"/>
+			<column index="53" channel="11"/>
+			<column index="54" channel="11"/>
+			<column index="57" channel="12"/>
+			<column index="58" channel="12"/>
+			<column index="59" channel="12"/>
+			<column index="60" channel="12"/>
+			<column index="63" channel="13"/>
+			<column index="64" channel="13"/>
+			<column index="65" channel="13"/>
+			<column index="66" channel="13"/>
+			<column index="69" channel="14"/>
+			<column index="70" channel="14"/>
+			<column index="71" channel="14"/>
+			<column index="72" channel="14"/>
+		</row>
+	</animation>
+</channelConfig>
