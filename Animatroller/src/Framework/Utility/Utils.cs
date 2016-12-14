@@ -28,5 +28,12 @@ namespace Animatroller.Framework
         {
             return Tuple.Create(DataElements.Color, (object)color);
         }
+
+        public static IData Data(Color color, double brightness = 1.0)
+        {
+            return new LogicalDevice.Data(
+                Utils.AdditionalData(DataElements.Color, color),
+                Utils.AdditionalData(DataElements.Brightness, brightness));
+        }
     }
 }

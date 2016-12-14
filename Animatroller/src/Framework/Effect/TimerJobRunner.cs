@@ -126,6 +126,39 @@ namespace Animatroller.Framework.Effect2
             }
         }
 
+        protected class TimerJobCounter : TimerJob
+        {
+            private IObserver<int> observer;
+            private int mainCounter;
+            private int skips;
+            private int skipCounter;
+
+            public CancellationTokenSource Init(IObserver<int> observer, long? durationMs, long startDurationMs, int skips)
+            {
+                this.observer = observer;
+                this.skips = skips;
+
+                return base.Init(durationMs, startDurationMs);
+            }
+
+            protected override void ObserverNext(long elapsedMs)
+            {
+                if (++this.skipCounter == this.skips)
+                {
+                    this.skipCounter = 0;
+
+                    this.observer.OnNext(this.mainCounter);
+
+                    this.mainCounter++;
+                }
+            }
+
+            protected override void ObserverCompleted()
+            {
+                this.observer.OnCompleted();
+            }
+        }
+
         private object lockObject = new object();
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private List<TimerJob> timerJobs = new List<TimerJob>();
@@ -209,6 +242,14 @@ namespace Animatroller.Framework.Effect2
                     observer.OnCompleted();
                 }),
                 initAction: (job, dMs, startDurationMs) => job.Init(observer, dMs.Value, startDurationMs));
+        }
+
+        public CancellationTokenSource AddTimerJobCounter(IObserver<int> observer, int skips = 0)
+        {
+            return AddTimerJob<TimerJobCounter>(
+                durationMs: null,
+                finishAction: observer.OnCompleted,
+                initAction: (job, dMs, startDurationMs) => job.Init(observer, dMs, startDurationMs, skips));
         }
     }
 }

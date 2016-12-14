@@ -353,5 +353,24 @@ namespace Animatroller.Framework.LogicalDevice
 
             PushOutput(token);
         }
+
+        public Task Chaser(IData[] data, int speed, IControlToken token = null)
+        {
+            return Executor.Current.MasterEffect.CustomJob(
+                jobAction: pos =>
+                {
+                    var current = data[pos % data.Length];
+
+                    double brightness = current.GetValue<double>(DataElements.Brightness) ?? 1.0;
+                    Color color = current.GetValue<Color>(DataElements.Color) ?? Color.White;
+
+                    Inject(color, brightness, token);
+                },
+                jobStopped: () =>
+                {
+                    SetBrightness(0, token);
+                },
+                speed: speed);
+        }
     }
 }

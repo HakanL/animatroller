@@ -96,7 +96,7 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Custom(double[] customList, IReceivesBrightness device, int durationMs, int? loop, int priority = 1)
+        public Task Custom(double[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int priority = 1)
         {
             var controlToken = device.TakeControl(priority);
 
@@ -107,7 +107,7 @@ namespace Animatroller.Framework.Effect2
                 });
         }
 
-        public Task Custom(double[] customList, IPushDataController deviceObserver, int durationMs, int? loop)
+        public Task Custom(double[] customList, IPushDataController deviceObserver, int durationMs, int? loop = null)
         {
             var taskSource = new TaskCompletionSource<bool>();
 
@@ -146,6 +146,97 @@ namespace Animatroller.Framework.Effect2
                 });
 
             cancelSource = this.timerJobRunner.AddTimerJobMs(observer, loop.HasValue ? durationMs * loop.Value : (long?)null);
+
+            Executor.Current.SetManagedTask(taskSource.Task, cancelSource);
+
+            return taskSource.Task;
+        }
+
+        public Task Custom(IData[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int priority = 1)
+        {
+            var controlToken = device.TakeControl(priority);
+
+            return Custom(customList, device.GetDataObserver(controlToken), durationMs, loop)
+                .ContinueWith(x =>
+                {
+                    controlToken.Dispose();
+                });
+        }
+
+        public Task Custom(IData[] customList, IPushDataController deviceObserver, int durationMs, int? loop = null)
+        {
+            var taskSource = new TaskCompletionSource<bool>();
+
+            if (customList == null || customList.Length == 0)
+                throw new ArgumentNullException("customList");
+
+            CancellationTokenSource cancelSource = null;
+
+            var observer = Observer.Create<long>(
+                onNext: elapsedMs =>
+                {
+                    if (loop.HasValue)
+                    {
+                        long loopCounter = elapsedMs / durationMs;
+
+                        if (loopCounter >= loop.Value)
+                        {
+                            foreach (var kvp in customList[customList.Length - 1])
+                                deviceObserver.Data[kvp.Key] = kvp.Value;
+                            deviceObserver.PushData();
+
+                            cancelSource.Cancel();
+                            return;
+                        }
+                    }
+
+                    double instanceMs = elapsedMs % durationMs;
+
+                    int pos = (int)(customList.Length * instanceMs / durationMs);
+
+                    foreach (var kvp in customList[pos])
+                        deviceObserver.Data[kvp.Key] = kvp.Value;
+                    deviceObserver.PushData();
+                },
+                onCompleted: () =>
+                {
+                    taskSource.SetResult(true);
+                });
+
+            cancelSource = this.timerJobRunner.AddTimerJobMs(observer, loop.HasValue ? durationMs * loop.Value : (long?)null);
+
+            Executor.Current.SetManagedTask(taskSource.Task, cancelSource);
+
+            return taskSource.Task;
+        }
+
+        /// <summary>
+        /// Run custom action on the effect timer
+        /// </summary>
+        /// <param name="jobAction">The action</param>
+        /// <param name="speed">0 = fastest, every 25 ms. 1 = every 50 ms, etc</param>
+        /// <returns>The task for the job that can be cancelled</returns>
+        public Task CustomJob(Action<int> jobAction, Action jobStopped, int speed)
+        {
+            var taskSource = new TaskCompletionSource<bool>();
+
+            if (jobAction == null)
+                throw new ArgumentNullException("jobAction");
+
+            CancellationTokenSource cancelSource = null;
+
+            var observer = Observer.Create<int>(
+                onNext: pos =>
+                {
+                    jobAction.Invoke(pos);
+                },
+                onCompleted: () =>
+                {
+                    jobStopped();
+                    taskSource.SetResult(true);
+                });
+
+            cancelSource = this.timerJobRunner.AddTimerJobCounter(observer, speed);
 
             Executor.Current.SetManagedTask(taskSource.Task, cancelSource);
 

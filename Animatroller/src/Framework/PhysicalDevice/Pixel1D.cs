@@ -122,10 +122,13 @@ namespace Animatroller.Framework.PhysicalDevice
         //    //    });
         //}
 
-        public Pixel1D(VirtualPixel1D3 logicalDevice, int startVirtualPosition, int positions, bool reverse = false)
+        public Pixel1D(VirtualPixel1D3 logicalDevice, int startVirtualPosition = 0, int? positions = null, bool reverse = false)
             : base(logicalDevice)
         {
-            logicalDevice.AddPixelDevice(startVirtualPosition, positions, reverse, pixels =>
+            if (!positions.HasValue)
+                positions = logicalDevice.Pixels;
+
+            logicalDevice.AddPixelDevice(startVirtualPosition, positions.Value, reverse, pixels =>
             {
                 lock (this.lockObject)
                 {

@@ -462,7 +462,7 @@ namespace Animatroller.Framework
             }
         }
 
-        internal void StopManagedTask(Task task)
+        public void StopManagedTask(Task task)
         {
             CancellationTokenSource cancelSource;
             lock (this.cancelSourceForManagedTask)

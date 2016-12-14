@@ -30,6 +30,7 @@ namespace Animatroller.Scenes
         const int SacnUniversePixelString1 = 51;
         const int SacnUniversePixelString2 = 52;
         const int SacnUniversePixelGround = 31;
+        const int SacnUniversePixelSaber = 32;
         const int SacnUniversePixelString4 = 8;
         const int SacnUniverse11 = 11;
         const int SacnUniverse12 = 12;
@@ -60,7 +61,6 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderHiFi = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderVideo1 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderSnow = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderControlPanel = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
@@ -85,6 +85,7 @@ namespace Animatroller.Scenes
         Effect.Pulsating pulsatingEffectGeneral = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffectTree = new Effect.Pulsating(S(3), 0.0, 1.0, false);
         Effect.Pulsating pulsatingPinSpot = new Effect.Pulsating(S(2), 0.2, 1.0, false);
+        Effect.Pulsating pulsatingStar = new Effect.Pulsating(S(2), 0.2, 1.0, false);
 
         DigitalInput2 inOlaf = new DigitalInput2();
         DigitalInput2 inR2D2 = new DigitalInput2();
@@ -164,7 +165,8 @@ namespace Animatroller.Scenes
         VirtualPixel1D3 pixelsHeart = new VirtualPixel1D3(50);
         VirtualPixel1D3 pixelsGround = new VirtualPixel1D3(50);
         VirtualPixel2D3 pixelsMatrix = new VirtualPixel2D3(20, 10);
-        VirtualPixel1D3 saberPixels = new VirtualPixel1D3(32);
+        VirtualPixel1D3 saberPixels = new VirtualPixel1D3(33);
+        VirtualPixel1D3 haloPixels = new VirtualPixel1D3(27);
         Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
         Expander.OscServer oscServer = new Expander.OscServer(8000);
         Subject<bool> inflatablesRunning = new Subject<bool>();
@@ -219,6 +221,7 @@ namespace Animatroller.Scenes
                 }
             }
 
+            pulsatingStar.ConnectTo(lightHangingStar);
             pulsatingEffectOlaf.ConnectTo(lightOlaf);
             pulsatingEffectPoppy.ConnectTo(lightPoppy);
             pulsatingEffectR2D2.ConnectTo(lightR2D2);
@@ -230,6 +233,7 @@ namespace Animatroller.Scenes
             pulsatingEffectGeneral.ConnectTo(lightR2D2);
             pulsatingEffectGeneral.ConnectTo(lightPoppy);
             pulsatingEffectGeneral.ConnectTo(lightTreeStars);
+            pulsatingEffectGeneral.ConnectTo(lightVader, Utils.AdditionalData(Color.Red));
             pulsatingPinSpot.ConnectTo(lightPinSpot, Utils.AdditionalData(Color.Red));
             pulsatingEffectTree.ConnectTo(pixelsTree, Utils.AdditionalData(treeColors[0]));
             pulsatingEffectTree.ConnectTo(pixelsBetweenTrees, Utils.AdditionalData(treeColors[0]));
@@ -244,7 +248,6 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);          // rpi-eb0092ca
             expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHiFi);           // rpi-eb428ef1
             expanderServer.AddInstance("4ea781ef257442edb524493da8f52220", expanderVideo1);         // rpi-eba6cbc7
-            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expander4);              // rpi-eb81c94e
             expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderSnow);           // rpi-ebd43a38
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderControlPanel);   // rpi-eb6a047c
 
@@ -252,9 +255,6 @@ namespace Animatroller.Scenes
             expanderLedmx.DigitalInputs[5].Connect(inR2D2);
             expanderLedmx.DigitalInputs[4].Connect(inOlaf);
             expanderSnow.DigitalOutputs[6].Connect(snowMachine);
-
-            //expander4.DigitalInputs[5].Connect(inBlueButton);
-            //expander4.DigitalInputs[4].Connect(inRedButton);
 
             expanderControlPanel.DigitalInputs[0].Connect(controlButtonYellow, true);
             expanderControlPanel.DigitalInputs[1].Connect(controlButtonBlue, true);
@@ -266,7 +266,7 @@ namespace Animatroller.Scenes
             expanderLedmx.Connect(audioLedmx);
             expanderHiFi.Connect(audioHiFi);
             //expander3.Connect(video3);
-            expander4.Connect(audioDarthVader);
+            expanderSnow.Connect(audioDarthVader);
             expanderVideo1.Connect(audioVideo1);
 
             blackOut.ConnectTo(Exec.Blackout);
@@ -321,7 +321,6 @@ namespace Animatroller.Scenes
 
             buttonTest.WhenOutputChanges(x =>
             {
-                //                pixelsBetweenTrees.Inject(Color.Red);
             });
 
             buttonReset.WhenOutputChanges(x =>
@@ -342,7 +341,8 @@ namespace Animatroller.Scenes
             var pixelMapping2D = Framework.Utility.PixelMapping.GeneratePixelMapping(20, 10, pixelOrder: Framework.Utility.PixelOrder.HorizontalSnakeBottomLeft);
             acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrix, 1);
 
-            acnOutput.Connect(new Physical.Pixel1D(saberPixels, 0, 32), SacnUniverse12, 1);
+            acnOutput.Connect(new Physical.Pixel1D(saberPixels), SacnUniversePixelSaber, 1);
+            acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 100);
 
             acnOutput.Connect(new Physical.GenericDimmer(airReindeerBig, 10), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(airR2D2Olaf, 33), SacnUniverseRenard18);
@@ -723,77 +723,75 @@ namespace Animatroller.Scenes
                     pulsatingEffectR2D2.Stop();
                 });
 
-            /*            subStarWars
-                            .LockWhenRunning(
-                                saberPixels,
-                                lightVader,
-                                lightR2D2)
-                            .RunAction(instance =>
-                            {
-                                //Exec.Cancel(subCandyCane);
-                                subStarWarsCane.Run();
-                                lightR2D2.SetBrightness(1.0, instance.Token);
+            subStarWars
+                .LockWhenRunning(
+                    saberPixels,
+                    lightVader,
+                    lightR2D2,
+                    lightHangingStar,
+                    laser)
+                .RunAction(instance =>
+                {
+                    laser.SetValue(false);
+                    //Exec.Cancel(subCandyCane);
+                    subStarWarsCane.Run();
+                    lightR2D2.SetBrightness(1.0, instance.Token);
 
-                                audioMain.PlayTrack("01. Star Wars - Main Title.wav");
+                    audioHiFi.PlayTrack("01. Star Wars - Main Title.wav");
 
-                                instance.WaitFor(S(16));
+                    instance.WaitFor(S(16));
 
-                                    //elJesus.SetPower(true);
-                                    //pulsatingStar.Start();
-                                    //lightJesus.SetColor(Color.White, 0.3);
-                                    //light3wise.SetOnlyColor(Color.LightYellow);
-                                    //light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));
+                    var haloJob = haloPixels.Chaser(new IData[] {
+                        Utils.Data(Color.White, 1.0),
+                        Utils.Data(Color.White, 0.7),
+                        Utils.Data(Color.White, 0.5),
+                        Utils.Data(Color.White, 0.3)
+                    }, 4);
 
-                                Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.AdditionalData(Color.Red));
-                                instance.WaitFor(S(2.5));
+                    pulsatingStar.Start();
 
-                                Exec.Cancel(subStarWarsCane);
-                                instance.WaitFor(S(0.5));
+                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.AdditionalData(Color.Red));
+                    instance.WaitFor(S(2.5));
 
-                                audioDarthVader.PlayEffect("saberon.wav");
-                                for (int sab = 00; sab < 32; sab++)
-                                {
-                                    saberPixels.Inject(Color.Red, 0.5, instance.Token);
-                                    instance.WaitFor(S(0.01));
-                                }
-                                instance.WaitFor(S(1));
-                                audioMain.PauseTrack();
+                    Exec.Cancel(subStarWarsCane);
+                    instance.WaitFor(S(0.5));
 
-                                lightVader.SetColor(Color.Red, 1.0, instance.Token);
-                                audioDarthVader.PlayEffect("father.wav");
-                                instance.WaitFor(S(5));
+                    audioDarthVader.PlayEffect("saberon.wav");
+                    for (int sab = 0; sab < 33; sab++)
+                    {
+                        saberPixels.Inject(Color.Red, 0.5, instance.Token);
+                        instance.WaitFor(S(0.01));
+                    }
+                    instance.WaitFor(S(1));
+                    audioHiFi.PauseTrack();
 
-                                lightVader.SetBrightness(0.0, instance.Token);
-                                //light3wise.TurnOff();
-                                //lightJesus.TurnOff();
-                                //pulsatingStar.Stop();
-                                //elJesus.TurnOff();
+                    lightVader.SetColor(Color.Red, 1.0, instance.Token);
+                    audioDarthVader.PlayEffect("father.wav");
+                    instance.WaitFor(S(5));
 
-                                audioDarthVader.PlayEffect("force1.wav");
-                                instance.WaitFor(S(4));
+                    audioDarthVader.PlayEffect("force1.wav");
+                    instance.WaitFor(S(4));
 
-                                audioDarthVader.PlayEffect("saberoff.wav");
-                                instance.WaitFor(S(0.7));
-                                for (int sab = 0; sab < 16; sab++)
-                                {
-                                    saberPixels.InjectRev(Color.Black, 0, instance.Token);
-                                    saberPixels.InjectRev(Color.Black, 0, instance.Token);
-                                    instance.WaitFor(S(0.01));
-                                }
-                                //elLightsaber.SetPower(false);
-                                instance.WaitFor(S(2));
+                    lightVader.SetBrightness(0.0, instance.Token);
 
-                                //lightJesus.TurnOff();
-                                //light3wise.TurnOff();
-                                //elLightsaber.TurnOff();
-                                //pulsatingStar.Stop();
-                                //elJesus.TurnOff();
-                                //instance.WaitFor(S(2));
-                            })
-                            .TearDown(i =>
-                            {
-                                audioMain.PauseTrack();
-                            });*/
+                    audioDarthVader.PlayEffect("saberoff.wav");
+                    instance.WaitFor(S(0.7));
+                    for (int sab = 0; sab < 17; sab++)
+                    {
+                        saberPixels.InjectRev(Color.Black, 0, instance.Token);
+                        saberPixels.InjectRev(Color.Black, 0, instance.Token);
+                        instance.WaitFor(S(0.01));
+                    }
+                    Exec.StopManagedTask(haloJob);
+                    pulsatingStar.Stop();
+
+                    instance.WaitFor(S(2));
+                })
+                .TearDown(i =>
+                {
+                    laser.SetValue(true);
+                    audioHiFi.PauseTrack();
+                });
 
 
             inOlaf.Output.Subscribe(x =>
@@ -816,13 +814,13 @@ namespace Animatroller.Scenes
 
             controlButtonYellow.WhenOutputChanges(x =>
             {
-                if (x)
-                    audioHiFi.PlayEffect("father.wav");
+                if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
+                    stateMachine.GoToState(States.DarthVader);
             });
 
             controlButtonBlue.WhenOutputChanges(x =>
             {
-                if (x && hours.IsOpen)
+                if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
                     stateMachine.GoToState(States.Music2);
             });
 
@@ -834,14 +832,20 @@ namespace Animatroller.Scenes
 
             controlButtonGreen.WhenOutputChanges(x =>
             {
-                if (x && hours.IsOpen)
+                if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
                     stateMachine.GoToState(States.Music1);
             });
 
             controlButtonBlack.WhenOutputChanges(x =>
             {
-                if (x)
-                    audioHiFi.PlayEffect("force1.wav");
+                if (x && stateMachine.CurrentState != States.DarthVader)
+                    audioDarthVader.PlayEffect("force1.wav");
+            });
+
+            controlButtonRed.WhenOutputChanges(x =>
+            {
+                if (x && stateMachine.CurrentState != States.DarthVader)
+                    audioDarthVader.PlayEffect("darthvader_lackoffaith.wav");
             });
 
             controlButtonRed.IsHeld.Subscribe(x =>
@@ -850,11 +854,6 @@ namespace Animatroller.Scenes
                     this.stateMachine.GoToDefaultState();
             });
 
-            controlButtonRed.WhenOutputChanges(x =>
-            {
-                if (x)
-                    audioHiFi.PlayEffect("darthvader_lackoffaith.wav");
-            });
             /*
                         inRedButton.Output.Subscribe(x =>
                         {

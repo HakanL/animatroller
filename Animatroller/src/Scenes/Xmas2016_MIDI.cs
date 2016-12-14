@@ -26,7 +26,7 @@ namespace Animatroller.Scenes
             midiAkai.Note(midiChannel, 36).Subscribe(x =>
             {
                 if (x)
-                    subPoppy.Run();
+                    stateMachine.GoToState(States.DarthVader);
                 //                lightFlood6.SetColor(Color.Red, x ? 1 : 0);
             });
 

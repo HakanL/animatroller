@@ -43,12 +43,12 @@ namespace Animatroller.Framework.LogicalDevice
             return new Data(this.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
         }
 
-        public T? GetValue<T>(DataElements dataElement) where T : struct
+        public T? GetValue<T>(DataElements dataElement, T? defaultValue = null) where T : struct
         {
             object value;
 
             if (!TryGetValue(dataElement, out value))
-                return default(T);
+                return defaultValue;
 
             return (T)value;
         }

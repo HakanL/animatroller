@@ -71,7 +71,7 @@ namespace Animatroller.Framework
 
         IData Copy();
 
-        T? GetValue<T>(DataElements dataElement) where T : struct;
+        T? GetValue<T>(DataElements dataElement, T? defaultValue = null) where T : struct;
     }
 
     [Obsolete]
