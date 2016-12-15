@@ -53,3 +53,4 @@ packages/
 *.lcs
 *.lsv
 /MonoExpander/Dependencies
+*.lsv

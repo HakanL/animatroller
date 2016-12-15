@@ -726,6 +726,7 @@ namespace Animatroller.Scenes
             subStarWars
                 .LockWhenRunning(
                     saberPixels,
+                    haloPixels,
                     lightVader,
                     lightR2D2,
                     lightHangingStar,
@@ -746,7 +747,7 @@ namespace Animatroller.Scenes
                         Utils.Data(Color.White, 0.7),
                         Utils.Data(Color.White, 0.5),
                         Utils.Data(Color.White, 0.3)
-                    }, 4);
+                    }, 4, token: instance.Token);
 
                     pulsatingStar.Start();
 
