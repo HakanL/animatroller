@@ -17,6 +17,11 @@ namespace Animatroller.Framework.Effect2
             private long lastDuration;
             private DateTime lastRun;
 
+            public TimeSpan SinceLastRun
+            {
+                get { return DateTime.Now - this.lastRun; }
+            }
+
             public bool Running { get; private set; }
 
             public long? DurationMs { get; private set; }
@@ -163,6 +168,7 @@ namespace Animatroller.Framework.Effect2
         protected static Logger log = LogManager.GetCurrentClassLogger();
         private List<TimerJob> timerJobs = new List<TimerJob>();
         private Animatroller.Framework.Controller.HighPrecisionTimer2 timer;
+        private Timer monitorTimer;
 
         public TimerJobRunner(Animatroller.Framework.Controller.HighPrecisionTimer2 timer)
         {
@@ -179,6 +185,38 @@ namespace Animatroller.Framework.Effect2
                         }
                     }
                 });
+
+            this.monitorTimer = new Timer(state =>
+            {
+                var timeout = TimeSpan.FromMinutes(5);
+
+                int runningTimers = 0;
+                int totalTimers = 0;
+                int deletedTimers = 0;
+
+                lock (this.lockObject)
+                {
+                    var deleteList = new List<TimerJob>();
+
+                    foreach (var timerJob in this.timerJobs)
+                    {
+                        totalTimers++;
+
+                        if (timerJob.Running)
+                            runningTimers++;
+                        else if (timerJob.SinceLastRun > timeout)
+                        {
+                            deleteList.Add(timerJob);
+                            deletedTimers++;
+                        }
+                    }
+
+                    foreach (var deleteJob in deleteList)
+                        this.timerJobs.Remove(deleteJob);
+                }
+
+                log.Debug("{0} running jobs, out of {1}. {2} deleted", runningTimers, totalTimers, deletedTimers);
+            }, null, 1000, 30000);
         }
 
         private CancellationTokenSource AddTimerJob<T>(

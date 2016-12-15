@@ -142,17 +142,14 @@ namespace Animatroller.Framework.Controller
                         while (watch.ElapsedMilliseconds + offsetMs < elapsed)
                         {
                             System.Threading.Thread.Sleep(1);
-                            if (this.cancelSource.Token.IsCancellationRequested)
+                            if (this.cancelSource.Token.IsCancellationRequested ||
+                                duration.HasValue && watch.Elapsed > duration.Value)
                             {
                                 if (this.tearDownAction != null)
                                     this.tearDownAction.Invoke();
 
                                 return;
                             }
-
-                            if (duration.HasValue && watch.Elapsed > duration.Value)
-                                // Abort
-                                this.cancelSource.Cancel();
                         }
 
                         var codes = this.timeline.Values[currentPos];
