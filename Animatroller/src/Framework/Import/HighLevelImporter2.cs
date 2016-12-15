@@ -61,6 +61,8 @@ namespace Animatroller.Framework.Import
             }
         }
 
+        public IControlToken Token { get { return this.token; } }
+
         protected void PopulateTimeline()
         {
             foreach (var kvp in this.channelData)
@@ -347,14 +349,14 @@ namespace Animatroller.Framework.Import
             public DeviceType Type { get; set; }
         }
 
-        public override Task Start(long offsetMs = 0)
+        public override Task Start(long offsetMs = 0, TimeSpan? duration = null)
         {
             Prepare();
 
             // Make sure we're stopped
             Stop();
 
-            return this.timeline.Start(offsetMs);
+            return this.timeline.Start(offsetMs, duration);
         }
 
         public override void Stop()

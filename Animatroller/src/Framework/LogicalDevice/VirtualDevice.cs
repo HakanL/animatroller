@@ -12,12 +12,12 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class VirtualDevice : SingleOwnerDevice, IApiVersion3, IReceivesBrightness, IReceivesColor
     {
-        private Action<double, IControlToken> xyz;
+        private Action<double> action;
 
-        public VirtualDevice(Action<double, IControlToken> xyz, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public VirtualDevice(Action<double> action, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.xyz = xyz;
+            this.action = action;
 
             this.outputData.Subscribe(x =>
             {
@@ -25,7 +25,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                 if (x.TryGetValue(DataElements.Brightness, out value))
                 {
-                    xyz((double)value, x.CurrentToken);
+                    action((double)value);
                 }
             });
         }
@@ -42,7 +42,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetBrightness(double brightness, IControlToken token)
         {
-            xyz(brightness, token);
+            action(brightness);
         }
 
         public void SetColor(Color color, double? brightness, IControlToken token)

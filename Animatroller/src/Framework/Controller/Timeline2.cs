@@ -105,7 +105,7 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        public Task Start(long offsetMs)
+        public Task Start(long offsetMs, TimeSpan? duration = null)
         {
             if (this.cancelSource == null || this.cancelSource.IsCancellationRequested)
                 this.cancelSource = new System.Threading.CancellationTokenSource();
@@ -149,6 +149,10 @@ namespace Animatroller.Framework.Controller
 
                                 return;
                             }
+
+                            if (duration.HasValue && watch.Elapsed > duration.Value)
+                                // Abort
+                                this.cancelSource.Cancel();
                         }
 
                         var codes = this.timeline.Values[currentPos];

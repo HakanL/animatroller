@@ -89,7 +89,7 @@ namespace Animatroller.Framework.Import
             this.controlledDevices = new HashSet<IControlledDevice>();
         }
 
-        public abstract Task Start(long offsetMs);
+        public abstract Task Start(long offsetMs, TimeSpan? duration = null);
 
         public abstract void Stop();
 

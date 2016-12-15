@@ -44,6 +44,8 @@ namespace Animatroller.Scenes
 
             midiAkai.Note(midiChannel, 39).Subscribe(x =>
             {
+                if (x)
+                    stateMachine.GoToState(States.Music3);
                 //               lightNet7.SetBrightness(x ? 1 : 0);
                 //if (x)
                 //{
@@ -54,16 +56,19 @@ namespace Animatroller.Scenes
 
             midiAkai.Note(midiChannel, 40).Subscribe(x =>
             {
-                //                lightNet8.SetBrightness(x ? 1 : 0);
-                //if (x)
-                //{
-                //    stateMachine.GoToState(States.SantaVideo);
-                //}
+                if (x)
+                {
+                    if (Exec.IsRunning(subRandomSantaVideo))
+                        Exec.Cancel(subRandomSantaVideo);
+                    else
+                        subRandomSantaVideo.Run();
+                }
             });
 
             midiAkai.Note(midiChannel, 41).Subscribe(x =>
             {
-                //                lightHangingStar.SetBrightness(x ? 1 : 0);
+                if (x)
+                    stateMachine.GoToState(States.SantaVideo);
             });
 
             midiAkai.Controller(midiChannel, 1).Controls(faderR.Control);

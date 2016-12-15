@@ -212,21 +212,21 @@ namespace Animatroller.Framework.Import
 
             public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
             {
-                Executor.Current.MasterEffect.Fade(new LogicalDevice.VirtualDevice((b, t) =>
+                Executor.Current.MasterEffect.Fade(new LogicalDevice.VirtualDevice(b =>
                 {
                     var currentColor = device.Color;
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
-                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, t);
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorG:
-                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, t);
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorB:
-                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, t);
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, token);
                             break;
                     }
                 }), StartBrightness, EndBrightness, DurationMs, token: token);
@@ -242,21 +242,21 @@ namespace Animatroller.Framework.Import
 
             public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
             {
-                Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice((b, t) =>
+                Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice(b =>
                 {
                     var currentColor = device.Color;
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
-                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, t);
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorG:
-                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, t);
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorB:
-                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, t);
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, token);
                             break;
                     }
                 }), 0, 1, DurationMs, token: token);
@@ -276,21 +276,21 @@ namespace Animatroller.Framework.Import
 
             public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
             {
-                Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice((b, t) =>
+                Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice(b =>
                 {
                     var currentColor = device.Color;
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
-                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, t);
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorG:
-                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, t);
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorB:
-                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, t);
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, token);
                             break;
                     }
                 }), StartBrightness, EndBrightness, DurationMs, token: token);

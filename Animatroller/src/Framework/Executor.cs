@@ -539,6 +539,23 @@ namespace Animatroller.Framework
             log.Info("Waited {1:N1}ms for job {0} to stop from cancel", jobToCancel.Name, watch.Elapsed.TotalMilliseconds);
         }
 
+        public bool IsRunning(ICanExecute jobToCancel)
+        {
+            lock (executingTasks)
+            {
+                foreach (var execInstance in this.executingTasks)
+                {
+                    if (execInstance.Instance == jobToCancel)
+                    {
+                        if (!execInstance.Task.IsCompleted)
+                            return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private void CleanupCompletedTasks()
         {
             lock (singleInstanceTasks)

@@ -36,6 +36,7 @@ namespace Animatroller.Framework.LogicalDevice
             this.disposeAction = disposeAction;
             this.ownsTokens = true;
             Priority = priority;
+            Name = name;
         }
 
         public int Priority { get; set; }
@@ -72,7 +73,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             if (this.ownsTokens)
             {
-                foreach (var memberToken in MemberTokens.Values)
+                foreach (var memberToken in MemberTokens.Values.ToList())
                     memberToken.Dispose();
             }
 

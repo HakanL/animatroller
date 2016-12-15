@@ -112,8 +112,11 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        public Task Start(long offsetMs = 0)
+        public Task Start(long offsetMs = 0, TimeSpan? duration = null)
         {
+            if (duration.HasValue)
+                throw new NotImplementedException("Duration not implemented in this class");
+
             if (this.cancelSource == null || this.cancelSource.IsCancellationRequested)
                 this.cancelSource = new System.Threading.CancellationTokenSource();
 
