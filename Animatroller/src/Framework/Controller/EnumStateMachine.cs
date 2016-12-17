@@ -175,19 +175,27 @@ namespace Animatroller.Framework.Controller
 
         public EnumStateMachine<T> ForFromSubroutine(T state, Subroutine sub)
         {
-            var seq = new Sequence();
+            var seq = new Sequence(name: $"ForFromSubroutine({sub.Name})");
             seq.WhenExecuted.Execute(i =>
             {
                 System.Threading.CancellationTokenSource cts;
-                System.Threading.ManualResetEvent evt = new System.Threading.ManualResetEvent(false);
-                var runTask = sub.Run(out cts)
-                    .ContinueWith(t => evt.Set());
+                var evt = new System.Threading.ManualResetEvent(false);
+                var runTask = sub.Run(out cts);
+
+                runTask.ContinueWith(t =>
+                    {
+                        evt.Set();
+                    });
 
                 System.Threading.WaitHandle.WaitAny(new System.Threading.WaitHandle[]
                 {
                     evt, i.CancelToken.WaitHandle
                 });
-                cts.Cancel();
+
+                cts?.Cancel();
+
+                if (!runTask.Wait(10000))
+                    log.Info("Sequence {0} failed to cancel in time", seq.Name);
             });
 
             var seqJob = (seq.WhenExecuted as Sequence.SequenceJob);

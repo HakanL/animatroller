@@ -383,9 +383,12 @@ namespace Animatroller.Simulator
                 if (PendingClose)
                     return;
 
-                this.UIThread(delegate
+                Task.Run(() =>
                 {
-                    control.On = x;
+                    this.UIThread(delegate
+                    {
+                        control.On = x;
+                    });
                 });
             });
 

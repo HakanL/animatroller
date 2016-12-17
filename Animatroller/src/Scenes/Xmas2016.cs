@@ -640,7 +640,7 @@ namespace Animatroller.Scenes
                     });
 
             subMusic1
-                .AutoAddDevices()
+                .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree)
                 .RunAction(ins =>
                     {
                         lightSantaPopup.SetBrightness(1);
@@ -655,7 +655,7 @@ namespace Animatroller.Scenes
                     });
 
             subMusic2
-                .AutoAddDevices()
+                .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree, hazerFanSpeed, hazerHazeOutput)
                 .RunAction(ins =>
                 {
                     lightSantaPopup.SetBrightness(1);
@@ -672,7 +672,7 @@ namespace Animatroller.Scenes
                 });
 
             subMusic3
-                .AutoAddDevices()
+                .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree)
                 .RunAction(ins =>
                 {
                     lightSantaPopup.SetBrightness(1);
