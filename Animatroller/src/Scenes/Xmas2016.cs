@@ -106,11 +106,13 @@ namespace Animatroller.Scenes
         DigitalOutput2 airR2D2Olaf = new DigitalOutput2(initial: true);
         DigitalOutput2 airSantaPoppy1 = new DigitalOutput2(initial: true);
         DigitalOutput2 airSnowman = new DigitalOutput2(initial: true);
+        DigitalOutput2 airTree = new DigitalOutput2(initial: true);
         DigitalOutput2 airSantaPopup = new DigitalOutput2(initial: true);
         DigitalOutput2 airReindeerBig = new DigitalOutput2();
         DigitalOutput2 snowMachine = new DigitalOutput2();
         Dimmer3 hazerFanSpeed = new Dimmer3();
         Dimmer3 hazerHazeOutput = new Dimmer3();
+        Dimmer3 lightInflatableTree = new Dimmer3();
 
         Dimmer3 lightNet1 = new Dimmer3();
         Dimmer3 lightNet2 = new Dimmer3();
@@ -309,6 +311,7 @@ namespace Animatroller.Scenes
                 .ControlsMasterPower(airR2D2Olaf)
                 .ControlsMasterPower(airSantaPoppy1)
                 .ControlsMasterPower(airSnowman)
+                .ControlsMasterPower(airTree)
                 .ControlsMasterPower(airSantaPopup);
 
             buttonStartInflatables.Output.Subscribe(x =>
@@ -377,6 +380,8 @@ namespace Animatroller.Scenes
 
             acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 128), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(airSnowman, 133), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(airTree, 9), SacnUniverseRenard18);
+            acnOutput.Connect(new Physical.GenericDimmer(lightInflatableTree, 10), SacnUniverseRenard18);
             acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 131), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 132), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightPoppy, 134), SacnUniverseLedmx);
@@ -487,6 +492,7 @@ namespace Animatroller.Scenes
                     lightNet10.SetBrightness(1);
                     lightTopper1.SetBrightness(1);
                     lightTopper2.SetBrightness(1);
+                    lightInflatableTree.SetBrightness(1);
                     lightXmasTree.SetValue(true);
                     lightStairRail1.SetBrightness(1);
                     lightStairRail2.SetBrightness(1);
@@ -601,6 +607,8 @@ namespace Animatroller.Scenes
             subStarWarsCane
                 .LockWhenRunning(
                     pixelsRoofEdge,
+                    pixelsGround,
+                    pixelsBetweenTrees,
                     pixelsMatrix)
                 .RunAction(instance =>
                 {
@@ -615,10 +623,16 @@ namespace Animatroller.Scenes
                                 case 0:
                                 case 1:
                                     pixelsRoofEdge.InjectRev(Color.Yellow, 1.0, instance.Token);
+                                    pixelsGround.Inject(Color.Yellow, 1.0, instance.Token);
+                                    pixelsBetweenTrees.Inject(Color.Yellow, 1.0, instance.Token);
+                                    pixelsMatrix.InjectRow(Color.Yellow, 1.0, instance.Token);
                                     break;
                                 case 2:
                                 case 3:
                                     pixelsRoofEdge.InjectRev(Color.Orange, 0.2, instance.Token);
+                                    pixelsGround.Inject(Color.Orange, 0.2, instance.Token);
+                                    pixelsBetweenTrees.Inject(Color.Orange, 0.2, instance.Token);
+                                    pixelsMatrix.InjectRow(Color.Orange, 0.2, instance.Token);
                                     break;
                             }
 
@@ -1055,6 +1069,7 @@ namespace Animatroller.Scenes
             lorChristmasCanon.MapDevice("Column Red Right", lightFlood5, Utils.AdditionalData(Color.Red));
             lorChristmasCanon.MapDevice("Column Blue Right", lightFlood6, Utils.AdditionalData(Color.Blue));
             lorChristmasCanon.MapDevice("Rail Right", lightStairRail1);
+            lorChristmasCanon.MapDevice("Rail Right", lightInflatableTree);
             lorChristmasCanon.MapDevice("Column Red Left", lightFlood3, Utils.AdditionalData(Color.Red));
             lorChristmasCanon.MapDevice("Column Blue Left", lightFlood4, Utils.AdditionalData(Color.Blue));
             lorChristmasCanon.MapDevice("Column Blue Left", lightFlood7, Utils.AdditionalData(Color.Blue));
@@ -1197,6 +1212,7 @@ namespace Animatroller.Scenes
             lorBelieve.MapDevice("Ferris Wheel 6", lightRail4);
             lorBelieve.MapDevice("Ferris Wheel 7", lightSanta);
             lorBelieve.MapDevice("Ferris Wheel 8", lightSnowman);
+            lorBelieve.MapDevice("Ferris Wheel 8", lightInflatableTree);
 
             lorBelieve.MapDevice("NATIVITY", lightHangingStar);
 
@@ -1273,7 +1289,7 @@ namespace Animatroller.Scenes
                 log.Trace("Jingle Bells {0:N0} ms", x);
             });
 
-//            lorJingleBells.Dump();
+            //            lorJingleBells.Dump();
 
             lorJingleBells.MapDevice("Unit 01.1 arch 1.1", lightNet1);
             lorJingleBells.MapDevice("Unit 01.2 arch 1.2", lightNet2);
@@ -1285,6 +1301,7 @@ namespace Animatroller.Scenes
             lorJingleBells.MapDevice("Unit 01.8 arch 1.8", lightNet8);
             lorJingleBells.MapDevice("Unit 01.9 arch 2.1", lightNet9);
             lorJingleBells.MapDevice("Unit 01.10 arch 2.2", lightNet10);
+            lorJingleBells.MapDevice("Unit 01.10 arch 2.2", lightInflatableTree);
             lorJingleBells.MapDevice("Unit 01.11 arch 2.3", lightHat1);
             lorJingleBells.MapDevice("Unit 01.12 arch 2.4", lightHat2);
             lorJingleBells.MapDevice("Unit 01.13arch 2.5", lightHat3);

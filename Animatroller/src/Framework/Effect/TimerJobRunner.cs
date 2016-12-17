@@ -215,7 +215,7 @@ namespace Animatroller.Framework.Effect2
                         this.timerJobs.Remove(deleteJob);
                 }
 
-                log.Debug("{0} running jobs, out of {1}. {2} deleted", runningTimers, totalTimers, deletedTimers);
+                log.Debug("{0} running jobs out of {1}. {2} deleted", runningTimers, totalTimers, deletedTimers);
             }, null, 1000, 30000);
         }
 
@@ -252,7 +252,8 @@ namespace Animatroller.Framework.Effect2
                     timerJob = new T();
                     this.timerJobs.Add(timerJob);
 
-                    log.Debug("Total {0} timer jobs", this.timerJobs.Count);
+                    int runningJobs = this.timerJobs.Where(x => x.Running).Count();
+                    log.Debug("Total {0} timer jobs, {1} running", this.timerJobs.Count, runningJobs);
                 }
 
                 return initAction(timerJob, durationMs, this.timer.ElapsedMs);

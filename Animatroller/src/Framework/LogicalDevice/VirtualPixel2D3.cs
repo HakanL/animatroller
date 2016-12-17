@@ -343,6 +343,26 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(token);
         }
 
+        public void InjectRow(Color color, double brightness = 1.0, IControlToken token = null)
+        {
+            IData data = GetFrameBuffer(token, this);
+            var bitmap = (Bitmap)data[DataElements.PixelBitmap];
+
+            Color injectColor = GetColorFromColorAndBrightness(color, brightness);
+
+            lock (this.lockObject)
+            {
+                using (var g = Graphics.FromImage(bitmap))
+                using (var b = new SolidBrush(injectColor))
+                {
+                    g.DrawImageUnscaled(bitmap, 0, -1);
+                    g.FillRectangle(b, 0, this.pixelHeight - 1, this.pixelWidth, 1);
+                }
+            }
+
+            PushOutput(token);
+        }
+
         [Obsolete("Just for testing, not a very useful function")]
         public void Inject(Color color, double brightness = 1.0, IControlToken token = null)
         {
