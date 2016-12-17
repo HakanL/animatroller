@@ -63,7 +63,7 @@ namespace Animatroller.Framework.Import
 
         public IControlToken Token { get { return this.token; } }
 
-        protected void PopulateTimeline()
+        public void ListUnmappedChannels()
         {
             foreach (var kvp in this.channelData)
             {
@@ -72,7 +72,10 @@ namespace Animatroller.Framework.Import
                     log.Warn("No devices mapped to {0} ({1})", kvp.Key, kvp.Value.Name);
                 }
             }
+        }
 
+        protected void PopulateTimeline()
+        {
             foreach (var kvp in this.mappedDevices)
             {
                 AddEffectData(kvp.Key, kvp.Value, ChannelEffectInstance.DeviceType.Brightness);

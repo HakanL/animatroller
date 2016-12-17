@@ -41,11 +41,12 @@ namespace Animatroller.Scenes
         public enum States
         {
             Background,
-            Music1,
-            Music2,
+            MusicChristmasCanon,
+            MusicBelieve,
             SantaVideo,
             DarthVader,
-            Music3
+            MusicSarajevo,
+            MusicHolyNight
         }
 
         Color[] treeColors = new Color[]
@@ -188,6 +189,8 @@ namespace Animatroller.Scenes
         Import.LorImport2 lorChristmasCanon = new Import.LorImport2();
         Import.LorImport2 lorBelieve = new Import.LorImport2();
         Import.LorImport2 lorJingleBells = new Import.LorImport2();
+        Import.LorImport2 lorSarajevo = new Import.LorImport2();
+        Import.LorImport2 lorHolyNight = new Import.LorImport2();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
@@ -198,9 +201,10 @@ namespace Animatroller.Scenes
         Controller.Subroutine subBackground = new Controller.Subroutine();
         Controller.Subroutine subSantaVideo = new Controller.Subroutine();
         Controller.Subroutine subRandomSantaVideo = new Controller.Subroutine();
-        Controller.Subroutine subMusic1 = new Controller.Subroutine();
-        Controller.Subroutine subMusic2 = new Controller.Subroutine();
-        Controller.Subroutine subMusic3 = new Controller.Subroutine();
+        Controller.Subroutine subMusicChristmasCanon = new Controller.Subroutine();
+        Controller.Subroutine subMusicBelieve = new Controller.Subroutine();
+        Controller.Subroutine subMusicSarajevo = new Controller.Subroutine();
+        Controller.Subroutine subMusicHolyNight = new Controller.Subroutine();
         Controller.Subroutine subOlaf = new Controller.Subroutine();
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
         Controller.Subroutine subPoppy = new Controller.Subroutine();
@@ -300,9 +304,10 @@ namespace Animatroller.Scenes
             });
 
             stateMachine.ForFromSubroutine(States.Background, subBackground);
-            stateMachine.ForFromSubroutine(States.Music1, subMusic1);
-            stateMachine.ForFromSubroutine(States.Music2, subMusic2);
-            stateMachine.ForFromSubroutine(States.Music3, subMusic3);
+            stateMachine.ForFromSubroutine(States.MusicChristmasCanon, subMusicChristmasCanon);
+            stateMachine.ForFromSubroutine(States.MusicBelieve, subMusicBelieve);
+            stateMachine.ForFromSubroutine(States.MusicSarajevo, subMusicSarajevo);
+            stateMachine.ForFromSubroutine(States.MusicHolyNight, subMusicHolyNight);
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
@@ -653,7 +658,7 @@ namespace Animatroller.Scenes
                         }
                     });
 
-            subMusic1
+            subMusicChristmasCanon
                 .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree)
                 .RunAction(ins =>
                     {
@@ -668,7 +673,7 @@ namespace Animatroller.Scenes
                         audioHiFi.PauseTrack();
                     });
 
-            subMusic2
+            subMusicBelieve
                 .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree, hazerFanSpeed, hazerHazeOutput)
                 .RunAction(ins =>
                 {
@@ -685,18 +690,33 @@ namespace Animatroller.Scenes
                     audioHiFi.PauseTrack();
                 });
 
-            subMusic3
+            subMusicSarajevo
                 .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree)
                 .RunAction(ins =>
                 {
                     lightSantaPopup.SetBrightness(1);
                     movingHead.SetColor(Color.Red, 1);
                     lightXmasTree.SetValue(true);
-                    audioHiFi.PlayTrack("TODO");
+                    audioHiFi.PlayTrack("04 Christmas Eve _ Sarajevo (Instrum.wav");
                     ins.WaitFor(S(260));
                 }).TearDown(i =>
                 {
-                    lorBelieve.Stop();
+                    lorSarajevo.Stop();
+                    audioHiFi.PauseTrack();
+                });
+
+            subMusicHolyNight
+                .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree)
+                .RunAction(ins =>
+                {
+                    lightSantaPopup.SetBrightness(1);
+                    movingHead.SetColor(Color.Red, 1);
+                    lightXmasTree.SetValue(true);
+                    audioHiFi.PlayTrack("01 O Come All Ye Faithful _ O Holy N.wav");
+                    ins.WaitFor(S(260));
+                }).TearDown(i =>
+                {
+                    lorHolyNight.Stop();
                     audioHiFi.PauseTrack();
                 });
 
@@ -901,7 +921,7 @@ namespace Animatroller.Scenes
             controlButtonBlue.WhenOutputChanges(x =>
             {
                 if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
-                    stateMachine.GoToState(States.Music2);
+                    stateMachine.GoToState(States.MusicBelieve);
             });
 
             controlButtonWhite.WhenOutputChanges(x =>
@@ -913,7 +933,7 @@ namespace Animatroller.Scenes
             controlButtonGreen.WhenOutputChanges(x =>
             {
                 if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
-                    stateMachine.GoToState(States.Music1);
+                    stateMachine.GoToState(States.MusicChristmasCanon);
             });
 
             controlButtonBlack.WhenOutputChanges(x =>
@@ -975,6 +995,14 @@ namespace Animatroller.Scenes
                     case "T.P.E. - 04 - Josh Groban - Believe.flac":
                         lorBelieve.Start();
                         break;
+
+                    case "04 Christmas Eve _ Sarajevo (Instrum.wav":
+                        lorSarajevo.Start();
+                        break;
+
+                    case "01 O Come All Ye Faithful _ O Holy N.wav":
+                        lorHolyNight.Start();
+                        break;
                 }
             };
 
@@ -995,6 +1023,8 @@ namespace Animatroller.Scenes
             ImportAndMapChristmasCanon();
             ImportAndMapBelieve();
             ImportAndMapJingleBells();
+            ImportAndMapSarajevo();
+            ImportAndMapHolyNight();
 
             ConfigureMIDI();
             ConfigureOSC();
@@ -1236,7 +1266,7 @@ namespace Animatroller.Scenes
             lorBelieve.MapDevice("Mega Tree 9",
                 new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 10",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 9, 20, 1, lorBelieve.Token)));
 
             lorBelieve.ControlDevice(pixelsBetweenTrees);
             lorBelieve.MapDevice("Mega Tree 1",
@@ -1399,6 +1429,484 @@ namespace Animatroller.Scenes
             lorJingleBells.MapDevice("01.16 mega tree topper 02", lightTreeStars);
 
             lorJingleBells.Prepare();
+        }
+
+        private void ImportAndMapSarajevo()
+        {
+            lorSarajevo.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Christmas Eve (Sarajevo) 64 done 4.lms"));
+
+            lorSarajevo.Progress.Subscribe(x =>
+            {
+                log.Trace("Sarajevo {0:N0} ms", x);
+            });
+
+            // Lights:
+            //lightNet1
+            //lightNet2
+            //lightNet3
+            //lightNet4
+            //lightNet5
+            //lightNet6
+            //lightNet7
+            //lightNet8
+            //lightNet9
+            //lightNet10
+            //lightTopper1
+            //lightTopper2
+            //lightInflatableTree
+            //lightHangingStar
+            //lightStairRail1
+            //lightStairRail2
+            //lightRail1
+            //lightRail2
+            //lightRail3
+            //lightRail4
+            //lightStairs1
+            //lightStairs2
+            //lightStairs3
+            //lightTreeStars
+            //lightSanta
+            //lightPoppy
+            //lightSnowman
+            //lightSantaPopup
+            //movingHead
+            //lightHat1
+            //lightHat2
+            //lightHat3
+            //lightHat4
+            //lightReindeers
+            //lightReindeerBig
+            //lightFlood1
+            //lightFlood2
+            //lightFlood3
+            //lightFlood4
+            //lightFlood5
+            //lightFlood6
+            //lightFlood7
+            //lightOlaf
+            //lightR2D2
+
+
+            // Channels:
+            //House 2
+            //Whole Yard
+            //Floods G
+            //Yard 2
+            //Floods R
+            //Mega Tree 2
+            //Mega Tree 1
+            //Mega Star
+            //Yard 10
+            //Mega Tree 12
+            //Mega Tree 11
+            //House 1
+            //Yard 9
+            //Mega Tree 13
+            //Yard 4
+            //Yard 6
+            //Wreath R
+            //Wreath W
+            //Mega Tree 10
+            //Mega Tree 9
+            //Mega Tree 8
+            //Mega Tree 16
+            //Mega Tree 15
+            //Mega Tree 14
+            //Yard 7
+            //Yard 3
+            //Wreath R (1)
+            //Ferris Wheel 4
+            //House 3
+            //Mega Tree 7
+            //Mega Tree 6
+            //Mega Tree 5
+            //Mega Tree 4
+            //Mega Tree 3
+            //Wreath W(1)
+            //Whole Yard(1)
+            //Ferris Wheel 3
+            //Yard 8
+            //Ferris Wheel 2
+            //Ferris Wheel 1
+            //Ferris Wheel 7
+            //Yard 5
+            //Floods W
+            //Yard 1
+            //Ferris Wheel 6
+            //Ferris Wheel 5
+            //Floods B
+            //Ferris Wheel 8
+            //Strobes
+            //NATIVITY
+            //Blue Flake 1
+            //Blue Flake 2
+            //Blue Flake 3
+            //Blue Flake 4
+            //Blue Flake 5
+            //Blue Flake 6
+            //White Flake 1
+            //White Flake 2
+            //White Flake 3
+            //White Flake 4
+            //White Flake 5
+            //White Flake 6
+            //Eiffel Tower
+            //Spotlight
+
+            //lorSarajevo.Dump();
+
+            lorSarajevo.MapDevice("Yard 1", lightNet1);
+            lorSarajevo.MapDevice("Yard 2", lightNet2);
+            lorSarajevo.MapDevice("Yard 3", lightNet3);
+            lorSarajevo.MapDevice("Yard 4", lightNet4);
+            lorSarajevo.MapDevice("Yard 5", lightNet5);
+            lorSarajevo.MapDevice("Yard 6", lightNet6);
+            lorSarajevo.MapDevice("Yard 7", lightNet7);
+            lorSarajevo.MapDevice("Yard 8", lightNet8);
+            lorSarajevo.MapDevice("Yard 9", lightNet9);
+            lorSarajevo.MapDevice("Yard 10", lightNet10);
+            lorSarajevo.MapDevice("Yard 5", lightHat1);
+            lorSarajevo.MapDevice("Yard 6", lightHat2);
+            lorSarajevo.MapDevice("Yard 7", lightHat3);
+            lorSarajevo.MapDevice("Yard 8", lightHat4);
+
+            lorSarajevo.MapDevice("Yard 9", lightTreeStars);
+            lorSarajevo.MapDevice("Yard 10", lightReindeerBig);
+
+            lorSarajevo.MapDevice("House 1", lightR2D2);
+            lorSarajevo.MapDevice("House 2", lightOlaf);
+            lorSarajevo.MapDevice("House 3", lightPoppy);
+
+            lorSarajevo.MapDevice("Wreath W", lightStairs1);
+            lorSarajevo.MapDevice("Wreath R", lightStairs2);
+            lorSarajevo.MapDevice("Wreath W", lightStairs3);
+            lorSarajevo.MapDevice("Wreath W", lightStairRail1);
+            lorSarajevo.MapDevice("Wreath R", lightStairRail2);
+
+            lorSarajevo.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood1);
+            lorSarajevo.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood2);
+            lorSarajevo.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood3);
+            lorSarajevo.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood4);
+            lorSarajevo.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood5);
+            lorSarajevo.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood6);
+            lorSarajevo.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood7);
+
+            lorSarajevo.MapDevice("Ferris Wheel 1", lightTopper1);
+            lorSarajevo.MapDevice("Ferris Wheel 2", lightTopper2);
+            lorSarajevo.MapDevice("Ferris Wheel 3", lightRail1);
+            lorSarajevo.MapDevice("Ferris Wheel 4", lightRail2);
+            lorSarajevo.MapDevice("Ferris Wheel 5", lightReindeers);
+            lorSarajevo.MapDevice("Ferris Wheel 5", lightRail3);
+            lorSarajevo.MapDevice("Ferris Wheel 6", lightRail4);
+            lorSarajevo.MapDevice("Ferris Wheel 7", lightSanta);
+            lorSarajevo.MapDevice("Ferris Wheel 8", lightSnowman);
+            lorSarajevo.MapDevice("Ferris Wheel 8", lightInflatableTree);
+
+            lorSarajevo.MapDevice("NATIVITY", lightHangingStar);
+
+            lorSarajevo.ControlDevice(pixelsMatrix);
+            lorSarajevo.MapDevice("Mega Tree 1",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 0, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 2",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 1, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 3",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 2, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 4",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 5",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 4, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 6",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 5, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 7",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 6, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 8",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 7, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 9",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 8, 20, 1, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 10",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 9, 20, 1, lorSarajevo.Token)));
+
+            lorSarajevo.ControlDevice(pixelsBetweenTrees);
+            lorSarajevo.MapDevice("Mega Tree 1",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 0, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 2",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 3, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 3",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 6, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 4",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 9, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 5",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 12, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 6",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 15, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 7",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 18, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 8",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 21, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 9",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 24, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 10",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 27, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 11",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 30, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 12",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 33, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 13",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 36, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 14",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 39, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 15",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 42, 3, lorSarajevo.Token)));
+            lorSarajevo.MapDevice("Mega Tree 16",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 45, 3, lorSarajevo.Token)));
+
+            lorSarajevo.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.White));
+            lorSarajevo.MapDevice("Mega Star", pixelsGround, Utils.AdditionalData(Color.White));
+            lorSarajevo.MapDevice("Mega Star", pixelsTree, Utils.AdditionalData(Color.White));
+            lorSarajevo.MapDevice("Mega Star", pixelsHeart, Utils.AdditionalData(Color.White));
+
+            lorSarajevo.Prepare();
+
+            //lorSarajevo.ListUnmappedChannels();
+        }
+
+        private void ImportAndMapHolyNight()
+        {
+            lorHolyNight.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Oh Come All Ye Faithful Oh Holy Night - TSO 64 done 1.lms"));
+
+            lorHolyNight.Progress.Subscribe(x =>
+            {
+                log.Trace("HolyNight {0:N0} ms", x);
+            });
+
+            // Lights:
+            //lightNet1
+            //lightNet2
+            //lightNet3
+            //lightNet4
+            //lightNet5
+            //lightNet6
+            //lightNet7
+            //lightNet8
+            //lightNet9
+            //lightNet10
+            //lightTopper1
+            //lightTopper2
+            //lightInflatableTree
+            //lightHangingStar
+            //lightStairRail1
+            //lightStairRail2
+            //lightRail1
+            //lightRail2
+            //lightRail3
+            //lightRail4
+            //lightStairs1
+            //lightStairs2
+            //lightStairs3
+            //lightTreeStars
+            //lightSanta
+            //lightPoppy
+            //lightSnowman
+            //lightSantaPopup
+            //movingHead
+            //lightHat1
+            //lightHat2
+            //lightHat3
+            //lightHat4
+            //lightReindeers
+            //lightReindeerBig
+            //lightFlood1
+            //lightFlood2
+            //lightFlood3
+            //lightFlood4
+            //lightFlood5
+            //lightFlood6
+            //lightFlood7
+            //lightOlaf
+            //lightR2D2
+
+
+            // Channels:
+            //Whole Yard
+            //Whole Yard (1)
+            //House 1
+            //House 2
+            //House 3
+            //Yard 1
+            //Yard 2
+            //Yard 3
+            //Yard 4
+            //Yard 5
+            //Yard 7
+            //Yard 8
+            //Yard 10
+            //Mega Star
+            //Mega Tree 1
+            //Yard 6
+            //Yard 9
+            //Mega Tree 2
+            //Mega Tree 3
+            //Mega Tree 4
+            //Mega Tree 5
+            //Mega Tree 6
+            //Mega Tree 7
+            //Mega Tree 8
+            //Mega Tree 9
+            //Mega Tree 10
+            //Mega Tree 11
+            //Mega Tree 12
+            //Mega Tree 13
+            //Mega Tree 14
+            //Mega Tree 15
+            //Mega Tree 16
+            //Wreath W
+            //Wreath R
+            //Wreath W(1)
+            //Wreath R(1)
+            //Ferris Wheel 1
+            //Ferris Wheel 2
+            //Ferris Wheel 3
+            //Ferris Wheel 4
+            //Ferris Wheel 5
+            //Ferris Wheel 6
+            //Ferris Wheel 7
+            //Ferris Wheel 8
+            //Floods B
+            //Floods G
+            //Floods R
+            //Floods W
+            //Strobes
+            //NATIVITY
+            //Street Bush 1
+            //Street Bush 2
+            //Street Bush 3
+            //Street Bush 4
+            //Street Bush 5
+            //Street Bush 6
+            //Street Bush 1(1)
+            //Street Bush 2(1)
+            //Street Bush 3(1)
+            //Street Bush 4(1)
+            //Street Bush 5(1)
+            //Street Bush 6(1)
+            //Other
+            //Other(1)
+
+            //lorHolyNight.Dump();
+
+            lorHolyNight.MapDevice("Yard 1", lightNet1);
+            lorHolyNight.MapDevice("Yard 2", lightNet2);
+            lorHolyNight.MapDevice("Yard 3", lightNet3);
+            lorHolyNight.MapDevice("Yard 4", lightNet4);
+            lorHolyNight.MapDevice("Yard 5", lightNet5);
+            lorHolyNight.MapDevice("Yard 6", lightNet6);
+            lorHolyNight.MapDevice("Yard 7", lightNet7);
+            lorHolyNight.MapDevice("Yard 8", lightNet8);
+            lorHolyNight.MapDevice("Yard 9", lightNet9);
+            lorHolyNight.MapDevice("Yard 10", lightNet10);
+            lorHolyNight.MapDevice("Yard 5", lightHat1);
+            lorHolyNight.MapDevice("Yard 6", lightHat2);
+            lorHolyNight.MapDevice("Yard 7", lightHat3);
+            lorHolyNight.MapDevice("Yard 8", lightHat4);
+
+            lorHolyNight.MapDevice("Yard 9", lightTreeStars);
+            lorHolyNight.MapDevice("Yard 10", lightReindeerBig);
+
+            lorHolyNight.MapDevice("House 1", lightR2D2);
+            lorHolyNight.MapDevice("House 2", lightOlaf);
+            lorHolyNight.MapDevice("House 3", lightPoppy);
+
+            lorHolyNight.MapDevice("Wreath W", lightStairs1);
+            lorHolyNight.MapDevice("Wreath R", lightStairs2);
+            lorHolyNight.MapDevice("Wreath W", lightStairs3);
+            lorHolyNight.MapDevice("Wreath W", lightStairRail1);
+            lorHolyNight.MapDevice("Wreath R", lightStairRail2);
+
+            lorHolyNight.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood1);
+            lorHolyNight.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood2);
+            lorHolyNight.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood3);
+            lorHolyNight.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood4);
+            lorHolyNight.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood5);
+            lorHolyNight.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood6);
+            lorHolyNight.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood7);
+
+            lorHolyNight.MapDevice("Ferris Wheel 1", lightTopper1);
+            lorHolyNight.MapDevice("Ferris Wheel 2", lightTopper2);
+            lorHolyNight.MapDevice("Ferris Wheel 3", lightRail1);
+            lorHolyNight.MapDevice("Ferris Wheel 4", lightRail2);
+            lorHolyNight.MapDevice("Ferris Wheel 5", lightReindeers);
+            lorHolyNight.MapDevice("Ferris Wheel 5", lightRail3);
+            lorHolyNight.MapDevice("Ferris Wheel 6", lightRail4);
+            lorHolyNight.MapDevice("Ferris Wheel 7", lightSanta);
+            lorHolyNight.MapDevice("Ferris Wheel 8", lightSnowman);
+            lorHolyNight.MapDevice("Ferris Wheel 8", lightInflatableTree);
+
+            lorHolyNight.MapDevice("NATIVITY", lightHangingStar);
+
+            lorHolyNight.ControlDevice(pixelsMatrix);
+            lorHolyNight.MapDevice("Mega Tree 1",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 0, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 2",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 1, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 3",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 2, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 4",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 5",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 4, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 6",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 5, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 7",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 6, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 8",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 7, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 9",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 10",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 9, 20, 1, lorHolyNight.Token)));
+
+            lorHolyNight.ControlDevice(pixelsBetweenTrees);
+            lorHolyNight.MapDevice("Mega Tree 1",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 0, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 2",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 3, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 3",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 6, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 4",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 9, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 5",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 12, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 6",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 15, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 7",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 18, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 8",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 21, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 9",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 24, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 10",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 27, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 11",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 30, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 12",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 33, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 13",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 36, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 14",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 39, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 15",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 42, 3, lorHolyNight.Token)));
+            lorHolyNight.MapDevice("Mega Tree 16",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 45, 3, lorHolyNight.Token)));
+
+            lorHolyNight.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
+            lorHolyNight.MapDevice("Mega Star", pixelsGround, Utils.AdditionalData(Color.White));
+            lorHolyNight.MapDevice("Mega Star", pixelsTree, Utils.AdditionalData(Color.Red));
+            lorHolyNight.MapDevice("Mega Star", pixelsHeart, Utils.AdditionalData(Color.Red));
+
+            lorHolyNight.Prepare();
+
+            //lorHolyNight.ListUnmappedChannels();
         }
 
         public override void Run()

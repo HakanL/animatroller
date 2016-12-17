@@ -33,25 +33,19 @@ namespace Animatroller.Scenes
             midiAkai.Note(midiChannel, 37).Subscribe(x =>
             {
                 if (x)
-                    stateMachine.GoToState(States.Music1);
+                    stateMachine.GoToState(States.MusicChristmasCanon);
             });
 
             midiAkai.Note(midiChannel, 38).Subscribe(x =>
             {
                 if (x)
-                    stateMachine.GoToState(States.Music2);
+                    stateMachine.GoToState(States.MusicBelieve);
             });
 
             midiAkai.Note(midiChannel, 39).Subscribe(x =>
             {
                 if (x)
-                    stateMachine.GoToState(States.Music3);
-                //               lightNet7.SetBrightness(x ? 1 : 0);
-                //if (x)
-                //{
-                //    lorFeelTheLight.Stop();
-                //    audioHiFi.PauseTrack();
-                //}
+                    stateMachine.GoToState(States.MusicSarajevo);
             });
 
             midiAkai.Note(midiChannel, 40).Subscribe(x =>
@@ -70,6 +64,13 @@ namespace Animatroller.Scenes
                 if (x)
                     stateMachine.GoToState(States.SantaVideo);
             });
+
+            midiAkai.Note(midiChannel, 42).Subscribe(x =>
+            {
+                if (x)
+                    stateMachine.GoToState(States.MusicHolyNight);
+            });
+
 
             midiAkai.Controller(midiChannel, 1).Controls(faderR.Control);
             midiAkai.Controller(midiChannel, 2).Controls(faderG.Control);
