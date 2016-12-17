@@ -71,6 +71,12 @@ namespace Animatroller.Scenes
                     stateMachine.GoToState(States.MusicHolyNight);
             });
 
+            midiAkai.Note(midiChannel, 43).Subscribe(x =>
+            {
+                if (x)
+                    stateMachine.GoToState(States.MusicCarol);
+            });
+
 
             midiAkai.Controller(midiChannel, 1).Controls(faderR.Control);
             midiAkai.Controller(midiChannel, 2).Controls(faderG.Control);

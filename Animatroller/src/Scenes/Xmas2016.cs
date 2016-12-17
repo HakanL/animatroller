@@ -46,7 +46,8 @@ namespace Animatroller.Scenes
             SantaVideo,
             DarthVader,
             MusicSarajevo,
-            MusicHolyNight
+            MusicHolyNight,
+            MusicCarol
         }
 
         Color[] treeColors = new Color[]
@@ -84,7 +85,6 @@ namespace Animatroller.Scenes
         Effect.Pulsating pulsatingEffectOlaf = new Effect.Pulsating(S(1), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffectPoppy = new Effect.Pulsating(S(1), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffectR2D2 = new Effect.Pulsating(S(1), 0.5, 1.0, false);
-        Effect.Pulsating pulsatingEffect3 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffectGeneral = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffectTree = new Effect.Pulsating(S(3), 0.0, 1.0, false);
         Effect.Pulsating pulsatingPinSpot = new Effect.Pulsating(S(2), 0.2, 1.0, false);
@@ -93,9 +93,9 @@ namespace Animatroller.Scenes
         DigitalInput2 inOlaf = new DigitalInput2();
         DigitalInput2 inR2D2 = new DigitalInput2();
         DigitalInput2 inPoppy = new DigitalInput2();
+        DigitalInput2 controlButtonWhite = new DigitalInput2();
         DigitalInput2 controlButtonYellow = new DigitalInput2();
         DigitalInput2 controlButtonBlue = new DigitalInput2();
-        DigitalInput2 controlButtonWhite = new DigitalInput2();
         DigitalInput2 controlButtonGreen = new DigitalInput2();
         DigitalInput2 controlButtonBlack = new DigitalInput2();
         DigitalInput2 controlButtonRed = new DigitalInput2(holdTimeout: S(5));
@@ -191,6 +191,7 @@ namespace Animatroller.Scenes
         Import.LorImport2 lorJingleBells = new Import.LorImport2();
         Import.LorImport2 lorSarajevo = new Import.LorImport2();
         Import.LorImport2 lorHolyNight = new Import.LorImport2();
+        Import.LorImport2 lorCarol = new Import.LorImport2();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         private DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
@@ -205,6 +206,7 @@ namespace Animatroller.Scenes
         Controller.Subroutine subMusicBelieve = new Controller.Subroutine();
         Controller.Subroutine subMusicSarajevo = new Controller.Subroutine();
         Controller.Subroutine subMusicHolyNight = new Controller.Subroutine();
+        Controller.Subroutine subMusicCarol = new Controller.Subroutine();
         Controller.Subroutine subOlaf = new Controller.Subroutine();
         Controller.Subroutine subR2D2 = new Controller.Subroutine();
         Controller.Subroutine subPoppy = new Controller.Subroutine();
@@ -236,9 +238,6 @@ namespace Animatroller.Scenes
             pulsatingEffectOlaf.ConnectTo(lightOlaf);
             pulsatingEffectPoppy.ConnectTo(lightPoppy);
             pulsatingEffectR2D2.ConnectTo(lightR2D2);
-            pulsatingEffect3.ConnectTo(pixelsRoofEdge, Utils.AdditionalData(Color.Red));
-            //pulsatingEffect4.ConnectTo(lightBlueButton);
-            //pulsatingEffect4.ConnectTo(lightRedButton);
             pulsatingEffectGeneral.ConnectTo(lightHangingStar);
             pulsatingEffectGeneral.ConnectTo(lightOlaf);
             pulsatingEffectGeneral.ConnectTo(lightR2D2);
@@ -267,16 +266,15 @@ namespace Animatroller.Scenes
             expanderLedmx.DigitalInputs[4].Connect(inOlaf);
             expanderSnow.DigitalOutputs[6].Connect(snowMachine);
 
-            expanderControlPanel.DigitalInputs[0].Connect(controlButtonYellow, true);
-            expanderControlPanel.DigitalInputs[1].Connect(controlButtonBlue, true);
-            expanderControlPanel.DigitalInputs[2].Connect(controlButtonWhite, true);
+            expanderControlPanel.DigitalInputs[0].Connect(controlButtonWhite, true);
+            expanderControlPanel.DigitalInputs[1].Connect(controlButtonYellow, true);
+            expanderControlPanel.DigitalInputs[2].Connect(controlButtonBlue, true);
             expanderControlPanel.DigitalInputs[3].Connect(controlButtonGreen, true);
             expanderControlPanel.DigitalInputs[4].Connect(controlButtonBlack, true);
             expanderControlPanel.DigitalInputs[5].Connect(controlButtonRed, true);
 
             expanderLedmx.Connect(audioLedmx);
             expanderHiFi.Connect(audioHiFi);
-            //expander3.Connect(video3);
             expanderSnow.Connect(audioDarthVader);
             expanderVideo1.Connect(audioVideo1);
 
@@ -308,6 +306,7 @@ namespace Animatroller.Scenes
             stateMachine.ForFromSubroutine(States.MusicBelieve, subMusicBelieve);
             stateMachine.ForFromSubroutine(States.MusicSarajevo, subMusicSarajevo);
             stateMachine.ForFromSubroutine(States.MusicHolyNight, subMusicHolyNight);
+            stateMachine.ForFromSubroutine(States.MusicCarol, subMusicCarol);
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
@@ -698,7 +697,7 @@ namespace Animatroller.Scenes
                     movingHead.SetColor(Color.Red, 1);
                     lightXmasTree.SetValue(true);
                     audioHiFi.PlayTrack("04 Christmas Eve _ Sarajevo (Instrum.wav");
-                    ins.WaitFor(S(260));
+                    ins.WaitFor(S(210));
                 }).TearDown(i =>
                 {
                     lorSarajevo.Stop();
@@ -717,6 +716,21 @@ namespace Animatroller.Scenes
                 }).TearDown(i =>
                 {
                     lorHolyNight.Stop();
+                    audioHiFi.PauseTrack();
+                });
+
+            subMusicCarol
+                .LockWhenRunning(lightSantaPopup, movingHead, lightXmasTree)
+                .RunAction(ins =>
+                {
+                    lightSantaPopup.SetBrightness(1);
+                    movingHead.SetColor(Color.Red, 1);
+                    lightXmasTree.SetValue(true);
+                    audioHiFi.PlayTrack("09 Carol of the Bells (Instrumental).wav");
+                    ins.WaitFor(S(160));
+                }).TearDown(i =>
+                {
+                    lorCarol.Stop();
                     audioHiFi.PauseTrack();
                 });
 
@@ -912,6 +926,12 @@ namespace Animatroller.Scenes
                     subPoppy.Run();
             });
 
+            controlButtonWhite.WhenOutputChanges(x =>
+            {
+                if (x && hours.IsOpen)
+                    subSnow.Run();
+            });
+
             controlButtonYellow.WhenOutputChanges(x =>
             {
                 if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
@@ -924,28 +944,42 @@ namespace Animatroller.Scenes
                     stateMachine.GoToState(States.MusicBelieve);
             });
 
-            controlButtonWhite.WhenOutputChanges(x =>
-            {
-                if (x && hours.IsOpen)
-                    subSnow.Run();
-            });
-
             controlButtonGreen.WhenOutputChanges(x =>
             {
                 if (x && hours.IsOpen && stateMachine.CurrentState == States.Background)
-                    stateMachine.GoToState(States.MusicChristmasCanon);
+                    stateMachine.GoToState(States.MusicHolyNight);
             });
 
             controlButtonBlack.WhenOutputChanges(x =>
             {
-                if (x && stateMachine.CurrentState != States.DarthVader)
-                    audioDarthVader.PlayEffect("force1.wav");
+                if (x)
+                {
+                    if (hours.IsOpen)
+                    {
+                        if (stateMachine.CurrentState == States.Background)
+                            stateMachine.GoToState(States.MusicSarajevo);
+                    }
+                    else
+                    {
+                        audioDarthVader.PlayEffect("force1.wav");
+                    }
+                }
             });
 
             controlButtonRed.WhenOutputChanges(x =>
             {
-                if (x && stateMachine.CurrentState == States.Background)
-                    stateMachine.GoToState(States.SantaVideo);
+                if (x)
+                {
+                    if (hours.IsOpen)
+                    {
+                        if (stateMachine.CurrentState == States.Background)
+                            stateMachine.GoToState(States.SantaVideo);
+                    }
+                    else
+                    {
+                        audioDarthVader.PlayEffect("darthvader_powerofthedarkside.wav");
+                    }
+                }
             });
 
             controlButtonRed.IsHeld.Subscribe(x =>
@@ -954,36 +988,6 @@ namespace Animatroller.Scenes
                     this.stateMachine.GoToDefaultState();
             });
 
-            /*
-                        inRedButton.Output.Subscribe(x =>
-                        {
-                            if (x)
-                            {
-                                if (hours.IsOpen)
-                                {
-                                    if (stateMachine.CurrentState == States.Background)
-                                        stateMachine.GoToState(States.DarthVader);
-                                }
-                                else
-                                    audioDarthVader.PlayEffect("darthvader_lackoffaith.wav");
-                            }
-                        });
-
-                        inBlueButton.Output.Subscribe(x =>
-                        {
-                            if (x)
-                            {
-                                if (hours.IsOpen)
-                                {
-                                    subSnow.Run();
-                                    if (stateMachine.CurrentState == States.Background)
-                                        stateMachine.GoToState(States.Music2);
-                                }
-                                else
-                                    audioDarthVader.PlayEffect("darkside.wav");
-                            }
-                        });
-            */
             audioHiFi.AudioTrackStart += (o, e) =>
             {
                 switch (e.FileName)
@@ -1003,21 +1007,16 @@ namespace Animatroller.Scenes
                     case "01 O Come All Ye Faithful _ O Holy N.wav":
                         lorHolyNight.Start();
                         break;
-                }
-            };
 
-            audioHiFi.AudioTrackDone += (o, e) =>
-            {
-                //                Thread.Sleep(5000);
-                //    audio2.PlayTrack("08 Feel the Light.wav");
+                    case "09 Carol of the Bells (Instrumental).wav":
+                        lorCarol.Start();
+                        break;
+                }
             };
 
             inShowMachine.Output.Subscribe(x =>
             {
                 snowMachine.SetValue(x);
-                //                lightRedButton.SetBrightness(x ? 1.0 : 0.0);
-                //if (x)
-                //    stateMachine.GoToState(States.Music1);
             });
 
             ImportAndMapChristmasCanon();
@@ -1025,6 +1024,7 @@ namespace Animatroller.Scenes
             ImportAndMapJingleBells();
             ImportAndMapSarajevo();
             ImportAndMapHolyNight();
+            ImportAndMapCarol();
 
             ConfigureMIDI();
             ConfigureOSC();
@@ -1907,6 +1907,181 @@ namespace Animatroller.Scenes
             lorHolyNight.Prepare();
 
             //lorHolyNight.ListUnmappedChannels();
+        }
+
+        private void ImportAndMapCarol()
+        {
+            lorCarol.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "David Foster - Carol of the Bells.lms"));
+
+            lorCarol.Progress.Subscribe(x =>
+            {
+                log.Trace("Carol {0:N0} ms", x);
+            });
+
+            // Lights:
+            //lightNet1
+            //lightNet2
+            //lightNet3
+            //lightNet4
+            //lightNet5
+            //lightNet6
+            //lightNet7
+            //lightNet8
+            //lightNet9
+            //lightNet10
+            //lightTopper1
+            //lightTopper2
+            //lightInflatableTree
+            //lightHangingStar
+            //lightStairRail1
+            //lightStairRail2
+            //lightRail1
+            //lightRail2
+            //lightRail3
+            //lightRail4
+            //lightStairs1
+            //lightStairs2
+            //lightStairs3
+            //lightTreeStars
+            //lightSanta
+            //lightPoppy
+            //lightSnowman
+            //lightSantaPopup
+            //movingHead
+            //lightHat1
+            //lightHat2
+            //lightHat3
+            //lightHat4
+            //lightReindeers
+            //lightReindeerBig
+            //lightFlood1
+            //lightFlood2
+            //lightFlood3
+            //lightFlood4
+            //lightFlood5
+            //lightFlood6
+            //lightFlood7
+            //lightOlaf
+            //lightR2D2
+
+
+            // Channels:
+
+            lorCarol.Dump();
+/*
+            lorCarol.MapDevice("Yard 1", lightNet1);
+            lorCarol.MapDevice("Yard 2", lightNet2);
+            lorCarol.MapDevice("Yard 3", lightNet3);
+            lorCarol.MapDevice("Yard 4", lightNet4);
+            lorCarol.MapDevice("Yard 5", lightNet5);
+            lorCarol.MapDevice("Yard 6", lightNet6);
+            lorCarol.MapDevice("Yard 7", lightNet7);
+            lorCarol.MapDevice("Yard 8", lightNet8);
+            lorCarol.MapDevice("Yard 9", lightNet9);
+            lorCarol.MapDevice("Yard 10", lightNet10);
+            lorCarol.MapDevice("Yard 5", lightHat1);
+            lorCarol.MapDevice("Yard 6", lightHat2);
+            lorCarol.MapDevice("Yard 7", lightHat3);
+            lorCarol.MapDevice("Yard 8", lightHat4);
+
+            lorCarol.MapDevice("Yard 9", lightTreeStars);
+            lorCarol.MapDevice("Yard 10", lightReindeerBig);
+
+            lorCarol.MapDevice("House 1", lightR2D2);
+            lorCarol.MapDevice("House 2", lightOlaf);
+            lorCarol.MapDevice("House 3", lightPoppy);
+
+            lorCarol.MapDevice("Wreath W", lightStairs1);
+            lorCarol.MapDevice("Wreath R", lightStairs2);
+            lorCarol.MapDevice("Wreath W", lightStairs3);
+            lorCarol.MapDevice("Wreath W", lightStairRail1);
+            lorCarol.MapDevice("Wreath R", lightStairRail2);
+
+            lorCarol.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood1);
+            lorCarol.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood2);
+            lorCarol.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood3);
+            lorCarol.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood4);
+            lorCarol.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood5);
+            lorCarol.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood6);
+            lorCarol.MapDeviceRGBW("Floods R", "Floods G", "Floods B", "Floods W", lightFlood7);
+
+            lorCarol.MapDevice("Ferris Wheel 1", lightTopper1);
+            lorCarol.MapDevice("Ferris Wheel 2", lightTopper2);
+            lorCarol.MapDevice("Ferris Wheel 3", lightRail1);
+            lorCarol.MapDevice("Ferris Wheel 4", lightRail2);
+            lorCarol.MapDevice("Ferris Wheel 5", lightReindeers);
+            lorCarol.MapDevice("Ferris Wheel 5", lightRail3);
+            lorCarol.MapDevice("Ferris Wheel 6", lightRail4);
+            lorCarol.MapDevice("Ferris Wheel 7", lightSanta);
+            lorCarol.MapDevice("Ferris Wheel 8", lightSnowman);
+            lorCarol.MapDevice("Ferris Wheel 8", lightInflatableTree);
+
+            lorCarol.MapDevice("NATIVITY", lightHangingStar);
+
+            lorCarol.ControlDevice(pixelsMatrix);
+            lorCarol.MapDevice("Mega Tree 1",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 0, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 2",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 1, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 3",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 2, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 4",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 5",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 4, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 6",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 5, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 7",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 6, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 8",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.White, b, 0, 7, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 9",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 10",
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 9, 20, 1, lorCarol.Token)));
+
+            lorCarol.ControlDevice(pixelsBetweenTrees);
+            lorCarol.MapDevice("Mega Tree 1",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 0, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 2",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 3, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 3",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 6, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 4",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 9, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 5",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 12, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 6",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 15, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 7",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 18, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 8",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 21, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 9",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 24, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 10",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 27, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 11",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 30, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 12",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 33, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 13",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 36, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 14",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 39, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 15",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 42, 3, lorCarol.Token)));
+            lorCarol.MapDevice("Mega Tree 16",
+                new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 45, 3, lorCarol.Token)));
+
+            lorCarol.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
+            lorCarol.MapDevice("Mega Star", pixelsGround, Utils.AdditionalData(Color.White));
+            lorCarol.MapDevice("Mega Star", pixelsTree, Utils.AdditionalData(Color.Red));
+            lorCarol.MapDevice("Mega Star", pixelsHeart, Utils.AdditionalData(Color.Red));
+*/
+            lorCarol.Prepare();
+
+            lorCarol.ListUnmappedChannels();
         }
 
         public override void Run()
