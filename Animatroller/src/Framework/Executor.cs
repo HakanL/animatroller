@@ -147,7 +147,12 @@ namespace Animatroller.Framework
             if (cancel)
             {
                 // Cancel
-                ThreadStorage.ManagedTasks.ForEach(x => x.Item2.Cancel());
+                ThreadStorage.ManagedTasks.ForEach(x =>
+                {
+                    log.Debug("Cancel 10");
+
+                    x.Item2.Cancel();
+                });
             }
 
             Task.WaitAll(ThreadStorage.ManagedTasks.Select(x => x.Item1).ToArray());
@@ -409,6 +414,8 @@ namespace Animatroller.Framework
 
             lock (lockObject)
             {
+                log.Debug("Cancel 11");
+
                 foreach (var cancel in this.cancellable.Values)
                     cancel.Item1.Cancel();
             }
@@ -469,6 +476,7 @@ namespace Animatroller.Framework
             {
                 if (this.cancelSourceForManagedTask.TryGetValue(task, out cancelSource))
                 {
+                    log.Debug("Cancel 12");
                     cancelSource.Cancel();
                 }
             }
@@ -524,6 +532,7 @@ namespace Animatroller.Framework
                     if (execInstance.Instance == jobToCancel)
                     {
                         waitTasks.Add(execInstance.Task);
+                        log.Debug("Cancel 13");
                         execInstance.CancelSource.Cancel();
                     }
                 }

@@ -194,6 +194,7 @@ namespace Animatroller.Framework.Controller
 
         public void Stop()
         {
+            log.Debug("Cancel 6");
             Executor.Current.Cancel(this);
         }
 

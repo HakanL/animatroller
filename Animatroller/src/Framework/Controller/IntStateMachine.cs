@@ -211,6 +211,7 @@ namespace Animatroller.Framework.Controller
 
             if (jobToCancel != null)
             {
+                log.Debug("Cancel 5");
                 jobToCancel.Item1.Cancel();
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 if (!jobToCancel.Item2.Wait(5000))

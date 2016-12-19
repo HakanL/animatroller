@@ -17,6 +17,7 @@ namespace Animatroller.Framework.Effect2
 {
     public class MasterEffect
     {
+        protected static Logger log = LogManager.GetCurrentClassLogger();
         private TimerJobRunner timerJobRunner;
 
         public MasterEffect(TimerJobRunner timerJobRunner)
@@ -128,6 +129,7 @@ namespace Animatroller.Framework.Effect2
                             deviceObserver.Data[DataElements.Brightness] = customList[customList.Length - 1];
                             deviceObserver.PushData();
 
+                            log.Debug("Cancel 8");
                             cancelSource.Cancel();
                             return;
                         }
@@ -185,6 +187,7 @@ namespace Animatroller.Framework.Effect2
                                 deviceObserver.Data[kvp.Key] = kvp.Value;
                             deviceObserver.PushData();
 
+                            log.Debug("Cancel 9");
                             cancelSource.Cancel();
                             return;
                         }

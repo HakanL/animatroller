@@ -117,6 +117,7 @@ namespace Animatroller.Framework.Controller
 
         public void Stop()
         {
+            log.Debug("Cancel 3");
             this.cancelSource.Cancel();
             this.task.Wait();
         }
@@ -129,6 +130,7 @@ namespace Animatroller.Framework.Controller
 
         public void Dispose()
         {
+            log.Debug("Cancel 4");
             this.cancelSource.Cancel();
         }
 

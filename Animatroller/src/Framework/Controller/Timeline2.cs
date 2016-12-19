@@ -101,6 +101,7 @@ namespace Animatroller.Framework.Controller
         {
             if (this.cancelSource != null)
             {
+                log.Debug("Cancel 7");
                 this.cancelSource.Cancel();
             }
         }

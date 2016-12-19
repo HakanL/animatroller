@@ -54,7 +54,10 @@ namespace Animatroller.Framework.LogicalDevice
                         if (x)
                             this.holdTimer.Change(this.holdTimeout.Value, TimeSpan.FromMilliseconds(-1));
                         else
+                        {
+                            this.holdTimer.Change(Timeout.Infinite, Timeout.Infinite);
                             this.outputHeld.OnNext(false);
+                        }
                     }
                 }
             });

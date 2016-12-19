@@ -98,7 +98,7 @@ namespace Animatroller.Scenes
         DigitalInput2 controlButtonBlue = new DigitalInput2();
         DigitalInput2 controlButtonGreen = new DigitalInput2();
         DigitalInput2 controlButtonBlack = new DigitalInput2();
-        DigitalInput2 controlButtonRed = new DigitalInput2(holdTimeout: S(5));
+        DigitalInput2 controlButtonRed = new DigitalInput2(holdTimeout: S(10));
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 inShowMachine = new DigitalInput2();
@@ -697,7 +697,7 @@ namespace Animatroller.Scenes
                     movingHead.SetColor(Color.Red, 1);
                     lightXmasTree.SetValue(true);
                     audioHiFi.PlayTrack("04 Christmas Eve _ Sarajevo (Instrum.wav");
-                    ins.WaitFor(S(210));
+                    ins.WaitFor(S(200));
                 }).TearDown(i =>
                 {
                     lorSarajevo.Stop();
@@ -928,7 +928,7 @@ namespace Animatroller.Scenes
 
             controlButtonWhite.WhenOutputChanges(x =>
             {
-                if (x && hours.IsOpen)
+                if (x && hours.IsOpen && stateMachine.CurrentState != States.DarthVader)
                     subSnow.Run();
             });
 
