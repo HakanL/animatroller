@@ -314,7 +314,7 @@ namespace Animatroller.Scenes
                 .ControlsMasterPower(laser)
                 .ControlsMasterPower(airR2D2Olaf)
                 .ControlsMasterPower(airSantaPoppy1)
-                .ControlsMasterPower(airSnowman)
+//                .ControlsMasterPower(airSnowman)
                 .ControlsMasterPower(airTree)
                 .ControlsMasterPower(airSantaPopup);
 
@@ -2088,6 +2088,12 @@ namespace Animatroller.Scenes
         {
             // Read from storage
             inflatablesRunning.OnNext(Exec.GetSetKey("InflatablesRunning", false));
+
+            //airR2D2Olaf.SetValue(false);
+            //airSantaPoppy1.SetValue(false);
+            airSnowman.SetValue(false);
+            //airTree.SetValue(false);
+            //airSantaPopup.SetValue(false);
         }
 
         public override void Stop()
