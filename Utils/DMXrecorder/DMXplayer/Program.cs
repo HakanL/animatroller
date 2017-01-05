@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PowerArgs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,21 +11,51 @@ namespace Animatroller.DMXplayer
     {
         public static void Main(string[] args)
         {
-            var acnStream = new AcnStream();
+            try
+            {
+                var arguments = Args.Parse<Arguments>(args);
 
-            var abc = new DmxPlayback(acnStream);
+                IOutput output;
+                switch (arguments.OutputType)
+                {
+                    case Arguments.OutputTypes.sACN:
+                        output = new AcnStream();
+                        break;
 
-            abc.Load(@"C:\Temp\rainbow-loop.bin");
+                    default:
+                        throw new ArgumentException("Unsupported output type");
+                }
 
-            acnStream.Start();
+                Common.BaseFileReader fileReader;
+                switch (arguments.FileFormat)
+                {
+                    case Arguments.FileFormats.Binary:
+                        fileReader = new Common.BinaryFileReader(arguments.InputFile);
+                        break;
 
-            abc.Run(false);
+                    default:
+                        throw new ArgumentException("Unsupported file format");
+                }
 
-            Console.ReadLine();
+                using (var dmxPlayback = new DmxPlayback(fileReader, output))
+                {
+                    dmxPlayback.Run(arguments.Loop);
 
-            abc.Dispose();
+                    Console.WriteLine("Playing back...");
 
-            acnStream.Stop();
+                    dmxPlayback.WaitForCompletion();
+                }
+            }
+            catch (ArgException ex)
+            {
+                Console.WriteLine("Argument error {0}", ex.Message);
+
+                Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<Arguments>());
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unhandled exception: {0}", ex);
+            }
         }
     }
 }

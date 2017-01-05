@@ -7,44 +7,23 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Common
 {
-    public class BinaryFileReader : IDisposable
+    public class BinaryFileReader : BaseFileReader
     {
-        private FileStream file;
         private BinaryReader binRead;
 
         public BinaryFileReader(string fileName)
+            : base(fileName)
         {
-            this.file = System.IO.File.OpenRead(fileName);
-            this.binRead = new System.IO.BinaryReader(file);
+            this.binRead = new System.IO.BinaryReader(this.fileStream);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            if (this.file != null)
-            {
-                this.file.Dispose();
-
-                this.file = null;
-            }
+            this.binRead.Dispose();
+            base.Dispose();
         }
 
-        public bool DataAvailable
-        {
-            get { return this.file.Position < this.file.Length; }
-        }
-
-        public long Position
-        {
-            get { return this.file.Position; }
-            set { this.file.Position = value; }
-        }
-
-        public long Length
-        {
-            get { return this.file.Length; }
-        }
-
-        public DmxData ReadFrame()
+        public override DmxData ReadFrame()
         {
             var target = new DmxData();
             byte start = this.binRead.ReadByte();

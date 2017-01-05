@@ -15,48 +15,10 @@ using Acn.Helpers;
 
 namespace Animatroller.DMXplayer
 {
-    public class AcnStream
+    public class AcnStream : IOutput
     {
         public readonly Guid dmxPlayerAcnId = new Guid("{D599A13F-8117-4A6E-AE1E-753B7D4DB347}");
-        private bool isRunning;
-
-        public class AcnUniverse : IDisposable
-        {
-            private int universe;
-            private Acn.DmxStreamer streamer;
-            private DmxUniverse dmxUniverse;
-            private AcnStream parent;
-
-            public AcnUniverse(Acn.DmxStreamer streamer, int universe, AcnStream parent)
-            {
-                this.streamer = streamer;
-                this.universe = universe;
-                this.parent = parent;
-
-                this.dmxUniverse = new DmxUniverse(universe);
-                bool isStreamerRunning = this.streamer.Streaming;
-                if (isStreamerRunning)
-                    this.streamer.Stop();
-                this.streamer.AddUniverse(this.dmxUniverse);
-                if (isStreamerRunning)
-                    this.streamer.Start();
-            }
-
-            public void Dispose()
-            {
-                this.streamer.RemoveUniverse(this.universe);
-            }
-
-            public void SetDmx(byte[] data)
-            {
-                this.dmxUniverse.SetDmx(data);
-            }
-        }
-
-        private object lockObject = new object();
         private StreamingAcnSocket socket;
-        private Acn.DmxStreamer dmxStreamer;
-        private Dictionary<int, AcnUniverse> sendingUniverses;
         private byte priority;
 
         public AcnStream(IPAddress bindIpAddress, byte priority)
@@ -67,14 +29,9 @@ namespace Animatroller.DMXplayer
             this.priority = priority;
 
             this.socket = new StreamingAcnSocket(dmxPlayerAcnId, "DmxPlayer");
-            this.socket.NewPacket += socket_NewPacket;
             this.socket.Open(new IPEndPoint(bindIpAddress, 0));
             this.socket.UnhandledException += Socket_UnhandledException;
             Console.WriteLine("ACN binding to {0}", bindIpAddress);
-
-            this.dmxStreamer = new DmxStreamer(this.socket);
-            this.dmxStreamer.Priority = priority;
-            this.sendingUniverses = new Dictionary<int, AcnUniverse>();
         }
 
         private void Socket_UnhandledException(object sender, UnhandledExceptionEventArgs e)
@@ -87,19 +44,6 @@ namespace Animatroller.DMXplayer
         {
         }
 
-        public AcnStream JoinDmxUniverse(params int[] universes)
-        {
-            foreach (int universe in universes)
-                this.socket.JoinDmxUniverse(universe);
-
-            return this;
-        }
-
-        private void socket_NewPacket(object sender, NewPacketEventArgs<StreamingAcnDmxPacket> e)
-        {
-            // Received DMX packet on ACN stream
-        }
-
         public void SendDmx(int universe, byte[] data, byte? priority = null)
         {
             this.socket.SendDmx(
@@ -107,25 +51,6 @@ namespace Animatroller.DMXplayer
                 startCode: 0,
                 dmxData: data,
                 priority: priority ?? this.priority);
-        }
-
-        public AcnUniverse GetSendingUniverse(int universe)
-        {
-            AcnUniverse acnUniverse;
-            lock (this.lockObject)
-            {
-                if (!this.sendingUniverses.TryGetValue(universe, out acnUniverse))
-                {
-                    acnUniverse = new AcnUniverse(this.dmxStreamer, universe, this);
-
-                    this.sendingUniverses.Add(universe, acnUniverse);
-
-                    if (this.isRunning && !this.dmxStreamer.Streaming)
-                        this.dmxStreamer.Start();
-                }
-            }
-
-            return acnUniverse;
         }
 
         private IPAddress GetAddressFromInterfaceType(NetworkInterfaceType interfaceType)
@@ -162,26 +87,11 @@ namespace Animatroller.DMXplayer
             throw new ArgumentException("No suitable NIC found");
         }
 
-        public void Start()
+        public void Dispose()
         {
-            if (this.sendingUniverses.Any())
-                this.dmxStreamer.Start();
-
-            this.isRunning = true;
-        }
-
-        public void Stop()
-        {
-            lock (this.lockObject)
-            {
-                foreach (var sendingUniverse in this.sendingUniverses.Values)
-                    sendingUniverse.Dispose();
-                this.sendingUniverses.Clear();
-            }
-
-            this.dmxStreamer.Stop();
-
-            this.isRunning = false;
+            this.socket.Close();
+            this.socket.Dispose();
+            this.socket = null;
         }
     }
 }

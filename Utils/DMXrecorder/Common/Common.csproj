@@ -51,7 +51,8 @@
     <Compile Include="BinaryFileReader.cs" />
     <Compile Include="BinaryFileWriter.cs" />
     <Compile Include="CsvFileWriter.cs" />
-    <Compile Include="FileWriter.cs" />
+    <Compile Include="BaseFileReader.cs" />
+    <Compile Include="BaseFileWriter.cs" />
     <Compile Include="DmxData.cs" />
     <Compile Include="PCapFileReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

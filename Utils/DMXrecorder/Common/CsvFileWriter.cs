@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Animatroller.Common
 {
-    public class CsvFileWriter : FileWriter
+    public class CsvFileWriter : BaseFileWriter
     {
         private StreamWriter streamWriter;
 

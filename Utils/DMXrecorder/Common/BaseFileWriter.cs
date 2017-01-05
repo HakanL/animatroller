@@ -4,11 +4,11 @@ using System.IO;
 
 namespace Animatroller.Common
 {
-    public abstract class FileWriter : IDisposable
+    public abstract class BaseFileWriter : IDisposable
     {
         protected FileStream fileStream;
 
-        public FileWriter(string fileName)
+        public BaseFileWriter(string fileName)
         {
             this.fileStream = File.Create(fileName);
         }

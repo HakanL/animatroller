@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Animatroller.Common
 {
-    public class BinaryFileWriter : FileWriter
+    public class BinaryFileWriter : BaseFileWriter
     {
         private BinaryWriter streamWriter;
 

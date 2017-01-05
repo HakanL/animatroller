@@ -27,7 +27,7 @@ namespace Animatroller.DMXrecorder
         private int samplesWritten;
         private bool isRunning;
         private Dictionary<int, UniverseInfo> universeData;
-        private Common.FileWriter dataWriter;
+        private Common.BaseFileWriter dataWriter;
 
         public OutputProcessor(Arguments args)
         {

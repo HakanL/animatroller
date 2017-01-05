@@ -6,36 +6,34 @@ namespace Animatroller.DMXplayer
 {
     public class Arguments
     {
-        public enum InputTypes
+        public enum OutputTypes
         {
-            sACN,
-            ArtNet
+            sACN
         }
 
         public enum FileFormats
         {
-            Csv,
-            Binary
+            Binary,
+            PCap
         }
 
         [ArgShortcut("t")]
-        [ArgDescription("Input type")]
-        [ArgRequired()]
-        public InputTypes InputType { get; set; }
+        [ArgDescription("Output type")]
+        [ArgDefaultValue(OutputTypes.sACN)]
+        public OutputTypes OutputType { get; set; }
 
-        [ArgShortcut("o")]
-        [ArgDescription("Output file")]
+        [ArgShortcut("i")]
+        [ArgDescription("Input file")]
         [ArgRequired()]
-        public string OutputFile { get; set; }
+        public string InputFile { get; set; }
 
-        [ArgShortcut("u")]
-        [ArgDescription("Universes (comma-separated)")]
-        [ArgDefaultValue(1)]
-        public int[] Universes { get; set; }
+        [ArgShortcut("l")]
+        [ArgDescription("Loop # of times")]
+        public int Loop { get; set; }
 
         [ArgShortcut("f")]
         [ArgDescription("File format")]
-        [ArgDefaultValue(FileFormats.Csv)]
+        [ArgDefaultValue(FileFormats.Binary)]
         public FileFormats FileFormat { get; set; }
     }
 }

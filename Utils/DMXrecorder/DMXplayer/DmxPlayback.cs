@@ -9,124 +9,103 @@ using System.Threading.Tasks;
 
 namespace Animatroller.DMXplayer
 {
-    public class DmxPlayback
+    public class DmxPlayback : IDisposable
     {
-        private FileStream file;
-        private BinaryReader binRead;
-        private Stopwatch watch;
+        private Common.BaseFileReader fileReader;
+        private Stopwatch masterClock;
         private long nextStop;
-        private DmxFrame dmxFrame;
         private CancellationTokenSource cts;
-        private AcnStream acnStream;
+        private IOutput output;
         private Task runnerTask;
 
-        public DmxPlayback(AcnStream acnStream)
+        public DmxPlayback(Common.BaseFileReader fileReader, IOutput output)
         {
-            this.acnStream = acnStream;
+            this.fileReader = fileReader;
+            this.output = output;
         }
 
-        public void Run(bool loop)
+        public void WaitForCompletion()
         {
-            this.watch = new Stopwatch();
+            this.runnerTask.Wait();
+        }
+
+        public void Run(int loop)
+        {
+            this.masterClock = new Stopwatch();
             long timestampOffset = 0;
 
             this.cts = new CancellationTokenSource();
 
-            this.acnStream.Start();
+            int loopCount = 0;
 
             this.runnerTask = Task.Run(() =>
             {
+                Common.DmxData dmxFrame = null;
+
                 do
                 {
+                    int frames = 0;
+                    var watch = Stopwatch.StartNew();
+
                     // See if we should restart
-                    if (this.file.Position >= this.file.Length)
+                    if (this.fileReader.Position >= this.fileReader.Length)
                     {
                         // Restart
-                        this.file.Position = 0;
-                        this.dmxFrame = null;
-                        this.watch.Reset();
+                        this.fileReader.Position = 0;
+                        dmxFrame = null;
+                        this.masterClock.Reset();
+                        watch.Reset();
                     }
 
-                    if (this.dmxFrame == null)
+                    if (dmxFrame == null)
                     {
-                        this.dmxFrame = ReadFrame(this.binRead);
-                        timestampOffset = this.dmxFrame.TimestampMS;
+                        dmxFrame = this.fileReader.ReadFrame();
+                        timestampOffset = dmxFrame.Timestamp;
                     }
 
-                    this.watch.Start();
+                    this.masterClock.Start();
 
-                    while (!this.cts.IsCancellationRequested && this.file.Position < this.file.Length)
+                    while (!this.cts.IsCancellationRequested && this.fileReader.Position < this.fileReader.Length)
                     {
                         // Calculate when the next stop is
-                        this.nextStop = this.dmxFrame.TimestampMS - timestampOffset;
+                        this.nextStop = dmxFrame.Timestamp - timestampOffset;
 
-                        long msLeft = this.nextStop - this.watch.ElapsedMilliseconds;
+                        long msLeft = this.nextStop - this.masterClock.ElapsedMilliseconds;
                         if (msLeft <= 0)
                         {
                             // Output
-                            OutputData(this.dmxFrame);
+                            if (dmxFrame.DataType == Common.DmxData.DataTypes.FullFrame && dmxFrame.Data != null)
+                                this.output.SendDmx(dmxFrame.Universe, dmxFrame.Data);
+
+                            frames++;
+
+                            if (frames % 100 == 0)
+                                Console.WriteLine("{0} Played back {1} frames", this.masterClock.Elapsed.ToString(@"hh\:mm\:ss\.fff"), frames);
 
                             // Read next frame
-                            this.dmxFrame = ReadFrame(this.binRead);
+                            dmxFrame = this.fileReader.ReadFrame();
                             continue;
                         }
                         else if (msLeft < 16)
                         {
-                            SpinWait.SpinUntil(() => this.watch.ElapsedMilliseconds >= this.nextStop);
+                            SpinWait.SpinUntil(() => this.masterClock.ElapsedMilliseconds >= this.nextStop);
                             continue;
                         }
 
                         Thread.Sleep(1);
                     }
-                } while (!this.cts.IsCancellationRequested && loop);
 
-                Console.WriteLine("Done...");
+                    loopCount++;
+                    watch.Stop();
 
-                this.watch.Stop();
+                    Console.WriteLine("Playback complete {0:N1} s, {1} frames, iteration {2}", watch.Elapsed.TotalSeconds, frames, loopCount);
 
-                this.acnStream.Stop();
+                } while (!this.cts.IsCancellationRequested && (loop < 0 || loopCount <= loop));
 
-                Console.WriteLine("Done outputting");
+                this.masterClock.Stop();
+
+                Console.WriteLine("Playback completed");
             });
-        }
-
-        private void OutputData(DmxFrame dmxFrame)
-        {
-            if (dmxFrame.Data != null)
-                this.acnStream.SendDmx(dmxFrame.Universe, dmxFrame.Data);
-        }
-
-        private DmxFrame ReadFrame(BinaryReader binRead)
-        {
-            var target = new DmxFrame();
-            target.Start = binRead.ReadByte();
-            target.TimestampMS = (uint)binRead.ReadInt32();
-            target.Universe = (ushort)binRead.ReadInt16();
-            switch (target.Start)
-            {
-                case 1:
-                    target.Len = (ushort)binRead.ReadInt16();
-                    target.Data = binRead.ReadBytes(target.Len);
-                    break;
-
-                case 2:
-                    break;
-
-                default:
-                    throw new ArgumentException("Invalid data");
-            }
-            target.End = binRead.ReadByte();
-
-            if (target.End != 4)
-                throw new ArgumentException("Invalid data");
-
-            return target;
-        }
-
-        public void Load(string fileName)
-        {
-            this.file = System.IO.File.OpenRead(fileName);
-            this.binRead = new System.IO.BinaryReader(file);
         }
 
         public void Dispose()
@@ -134,13 +113,6 @@ namespace Animatroller.DMXplayer
             this.cts.Cancel();
 
             this.runnerTask.Wait();
-
-            if (this.file != null)
-            {
-                this.file.Dispose();
-
-                this.file = null;
-            }
         }
     }
 }
