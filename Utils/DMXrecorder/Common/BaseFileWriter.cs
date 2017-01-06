@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Animatroller.Common
 {
-    public abstract class BaseFileWriter : IDisposable
+    public abstract class BaseFileWriter : IFileWriter, IDisposable
     {
         protected FileStream fileStream;
 

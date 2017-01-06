@@ -15,7 +15,8 @@ namespace Animatroller.DMXrecorder
         public enum FileFormats
         {
             Csv,
-            Binary
+            Binary,
+            PCapAcn
         }
 
         [ArgShortcut("t")]
@@ -35,7 +36,7 @@ namespace Animatroller.DMXrecorder
 
         [ArgShortcut("f")]
         [ArgDescription("File format")]
-        [ArgDefaultValue(FileFormats.Csv)]
+        [ArgDefaultValue(FileFormats.Binary)]
         public FileFormats FileFormat { get; set; }
     }
 }

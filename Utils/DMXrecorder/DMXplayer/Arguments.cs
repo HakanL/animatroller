@@ -14,7 +14,7 @@ namespace Animatroller.DMXplayer
         public enum FileFormats
         {
             Binary,
-            PCap
+            PCapAcn
         }
 
         [ArgShortcut("t")]

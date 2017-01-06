@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Animatroller.Common
 {
-    public abstract class BaseFileReader : IDisposable
+    public abstract class BaseFileReader : IFileReader, IDisposable
     {
         protected FileStream fileStream;
 
@@ -22,6 +22,11 @@ namespace Animatroller.Common
         public bool DataAvailable
         {
             get { return this.fileStream.Position < this.fileStream.Length; }
+        }
+
+        public void Rewind()
+        {
+            this.fileStream.Position = 0;
         }
 
         public long Position

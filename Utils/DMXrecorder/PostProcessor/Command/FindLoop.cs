@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Animatroller.PostProcessor
+namespace Animatroller.PostProcessor.Command
 {
-    public class FindLoop
+    public class FindLoop : ICommand
     {
-        private Common.BinaryFileReader fileReader;
+        private Common.IFileReader fileReader;
 
-        public FindLoop(Common.BinaryFileReader fileReader)
+        public FindLoop(Common.IFileReader fileReader)
         {
             this.fileReader = fileReader;
         }
@@ -23,10 +23,11 @@ namespace Animatroller.PostProcessor
 
             var diffList = new List<Tuple<double, long>>();
 
+            long currentPos = 0;
+
             while (this.fileReader.DataAvailable)
             {
-                long pos = this.fileReader.Position;
-
+                long pos = currentPos++;
                 var data = this.fileReader.ReadFrame();
 
                 if (data.DataType != Common.DmxData.DataTypes.FullFrame)
@@ -69,7 +70,7 @@ namespace Animatroller.PostProcessor
 
             foreach (var match in diffList.Take(10))
             {
-                Console.WriteLine("Pos {0:P2}   Mismatch {1:P2}   TrimPos: {2}", (double)match.Item2 / this.fileReader.Length, match.Item1 / 100.0,
+                Console.WriteLine("Pos {0:P2}   Mismatch {1:P2}   TrimPos: {2}", (double)match.Item2 / currentPos, match.Item1 / 100.0,
                     match.Item2);
             }
         }

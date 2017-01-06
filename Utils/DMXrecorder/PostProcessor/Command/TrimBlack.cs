@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Animatroller.PostProcessor
+namespace Animatroller.PostProcessor.Command
 {
-    public class TrimBlack
+    public class TrimBlack : ICommand
     {
-        private Common.BinaryFileReader fileReader;
-        private Common.BinaryFileWriter fileWriter;
+        private Common.IFileReader fileReader;
+        private Common.IFileWriter fileWriter;
 
-        public TrimBlack(Common.BinaryFileReader fileReader, Common.BinaryFileWriter fileWriter)
+        public TrimBlack(Common.IFileReader fileReader, Common.IFileWriter fileWriter)
         {
             this.fileReader = fileReader;
             this.fileWriter = fileWriter;
@@ -19,7 +19,7 @@ namespace Animatroller.PostProcessor
 
         public void Execute()
         {
-            long? timestampOffset = null;
+            ulong? timestampOffset = null;
 
             var positions = new List<long>();
             var blackPositions = new HashSet<long>();
@@ -27,10 +27,12 @@ namespace Animatroller.PostProcessor
             int inputFrameCount = 0;
             int outputFrameCount = 0;
 
+            long currentPos = 0;
+
             // Read until we have all starting points
             while (this.fileReader.DataAvailable)
             {
-                long pos = this.fileReader.Position;
+                long pos = currentPos++;
 
                 var data = this.fileReader.ReadFrame();
                 inputFrameCount++;
@@ -43,7 +45,7 @@ namespace Animatroller.PostProcessor
                     else
                     {
                         if (!timestampOffset.HasValue)
-                            timestampOffset = data.Timestamp;
+                            timestampOffset = data.TimestampMS;
                     }
                 }
             }
@@ -61,16 +63,28 @@ namespace Animatroller.PostProcessor
             if (lastPos == 0)
                 lastPos = null;
 
-            this.fileReader.Position = firstPos;
+            this.fileReader.Rewind();
+            // Skip the black data at the beginning of the file
+            currentPos = 0;
             while (this.fileReader.DataAvailable)
             {
-                long pos = this.fileReader.Position;
+                long pos = currentPos++;
+
+                if (pos >= firstPos)
+                    break;
+
+                this.fileReader.ReadFrame();
+            }
+
+            while (this.fileReader.DataAvailable)
+            {
+                long pos = currentPos++;
                 if (lastPos.HasValue && pos > lastPos.Value)
                     break;
 
                 var data = this.fileReader.ReadFrame();
 
-                data.Timestamp -= timestampOffset.Value;
+                data.TimestampMS -= timestampOffset.Value;
 
                 this.fileWriter.Output(data);
                 outputFrameCount++;

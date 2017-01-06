@@ -15,7 +15,7 @@ namespace Animatroller.DMXrecorder
     public class AcnRecorder : IRecorder
     {
         private readonly Guid acnId = new Guid("{1A246A28-D145-449F-B3F2-68676BA0E93F}");
-        private Stopwatch timestamper;
+        private Stopwatch masterClock;
         private Dictionary<int, UniverseData> universes;
         private Acn.Sockets.StreamingAcnSocket acnSocket;
         private OutputProcessor writer;
@@ -54,11 +54,19 @@ namespace Animatroller.DMXrecorder
         public void StopRecord()
         {
             foreach (var kvp in this.universes)
+            {
                 this.acnSocket.DropDmxUniverse(kvp.Key);
+
+                this.writer.CompleteUniverse(kvp.Key);
+            }
         }
 
         private void AcnSocket_NewPacket(object sender, Acn.Sockets.NewPacketEventArgs<Acn.Packets.sAcn.StreamingAcnDmxPacket> e)
         {
+            if (this.masterClock == null)
+                this.masterClock = Stopwatch.StartNew();
+            ulong timestamp = (ulong)this.masterClock.ElapsedMilliseconds;
+
             var propData = e.Packet.Dmx.PropertyData;
             if (propData.Length < 1)
                 // Unknown/unsupported
@@ -84,11 +92,8 @@ namespace Animatroller.DMXrecorder
             }
             universeData.LastSequenceLow = e.Packet.Framing.SequenceNumber;
 
-            if (this.timestamper == null)
-                this.timestamper = Stopwatch.StartNew();
-
             var dmxData = RawDmxData.Create(
-                millisecond: this.timestamper.ElapsedMilliseconds,
+                millisecond: timestamp,
                 sequence: sequence,
                 universe: e.Packet.Framing.Universe,
                 data: newDmxData.Skip(1).ToArray());

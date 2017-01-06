@@ -11,14 +11,14 @@ namespace Animatroller.DMXplayer
 {
     public class DmxPlayback : IDisposable
     {
-        private Common.BaseFileReader fileReader;
+        private Common.IFileReader fileReader;
         private Stopwatch masterClock;
-        private long nextStop;
+        private ulong nextStop;
         private CancellationTokenSource cts;
         private IOutput output;
         private Task runnerTask;
 
-        public DmxPlayback(Common.BaseFileReader fileReader, IOutput output)
+        public DmxPlayback(Common.IFileReader fileReader, IOutput output)
         {
             this.fileReader = fileReader;
             this.output = output;
@@ -32,7 +32,7 @@ namespace Animatroller.DMXplayer
         public void Run(int loop)
         {
             this.masterClock = new Stopwatch();
-            long timestampOffset = 0;
+            ulong timestampOffset = 0;
 
             this.cts = new CancellationTokenSource();
 
@@ -48,29 +48,28 @@ namespace Animatroller.DMXplayer
                     var watch = Stopwatch.StartNew();
 
                     // See if we should restart
-                    if (this.fileReader.Position >= this.fileReader.Length)
+                    if (!this.fileReader.DataAvailable)
                     {
                         // Restart
-                        this.fileReader.Position = 0;
+                        this.fileReader.Rewind();
                         dmxFrame = null;
                         this.masterClock.Reset();
-                        watch.Reset();
                     }
 
                     if (dmxFrame == null)
                     {
                         dmxFrame = this.fileReader.ReadFrame();
-                        timestampOffset = dmxFrame.Timestamp;
+                        timestampOffset = dmxFrame.TimestampMS;
                     }
 
                     this.masterClock.Start();
 
-                    while (!this.cts.IsCancellationRequested && this.fileReader.Position < this.fileReader.Length)
+                    while (!this.cts.IsCancellationRequested)
                     {
                         // Calculate when the next stop is
-                        this.nextStop = dmxFrame.Timestamp - timestampOffset;
+                        this.nextStop = dmxFrame.TimestampMS - timestampOffset;
 
-                        long msLeft = this.nextStop - this.masterClock.ElapsedMilliseconds;
+                        long msLeft = (long)this.nextStop - this.masterClock.ElapsedMilliseconds;
                         if (msLeft <= 0)
                         {
                             // Output
@@ -82,13 +81,16 @@ namespace Animatroller.DMXplayer
                             if (frames % 100 == 0)
                                 Console.WriteLine("{0} Played back {1} frames", this.masterClock.Elapsed.ToString(@"hh\:mm\:ss\.fff"), frames);
 
+                            if (!this.fileReader.DataAvailable)
+                                break;
+
                             // Read next frame
                             dmxFrame = this.fileReader.ReadFrame();
                             continue;
                         }
                         else if (msLeft < 16)
                         {
-                            SpinWait.SpinUntil(() => this.masterClock.ElapsedMilliseconds >= this.nextStop);
+                            SpinWait.SpinUntil(() => this.masterClock.ElapsedMilliseconds >= (long)this.nextStop);
                             continue;
                         }
 

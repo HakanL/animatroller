@@ -26,7 +26,7 @@ namespace Animatroller.Common
             {
                 case DmxData.DataTypes.FullFrame:
                     this.streamWriter.Write((byte)0x01);
-                    this.streamWriter.Write((uint)dmxData.Timestamp);
+                    this.streamWriter.Write((uint)dmxData.TimestampMS);
                     this.streamWriter.Write((ushort)dmxData.Universe);
                     this.streamWriter.Write((ushort)dmxData.Data.Length);
                     this.streamWriter.Write(dmxData.Data);
@@ -35,7 +35,7 @@ namespace Animatroller.Common
 
                 case DmxData.DataTypes.NoChange:
                     this.streamWriter.Write((byte)0x02);
-                    this.streamWriter.Write((uint)dmxData.Timestamp);
+                    this.streamWriter.Write((uint)dmxData.TimestampMS);
                     this.streamWriter.Write((ushort)dmxData.Universe);
                     this.streamWriter.Write((byte)0x04);
                     break;

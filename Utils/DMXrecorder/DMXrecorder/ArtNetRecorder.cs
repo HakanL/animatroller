@@ -48,6 +48,10 @@ namespace Animatroller.DMXrecorder
 
         public void StopRecord()
         {
+            foreach (var kvp in this.universes)
+            {
+                this.writer.CompleteUniverse(kvp.Key);
+            }
         }
 
         private void Socket_NewPacket(object sender, NewPacketEventArgs<ArtNetPacket> e)
@@ -65,7 +69,7 @@ namespace Animatroller.DMXrecorder
                     return;
 
                 var dmxData = RawDmxData.Create(
-                    millisecond: this.timestamper.ElapsedMilliseconds,
+                    millisecond: (ulong)this.timestamper.ElapsedMilliseconds,
                     sequence: packet.Sequence,
                     universe: packet.Universe,
                     data: packet.DmxData);

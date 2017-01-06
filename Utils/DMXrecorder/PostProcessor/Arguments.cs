@@ -10,19 +10,21 @@ namespace Animatroller.PostProcessor
         {
             TrimBlack,
             FindLoop,
-            TrimEnd
+            TrimEnd,
+            FileConvert
         }
 
         public enum FileFormats
         {
-            Binary
+            Binary,
+            PCapAcn
         }
 
         [ArgShortcut("i")]
         [ArgDescription("Input file")]
         [ArgRequired()]
         [ArgExistingFile()]
-        public string Inputfile { get; set; }
+        public string InputFile { get; set; }
 
         [ArgShortcut("o")]
         [ArgDescription("Output file")]
@@ -33,13 +35,18 @@ namespace Animatroller.PostProcessor
         [ArgRequired()]
         public Commands Command { get; set; }
 
-        [ArgShortcut("f")]
-        [ArgDescription("File format")]
+        [ArgShortcut("if")]
+        [ArgDescription("Input File format")]
         [ArgDefaultValue(FileFormats.Binary)]
-        public FileFormats FileFormat { get; set; }
+        public FileFormats InputFileFormat { get; set; }
 
         [ArgShortcut("tp")]
         [ArgDescription("Trim position")]
         public long TrimPos { get; set; }
+
+        [ArgShortcut("of")]
+        [ArgDescription("Output File format")]
+        [ArgDefaultValue(FileFormats.Binary)]
+        public FileFormats OutputFileFormat { get; set; }
     }
 }

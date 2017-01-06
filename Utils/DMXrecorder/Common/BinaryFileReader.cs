@@ -27,7 +27,7 @@ namespace Animatroller.Common
         {
             var target = new DmxData();
             byte start = this.binRead.ReadByte();
-            target.Timestamp = (uint)this.binRead.ReadInt32();
+            target.TimestampMS = (uint)this.binRead.ReadInt32();
             target.Universe = (ushort)this.binRead.ReadInt16();
             switch (start)
             {

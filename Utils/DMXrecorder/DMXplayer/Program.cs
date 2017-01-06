@@ -26,11 +26,15 @@ namespace Animatroller.DMXplayer
                         throw new ArgumentException("Unsupported output type");
                 }
 
-                Common.BaseFileReader fileReader;
+                Common.IFileReader fileReader;
                 switch (arguments.FileFormat)
                 {
                     case Arguments.FileFormats.Binary:
                         fileReader = new Common.BinaryFileReader(arguments.InputFile);
+                        break;
+
+                    case Arguments.FileFormats.PCapAcn:
+                        fileReader = new Common.PCapAcnFileReader(arguments.InputFile);
                         break;
 
                     default:

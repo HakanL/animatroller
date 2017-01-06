@@ -18,7 +18,7 @@ namespace Animatroller.Common
 
         public byte[] Data { get; set; }
 
-        public long Timestamp { get; set; }
+        public ulong TimestampMS { get; set; }
 
         public long Sequence { get; set; }
 
@@ -28,26 +28,26 @@ namespace Animatroller.Common
         {
         }
 
-        public static DmxData CreateNoChange(long millisecond, long sequence, int universe)
+        public static DmxData CreateNoChange(ulong millisecond, long sequence, int universe)
         {
             return new DmxData
             {
                 DataType = DataTypes.NoChange,
                 Data = null,
                 Sequence = sequence,
-                Timestamp = millisecond,
+                TimestampMS = millisecond,
                 Universe = universe
             };
         }
 
-        public static DmxData CreateFullFrame(long millisecond, long sequence, int universe, byte[] data)
+        public static DmxData CreateFullFrame(ulong millisecond, long sequence, int universe, byte[] data)
         {
             return new DmxData
             {
                 DataType = DataTypes.FullFrame,
                 Data = data,
                 Sequence = sequence,
-                Timestamp = millisecond,
+                TimestampMS = millisecond,
                 Universe = universe
             };
         }

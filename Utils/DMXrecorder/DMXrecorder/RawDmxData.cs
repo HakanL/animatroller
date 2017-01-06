@@ -10,7 +10,7 @@ namespace Animatroller.DMXrecorder
     {
         public byte[] Data { get; set; }
 
-        public long Timestamp { get; set; }
+        public ulong Timestamp { get; set; }
 
         public long Sequence { get; set; }
 
@@ -20,7 +20,7 @@ namespace Animatroller.DMXrecorder
         {
         }
 
-        public static RawDmxData Create(long millisecond, long sequence, int universe, byte[] data)
+        public static RawDmxData Create(ulong millisecond, long sequence, int universe, byte[] data)
         {
             return new RawDmxData
             {

@@ -27,7 +27,7 @@ namespace Animatroller.DMXrecorder
         private int samplesWritten;
         private bool isRunning;
         private Dictionary<int, UniverseInfo> universeData;
-        private Common.BaseFileWriter dataWriter;
+        private Common.IFileWriter dataWriter;
 
         public OutputProcessor(Arguments args)
         {
@@ -47,6 +47,10 @@ namespace Animatroller.DMXrecorder
 
                 case Arguments.FileFormats.Binary:
                     this.dataWriter = new Common.BinaryFileWriter(args.OutputFile);
+                    break;
+
+                case Arguments.FileFormats.PCapAcn:
+                    this.dataWriter = new Common.PCapAcnFileWriter(args.OutputFile);
                     break;
 
                 default:
@@ -116,6 +120,11 @@ namespace Animatroller.DMXrecorder
             this.dataWriter.Header(universe);
         }
 
+        public void CompleteUniverse(int universe)
+        {
+            this.dataWriter.Footer(universe);
+        }
+
         public void AddData(RawDmxData dmxData)
         {
             samplesReceived++;
@@ -133,7 +142,7 @@ namespace Animatroller.DMXrecorder
 
             Console.WriteLine("Received {0} samples", this.samplesReceived);
 
-            this.dataWriter.Dispose();
+            (this.dataWriter as IDisposable)?.Dispose();
             this.dataWriter = null;
         }
     }

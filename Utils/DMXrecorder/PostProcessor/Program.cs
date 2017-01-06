@@ -15,33 +15,78 @@ namespace Animatroller.PostProcessor
             {
                 var arguments = Args.Parse<Arguments>(args);
 
-                using (var fileReader = new Common.BinaryFileReader(arguments.Inputfile))
+                Common.IFileReader fileReader;
+                Common.IFileWriter fileWriter;
+                switch (arguments.InputFileFormat)
                 {
-                    Common.BinaryFileWriter fileWriter = null;
+                    case Arguments.FileFormats.Binary:
+                        fileReader = new Common.BinaryFileReader(arguments.InputFile);
+                        break;
 
-                    switch (arguments.Command)
-                    {
-                        case Arguments.Commands.TrimBlack:
-                            fileWriter = new Common.BinaryFileWriter(arguments.OutputFile);
-                            var trimBlackCommand = new TrimBlack(fileReader, fileWriter);
-                            trimBlackCommand.Execute();
-                            break;
+                    case Arguments.FileFormats.PCapAcn:
+                        fileReader = new Common.PCapAcnFileReader(arguments.InputFile);
+                        break;
 
-                        case Arguments.Commands.FindLoop:
-                            var findLoopCommand = new FindLoop(fileReader);
-                            findLoopCommand.Execute();
-                            break;
-
-                        case Arguments.Commands.TrimEnd:
-                            fileWriter = new Common.BinaryFileWriter(arguments.OutputFile);
-                            var trimEndCommand = new TrimEnd(fileReader, fileWriter, arguments.TrimPos);
-                            trimEndCommand.Execute();
-                            break;
-                    }
-
-                    if (fileWriter != null)
-                        fileWriter.Dispose();
+                    default:
+                        throw new ArgumentException("Unhandled input file format " + arguments.InputFileFormat);
                 }
+
+                if (!string.IsNullOrEmpty(arguments.OutputFile))
+                {
+                    switch (arguments.OutputFileFormat)
+                    {
+                        case Arguments.FileFormats.Binary:
+                            fileWriter = new Common.BinaryFileWriter(arguments.OutputFile);
+                            break;
+
+                        case Arguments.FileFormats.PCapAcn:
+                            fileWriter = new Common.PCapAcnFileWriter(arguments.OutputFile);
+                            break;
+
+                        default:
+                            throw new ArgumentException("Unhandled output file format " + arguments.OutputFileFormat);
+                    }
+                }
+                else
+                    fileWriter = null;
+
+                ICommand command = null;
+
+                switch (arguments.Command)
+                {
+                    case Arguments.Commands.TrimBlack:
+                        if (fileWriter == null)
+                            throw new ArgumentNullException("Missing output file");
+
+                        command = new Command.TrimBlack(fileReader, fileWriter);
+                        break;
+
+                    case Arguments.Commands.FindLoop:
+                        command = new Command.FindLoop(fileReader);
+                        break;
+
+                    case Arguments.Commands.TrimEnd:
+                        if (fileWriter == null)
+                            throw new ArgumentNullException("Missing output file");
+
+                        command = new Command.TrimEnd(fileReader, fileWriter, arguments.TrimPos);
+                        break;
+
+                    case Arguments.Commands.FileConvert:
+                        if (fileWriter == null)
+                            throw new ArgumentNullException("Missing output file");
+
+                        command = new Command.FileConvert(fileReader, fileWriter);
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException("Unknown command");
+                }
+
+                command.Execute();
+
+                (fileReader as IDisposable)?.Dispose();
+                (fileWriter as IDisposable)?.Dispose();
             }
             catch (ArgException ex)
             {
