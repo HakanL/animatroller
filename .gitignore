@@ -54,3 +54,4 @@ packages/
 *.lsv
 /MonoExpander/Dependencies
 *.lsv
+.vs

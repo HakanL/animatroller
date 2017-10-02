@@ -38,8 +38,7 @@
       <HintPath>..\..\lib\CSCore.dll</HintPath>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.3.11\lib\net45\NLog.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -65,51 +64,54 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="DemoScene1.cs" />
-    <Compile Include="ExpanderDemo2.cs" />
-    <Compile Include="Halloween2016.cs" />
-    <Compile Include="Halloween2016_MIDI.cs" />
-    <Compile Include="Halloween2016_OSC.cs" />
-    <Compile Include="MatrixTest1.cs" />
-    <Compile Include="PixelTest1.cs" />
-    <Compile Include="TestUsbDmxPro.cs" />
-    <Compile Include="Xmas2016_MIDI.cs" />
-    <Compile Include="Xmas2016_OSC.cs" />
-    <Compile Include="Xmas2016.cs" />
-    <Compile Include="Xmas2015.cs" />
-    <Compile Include="Halloween2015.cs" />
-    <None Include="Halloween2015Manual.cs" />
-    <None Include="PanTiltDemo.cs" />
-    <Compile Include="ExpanderDemo.cs" />
-    <Compile Include="LockDemo.cs" />
-    <None Include="Halloween2014b.cs" />
-    <None Include="HalloweenScene1.cs" />
-    <None Include="HalloweenScene2013.cs" />
-    <None Include="HalloweenScene2013b.cs" />
-    <None Include="IceBucket.cs" />
-    <None Include="ItalianScene1.cs" />
-    <None Include="FaderDemo.cs" />
-    <None Include="LORSceneCarol.cs" />
-    <None Include="LORScene.cs" />
-    <None Include="Nutcracker1Scene.cs" />
-    <None Include="Nutcracker2Scene.cs" />
-    <None Include="Nutcracker3Scene.cs" />
-    <None Include="TpmTest.cs" />
-    <None Include="Xmas2014.cs" />
-    <None Include="PixelScene1.cs" />
+    <None Include="Old\DemoScene1.cs" />
+    <Compile Include="Old\ExpanderDemo2.cs" />
+    <Compile Include="Halloween2017_OSC.cs" />
+    <Compile Include="Halloween2017_MIDI.cs" />
+    <Compile Include="Halloween2017.cs" />
+    <Compile Include="Old\Halloween2016.cs" />
+    <Compile Include="Old\Halloween2016_MIDI.cs" />
+    <Compile Include="Old\Halloween2016_OSC.cs" />
+    <Compile Include="Old\MatrixTest1.cs" />
+    <Compile Include="Old\PixelTest1.cs" />
+    <Compile Include="Old\TestUsbDmxPro.cs" />
+    <Compile Include="Old\Xmas2016_MIDI.cs" />
+    <Compile Include="Old\Xmas2016_OSC.cs" />
+    <Compile Include="Old\Xmas2016.cs" />
+    <Compile Include="Old\Xmas2015.cs" />
+    <Compile Include="Old\Halloween2015.cs" />
+    <None Include="Old\Halloween2015Manual.cs" />
+    <None Include="Old\PanTiltDemo.cs" />
+    <Compile Include="Old\ExpanderDemo.cs" />
+    <Compile Include="Old\LockDemo.cs" />
+    <None Include="Old\Halloween2014b.cs" />
+    <None Include="Old\HalloweenScene1.cs" />
+    <None Include="Old\HalloweenScene2013.cs" />
+    <None Include="Old\HalloweenScene2013b.cs" />
+    <None Include="Old\IceBucket.cs" />
+    <None Include="Old\ItalianScene1.cs" />
+    <None Include="Old\FaderDemo.cs" />
+    <None Include="Old\LORSceneCarol.cs" />
+    <None Include="Old\LORScene.cs" />
+    <None Include="Old\Nutcracker1Scene.cs" />
+    <None Include="Old\Nutcracker2Scene.cs" />
+    <None Include="Old\Nutcracker3Scene.cs" />
+    <None Include="Old\TpmTest.cs" />
+    <None Include="Old\Xmas2014.cs" />
+    <None Include="Old\PixelScene1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="SimpleTest1.cs" />
-    <None Include="Halloween2014.cs" />
-    <None Include="TestMidi1.cs" />
-    <Compile Include="TestOSC.cs" />
-    <None Include="TestPiFace.cs" />
-    <None Include="TestRenard1.cs" />
-    <None Include="TestScene1.cs" />
-    <None Include="TestScene2.cs" />
-    <None Include="TestScene3.cs" />
-    <None Include="Xmas2013scene.cs" />
-    <None Include="XmasScene1.cs" />
-    <None Include="XmasScene2.cs" />
+    <None Include="Old\SimpleTest1.cs" />
+    <None Include="Old\Halloween2014.cs" />
+    <None Include="Old\TestMidi1.cs" />
+    <Compile Include="Old\TestOSC.cs" />
+    <None Include="Old\TestPiFace.cs" />
+    <None Include="Old\TestRenard1.cs" />
+    <None Include="Old\TestScene1.cs" />
+    <None Include="Old\TestScene2.cs" />
+    <None Include="Old\TestScene3.cs" />
+    <None Include="Old\Xmas2013scene.cs" />
+    <None Include="Old\XmasScene1.cs" />
+    <None Include="Old\XmasScene2.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\Framework.csproj">
