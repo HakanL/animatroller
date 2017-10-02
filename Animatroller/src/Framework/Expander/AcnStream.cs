@@ -175,7 +175,7 @@ namespace Animatroller.Framework.Expander
                 {
                     int chn = firstChannel + i;
                     if (chn >= 1 && chn <= 512)
-                        dmxData[chn] = values[offset + i];
+                        dmxData[chn - 1] = values[offset + i];
                 }
 
                 if (!Executor.Current.IsOffline)
@@ -199,9 +199,9 @@ namespace Animatroller.Framework.Expander
                 bindIpAddress = GetFirstBindAddress();
 
             this.socket = new StreamingAcnSocket(animatrollerAcnId, "Animatroller");
-            this.socket.NewPacket += socket_NewPacket;
-            this.socket.Open(bindIpAddress);
-            log.Info("ACN binding to {0}", bindIpAddress);
+//            this.socket.NewPacket += socket_NewPacket;
+//            this.socket.Open(bindIpAddress);
+//            log.Info("ACN binding to {0}", bindIpAddress);
 
             this.dmxStreamer = new DmxStreamer(this.socket);
             this.dmxStreamer.Priority = priority;
