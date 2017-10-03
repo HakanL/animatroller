@@ -400,7 +400,7 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction("/1", msg =>
             {
-                log.Info("Page 1");
+                this.log.Information("Page 1");
                 //                manualFader.Value = false;
 
                 SetManualColor();
@@ -408,7 +408,7 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction("/2", msg =>
             {
-                log.Info("Page 2");
+                this.log.Information("Page 2");
                 //                manualFader.Value = true;
 
                 SetManualColor();

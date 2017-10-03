@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Controller;
 
 namespace Animatroller.Framework.Import

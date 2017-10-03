@@ -8,7 +8,7 @@ using System.IO.Ports;
 using System.Reactive;
 using System.Reactive.Subjects;
 using System.Net;
-using NLog;
+using Serilog;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -61,7 +61,7 @@ namespace Animatroller.Framework.Expander
 
         const int OPC_DEFAULT_PORT = 7890;
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private Socket socket;
         private byte[] sendData;
         private object lockObject = new object();
@@ -71,6 +71,7 @@ namespace Animatroller.Framework.Expander
 
         public OpcClient(string destination, int destinationPort = OPC_DEFAULT_PORT)
         {
+            this.log = Log.Logger;
             var destinationAddress = IPAddress.Parse(destination);
 
             this.cancelSource = new CancellationTokenSource();
@@ -107,7 +108,7 @@ namespace Animatroller.Framework.Expander
                         }
                         catch (Exception ex)
                         {
-                            log.Warn(ex, "Failed to send OPC data");
+                            this.log.Warning(ex, "Failed to send OPC data");
 
                             if (this.socket != null && this.socket.Connected)
                                 this.socket.Close();
@@ -125,7 +126,7 @@ namespace Animatroller.Framework.Expander
                         }
                         catch (Exception ex)
                         {
-                            log.Warn(ex, "Failed to close socket");
+                            this.log.Warning(ex, "Failed to close socket");
                         }
 
                         this.socket = null;

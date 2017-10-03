@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Controller
 {
     public class Timeline<T> : ITimeline
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         public class TimelineEventArgs : EventArgs
         {
@@ -51,6 +51,7 @@ namespace Animatroller.Framework.Controller
 
         public Timeline(int? iterations)
         {
+            this.log = Log.Logger;
             this.timeline = new SortedList<int, HashSet<T>>();
             this.iterations = iterations;
         }

@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice;
-using NLog;
+using Serilog;
 using System.Runtime.Remoting.Messaging;
 
 namespace Animatroller.Framework.Controller
 {
     public class Subroutine : ICanExecute, ISequenceInstance2
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         private object lockObject = new object();
         private string id;
@@ -27,6 +27,7 @@ namespace Animatroller.Framework.Controller
 
         public Subroutine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             this.name = name;
             this.id = Guid.NewGuid().GetHashCode().ToString();
             this.handleLocks = new HashSet<IOwnedDevice>();
@@ -127,7 +128,7 @@ namespace Animatroller.Framework.Controller
             // Can only execute one at a time
             lock (lockObject)
             {
-                log.Info("Starting Subroutine {0}", Name);
+                this.log.Information("Starting Subroutine {0}", Name);
 
                 this.cancelToken = cancelToken;
 
@@ -158,9 +159,9 @@ namespace Animatroller.Framework.Controller
                 Release();
 
                 if (cancelToken.IsCancellationRequested)
-                    log.Info("SequenceJob {0} canceled and stopped", Name);
+                    this.log.Information("SequenceJob {0} canceled and stopped", Name);
                 else
-                    log.Info("SequenceJob {0} completed", Name);
+                    this.log.Information("SequenceJob {0} completed", Name);
             }
         }
 

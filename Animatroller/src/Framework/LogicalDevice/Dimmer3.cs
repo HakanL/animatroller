@@ -10,7 +10,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Extensions;
 using Animatroller.Framework.LogicalDevice.Event;
 

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Animatroller.Scenes</RootNamespace>
     <AssemblyName>Scenes</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -37,8 +37,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\lib\CSCore.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
+    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
+      <HintPath>..\packages\Serilog.2.5.0\lib\net46\Serilog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -63,8 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
-    <None Include="Old\DemoScene1.cs" />
+    <None Include="Old\ReallyOld\DemoScene1.cs" />
     <Compile Include="Old\ExpanderDemo2.cs" />
     <Compile Include="Halloween2017_OSC.cs" />
     <Compile Include="Halloween2017_MIDI.cs" />
@@ -80,38 +79,38 @@
     <Compile Include="Old\Xmas2016.cs" />
     <Compile Include="Old\Xmas2015.cs" />
     <Compile Include="Old\Halloween2015.cs" />
-    <None Include="Old\Halloween2015Manual.cs" />
-    <None Include="Old\PanTiltDemo.cs" />
+    <None Include="Old\ReallyOld\Halloween2015Manual.cs" />
+    <None Include="Old\ReallyOld\PanTiltDemo.cs" />
     <Compile Include="Old\ExpanderDemo.cs" />
     <Compile Include="Old\LockDemo.cs" />
-    <None Include="Old\Halloween2014b.cs" />
-    <None Include="Old\HalloweenScene1.cs" />
-    <None Include="Old\HalloweenScene2013.cs" />
-    <None Include="Old\HalloweenScene2013b.cs" />
-    <None Include="Old\IceBucket.cs" />
-    <None Include="Old\ItalianScene1.cs" />
-    <None Include="Old\FaderDemo.cs" />
-    <None Include="Old\LORSceneCarol.cs" />
-    <None Include="Old\LORScene.cs" />
-    <None Include="Old\Nutcracker1Scene.cs" />
-    <None Include="Old\Nutcracker2Scene.cs" />
-    <None Include="Old\Nutcracker3Scene.cs" />
-    <None Include="Old\TpmTest.cs" />
-    <None Include="Old\Xmas2014.cs" />
-    <None Include="Old\PixelScene1.cs" />
+    <None Include="Old\ReallyOld\Halloween2014b.cs" />
+    <None Include="Old\ReallyOld\HalloweenScene1.cs" />
+    <None Include="Old\ReallyOld\HalloweenScene2013.cs" />
+    <None Include="Old\ReallyOld\HalloweenScene2013b.cs" />
+    <None Include="Old\ReallyOld\IceBucket.cs" />
+    <None Include="Old\ReallyOld\ItalianScene1.cs" />
+    <None Include="Old\ReallyOld\FaderDemo.cs" />
+    <None Include="Old\ReallyOld\LORSceneCarol.cs" />
+    <None Include="Old\ReallyOld\LORScene.cs" />
+    <None Include="Old\ReallyOld\Nutcracker1Scene.cs" />
+    <None Include="Old\ReallyOld\Nutcracker2Scene.cs" />
+    <None Include="Old\ReallyOld\Nutcracker3Scene.cs" />
+    <None Include="Old\ReallyOld\TpmTest.cs" />
+    <None Include="Old\ReallyOld\Xmas2014.cs" />
+    <None Include="Old\ReallyOld\PixelScene1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <None Include="Old\SimpleTest1.cs" />
-    <None Include="Old\Halloween2014.cs" />
-    <None Include="Old\TestMidi1.cs" />
+    <None Include="Old\ReallyOld\SimpleTest1.cs" />
+    <None Include="Old\ReallyOld\Halloween2014.cs" />
+    <None Include="Old\ReallyOld\TestMidi1.cs" />
     <Compile Include="Old\TestOSC.cs" />
-    <None Include="Old\TestPiFace.cs" />
-    <None Include="Old\TestRenard1.cs" />
-    <None Include="Old\TestScene1.cs" />
-    <None Include="Old\TestScene2.cs" />
-    <None Include="Old\TestScene3.cs" />
-    <None Include="Old\Xmas2013scene.cs" />
-    <None Include="Old\XmasScene1.cs" />
-    <None Include="Old\XmasScene2.cs" />
+    <None Include="Old\ReallyOld\TestPiFace.cs" />
+    <None Include="Old\ReallyOld\TestRenard1.cs" />
+    <None Include="Old\ReallyOld\TestScene1.cs" />
+    <None Include="Old\ReallyOld\TestScene2.cs" />
+    <None Include="Old\ReallyOld\TestScene3.cs" />
+    <None Include="Old\ReallyOld\Xmas2013scene.cs" />
+    <None Include="Old\ReallyOld\XmasScene1.cs" />
+    <None Include="Old\ReallyOld\XmasScene2.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Framework\Framework.csproj">
@@ -119,7 +118,7 @@
       <Name>Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\MonoExpanderMessage\MonoExpanderMessage.csproj">
-      <Project>{8a2b3891-435e-454f-8a9e-52a11ed12691}</Project>
+      <Project>{3549fad6-8716-46ee-b34d-59b95251074d}</Project>
       <Name>MonoExpanderMessage</Name>
     </ProjectReference>
     <ProjectReference Include="..\Simulator\Simulator.csproj">
@@ -139,8 +138,8 @@
     <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>COPY $(TargetDir)$(TargetName).dll $(SolutionDir)SceneRunner\$(OutDir)
-COPY $(TargetDir)$(TargetName).pdb $(SolutionDir)SceneRunner\$(OutDir)
+    <PostBuildEvent>COPY $(TargetDir)$(TargetName).dll $(SolutionDir)SceneRunner\$(OutDir)net47\
+COPY $(TargetDir)$(TargetName).pdb $(SolutionDir)SceneRunner\$(OutDir)net47\
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

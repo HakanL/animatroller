@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework
 {
     public abstract class BaseScene : IScene
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         protected static Random random = new Random();
         protected bool initialized = false;
 
@@ -17,6 +17,7 @@ namespace Animatroller.Framework
 
         public BaseScene()
         {
+            this.log = Log.Logger;
             //this.hashFile = new HashFile.HashFile();
             //this.hashFile.Initialize(this.GetType().Name, 50, 100);
         }

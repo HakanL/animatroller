@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.Effect;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Controller
 {
     public class Sequence : ISequence, ICanExecute
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         public class SequenceJob : IRunnableState, ISequenceInstance
         {
+            protected ILogger log;
             private object lockObject = new object();
             private string id;
             protected string name;
@@ -23,8 +24,9 @@ namespace Animatroller.Framework.Controller
             protected List<Tuple<int, Effect.IEffect>> effects;
             protected System.Threading.CancellationToken cancelToken;
 
-            public SequenceJob(string name)
+            public SequenceJob(ILogger logger, string name)
             {
+                this.log = logger;
                 this.name = name;
                 this.actions = new List<Action<ISequenceInstance>>();
                 this.effects = new List<Tuple<int, IEffect>>();
@@ -99,7 +101,7 @@ namespace Animatroller.Framework.Controller
                 // Can only execute one at a time
                 lock (lockObject)
                 {
-                    log.Info("Starting SequenceJob {0}", this.name);
+                    this.log.Information("Starting SequenceJob {0}", this.name);
 
                     this.cancelToken = cancelToken;
 
@@ -134,9 +136,9 @@ namespace Animatroller.Framework.Controller
                         this.tearDownAction.Invoke(this);
 
                     if (cancelToken.IsCancellationRequested)
-                        log.Info("SequenceJob {0} canceled and stopped", this.name);
+                        this.log.Information("SequenceJob {0} canceled and stopped", this.name);
                     else
-                        log.Info("SequenceJob {0} completed", this.name);
+                        this.log.Information("SequenceJob {0} completed", this.name);
                 }
             }
 
@@ -170,6 +172,7 @@ namespace Animatroller.Framework.Controller
 
         public Sequence([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             this.name = name;
         }
 
@@ -211,7 +214,7 @@ namespace Animatroller.Framework.Controller
             get
             {
                 if (this.sequenceJob == null)
-                    this.sequenceJob = new SequenceJob(this.name);
+                    this.sequenceJob = new SequenceJob(this.log, this.name);
 
                 return this.sequenceJob;
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NLog;
+using Serilog;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using System.IO;
@@ -12,11 +12,12 @@ namespace Animatroller.Framework.Expander
         public enum CommunicationTypes
         {
             Unknown = 0,
+            [Obsolete]
             SignalR = 1,
             Netty = 2
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private string name;
         private Dictionary<string, MonoExpanderInstance> clientInstances;
         private object lockObject = new object();
@@ -25,6 +26,8 @@ namespace Animatroller.Framework.Expander
 
         public MonoExpanderServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
+
             Initialize(
                 name: name,
                 listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 8081),
@@ -33,6 +36,8 @@ namespace Animatroller.Framework.Expander
 
         public MonoExpanderServer(int listenPort, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
+
             Initialize(
                 name: name,
                 listenPort: listenPort,
@@ -48,13 +53,15 @@ namespace Animatroller.Framework.Expander
             switch (communicationType)
             {
                 case CommunicationTypes.SignalR:
-                    this.serverCommunication = new ExpanderCommunication.SignalRServer(
-                        listenPort: listenPort,
-                        dataReceivedAction: DataReceived);
+                    throw new NotImplementedException();
+                    //this.serverCommunication = new ExpanderCommunication.SignalRServer(
+                    //    listenPort: listenPort,
+                    //    dataReceivedAction: DataReceived);
                     break;
 
                 case CommunicationTypes.Netty:
                     this.serverCommunication = new ExpanderCommunication.NettyServer(
+                        logger: this.log,
                         listenPort: listenPort,
                         dataReceivedAction: DataReceived,
                         clientConnectedAction: ClientConnected);
@@ -105,7 +112,7 @@ namespace Animatroller.Framework.Expander
                 if (ex is AggregateException)
                     ex = ex.InnerException;
 
-                log.Warn(ex, "Failed to SendData");
+                this.log.Warning(ex, "Failed to SendData");
             }
         }
 

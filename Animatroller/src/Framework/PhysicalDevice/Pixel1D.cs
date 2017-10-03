@@ -34,7 +34,7 @@ namespace Animatroller.Framework.PhysicalDevice
         //                }
         //            }
         //            else
-        //                log.Warn("Missed PixelChanged in PixelRope");
+        //                this.log.Warning("Missed PixelChanged in PixelRope");
         //        };
 
         //    logicalDevice.MultiPixelChanged += (sender, e) =>
@@ -61,7 +61,7 @@ namespace Animatroller.Framework.PhysicalDevice
         //                }
         //            }
         //            else
-        //                log.Warn("Missed send to PixelRope");
+        //                this.log.Warning("Missed send to PixelRope");
         //        };
         //}
 

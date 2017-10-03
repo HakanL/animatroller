@@ -13,14 +13,14 @@ using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
 using Acn;
 using Acn.Helpers;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
     public class AcnStream : IPort, IRunnable, IOutputHardware
     {
         public readonly Guid animatrollerAcnId = new Guid("{53A974B9-8286-4DC1-BFAB-00FEC91FD7A9}");
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private bool isRunning;
 
         protected class AcnPixelUniverse : IPixelOutput
@@ -198,10 +198,11 @@ namespace Animatroller.Framework.Expander
             if (bindIpAddress == null)
                 bindIpAddress = GetFirstBindAddress();
 
+            this.log = Log.Logger;
             this.socket = new StreamingAcnSocket(animatrollerAcnId, "Animatroller");
 //            this.socket.NewPacket += socket_NewPacket;
 //            this.socket.Open(bindIpAddress);
-//            log.Info("ACN binding to {0}", bindIpAddress);
+//            this.log.Information("ACN binding to {0}", bindIpAddress);
 
             this.dmxStreamer = new DmxStreamer(this.socket);
             this.dmxStreamer.Priority = priority;

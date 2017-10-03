@@ -14,14 +14,14 @@ using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using Animatroller.Simulator.Extensions;
 using Animatroller.Framework.Extensions;
-using NLog;
+using Serilog;
 using System.Threading;
 
 namespace Animatroller.Simulator
 {
     public partial class SimulatorForm : Form, IPort, IUpdateActionParent
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private List<IUpdateableControl> updateableControls = new List<IUpdateableControl>();
         private Task senderTask;
         private System.Threading.CancellationTokenSource cancelSource;
@@ -35,6 +35,8 @@ namespace Animatroller.Simulator
               ControlStyles.AllPaintingInWmPaint |
               ControlStyles.UserPaint |
               ControlStyles.DoubleBuffer, true);
+
+            this.log = Log.Logger;
 
             this.updateActions = new List<Action>();
             this.cancelSource = new System.Threading.CancellationTokenSource();
@@ -197,7 +199,7 @@ namespace Animatroller.Simulator
                 }
                 else
                 {
-                    log.Trace("Unknown field {0}", field.FieldType);
+                    this.log.Verbose("Unknown field {0}", field.FieldType);
                 }
             }
 

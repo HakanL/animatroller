@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Serilog;
 using System;
 using System.Linq;
 using System.Threading;
@@ -25,7 +25,7 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         public event EventHandler<TickEventArgs> Tick;
         protected CircularBuffer.CircularBuffer<int> tickTiming;
         protected CircularBuffer.CircularBuffer<long> execTiming;
@@ -35,7 +35,8 @@ namespace Animatroller.Framework.Controller
 
         public HighPrecisionTimer(int intervalMs, bool startRunning = true)
         {
-            log.Info("Starting HighPrecisionTimer with {0} ms interval", intervalMs);
+            this.log = Log.Logger;
+            this.log.Information("Starting HighPrecisionTimer with {0} ms interval", intervalMs);
 
             if (intervalMs < 1)
                 throw new ArgumentOutOfRangeException();

@@ -6,16 +6,29 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Animatroller.Framework;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Scenes
 {
     public class Program
     {
-        private static Logger log = LogManager.GetCurrentClassLogger();
+        private static ILogger log;
 
         public static void Main(string[] args)
         {
+            var logConfig = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Verbose()
+                .WriteTo.ColoredConsole()
+                .WriteTo.RollingFile("Logs\\SceneRunner.{Date}.log");
+
+            if (!string.IsNullOrEmpty(SceneRunner.Properties.Settings.Default.SeqServerURL))
+                logConfig = logConfig.WriteTo.Seq(serverUrl: SceneRunner.Properties.Settings.Default.SeqServerURL, apiKey: SceneRunner.Properties.Settings.Default.SeqApiKey);
+
+            log = Log.Logger = logConfig.CreateLogger();
+
+            Log.Logger.Information("Starting up!");
+
             Console.SetWindowSize(180, 70);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

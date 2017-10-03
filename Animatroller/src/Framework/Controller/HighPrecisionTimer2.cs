@@ -1,4 +1,4 @@
-﻿using NLog;
+﻿using Serilog;
 using System;
 using System.Linq;
 using System.Threading;
@@ -13,7 +13,7 @@ namespace Animatroller.Framework.Controller
         protected CircularBuffer.CircularBuffer<int> tickTiming;
         protected CircularBuffer.CircularBuffer<long> execTiming;
 #endif
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         protected CancellationTokenSource cancelSource;
         private ManualResetEvent taskComplete;
         private Task task;
@@ -22,7 +22,8 @@ namespace Animatroller.Framework.Controller
 
         public HighPrecisionTimer2(int intervalMs, bool startRunning = true)
         {
-            log.Info("Starting HighPrecisionTimer2 with {0} ms interval", intervalMs);
+            this.log = Log.Logger;
+            this.log.Information("Starting HighPrecisionTimer2 with {0} ms interval", intervalMs);
 
             this.outputValue = new Subject<long>();
 

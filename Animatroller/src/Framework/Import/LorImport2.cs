@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Linq;
 using System.Drawing;
-using NLog;
+using Serilog;
 using LMS = Animatroller.Framework.Import.FileFormat.LightORama.LMS;
 using Animatroller.Framework.Extensions;
 using Animatroller.Framework.Controller;
@@ -33,7 +33,7 @@ namespace Animatroller.Framework.Import
             {
                 if (channel.deviceType != null && channel.deviceType != "LOR")
                 {
-                    log.Warn("Not supporting device type {0} yet", channel.deviceType);
+                    this.log.Warning("Not supporting device type {0} yet", channel.deviceType);
                     continue;
                 }
 

@@ -87,7 +87,7 @@ namespace Animatroller.Scenes
             {
                 if (value)
                 {
-                    log.Info("Button 1 pressed!");
+                    this.log.Information("Button 1 pressed!");
 
                     sub.Run();
                 }
@@ -97,7 +97,7 @@ namespace Animatroller.Scenes
             {
                 if (value)
                 {
-                    log.Info("Button 2 pressed!");
+                    this.log.Information("Button 2 pressed!");
 
                     if (testLock != null)
                     {
@@ -113,7 +113,7 @@ namespace Animatroller.Scenes
             {
                 if (value)
                 {
-                    log.Info("Button 3 pressed!");
+                    this.log.Information("Button 3 pressed!");
 
                     popOut.Pop(color: Color.Purple, sweepDuration: S(2));
 

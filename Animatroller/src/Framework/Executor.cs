@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Reactive.Subjects;
-using NLog;
+using Serilog;
 using System.IO;
 
 namespace Animatroller.Framework
@@ -24,7 +24,7 @@ namespace Animatroller.Framework
 
         internal const int MasterTimerIntervalMs = 25;
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         public class ExecuteInstance
         {
@@ -57,6 +57,7 @@ namespace Animatroller.Framework
 
         private Executor()
         {
+            this.log = Log.Logger;
             this.singleInstanceTasks = new Dictionary<ICanExecute, Task>();
             this.devices = new List<IRunningDevice>();
             this.runnable = new List<IRunnable>();
@@ -242,7 +243,7 @@ namespace Animatroller.Framework
 
         internal void LogInfo(string text)
         {
-            log.Info(text);
+            this.log.Information(text);
         }
 
         internal void LogDebug(string text)
@@ -545,7 +546,7 @@ namespace Animatroller.Framework
             {
             }
             watch.Stop();
-            log.Info("Waited {1:N1}ms for job {0} to stop from cancel", jobToCancel.Name, watch.Elapsed.TotalMilliseconds);
+            this.log.Information("Waited {1:N1}ms for job {0} to stop from cancel", jobToCancel.Name, watch.Elapsed.TotalMilliseconds);
         }
 
         public bool IsRunning(ICanExecute jobToCancel)
@@ -610,7 +611,7 @@ namespace Animatroller.Framework
                     if (singleInstanceTasks.TryGetValue(value, out task))
                     {
                         // Already running
-                        log.Info("Single instance already running, skipping");
+                        this.log.Information("Single instance already running, skipping");
                         return null;
                     }
 

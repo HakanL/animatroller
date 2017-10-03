@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Reactive.Subjects;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Effect
 {
     public abstract class BaseEffect<T> : IEffect
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         protected int priority;
         protected string name;
         protected object lockObject = new object();
@@ -20,6 +20,7 @@ namespace Animatroller.Framework.Effect
 
         public BaseEffect(string name, TimeSpan interval)
         {
+            this.log = Log.Logger;
             this.name = name;
             Executor.Current.Register(this);
 
@@ -48,7 +49,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                log.Warn("Missed ExecutePerDevice in BaseEffect");
+                this.log.Warning("Missed ExecutePerDevice in BaseEffect");
         }
 
         protected abstract void ExecutePerDevice(T device);

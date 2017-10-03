@@ -58,7 +58,7 @@ namespace Animatroller.Simulator
             foreach (var kvp in data)
             {
                 id++;
-                log.Trace("{3} {0}. {1} = {2}", id, kvp.Key, kvp.Value, this.Name);
+                this.log.Verbose("{3} {0}. {1} = {2}", id, kvp.Key, kvp.Value, this.Name);
             }
 #endif
         }

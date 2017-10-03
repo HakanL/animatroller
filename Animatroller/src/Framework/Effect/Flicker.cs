@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Reactive.Subjects;
 using Animatroller.Framework.Extensions;
-using NLog;
+using Serilog;
 using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Effect
@@ -23,7 +23,7 @@ namespace Animatroller.Framework.Effect
         }
 
         protected bool isRunning;
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         protected string name;
         private Random random = new Random();
         protected object lockObject = new object();
@@ -36,6 +36,7 @@ namespace Animatroller.Framework.Effect
 
         public Flicker(double minBrightness = 0.0, double maxBrightness = 1.0, bool startRunning = true, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             this.name = name;
             Executor.Current.Register(this);
 
@@ -89,7 +90,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                log.Warn("Missed execute in Flicker");
+                this.log.Warning("Missed execute in Flicker");
 
             if (isRunning)
                 this.timer.Change(random.Next(90) + 10, Timeout.Infinite);

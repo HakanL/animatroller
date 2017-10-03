@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Controller
 {
@@ -39,7 +39,7 @@ namespace Animatroller.Framework.Controller
         public event EventHandler<StateChangedEventArgs> StateChanged;
         public event EventHandler<StateChangedStringEventArgs> StateChangedString;
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private string name;
         private Tuple<System.Threading.CancellationTokenSource, Task> currentJob;
         protected object lockObject = new object();
@@ -54,6 +54,7 @@ namespace Animatroller.Framework.Controller
             if (!typeof(T).IsEnum)
                 throw new ArgumentException("T must be an enumerated type");
 
+            this.log = Log.Logger;
             this.name = name;
             this.stateConfigs = new Dictionary<T, Sequence.SequenceJob>();
             this.currentJob = null;
@@ -158,7 +159,7 @@ namespace Animatroller.Framework.Controller
             Sequence.SequenceJob stateConfig;
             if (!this.stateConfigs.TryGetValue(state, out stateConfig))
             {
-                stateConfig = new Sequence.SequenceJob(this.name);
+                stateConfig = new Sequence.SequenceJob(this.log, this.name);
                 this.stateConfigs.Add(state, stateConfig);
             }
 
@@ -196,7 +197,7 @@ namespace Animatroller.Framework.Controller
                 cts?.Cancel();
 
                 if (!runTask.Wait(10000))
-                    log.Info("Sequence {0} failed to cancel in time", seq.Name);
+                    this.log.Information("Sequence {0} failed to cancel in time", seq.Name);
             });
 
             var seqJob = (seq.WhenExecuted as Sequence.SequenceJob);
@@ -263,7 +264,7 @@ namespace Animatroller.Framework.Controller
                     if (this.currentState.Equals(newState))
                     {
                         // Already in this state
-                        log.Info("Already in state {0}", newState);
+                        log.Information("Already in state {0}", newState);
                         return;
                     }
                 }
@@ -349,9 +350,9 @@ namespace Animatroller.Framework.Controller
                 jobToCancel.Item1.Cancel();
                 var watch = System.Diagnostics.Stopwatch.StartNew();
                 if (!jobToCancel.Item2.Wait(5000))
-                    log.Info("State {0} failed to cancel in time", this.currentState);
+                    this.log.Information("State {0} failed to cancel in time", this.currentState);
                 watch.Stop();
-                log.Info("State {0} took {1:N1}ms to stop", this.currentState, watch.Elapsed.TotalMilliseconds);
+                this.log.Information("State {0} took {1:N1}ms to stop", this.currentState, watch.Elapsed.TotalMilliseconds);
             }
         }
 

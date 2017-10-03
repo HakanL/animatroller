@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Reactive.Subjects;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Effect;
 using Animatroller.Framework.Extensions;
 
@@ -165,13 +165,14 @@ namespace Animatroller.Framework.Effect2
         }
 
         private object lockObject = new object();
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private List<TimerJob> timerJobs = new List<TimerJob>();
         private Animatroller.Framework.Controller.HighPrecisionTimer2 timer;
         private Timer monitorTimer;
 
         public TimerJobRunner(Animatroller.Framework.Controller.HighPrecisionTimer2 timer)
         {
+            this.log = Log.Logger;
             this.timer = timer;
 
             this.timer.Output.Subscribe(x =>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Subjects;
 using Animatroller.Framework.MonoExpanderMessages;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
@@ -220,7 +220,7 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(InputChanged message)
         {
-            log.Info("Input {0} on {1} set to {2}", message.Input, this.name, message.Value);
+            this.log.Information("Input {0} on {1} set to {2}", message.Input, this.name, message.Value);
 
             if (message.Input.StartsWith("d"))
             {

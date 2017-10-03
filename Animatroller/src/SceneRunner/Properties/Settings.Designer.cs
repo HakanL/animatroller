@@ -40,5 +40,23 @@ namespace Animatroller.SceneRunner.Properties {
                 return ((int)(this["NetworkAudioPlayerPort"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://office.lindestaf.com:5341/")]
+        public string SeqServerURL {
+            get {
+                return ((string)(this["SeqServerURL"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0ocY3mYMSDRPrUFgq4z")]
+        public string SeqApiKey {
+            get {
+                return ((string)(this["SeqApiKey"]));
+            }
+        }
     }
 }

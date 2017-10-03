@@ -3,13 +3,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice.Event;
 using Animatroller.Framework.Extensions;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.LogicalDevice
 {
     public class MotorWithFeedback : ILogicalDevice
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         public class MotorVector
         {
@@ -36,6 +36,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public MotorWithFeedback(string name)
         {
+            this.log = Log.Logger;
             this.name = name;
             Executor.Current.Register(this);
 
@@ -100,7 +101,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (lastCommandSent.HasValue)
             {
                 TimeSpan duration = DateTime.Now - lastCommandSent.Value;
-                log.Info("Last movement took {0:F1} s", duration.TotalSeconds);
+                this.log.Information("Last movement took {0:F1} s", duration.TotalSeconds);
             }
         }
 
@@ -115,7 +116,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (lastCommandSent.HasValue)
             {
                 TimeSpan duration = DateTime.Now - lastCommandSent.Value;
-                log.Info("Last movement took {0:F1} s", duration.TotalSeconds);
+                this.log.Information("Last movement took {0:F1} s", duration.TotalSeconds);
             }
         }
 

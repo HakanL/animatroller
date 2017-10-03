@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
 using System.Net;
-using NLog;
+using Serilog;
 using Rug.Osc;
 
 namespace Animatroller.Framework.Expander
 {
     public class OscClient : IPort, IRunnable
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private OscSender sender;
         private System.Net.IPAddress destination;
         private int destinationPort;
@@ -25,6 +25,7 @@ namespace Animatroller.Framework.Expander
 
         public OscClient(IPAddress destination, int destinationPort)
         {
+            this.log = Log.Logger;
             this.destination = destination;
             this.destinationPort = destinationPort;
 
@@ -60,7 +61,7 @@ namespace Animatroller.Framework.Expander
         {
             //            this.sender.WaitForAllMessagesToComplete();
 
-            log.Info("Sending to {0}", address);
+            this.log.Information("Sending to {0}", address);
 
             if (data == null || data.Length == 0)
             {
@@ -74,7 +75,7 @@ namespace Animatroller.Framework.Expander
             }
             else
             {
-                log.Info("   Data {0}", string.Join(" ", data));
+                this.log.Information("   Data {0}", string.Join(" ", data));
 
                 var sendData = new object[data.Length];
                 for (int i = 0; i < data.Length; i++)

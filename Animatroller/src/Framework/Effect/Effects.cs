@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Reactive.Subjects;
 using Animatroller.Framework.Extensions;
-using NLog;
+using Serilog;
 using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Effect

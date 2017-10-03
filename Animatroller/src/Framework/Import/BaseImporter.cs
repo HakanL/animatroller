@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Controller;
 
 namespace Animatroller.Framework.Import
@@ -58,7 +58,7 @@ namespace Animatroller.Framework.Import
             }
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private Dictionary<IChannelIdentity, ChannelData> channelData;
         private List<IChannelIdentity> channels;
         protected Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>> mappedDevices;
@@ -67,6 +67,7 @@ namespace Animatroller.Framework.Import
 
         public BaseImporter()
         {
+            this.log = Log.Logger;
             this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
             this.channels = new List<IChannelIdentity>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<MappedDeviceDimmer>>();
@@ -186,7 +187,7 @@ namespace Animatroller.Framework.Import
             {
                 if (!kvp.Value.Mapped)
                 {
-                    log.Warn("No devices mapped to {0}", kvp.Key);
+                    this.log.Warning("No devices mapped to {0}", kvp.Key);
                 }
             }
 

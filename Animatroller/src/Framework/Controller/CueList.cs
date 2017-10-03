@@ -8,7 +8,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Framework.Controller
@@ -73,7 +73,7 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         //        private Effect.Transformer.EaseInOut easeTransform = new Effect.Transformer.EaseInOut();
 
         private int? iterations;
@@ -635,6 +635,7 @@ namespace Animatroller.Framework.Controller
 
         public CueList(int? iterations = null, bool bounce = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             this.iterations = iterations;
             this.iterationsLeft = iterations;
             this.bounce = bounce;

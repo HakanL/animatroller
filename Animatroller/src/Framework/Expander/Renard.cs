@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
     public class Renard : IPort, IRunnable, IDmxOutput, IOutputHardware
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private int sendCounter;
         private int sendBytes;
         private SerialPort serialPort;
@@ -23,6 +23,7 @@ namespace Animatroller.Framework.Expander
 
         public Renard(string portName)
         {
+            this.log = Log.Logger;
             this.serialPort = new SerialPort(portName, 57600);
             this.renardData = new byte[24];
 
@@ -40,7 +41,7 @@ namespace Animatroller.Framework.Expander
                             if (this.dataChanges > 0)
                             {
                                 this.firstChange.Stop();
-                                //log.Info("Sending {0} changes to Renard. Oldest {1:N2}ms",
+                                //this.log.Information("Sending {0} changes to Renard. Oldest {1:N2}ms",
                                 //    this.dataChanges, this.firstChange.Elapsed.TotalMilliseconds);
                                 this.dataChanges = 0;
                                 sentChanges = true;
@@ -68,7 +69,7 @@ namespace Animatroller.Framework.Expander
             lock (lockObject)
             {
                 sendCounter++;
-                //log.Info("Sending packet {0} to Renard", sendCounter);
+                //this.log.Information("Sending packet {0} to Renard", sendCounter);
 
                 try
                 {
@@ -124,7 +125,7 @@ namespace Animatroller.Framework.Expander
                 }
                 catch (Exception ex)
                 {
-                    log.Info("SendSerialCommand exception: " + ex.Message);
+                    this.log.Information("SendSerialCommand exception: " + ex.Message);
                     // Ignore
                 }
             }

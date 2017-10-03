@@ -12,12 +12,11 @@ namespace Animatroller.Scenes
     internal class ExpanderDemo2 : BaseScene
     {
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
-//        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
-//        Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
+        //        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
+        //        Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(8899);
         AudioPlayer audio1 = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
-        AnalogInput3 masterVolume = new AnalogInput3(persistState: true, defaultValue: 1.0);
 
         DigitalInput2 in1 = new DigitalInput2();
         DigitalOutput2 out1 = new DigitalOutput2();
@@ -41,17 +40,15 @@ namespace Animatroller.Scenes
             expanderLocal.Connect(audio1);
             //            expander2.Connect(audio2);
 
-            masterVolume.ConnectTo(Exec.MasterVolume);
-
             in1.Output.Subscribe(x =>
             {
                 if (x)
-//                    audio2.PlayTrack("02. Frozen - Do You Want to Build a Snowman.wav");
-                      audio1.PlayEffect("WarmHugs.wav");
-                        //                    audio2.PlayTrack("08 Feel the Light.wav");
-                        //                    audioLocal.PlayEffect("WarmHugs.wav");
+                    //                    audio2.PlayTrack("02. Frozen - Do You Want to Build a Snowman.wav");
+                    audio1.PlayEffect("WarmHugs.wav");
+                //                    audio2.PlayTrack("08 Feel the Light.wav");
+                //                    audioLocal.PlayEffect("WarmHugs.wav");
 
-                        out1.SetValue(x);
+                out1.SetValue(x);
             });
         }
 

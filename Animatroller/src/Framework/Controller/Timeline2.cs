@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Controller
 {
     public class Timeline2<T> : ITimeline
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         public class MultiTimelineEventArgs : EventArgs
         {
@@ -39,6 +39,7 @@ namespace Animatroller.Framework.Controller
 
         public Timeline2(int? iterations = null)
         {
+            this.log = Log.Logger;
             this.timeline = new SortedList<int, HashSet<T>>();
             this.iterations = iterations;
         }

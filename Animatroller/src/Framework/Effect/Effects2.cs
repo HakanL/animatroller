@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Effect;
 using Animatroller.Framework.Extensions;
 

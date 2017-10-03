@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Animatroller.Framework.LogicalDevice;
 using Animatroller.Framework.Extensions;
-using NLog;
+using Serilog;
 using Sanford.Multimedia.Midi;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -16,7 +16,7 @@ namespace Animatroller.Framework.Expander
 {
     public class MidiInput2 : IPort, IRunnable
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private InputDevice inputDevice;
         private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
         private ISubject<ChannelMessage> midiMessages;
@@ -24,6 +24,7 @@ namespace Animatroller.Framework.Expander
 
         public MidiInput2(string deviceName = null, bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             this.name = name;
             string midiDeviceName = deviceName;
             if (string.IsNullOrEmpty(deviceName))
@@ -50,7 +51,7 @@ namespace Animatroller.Framework.Expander
                 if (!ignoreMissingDevice)
                     throw new ArgumentException("Midi device not detected");
                 else
-                    log.Warn("Midi device not detected");
+                    this.log.Warning("Midi device not detected");
             }
             else
             {
@@ -74,7 +75,7 @@ namespace Animatroller.Framework.Expander
 
         private void inputDevice_ChannelMessageReceived(object sender, ChannelMessageEventArgs e)
         {
-            log.Trace("Recv {4} cmd {0}, chn: {1}  data1: {2}  data2: {3}",
+            this.log.Verbose("Recv {4} cmd {0}, chn: {1}  data1: {2}  data2: {3}",
                 e.Message.Command,
                 e.Message.MidiChannel,
                 e.Message.Data1,

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Effect
 {
@@ -223,7 +223,7 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         private object lockTicks = new object();
         private object lockJobs = new object();
@@ -232,6 +232,7 @@ namespace Animatroller.Framework.Effect
 
         public MasterSweeper(Controller.HighPrecisionTimer timer)
         {
+            this.log = Log.Logger;
             this.intervalMs = timer.IntervalMs;
             this.jobs = new List<Job>();
 
@@ -264,7 +265,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                log.Warn("Missed execute task in MasterSweeper job");
+                this.log.Warning("Missed execute task in MasterSweeper job");
         }
 
         public MasterSweeper.Job RegisterJob(EffectAction.Action action, TimeSpan oneSweepDuration, int? iterations)

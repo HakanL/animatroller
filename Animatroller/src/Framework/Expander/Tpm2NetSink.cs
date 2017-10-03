@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.IO.Ports;
 using System.Reactive;
 using System.Reactive.Subjects;
-using NLog;
+using Serilog;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
@@ -31,12 +31,13 @@ namespace Animatroller.Framework.Expander
             Response
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private System.Threading.CancellationTokenSource cancelSource;
         protected Subject<Tpm2BlockData> dataReceived;
 
         public Tpm2NetSink([System.Runtime.CompilerServices.CallerMemberName] string name = "", int listenPort = 65506)
         {
+            this.log = Log.Logger;
             dataReceived = new Subject<Tpm2BlockData>();
 
             this.cancelSource = new System.Threading.CancellationTokenSource();

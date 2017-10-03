@@ -7,13 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.MonoExpanderMessages;
 using Newtonsoft.Json.Linq;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
     public abstract class MonoExpanderBaseInstance
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private string expanderSharedFiles;
         protected Action<object> sendAction;
         private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
@@ -24,6 +24,7 @@ namespace Animatroller.Framework.Expander
 
         public MonoExpanderBaseInstance()
         {
+            this.log = Log.Logger;
             this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
             this.lastState = new Dictionary<string, object>();
         }
@@ -53,7 +54,7 @@ namespace Animatroller.Framework.Expander
         {
             this.connectionId = connectionId;
 
-            log.Info("Client {0} connected to instance {1}", connectionId, this.instanceId);
+            this.log.Information("Client {0} connected to instance {1}", connectionId, this.instanceId);
 
             // Send all state data
             lock (this.lastState)
@@ -100,14 +101,14 @@ namespace Animatroller.Framework.Expander
         public void Handle(Ping message)
         {
 #if VERBOSE_LOGGING
-            log.Trace($"Response from instance {this.name} at {this.connectionId}");
+            this.log.Verbose($"Response from instance {this.name} at {this.connectionId}");
 #endif
 
         }
 
         public void Handle(FileRequest message)
         {
-            log.Info("Requested download file {1} of type {0}", message.Type, message.FileName);
+            this.log.Information("Requested download file {1} of type {0}", message.Type, message.FileName);
 
             if (!string.IsNullOrEmpty(Path.GetDirectoryName(message.FileName)))
                 throw new ArgumentException("FileName should be without path");
@@ -119,7 +120,7 @@ namespace Animatroller.Framework.Expander
 
             if (!File.Exists(filePath))
             {
-                log.Warn("File {0} of type {1} doesn't exist", message.FileName, message.Type);
+                this.log.Warning("File {0} of type {1} doesn't exist", message.FileName, message.Type);
 
                 SendMessage(new FileResponse
                 {
@@ -147,7 +148,7 @@ namespace Animatroller.Framework.Expander
             long fileSize = new FileInfo(filePath).Length;
             int chunkId = (int)(message.ChunkStart / message.ChunkSize);
             int chunks = (int)(fileSize / message.ChunkSize);
-            log.Info("Request for file {0} chunk {1}/{2} for {3:N0} bytes", message.FileName, chunkId, chunks, message.ChunkSize);
+            this.log.Information("Request for file {0} chunk {1}/{2} for {3:N0} bytes", message.FileName, chunkId, chunks, message.ChunkSize);
 
             using (var fs = File.OpenRead(filePath))
             {

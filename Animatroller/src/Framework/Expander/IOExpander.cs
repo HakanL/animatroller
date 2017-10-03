@@ -54,7 +54,7 @@ namespace Animatroller.Framework.Expander
                         {
                             this.firstChange.Stop();
                             this.sentUpdates++;
-                            log.Info("Sending {0} changes to IOExpander. Oldest {1:N2}ms. Recv: {2}   Sent: {3}",
+                            this.log.Information("Sending {0} changes to IOExpander. Oldest {1:N2}ms. Recv: {2}   Sent: {3}",
                                 this.changedPixels.Count, this.firstChange.Elapsed.TotalMilliseconds,
                                 receivedUpdates, sentUpdates);
 
@@ -129,10 +129,10 @@ namespace Animatroller.Framework.Expander
             switch (cmd)
             {
                 case '#':
-                    log.Info("ACK " + data);
+                    this.log.Information("ACK " + data);
                     break;
                 case 'X':
-                    log.Info("Init " + data);
+                    this.log.Information("Init " + data);
                     break;
                 case 'I':
                     // Input
@@ -141,7 +141,7 @@ namespace Animatroller.Framework.Expander
                         byte chn = byte.Parse(parts[0]);
                         byte val = byte.Parse(parts[1]);
 
-                        log.Info("Input chn={0} val={1}", chn, val);
+                        this.log.Information("Input chn={0} val={1}", chn, val);
                         switch (chn)
                         {
                             case 1:
@@ -167,12 +167,12 @@ namespace Animatroller.Framework.Expander
                             if (parts[1].StartsWith("S"))
                             {
                                 pos = int.Parse(parts[1].Substring(1));
-                                log.Info("MotorController chn={0} Starting at {1}", chn, pos);
+                                this.log.Information("MotorController chn={0} Starting at {1}", chn, pos);
                             }
                             else if (parts[1].StartsWith("E"))
                             {
                                 pos = int.Parse(parts[1].Substring(1));
-                                log.Info("MotorController chn={0} Ends at {1}", chn, pos);
+                                this.log.Information("MotorController chn={0} Ends at {1}", chn, pos);
 
                                 if (chn == 1)
                                     this.Motor.Trigger(pos, pos == null);
@@ -180,14 +180,14 @@ namespace Animatroller.Framework.Expander
                             else
                             {
                                 pos = int.Parse(parts[1]);
-                                log.Info("MotorController chn={0} val={1}", chn, pos);
+                                this.log.Information("MotorController chn={0} val={1}", chn, pos);
                             }
                         }
                         else
                         {
                             // Motor failed
                             pos = null;
-                            log.Info("MotorController chn={0} failed", chn);
+                            this.log.Information("MotorController chn={0} failed", chn);
 
                             if (chn == 1)
                                 this.Motor.Trigger(pos, pos == null);
@@ -196,7 +196,7 @@ namespace Animatroller.Framework.Expander
                     }
                     break;
                 default:
-                    log.Info("Unknown data: " + data);
+                    this.log.Information("Unknown data: " + data);
                     break;
             }
         }

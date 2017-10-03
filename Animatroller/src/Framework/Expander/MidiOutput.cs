@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Animatroller.Framework.LogicalDevice;
 using Animatroller.Framework.Extensions;
-using NLog;
+using Serilog;
 using Sanford.Multimedia.Midi;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -14,11 +14,12 @@ namespace Animatroller.Framework.Expander
 {
     public class MidiOutput : IPort, IRunnable
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private OutputDevice outputDevice;
 
         public MidiOutput(string deviceName = null, bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             string midiDeviceName = deviceName;
             if (string.IsNullOrEmpty(deviceName))
                 midiDeviceName = Executor.Current.GetSetKey(this, name + ".DeviceName", string.Empty);
@@ -40,7 +41,7 @@ namespace Animatroller.Framework.Expander
                 if (!ignoreMissingDevice)
                     throw new ArgumentException("Midi device not detected");
                 else
-                    log.Warn("Midi device not detected");
+                    this.log.Warning("Midi device not detected");
             }
             else
             {
@@ -57,7 +58,7 @@ namespace Animatroller.Framework.Expander
 
         private void outputDevice_Error(object sender, Sanford.Multimedia.ErrorEventArgs e)
         {
-            log.Trace(e.Error, "Got error from midi output {0}");
+            this.log.Verbose(e.Error, "Got error from midi output {0}");
         }
 
         public void Start()

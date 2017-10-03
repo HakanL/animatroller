@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
-using NLog;
+using Serilog;
 using System.Net;
 using Newtonsoft.Json;
 
@@ -53,7 +53,7 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private Rug.Osc.OscReceiver receiver;
         private Task receiverTask;
         private System.Threading.CancellationTokenSource cancelSource;
@@ -68,6 +68,7 @@ namespace Animatroller.Framework.Expander
 
         public OscServer(int listenPort)
         {
+            this.log = Log.Logger;
             this.receiver = new Rug.Osc.OscReceiver(listenPort);
             this.cancelSource = new System.Threading.CancellationTokenSource();
             this.dispatch = new Dictionary<string, Action<Message>>();

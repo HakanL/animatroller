@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
     public abstract class BaseDevice : IOutputDevice, IPhysicalDevice
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         protected ILogicalDevice[] logicalDevices;
 
         public BaseDevice(params ILogicalDevice[] logicalDevice)
         {
+            this.log = Log.Logger;
             Executor.Current.Register(this);
 
             this.logicalDevices = logicalDevice;

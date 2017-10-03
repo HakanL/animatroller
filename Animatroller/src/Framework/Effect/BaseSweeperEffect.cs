@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Reactive;
 using System.Reactive.Subjects;
-using NLog;
+using Serilog;
 using Animatroller.Framework.LogicalDevice;
 using Animatroller.Framework.Extensions;
 
@@ -27,7 +27,7 @@ namespace Animatroller.Framework.Effect
         }
 
         protected bool isRunning;
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         protected int priority;
         protected string name;
         protected object lockObject = new object();
@@ -42,6 +42,7 @@ namespace Animatroller.Framework.Effect
             bool startRunning,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             this.name = name;
             Executor.Current.Register(this);
 
@@ -89,7 +90,7 @@ namespace Animatroller.Framework.Effect
                         }
                     }
                     else
-                        log.Warn("Missed Job in BaseSweepEffect   Name: " + Name);
+                        this.log.Warning("Missed Job in BaseSweepEffect   Name: " + Name);
                 });
         }
 
@@ -140,7 +141,7 @@ namespace Animatroller.Framework.Effect
 
                 if (totalWatch.ElapsedMilliseconds > 25)
                 {
-                    log.Info(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
+                    this.log.Information(string.Format("Devices {0}   Max: {1:N1}   Avg: {2:N1}   Total: {3:N1}",
                         this.devices.Count, max, avg, totalWatch.ElapsedMilliseconds));
                 }
             }

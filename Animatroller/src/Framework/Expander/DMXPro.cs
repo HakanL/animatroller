@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
     public class DMXPro : IPort, IRunnable, IDmxOutput, IOutputHardware
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private int sendCounter;
         private SerialPort serialPort;
         private object lockObject = new object();
@@ -25,6 +25,7 @@ namespace Animatroller.Framework.Expander
 
         public DMXPro(string portName)
         {
+            this.log = Log.Logger;
             this.initWait = new System.Threading.ManualResetEvent(false);
             this.serialPort = new SerialPort(portName, 38400);
             this.serialPort.DataReceived += serialPort_DataReceived;
@@ -48,7 +49,7 @@ namespace Animatroller.Framework.Expander
                             if (this.dataChanges > 0)
                             {
                                 this.firstChange.Stop();
-                                //log.Info("Sending {0} changes to DMX Pro. Oldest {1:N2}ms",
+                                //this.log.Information("Sending {0} changes to DMX Pro. Oldest {1:N2}ms",
                                 //    this.dataChanges, this.firstChange.Elapsed.TotalMilliseconds);
                                 this.dataChanges = 0;
                                 sentChanges = true;
@@ -68,7 +69,7 @@ namespace Animatroller.Framework.Expander
         protected void packetManager_PacketReceived(object sender, DmxPacketManager.DmxPacketReceivedEventArgs e)
         {
             string bufData = string.Join(",", e.PacketData.ToList().ConvertAll(x => x.ToString("d")));
-            log.Info("Received from DMXPro: Label: {0:d}   Payload: {1}", e.Label, bufData);
+            this.log.Information("Received from DMXPro: Label: {0:d}   Payload: {1}", e.Label, bufData);
 
             if (!foundDmxPro)
             {
@@ -97,7 +98,7 @@ namespace Animatroller.Framework.Expander
 
 #if DEBUG
                 string bufData = string.Join(",", buf.ToList().ConvertAll(x => x.ToString("d")));
-                log.Info("Received from Serial Port: {0}", bufData);
+                this.log.Information("Received from Serial Port: {0}", bufData);
 #endif
 
                 this.packetManager.WriteNewData(buf);
@@ -116,7 +117,7 @@ namespace Animatroller.Framework.Expander
             lock (lockObject)
             {
                 sendCounter++;
-//                log.Info("Sending packet {0} to DMX", sendCounter);
+//                this.log.Information("Sending packet {0} to DMX", sendCounter);
 
                 try
                 {
@@ -129,7 +130,7 @@ namespace Animatroller.Framework.Expander
                 }
                 catch (Exception ex)
                 {
-                    log.Info("SendSerialCommand exception: " + ex.Message);
+                    this.log.Information("SendSerialCommand exception: " + ex.Message);
                     // Ignore
                 }
             }

@@ -7,7 +7,7 @@ using System.Text;
 using System.Reactive.Disposables;
 using System.Reactive.Subjects;
 using System.Reactive;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Effect;
 using Animatroller.Framework.Extensions;
 using System.Threading.Tasks;
@@ -17,11 +17,12 @@ namespace Animatroller.Framework.Effect2
 {
     public class MasterEffect
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private TimerJobRunner timerJobRunner;
 
         public MasterEffect(TimerJobRunner timerJobRunner)
         {
+            this.log = Log.Logger;
             this.timerJobRunner = timerJobRunner;
         }
 

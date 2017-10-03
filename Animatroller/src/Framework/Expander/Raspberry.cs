@@ -5,13 +5,13 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO.Ports;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
     public class Raspberry : IPort, IRunnable, IOutputHardware
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private OscClient oscClient;
         private OscServer oscServer;
         private string hostName;
@@ -23,6 +23,7 @@ namespace Animatroller.Framework.Expander
 
         public Raspberry([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
+            this.log = Log.Logger;
             Initialize(
                 hostEntry: Executor.Current.GetSetKey(this, name + ".hostEntry", "127.0.0.1:5005"),
                 listenPort: Executor.Current.GetSetKey(this, name + ".listenPort", 3333));
@@ -30,6 +31,7 @@ namespace Animatroller.Framework.Expander
 
         public Raspberry(string hostEntry, int listenPort)
         {
+            this.log = Log.Logger;
             Initialize(hostEntry, listenPort);
         }
 
@@ -42,7 +44,7 @@ namespace Animatroller.Framework.Expander
                 return true;
 
             string messageId = (string)msg.Data.First();
-            log.Trace("Received message id {0}", messageId);
+            this.log.Verbose("Received message id {0}", messageId);
 
             if (this.lastMessageIds.Contains(messageId))
                 return false;
@@ -87,7 +89,7 @@ namespace Animatroller.Framework.Expander
                     if (!CheckIdempotence(msg))
                         return;
 
-                    log.Info("Raspberry is up");
+                    this.log.Information("Raspberry is up");
                 });
 
             this.oscServer.RegisterAction("/audio/trk/done", msg =>
@@ -129,7 +131,7 @@ namespace Animatroller.Framework.Expander
                     if (data.Count() >= 2)
                     {
                         var values = data.ToArray();
-                        log.Info("Input {0} set to {1}", values[0], values[1]);
+                        this.log.Information("Input {0} set to {1}", values[0], values[1]);
 
                         if (values[0] >= 0 && values[0] <= 7)
                             this.DigitalInputs[values[0]].Trigger(values[1] != 0);
@@ -150,7 +152,7 @@ namespace Animatroller.Framework.Expander
 
                         if (motorPos == "FAIL")
                         {
-                            log.Info("Motor {0} failed", motorChn);
+                            this.log.Information("Motor {0} failed", motorChn);
 
                             if (motorChn == 1)
                                 this.Motor.Trigger(null, true);
@@ -160,12 +162,12 @@ namespace Animatroller.Framework.Expander
                             if (motorPos.StartsWith("S"))
                             {
                                 int pos = int.Parse(motorPos.Substring(1));
-                                log.Info("Motor {0} starting at position {1}", motorChn, pos);
+                                this.log.Information("Motor {0} starting at position {1}", motorChn, pos);
                             }
                             else if (motorPos.StartsWith("E"))
                             {
                                 int pos = int.Parse(motorPos.Substring(1));
-                                log.Info("Motor {0} ending at position {1}", motorChn, pos);
+                                this.log.Information("Motor {0} ending at position {1}", motorChn, pos);
 
                                 if (motorChn == 1)
                                     this.Motor.Trigger(pos, false);

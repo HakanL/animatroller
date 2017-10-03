@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 
 namespace Animatroller.Framework.Effect
 {
     public class Sweeper
     {
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
 
         private object lockObject = new object();
         private object lockJobs = new object();
@@ -32,6 +32,7 @@ namespace Animatroller.Framework.Effect
             if (dataPoints < 2)
                 throw new ArgumentOutOfRangeException("dataPoints");
 
+            this.log = Log.Logger;
             this.positions = dataPoints;
             InternalReset();
             this.jobs = new List<EffectAction.Action>();
@@ -199,7 +200,7 @@ namespace Animatroller.Framework.Effect
                 }
             }
             else
-                log.Warn("Missed execute task in Sweeper job");
+                this.log.Warning("Missed execute task in Sweeper job");
         }
     }
 }

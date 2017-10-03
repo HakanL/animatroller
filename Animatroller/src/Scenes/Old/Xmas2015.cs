@@ -729,7 +729,7 @@ namespace Animatroller.Scenes
 
             lorFeelTheLight.Progress.Subscribe(x =>
             {
-                log.Trace("Feel the Light {0:N0} ms", x);
+                this.log.Verbose("Feel the Light {0:N0} ms", x);
             });
 
             //            lorFeelTheLight.Dump();
@@ -800,7 +800,7 @@ namespace Animatroller.Scenes
 
             lorBelieve.Progress.Subscribe(x =>
             {
-                log.Trace("Believe {0:N0} ms", x);
+                this.log.Verbose("Believe {0:N0} ms", x);
             });
 
             //            lorBelieve.Dump();

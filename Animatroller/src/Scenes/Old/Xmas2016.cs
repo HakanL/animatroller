@@ -1049,7 +1049,7 @@ namespace Animatroller.Scenes
 
             lorChristmasCanon.Progress.Subscribe(x =>
             {
-                log.Trace("Christmas Canon {0:N0} ms", x);
+                this.log.Verbose("Christmas Canon {0:N0} ms", x);
             });
 
             //            lorChristmasCanon.Dump();
@@ -1192,7 +1192,7 @@ namespace Animatroller.Scenes
 
             lorBelieve.Progress.Subscribe(x =>
             {
-                log.Trace("Believe {0:N0} ms", x);
+                this.log.Verbose("Believe {0:N0} ms", x);
             });
 
             //lorBelieve.Dump();
@@ -1316,7 +1316,7 @@ namespace Animatroller.Scenes
 
             lorJingleBells.Progress.Subscribe(x =>
             {
-                log.Trace("Jingle Bells {0:N0} ms", x);
+                this.log.Verbose("Jingle Bells {0:N0} ms", x);
             });
 
             //            lorJingleBells.Dump();
@@ -1437,7 +1437,7 @@ namespace Animatroller.Scenes
 
             lorSarajevo.Progress.Subscribe(x =>
             {
-                log.Trace("Sarajevo {0:N0} ms", x);
+                this.log.Verbose("Sarajevo {0:N0} ms", x);
             });
 
             // Lights:
@@ -1676,7 +1676,7 @@ namespace Animatroller.Scenes
 
             lorHolyNight.Progress.Subscribe(x =>
             {
-                log.Trace("HolyNight {0:N0} ms", x);
+                this.log.Verbose("HolyNight {0:N0} ms", x);
             });
 
             // Lights:
@@ -1915,7 +1915,7 @@ namespace Animatroller.Scenes
 
             lorCarol.Progress.Subscribe(x =>
             {
-                log.Trace("Carol {0:N0} ms", x);
+                this.log.Verbose("Carol {0:N0} ms", x);
             });
 
             // Lights:

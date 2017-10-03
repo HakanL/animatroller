@@ -7,7 +7,7 @@ using System.Drawing;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using NLog;
+using Serilog;
 using LMS = Animatroller.Framework.Import.FileFormat.LightORama.LMS;
 using Animatroller.Framework.Extensions;
 using Animatroller.Framework.Controller;
@@ -69,7 +69,7 @@ namespace Animatroller.Framework.Import
             {
                 if (!kvp.Value.Mapped && kvp.Value.HasEffects)
                 {
-                    log.Warn("No devices mapped to {0} ({1})", kvp.Key, kvp.Value.Name);
+                    this.log.Warning("No devices mapped to {0} ({1})", kvp.Key, kvp.Value.Name);
                 }
             }
         }
@@ -224,17 +224,17 @@ namespace Animatroller.Framework.Import
 
         public void Dump()
         {
-            log.Info("Used channels:");
+            this.log.Information("Used channels:");
 
             int count = 0;
             foreach (var kvp in this.channelData.Where(x => x.Value.HasEffects).OrderBy(x => x.Key))
             {
                 count++;
 
-                log.Info("Channel {0} - {1}", kvp.Key, kvp.Value.Name);
+                this.log.Information("Channel {0} - {1}", kvp.Key, kvp.Value.Name);
             }
 
-            log.Info("Total used channels: {0}", count);
+            this.log.Information("Total used channels: {0}", count);
         }
 
         protected DeviceController ConnectTo(IReceivesBrightness device, params Tuple<DataElements, object>[] additionalData)

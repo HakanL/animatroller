@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using NLog;
+using Serilog;
 using Animatroller.Framework.Controller;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice;
@@ -68,7 +68,7 @@ namespace Animatroller.Framework.Import
                     }
                 }
         */
-        protected static Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         protected Dictionary<IChannelIdentity, ChannelData> channelData;
         //        private List<IChannelIdentity> channels;
         protected Dictionary<IChannelIdentity, HashSet<DeviceController>> mappedDevices;
@@ -79,6 +79,7 @@ namespace Animatroller.Framework.Import
 
         public BaseImporter2(string name, int priority)
         {
+            this.log = Log.Logger;
             this.name = name;
             this.priority = priority;
 
@@ -142,7 +143,7 @@ namespace Animatroller.Framework.Import
             }
 
             if (this.channelData.ContainsKey(channelIdentity))
-                log.Warn("Channel id {0} already exists", channelIdentity);
+                this.log.Warning("Channel id {0} already exists", channelIdentity);
 
             this.channelData[channelIdentity] = data;
             //            this.channels.Add(channelIdentity);
@@ -167,7 +168,7 @@ namespace Animatroller.Framework.Import
             channelData.Mapped = true;
 
             if (!channelData.HasEffects)
-                log.Warn("Channel {0}/{1} is mapped, but has no effects", channelIdentity, channelData.Name);
+                this.log.Warning("Channel {0}/{1} is mapped, but has no effects", channelIdentity, channelData.Name);
         }
 
         protected void InternalMapDevice(RGBChannelIdentity channelIdentity, DeviceController device)
@@ -193,7 +194,7 @@ namespace Animatroller.Framework.Import
             channelDataB.Mapped = true;
 
             if (!channelDataR.HasEffects && !channelDataG.HasEffects && !channelDataB.HasEffects)
-                log.Warn("Channel {0} is mapped, but has no effects", channelIdentity);
+                this.log.Warning("Channel {0} is mapped, but has no effects", channelIdentity);
         }
 
         //public void MapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)
