@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Cyotek.Collections.Generic;
 
 namespace Animatroller.Framework.Controller
 {
@@ -27,8 +28,8 @@ namespace Animatroller.Framework.Controller
 
         protected ILogger log;
         public event EventHandler<TickEventArgs> Tick;
-        protected CircularBuffer.CircularBuffer<int> tickTiming;
-        protected CircularBuffer.CircularBuffer<long> execTiming;
+        protected CircularBuffer<int> tickTiming;
+        protected CircularBuffer<long> execTiming;
         protected CancellationTokenSource cancelSource;
         private ManualResetEvent taskComplete;
         private Task task;

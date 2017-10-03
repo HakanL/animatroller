@@ -13,14 +13,19 @@ namespace Animatroller.Scenes
     public class Program
     {
         private static ILogger log;
+        private const string FileTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
+        private const string TraceTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
 
         public static void Main(string[] args)
         {
             var logConfig = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .MinimumLevel.Verbose()
-                .WriteTo.ColoredConsole()
-                .WriteTo.RollingFile("Logs\\SceneRunner.{Date}.log");
+                .WriteTo.ColoredConsole(outputTemplate: TraceTemplate)
+                .WriteTo.Trace(outputTemplate: TraceTemplate)
+                .WriteTo.RollingFile(
+                    pathFormat: Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),
+                    outputTemplate: FileTemplate);
 
             if (!string.IsNullOrEmpty(SceneRunner.Properties.Settings.Default.SeqServerURL))
                 logConfig = logConfig.WriteTo.Seq(serverUrl: SceneRunner.Properties.Settings.Default.SeqServerURL, apiKey: SceneRunner.Properties.Settings.Default.SeqApiKey);

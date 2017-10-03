@@ -47,9 +47,6 @@
       <HintPath>..\packages\BinaryRage.1.4.0.0\lib\net40\BinaryRage.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CircularBuffer">
-      <HintPath>..\..\lib\CircularBuffer.dll</HintPath>
-    </Reference>
     <Reference Include="Cyotek.Collections.Generic.CircularBuffer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=58daa28b0b2de221, processorArchitecture=MSIL">
       <HintPath>..\packages\Cyotek.CircularBuffer.1.0.2\lib\net20\Cyotek.Collections.Generic.CircularBuffer.dll</HintPath>
     </Reference>
