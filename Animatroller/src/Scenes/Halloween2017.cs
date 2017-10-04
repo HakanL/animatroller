@@ -182,6 +182,9 @@ namespace Animatroller.Scenes
         int soundBoardOutputIndex = 0;
         byte last3dfxVideo = 0;
 
+        // Modules
+        Modules.HalloweenGrumpyCat grumpyCat;
+
         public Halloween2017(IEnumerable<string> args)
         {
             hoursSmall.AddRange("6:00 pm", "8:30 pm",
@@ -225,6 +228,11 @@ namespace Animatroller.Scenes
             hoursFull
                 .ControlsMasterPower(catAir)
                 .ControlsMasterPower(mrPumpkinAir);
+
+            grumpyCat = new Modules.HalloweenGrumpyCat(
+                acnOutput: acnOutput,
+                airAddress: (SacnUniverseDMXCat, 64),
+                lightAddress: (SacnUniverseDMXCat, 65));
 
             buttonOverrideHours.Output.Subscribe(x =>
             {

@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Old\ReallyOld\DemoScene1.cs" />
+    <Compile Include="Modules\HalloweenGrumpyCat.cs" />
     <Compile Include="Old\ExpanderDemo2.cs" />
     <Compile Include="Halloween2017_OSC.cs" />
     <Compile Include="Halloween2017_MIDI.cs" />

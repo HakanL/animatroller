@@ -92,6 +92,7 @@
   <ItemGroup>
     <Compile Include="Import\DmxPlayback.cs" />
     <Compile Include="Import\FileFormat\DmxFrame.cs" />
+    <Compile Include="Interface\BaseModule.cs" />
     <Compile Include="LogicalDevice\ControlledGroupData.cs" />
     <Compile Include="LogicalDevice\VirtualPixel2D3.cs" />
     <Compile Include="LogicalDevice\VirtualPixel1D3.cs" />
