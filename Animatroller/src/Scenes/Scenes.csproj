@@ -73,6 +73,7 @@
     <Compile Include="Old\Halloween2016_OSC.cs" />
     <Compile Include="Old\MatrixTest1.cs" />
     <Compile Include="Old\PixelTest1.cs" />
+    <Compile Include="Old\TestStreamingACN.cs" />
     <Compile Include="Old\TestUsbDmxPro.cs" />
     <Compile Include="Old\Xmas2016_MIDI.cs" />
     <Compile Include="Old\Xmas2016_OSC.cs" />

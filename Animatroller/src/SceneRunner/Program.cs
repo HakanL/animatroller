@@ -28,13 +28,16 @@ namespace Animatroller.Scenes
                     outputTemplate: FileTemplate);
 
             if (!string.IsNullOrEmpty(SceneRunner.Properties.Settings.Default.SeqServerURL))
-                logConfig = logConfig.WriteTo.Seq(serverUrl: SceneRunner.Properties.Settings.Default.SeqServerURL, apiKey: SceneRunner.Properties.Settings.Default.SeqApiKey);
+                logConfig = logConfig.WriteTo.Seq(
+                    serverUrl: SceneRunner.Properties.Settings.Default.SeqServerURL,
+                    apiKey: SceneRunner.Properties.Settings.Default.SeqApiKey,
+                    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug);
 
             log = Log.Logger = logConfig.CreateLogger();
 
             Log.Logger.Information("Starting up!");
 
-            Console.SetWindowSize(180, 70);
+            Console.SetWindowSize(Math.Min(Console.LargestWindowWidth, 180), Math.Min(Console.LargestWindowHeight, 70));
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 

@@ -52,10 +52,6 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderPop = new Expander.MonoExpanderInstance();
-        //Expander.Raspberry raspberry3dfx = new Expander.Raspberry("192.168.240.226:5005", 3334);
-        //Expander.Raspberry raspberryPop = new Expander.Raspberry("192.168.240.123:5005", 3335);
-        //Expander.Raspberry raspberryDIN = new Expander.Raspberry("192.168.240.127:5005", 3337);
-        //Expander.Raspberry raspberryVideo2 = new Expander.Raspberry("192.168.240.124:5005", 3336);
         Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
@@ -598,9 +594,9 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
             //            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
-            acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(catAir, 64), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 50), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(catLights, 96), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(catLights, 65), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(spiderWebLights, 99), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsCrystal, 128), SacnUniverseDMXCat);
@@ -614,7 +610,7 @@ namespace Animatroller.Scenes
 
 
             expanderLedmx.DigitalInputs[4].Connect(pumpkinMotion, false);
-            expanderCat.DigitalInputs[4].Connect(catMotion, false);
+            expanderCat.DigitalInputs[7].Connect(catMotion);
             expanderCat.DigitalInputs[5].Connect(secondBeam);
             expanderCat.DigitalInputs[6].Connect(firstBeam);
             expanderLedmx.DigitalInputs[5].Connect(ghostBeam);
