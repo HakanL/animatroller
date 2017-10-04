@@ -175,7 +175,7 @@ namespace Animatroller.Framework.Expander
                 {
                     int chn = firstChannel + i;
                     if (chn >= 1 && chn <= 512)
-                        dmxData[chn - 1] = values[offset + i];
+                        dmxData[chn] = values[offset + i];
                 }
 
                 if (!Executor.Current.IsOffline)
