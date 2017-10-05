@@ -6,14 +6,13 @@ using System.IO;
 using System.IO.Ports;
 using System.Threading.Tasks;
 using Animatroller.Framework.PhysicalDevice;
-using Acn.Sockets;
 using System.Net;
-using Acn.Packets.sAcn;
 using System.Net.NetworkInformation;
 using System.Collections.ObjectModel;
-using Acn;
-using Acn.Helpers;
 using Serilog;
+using kadmium_sacn_core;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Animatroller.Framework.Expander
 {
@@ -21,7 +20,7 @@ namespace Animatroller.Framework.Expander
     {
         public readonly Guid animatrollerAcnId = new Guid("{53A974B9-8286-4DC1-BFAB-00FEC91FD7A9}");
         protected ILogger log;
-        private bool isRunning;
+        private Timer keepAliveTimer;
 
         protected class AcnPixelUniverse : IPixelOutput
         {
@@ -126,37 +125,63 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        protected class AcnUniverse : IDmxOutput, IDisposable
+        protected class AcnUniverse : IDmxOutput
         {
-            private int universe;
-            private Acn.DmxStreamer streamer;
-            private DmxUniverse dmxUniverse;
+            public const long KeepAliveMilliseconds = 2000;
+
+            private short universe;
+            private byte priority;
+            private object lockObject = new object();
             private AcnStream parent;
+            private byte[] currentData;
+            private Stopwatch lastSendWatch;
 
-            public AcnUniverse(Acn.DmxStreamer streamer, int universe, AcnStream parent)
+            public AcnUniverse(AcnStream parent, int universe, byte priority)
             {
-                this.streamer = streamer;
-                this.universe = universe;
+                this.universe = (short)universe;
                 this.parent = parent;
+                this.priority = priority;
 
-                this.dmxUniverse = new DmxUniverse(universe);
-                bool isStreamerRunning = this.streamer.Streaming;
-                if (isStreamerRunning)
-                    this.streamer.Stop();
-                this.streamer.AddUniverse(this.dmxUniverse);
-                if (isStreamerRunning)
-                    this.streamer.Start();
+                this.currentData = new byte[512];
+                this.lastSendWatch = new Stopwatch();
             }
 
-            public void Dispose()
+            public bool IsDueForKeepAlive
             {
-                this.streamer.RemoveUniverse(this.universe);
+                get
+                {
+                    if (Executor.Current.IsOffline)
+                        return false;
+
+                    return this.lastSendWatch.ElapsedMilliseconds >= KeepAliveMilliseconds;
+                }
+            }
+
+            public void SendKeepAlive()
+            {
+                //this.parent.log.Verbose("Sending sACN Keep Alive");
+                SendCurrentData();
+            }
+
+            private void SendCurrentData()
+            {
+                lock (this.lockObject)
+                {
+                    this.parent.acnSender.Send(this.universe, this.currentData, this.priority);
+                }
+
+                this.lastSendWatch.Restart();
             }
 
             public SendStatus SendDimmerValue(int channel, byte value)
             {
+                lock (this.lockObject)
+                {
+                    this.currentData[channel - 1] = value;
+                }
+
                 if (!Executor.Current.IsOffline)
-                    this.dmxUniverse.SetDmx(channel, value);
+                    SendCurrentData();
 
                 return SendStatus.NotSet;
             }
@@ -168,80 +193,77 @@ namespace Animatroller.Framework.Expander
 
             public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
             {
-                byte[] dmxData = new byte[this.dmxUniverse.DmxData.Length];
-                Array.Copy(this.dmxUniverse.DmxData, dmxData, dmxData.Length);
-
-                for (int i = 0; i < length; i++)
+                lock (this.lockObject)
                 {
-                    int chn = firstChannel + i;
-                    if (chn >= 1 && chn <= 512)
-                        dmxData[chn] = values[offset + i];
+                    for (int i = 0; i < length; i++)
+                    {
+                        int chn = firstChannel + i;
+                        if (chn >= 1 && chn <= 512)
+                            this.currentData[chn - 1] = values[offset + i];
+                    }
                 }
 
                 if (!Executor.Current.IsOffline)
-                {
-                    // Force a send
-                    this.dmxUniverse.SetDmx(dmxData);
-                }
+                    SendCurrentData();
 
                 return SendStatus.NotSet;
             }
         }
 
         private object lockObject = new object();
-        private StreamingAcnSocket socket;
-        private Acn.DmxStreamer dmxStreamer;
+        private kadmium_sacn_core.SACNSender acnSender;
         private Dictionary<int, AcnUniverse> sendingUniverses;
+        private int defaultPriority;
 
-        public AcnStream(IPAddress bindIpAddress, int priority)
+        public AcnStream(int priority = 100)
         {
-            if (bindIpAddress == null)
-                bindIpAddress = GetFirstBindAddress();
-
+            this.defaultPriority = priority;
             this.log = Log.Logger;
-            this.socket = new StreamingAcnSocket(animatrollerAcnId, "Animatroller");
-//            this.socket.NewPacket += socket_NewPacket;
-//            this.socket.Open(bindIpAddress);
-//            this.log.Information("ACN binding to {0}", bindIpAddress);
+            this.acnSender = new SACNSender(animatrollerAcnId, "Animatroller");
 
-            this.dmxStreamer = new DmxStreamer(this.socket);
-            this.dmxStreamer.Priority = priority;
             this.sendingUniverses = new Dictionary<int, AcnUniverse>();
+
+            this.keepAliveTimer = new Timer(KeepAliveTimerCallback, null, Timeout.Infinite, Timeout.Infinite);
 
             Executor.Current.Register(this);
         }
 
-        public AcnStream(int priority = 100)
-            : this(null, priority)
+        private void KeepAliveTimerCallback(object state)
         {
+            try
+            {
+                var list = new List<AcnUniverse>();
+
+                lock (this.lockObject)
+                {
+                    foreach (var kvp in this.sendingUniverses)
+                    {
+                        if (kvp.Value.IsDueForKeepAlive)
+                            list.Add(kvp.Value);
+                    }
+                }
+
+                foreach (var universe in list)
+                {
+                    universe.SendKeepAlive();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.log.Warning(ex, "Exception in KeepAliveTimerCallback");
+            }
         }
 
-        public AcnStream JoinDmxUniverse(params int[] universes)
-        {
-            foreach (int universe in universes)
-                this.socket.JoinDmxUniverse(universe);
-
-            return this;
-        }
-
-        private void socket_NewPacket(object sender, NewPacketEventArgs<StreamingAcnDmxPacket> e)
-        {
-            log.Debug("Received DMX packet on ACN stream");
-        }
-
-        protected AcnUniverse GetSendingUniverse(int universe)
+        protected AcnUniverse GetSendingUniverse(int universe, int? priority = null)
         {
             AcnUniverse acnUniverse;
             lock (this.lockObject)
             {
                 if (!this.sendingUniverses.TryGetValue(universe, out acnUniverse))
                 {
-                    acnUniverse = new AcnUniverse(this.dmxStreamer, universe, this);
+                    acnUniverse = new AcnUniverse(this, universe, (byte)(priority ?? this.defaultPriority));
 
                     this.sendingUniverses.Add(universe, acnUniverse);
-
-                    if (this.isRunning && !this.dmxStreamer.Streaming)
-                        this.dmxStreamer.Start();
                 }
             }
 
@@ -273,20 +295,6 @@ namespace Animatroller.Framework.Expander
             return null;
         }
 
-        private IPAddress GetFirstBindAddress()
-        {
-            // Try Ethernet first
-            IPAddress ipAddress = GetAddressFromInterfaceType(NetworkInterfaceType.Ethernet);
-            if (ipAddress != null)
-                return ipAddress;
-
-            ipAddress = GetAddressFromInterfaceType(NetworkInterfaceType.Wireless80211);
-            if (ipAddress != null)
-                return ipAddress;
-
-            throw new ArgumentException("No suitable NIC found");
-        }
-
         public AcnStream Connect(PhysicalDevice.INeedsDmxOutput device, int universe)
         {
             device.DmxOutputPort = GetSendingUniverse(universe);
@@ -303,25 +311,17 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
-            if (this.sendingUniverses.Any())
-                this.dmxStreamer.Start();
-
-            this.isRunning = true;
+            this.keepAliveTimer.Change(1000, 1000);
         }
 
         public void Stop()
         {
+            this.keepAliveTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
             lock (this.lockObject)
             {
-                foreach (var sendingUniverse in this.sendingUniverses.Values)
-                    sendingUniverse.Dispose();
                 this.sendingUniverses.Clear();
             }
-
-            this.dmxStreamer.Stop();
-
-            this.isRunning = false;
         }
     }
-
 }

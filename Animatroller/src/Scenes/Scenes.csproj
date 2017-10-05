@@ -1,154 +1,80 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{60DBA58A-2233-4386-ABDE-C5766CBAC8DE}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net47</TargetFramework>
     <RootNamespace>Animatroller.Scenes</RootNamespace>
-    <AssemblyName>Scenes</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <RestorePackages>true</RestorePackages>
-    <TargetFrameworkProfile />
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="CSCore, Version=1.0.0.2, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lib\CSCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Serilog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=24c2f752a8e58a10, processorArchitecture=MSIL">
-      <HintPath>..\packages\Serilog.2.5.0\lib\net46\Serilog.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Reactive.Core">
-      <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Interfaces">
-      <HintPath>..\packages\Rx-Interfaces.2.2.5\lib\net45\System.Reactive.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.Linq">
-      <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Reactive.PlatformServices">
-      <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
+    <Compile Remove="Old\ReallyOld\DemoScene1.cs" />
+    <Compile Remove="Old\ReallyOld\FaderDemo.cs" />
+    <Compile Remove="Old\ReallyOld\Halloween2014.cs" />
+    <Compile Remove="Old\ReallyOld\Halloween2014b.cs" />
+    <Compile Remove="Old\ReallyOld\Halloween2015Manual.cs" />
+    <Compile Remove="Old\ReallyOld\HalloweenScene1.cs" />
+    <Compile Remove="Old\ReallyOld\HalloweenScene2013.cs" />
+    <Compile Remove="Old\ReallyOld\HalloweenScene2013b.cs" />
+    <Compile Remove="Old\ReallyOld\IceBucket.cs" />
+    <Compile Remove="Old\ReallyOld\ItalianScene1.cs" />
+    <Compile Remove="Old\ReallyOld\LORScene.cs" />
+    <Compile Remove="Old\ReallyOld\LORSceneCarol.cs" />
+    <Compile Remove="Old\ReallyOld\Nutcracker1Scene.cs" />
+    <Compile Remove="Old\ReallyOld\Nutcracker2Scene.cs" />
+    <Compile Remove="Old\ReallyOld\Nutcracker3Scene.cs" />
+    <Compile Remove="Old\ReallyOld\PanTiltDemo.cs" />
+    <Compile Remove="Old\ReallyOld\PixelScene1.cs" />
+    <Compile Remove="Old\ReallyOld\SimpleTest1.cs" />
+    <Compile Remove="Old\ReallyOld\TestMidi1.cs" />
+    <Compile Remove="Old\ReallyOld\TestPiFace.cs" />
+    <Compile Remove="Old\ReallyOld\TestRenard1.cs" />
+    <Compile Remove="Old\ReallyOld\TestScene1.cs" />
+    <Compile Remove="Old\ReallyOld\TestScene2.cs" />
+    <Compile Remove="Old\ReallyOld\TestScene3.cs" />
+    <Compile Remove="Old\ReallyOld\TpmTest.cs" />
+    <Compile Remove="Old\ReallyOld\Xmas2013scene.cs" />
+    <Compile Remove="Old\ReallyOld\Xmas2014.cs" />
+    <Compile Remove="Old\ReallyOld\XmasScene1.cs" />
+    <Compile Remove="Old\ReallyOld\XmasScene2.cs" />
   </ItemGroup>
+
   <ItemGroup>
     <None Include="Old\ReallyOld\DemoScene1.cs" />
-    <Compile Include="Modules\HalloweenGrumpyCat.cs" />
-    <Compile Include="Old\ExpanderDemo2.cs" />
-    <Compile Include="Halloween2017_OSC.cs" />
-    <Compile Include="Halloween2017_MIDI.cs" />
-    <Compile Include="Halloween2017.cs" />
-    <Compile Include="Old\Halloween2016.cs" />
-    <Compile Include="Old\Halloween2016_MIDI.cs" />
-    <Compile Include="Old\Halloween2016_OSC.cs" />
-    <Compile Include="Old\MatrixTest1.cs" />
-    <Compile Include="Old\PixelTest1.cs" />
-    <Compile Include="Old\TestStreamingACN.cs" />
-    <Compile Include="Old\TestUsbDmxPro.cs" />
-    <Compile Include="Old\Xmas2016_MIDI.cs" />
-    <Compile Include="Old\Xmas2016_OSC.cs" />
-    <Compile Include="Old\Xmas2016.cs" />
-    <Compile Include="Old\Xmas2015.cs" />
-    <Compile Include="Old\Halloween2015.cs" />
-    <None Include="Old\ReallyOld\Halloween2015Manual.cs" />
-    <None Include="Old\ReallyOld\PanTiltDemo.cs" />
-    <Compile Include="Old\ExpanderDemo.cs" />
-    <Compile Include="Old\LockDemo.cs" />
+    <None Include="Old\ReallyOld\FaderDemo.cs" />
+    <None Include="Old\ReallyOld\Halloween2014.cs" />
     <None Include="Old\ReallyOld\Halloween2014b.cs" />
+    <None Include="Old\ReallyOld\Halloween2015Manual.cs" />
     <None Include="Old\ReallyOld\HalloweenScene1.cs" />
     <None Include="Old\ReallyOld\HalloweenScene2013.cs" />
     <None Include="Old\ReallyOld\HalloweenScene2013b.cs" />
     <None Include="Old\ReallyOld\IceBucket.cs" />
     <None Include="Old\ReallyOld\ItalianScene1.cs" />
-    <None Include="Old\ReallyOld\FaderDemo.cs" />
-    <None Include="Old\ReallyOld\LORSceneCarol.cs" />
     <None Include="Old\ReallyOld\LORScene.cs" />
+    <None Include="Old\ReallyOld\LORSceneCarol.cs" />
     <None Include="Old\ReallyOld\Nutcracker1Scene.cs" />
     <None Include="Old\ReallyOld\Nutcracker2Scene.cs" />
     <None Include="Old\ReallyOld\Nutcracker3Scene.cs" />
-    <None Include="Old\ReallyOld\TpmTest.cs" />
-    <None Include="Old\ReallyOld\Xmas2014.cs" />
+    <None Include="Old\ReallyOld\PanTiltDemo.cs" />
     <None Include="Old\ReallyOld\PixelScene1.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Old\ReallyOld\SimpleTest1.cs" />
-    <None Include="Old\ReallyOld\Halloween2014.cs" />
     <None Include="Old\ReallyOld\TestMidi1.cs" />
-    <Compile Include="Old\TestOSC.cs" />
     <None Include="Old\ReallyOld\TestPiFace.cs" />
     <None Include="Old\ReallyOld\TestRenard1.cs" />
     <None Include="Old\ReallyOld\TestScene1.cs" />
     <None Include="Old\ReallyOld\TestScene2.cs" />
     <None Include="Old\ReallyOld\TestScene3.cs" />
+    <None Include="Old\ReallyOld\TpmTest.cs" />
     <None Include="Old\ReallyOld\Xmas2013scene.cs" />
+    <None Include="Old\ReallyOld\Xmas2014.cs" />
     <None Include="Old\ReallyOld\XmasScene1.cs" />
     <None Include="Old\ReallyOld\XmasScene2.cs" />
   </ItemGroup>
+
   <ItemGroup>
-    <ProjectReference Include="..\Framework\Framework.csproj">
-      <Project>{97c48505-a92a-4fbd-b39c-bbb014aef34b}</Project>
-      <Name>Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MonoExpanderMessage\MonoExpanderMessage.csproj">
-      <Project>{3549fad6-8716-46ee-b34d-59b95251074d}</Project>
-      <Name>MonoExpanderMessage</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Simulator\Simulator.csproj">
-      <Project>{5ca4ee12-dd7f-49d0-9079-41ee3b067fce}</Project>
-      <Name>Simulator</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Framework\Framework.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="COPY $(TargetDir)$(TargetName).dll $(SolutionDir)SceneRunner\$(OutDir)&#xD;&#xA;COPY $(TargetDir)$(TargetName).pdb $(SolutionDir)SceneRunner\$(OutDir)&#xD;&#xA;" />
   </Target>
-  <PropertyGroup>
-    <PostBuildEvent>COPY $(TargetDir)$(TargetName).dll $(SolutionDir)SceneRunner\$(OutDir)net47\
-COPY $(TargetDir)$(TargetName).pdb $(SolutionDir)SceneRunner\$(OutDir)net47\
-</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

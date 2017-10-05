@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Cyotek.Collections.Generic;
+using Collections.Generic;
 
 namespace Animatroller.Framework.Controller
 {

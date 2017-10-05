@@ -55,3 +55,4 @@ packages/
 /MonoExpander/Dependencies
 *.lsv
 .vs
+launchSettings.json

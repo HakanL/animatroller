@@ -18,7 +18,7 @@ namespace Animatroller.Scenes
     {
         const int SacnUniverse = 4;
 
-        Expander.AcnStreamK acnOutput = new Expander.AcnStreamK();
+        Expander.AcnStream acnOutput = new Expander.AcnStream();
         Dimmer3 testLight1 = new Dimmer3();
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]

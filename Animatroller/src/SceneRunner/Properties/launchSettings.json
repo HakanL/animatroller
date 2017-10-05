@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "SceneRunner": {
-      "commandName": "Project",
-      "commandLineArgs": "SIM EXPFILES=C:\\Temp\\ExpanderFiles SCENE=TestStreamingACN"
-    }
-  }
-}
