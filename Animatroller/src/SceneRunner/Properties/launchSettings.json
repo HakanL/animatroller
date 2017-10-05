@@ -2,7 +2,7 @@
   "profiles": {
     "SceneRunner": {
       "commandName": "Project",
-      "commandLineArgs": "SIM EXPFILES=C:\\Temp\\ExpanderFiles SCENE=Halloween2017"
+      "commandLineArgs": "SIM EXPFILES=C:\\Temp\\ExpanderFiles SCENE=TestStreamingACN"
     }
   }
 }
