@@ -19,12 +19,6 @@ namespace Animatroller.Scenes.Modules
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            this.lockObject = new GroupControlToken(new List<IOwnedDevice>()
-            {
-                catAir,
-                catLights
-            }, null, nameof(HalloweenGrumpyCat));
-
             pulsatingCatLow.ConnectTo(catLights);
             pulsatingCatHigh.ConnectTo(catLights);
 
@@ -34,11 +28,19 @@ namespace Animatroller.Scenes.Modules
 
                 if (x)
                 {
+                    this.lockObject?.Dispose();
+                    this.lockObject = new GroupControlToken(new List<IOwnedDevice>()
+                    {
+                        catAir,
+                        catLights
+                    }, null, nameof(HalloweenGrumpyCat));
+
                     pulsatingCatLow.Start(token: this.lockObject);
                 }
                 else
                 {
                     pulsatingCatLow.Stop();
+                    this.lockObject?.Dispose();
                 }
             });
 

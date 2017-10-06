@@ -53,6 +53,7 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderPop = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
@@ -175,6 +176,8 @@ namespace Animatroller.Scenes
         Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
         Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
+        Framework.Import.LevelsPlayback pumpkinPlayback = new Framework.Import.LevelsPlayback();
+
         IControlToken manualFaderToken;
         IControlToken bigSpiderEyesToken;
         int soundBoardOutputIndex = 0;
@@ -206,7 +209,8 @@ namespace Animatroller.Scenes
                 if (parts.Length == 2)
                 {
                     expanderFilesFolder =
-                    expanderServer.ExpanderSharedFiles = parts[1];
+                        audioPumpkin.ExpanderSharedFiles =
+                        expanderServer.ExpanderSharedFiles = parts[1];
                 }
             }
 
@@ -217,6 +221,8 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
             expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderPop);        // rpi-ebd43a38
+
+            expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);      // HL-DEV
 
             masterVolume.ConnectTo(Exec.MasterVolume);
 
@@ -232,6 +238,8 @@ namespace Animatroller.Scenes
                 name: nameof(grumpyCat));
 
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(grumpyCat.InputPower);
+
+            pumpkinPlayback.SetOutput(pumpkinLights);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -625,6 +633,7 @@ namespace Animatroller.Scenes
             expanderCat.DigitalOutputs[7].Connect(spiderJump1);
             expanderCat.DigitalOutputs[6].Connect(spiderJump2);
             expanderLedmx.Connect(audioPumpkin);
+            //expanderLocal.Connect(audioPumpkin);
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
             expanderPop.Connect(audioPop);
@@ -644,7 +653,7 @@ namespace Animatroller.Scenes
 
             pumpkinMotion.Output.Subscribe(x =>
             {
-                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen) && !blockMaster.Value && !blockPumpkin.Value)
+                if (x && /*(hoursFull.IsOpen || hoursSmall.IsOpen) &&*/ !blockMaster.Value && !blockPumpkin.Value)
                     Executor.Current.Execute(pumpkinSeq);
 
                 //                oscServer.SendAllClients("/1/led1", x ? 1 : 0);
@@ -839,16 +848,19 @@ namespace Animatroller.Scenes
                 .Execute(instance =>
                 {
                     pulsatingPumpkinLow.Stop();
-                    pulsatingPumpkinHigh.Start();
+                    //                    pulsatingPumpkinHigh.Start();
                     if (hoursFull.IsOpen)
                         audioPumpkin.PlayEffect("Thriller2.wav");
                     else
-                        audioPumpkin.PlayEffect("Happy Halloween.wav");
+                    {
+                        audioPumpkin.PlayEffect("Thriller2.wav", pumpkinPlayback);
+                        pumpkinPlayback.Start();
+                    }
                     instance.CancelToken.WaitHandle.WaitOne(40000);
                 })
                 .TearDown(instance =>
                 {
-                    pulsatingPumpkinHigh.Stop();
+                    //                    pulsatingPumpkinHigh.Stop();
                     pulsatingPumpkinLow.Start();
                 });
 

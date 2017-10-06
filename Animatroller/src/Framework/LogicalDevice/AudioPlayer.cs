@@ -1,9 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice.Event;
+using CSCore;
+using CSCore.Codecs;
+using CSCore.CoreAudioAPI;
+using CSCore.DSP;
+using CSCore.Streams;
 
 namespace Animatroller.Framework.LogicalDevice
 {
@@ -71,8 +77,10 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        public AudioPlayer PlayEffect(string audioFile)
+        public AudioPlayer PlayEffect(string audioFile, Import.LevelsPlayback levelsPlayback = null)
         {
+            levelsPlayback?.Load(GetLevelsFromAudioFX(audioFile));
+
             RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile);
 
             return this;
@@ -219,5 +227,128 @@ namespace Animatroller.Framework.LogicalDevice
         {
             // Nothing to do here
         }
+
+        public string ExpanderSharedFiles { get; set; }
+
+
+        public string GetLevelsFromAudioFX(string audioFile)
+        {
+            string audioFilename = Path.Combine(ExpanderSharedFiles, "AudioEffect", audioFile);
+            string levelsFilename = Path.Combine(ExpanderSharedFiles, "AudioEffect", audioFile + ".levels");
+
+            if (!File.Exists(levelsFilename))
+            {
+                using (ISampleSource source = CodecFactory.Instance.GetCodec(audioFilename).ToSampleSource())
+                {
+                    var fftProvider = new FftProvider(source.WaveFormat.Channels, FftSize.Fft1024);
+
+                    int millisecondsPerFrame = 1000 / 40;
+
+                    long maxBufferLengthInSamples = source.GetRawElements(millisecondsPerFrame);
+
+                    long bufferLength = Math.Min(source.Length, maxBufferLengthInSamples);
+
+                    float[] buffer = new float[bufferLength];
+
+                    int read = 0;
+                    int totalSamplesRead = 0;
+
+                    var fftData = new float[1024];
+
+                    var list = new List<float>();
+                    float highest = 0;
+                    do
+                    {
+                        //determine how many samples to read
+                        int samplesToRead = (int)Math.Min(source.Length - totalSamplesRead, buffer.Length);
+
+                        read = source.Read(buffer, 0, samplesToRead);
+                        if (read == 0)
+                            break;
+
+                        totalSamplesRead += read;
+
+                        //add read data to the fftProvider
+                        fftProvider.Add(buffer, read);
+
+                        fftProvider.GetFftData(fftData);
+
+                        float highestAmplitude = 0;
+                        for (int i = 0; i < fftData.Length / 2; i++)
+                        {
+                            if (fftData[i] > highestAmplitude)
+                                highestAmplitude = fftData[i];
+                        }
+
+                        list.Add(highestAmplitude);
+                        if (highestAmplitude > highest)
+                            highest = highestAmplitude;
+                    } while (totalSamplesRead < source.Length);
+
+                    if (highest > 0)
+                    {
+                        // Adjust to equalize
+                        float adjustment = 1 / highest;
+
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            list[i] *= adjustment;
+                        }
+                    }
+
+                    using (var fs = File.Create(levelsFilename))
+                    {
+                        fs.Write(list.Select(x => (byte)(x * 255)).ToArray(), 0, list.Count);
+                    }
+                }
+            }
+
+            return levelsFilename;
+        }
     }
+
+    /*    public class BasicSpectrumProvider : FftProvider, ISpectrumProvider
+        {
+            private readonly int _sampleRate;
+            private readonly List<object> _contexts = new List<object>();
+
+            public BasicSpectrumProvider(int channels, int sampleRate, FftSize fftSize)
+                : base(channels, fftSize)
+            {
+                if (sampleRate <= 0)
+                    throw new ArgumentOutOfRangeException("sampleRate");
+                _sampleRate = sampleRate;
+            }
+
+            public int GetFftBandIndex(float frequency)
+            {
+                int fftSize = (int)FftSize;
+                double f = _sampleRate / 2.0;
+                // ReSharper disable once PossibleLossOfFraction
+                return (int)((frequency / f) * (fftSize / 2));
+            }
+
+            public bool GetFftData(float[] fftResultBuffer, object context)
+            {
+                if (_contexts.Contains(context))
+                    return false;
+
+                _contexts.Add(context);
+                GetFftData(fftResultBuffer);
+                return true;
+            }
+
+            public override void Add(float[] samples, int count)
+            {
+                base.Add(samples, count);
+                if (count > 0)
+                    _contexts.Clear();
+            }
+
+            public override void Add(float left, float right)
+            {
+                base.Add(left, right);
+                _contexts.Clear();
+            }
+        }*/
 }

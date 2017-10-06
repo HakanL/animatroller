@@ -18,7 +18,8 @@ namespace Animatroller.Simulator
         private double? pan;
         private double? tilt;
         private object lockObject = new object();
-        private bool newDataAvailable;
+        private bool performUpdate;
+        private bool hasNewData;
 
         public Control.StrobeBulb LabelLightControl
         {
@@ -32,11 +33,12 @@ namespace Animatroller.Simulator
             {
                 lock (lockObject)
                 {
-                    if (this.newDataAvailable)
+                    if (this.performUpdate)
                     {
-                        this.newDataAvailable = false;
+                        this.performUpdate = false;
 
-                        this.control.Invalidate();
+                        if(this.hasNewData)
+                            this.control.Invalidate();
                     }
                 }
             });
@@ -84,11 +86,13 @@ namespace Animatroller.Simulator
 
             this.control.Pan = this.pan;
             this.control.Tilt = this.tilt;
+
+            this.hasNewData = true;
         }
 
         public void Update()
         {
-            this.newDataAvailable = true;
+            this.performUpdate = true;
         }
     }
 }
