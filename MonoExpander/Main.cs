@@ -9,10 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Raspberry.IO.Components.Devices.PiFaceDigital;
 using SupersonicSound.LowLevel;
-using NLog;
+using Serilog;
 using SupersonicSound.Exceptions;
 using System.Diagnostics;
-using org.freedesktop.DBus;
 using Animatroller.Framework.MonoExpanderMessages;
 using Newtonsoft.Json;
 using Animatroller.ExpanderCommunication;
@@ -28,7 +27,7 @@ namespace Animatroller.MonoExpander
             OMX
         }
 
-        private Logger log;
+        private ILogger log;
         private PiFaceDigitalDevice piFace;
         private SupersonicSound.LowLevel.LowLevelSystem fmodSystem;
         private List<string> backgroundAudioTracks;
@@ -61,7 +60,7 @@ namespace Animatroller.MonoExpander
 
         public Main(Arguments args)
         {
-            this.log = LogManager.GetLogger("Main");
+            this.log = Log.Logger;
             this.fileStoragePath = args.FileStoragePath;
 
             // Clean up temp folder
@@ -90,24 +89,25 @@ namespace Animatroller.MonoExpander
             if (this.videoSystem != VideoSystems.None)
             {
                 // Disable console log output
-                this.log.Info("Video System, turning off console logging and cursor");
+                this.log.Information("Video System, turning off console logging and cursor");
 
-                var logConfig = LogManager.Configuration;
-                var consoleTargets = new List<string>();
-                consoleTargets.AddRange(logConfig.AllTargets
-                    .OfType<NLog.Targets.ColoredConsoleTarget>()
-                    .Select(x => x.Name));
-                consoleTargets.AddRange(logConfig.AllTargets
-                    .OfType<NLog.Targets.ConsoleTarget>()
-                    .Select(x => x.Name));
-                foreach (var loggingRule in logConfig.LoggingRules)
-                {
-                    loggingRule.Targets
-                        .Where(x => consoleTargets.Contains(x.Name) || consoleTargets.Contains(x.Name + "_wrapped"))
-                        .ToList()
-                        .ForEach(x => loggingRule.Targets.Remove(x));
-                }
-                LogManager.Configuration = logConfig;
+                //FIXME
+                //var logConfig = LogManager.Configuration;
+                //var consoleTargets = new List<string>();
+                //consoleTargets.AddRange(logConfig.AllTargets
+                //    .OfType<NLog.Targets.ColoredConsoleTarget>()
+                //    .Select(x => x.Name));
+                //consoleTargets.AddRange(logConfig.AllTargets
+                //    .OfType<NLog.Targets.ConsoleTarget>()
+                //    .Select(x => x.Name));
+                //foreach (var loggingRule in logConfig.LoggingRules)
+                //{
+                //    loggingRule.Targets
+                //        .Where(x => consoleTargets.Contains(x.Name) || consoleTargets.Contains(x.Name + "_wrapped"))
+                //        .ToList()
+                //        .ForEach(x => loggingRule.Targets.Remove(x));
+                //}
+                //LogManager.Configuration = logConfig;
 
                 Console.CursorVisible = false;
                 Console.Clear();
@@ -148,10 +148,10 @@ namespace Animatroller.MonoExpander
                 }
             }
 
-            this.log.Info("Instance Id {0}", this.instanceId);
-            this.log.Info("Video Path {0}", this.videoPath);
-            this.log.Info("Track Path {0}", this.trackPath);
-            this.log.Info("FX Path {0}", this.soundEffectPath);
+            this.log.Information("Instance Id {0}", this.instanceId);
+            this.log.Information("Video Path {0}", this.videoPath);
+            this.log.Information("Track Path {0}", this.trackPath);
+            this.log.Information("FX Path {0}", this.soundEffectPath);
 
             this.backgroundAudioTracks = new List<string>();
             if (!string.IsNullOrEmpty(args.BackgroundTracksPath))
@@ -162,7 +162,7 @@ namespace Animatroller.MonoExpander
 
             if (args.AudioSystem)
             {
-                this.log.Info("Initializing FMOD sound system");
+                this.log.Information("Initializing FMOD sound system");
                 this.fmodSystem = new LowLevelSystem();
 
                 this.fxGroup = this.fmodSystem.CreateChannelGroup("FX");
@@ -172,7 +172,7 @@ namespace Animatroller.MonoExpander
 
             if (SupersonicSound.Wrapper.Util.IsUnix)
             {
-                this.log.Info("Initializing PiFace");
+                this.log.Information("Initializing PiFace");
 
                 try
                 {
@@ -192,13 +192,13 @@ namespace Animatroller.MonoExpander
                 }
                 catch (Exception ex)
                 {
-                    this.log.Warn(ex, "Failed to initialize PiFace");
+                    this.log.Warning(ex, "Failed to initialize PiFace");
                 }
             }
 
             if (!string.IsNullOrEmpty(args.SerialPort0) && args.SerialPort0BaudRate > 0)
             {
-                this.log.Info("Initialize serial port 0 ({0}) for {1} bps", args.SerialPort0, args.SerialPort0BaudRate);
+                this.log.Information("Initialize serial port 0 ({0}) for {1} bps", args.SerialPort0, args.SerialPort0BaudRate);
 
                 var serialPort = new SerialPort(args.SerialPort0, args.SerialPort0BaudRate);
 
@@ -207,7 +207,7 @@ namespace Animatroller.MonoExpander
                 this.serialPorts.Add(0, serialPort);
             }
 
-            this.log.Info("Initializing ExpanderCommunication client");
+            this.log.Information("Initializing ExpanderCommunication client");
 
             this.connections = new List<Tuple<IClientCommunication, MonoExpanderClient>>();
             foreach (var server in args.Servers)
@@ -223,6 +223,7 @@ namespace Animatroller.MonoExpander
 #endif
 #if NETTY
                 var communication = new NettyClient(
+                    logger: this.log,
                     host: server.Host,
                     port: server.Port,
                     instanceId: InstanceId,
@@ -320,7 +321,7 @@ namespace Animatroller.MonoExpander
             if (!Path.HasExtension(fileName))
                 fileName += ".wav";
 
-            this.log.Info("Play track {0}", Path.GetFileName(fileName));
+            this.log.Information("Play track {0}", Path.GetFileName(fileName));
 
             var sound = this.fmodSystem.CreateStream(Path.Combine(this.trackPath, fileName), Mode.Default);
 
@@ -335,11 +336,11 @@ namespace Animatroller.MonoExpander
         {
             if (this.videoPlaying)
             {
-                this.log.Warn("Already playing a video");
+                this.log.Warning("Already playing a video");
                 return;
             }
 
-            this.log.Info("Play video {0}", fileName);
+            this.log.Information("Play video {0}", fileName);
 
             var processStart = new ProcessStartInfo
             {
@@ -358,7 +359,7 @@ namespace Animatroller.MonoExpander
             process.Exited += (o, e) =>
             {
                 this.videoPlaying = false;
-                this.log.Info("Done playing video");
+                this.log.Information("Done playing video");
 
                 SendMessage(new VideoFinished
                 {
@@ -367,26 +368,6 @@ namespace Animatroller.MonoExpander
 
                 process.Dispose();
             };
-            /*
-                        this.log.Warn("1");
-                        var bus = DBus.Bus.System;
-                        this.log.Warn("1.5");
-                        this.log.Warn("2 {0}", bus.UniqueName);
-                        var objPath = new DBus.ObjectPath("/org/mpris/MediaPlayer2");
-                        this.log.Warn("3");
-                        var dbusConnection = bus.GetObject<ITest>("org.mpris.MediaPlayer2.omxplayer", objPath);
-                        this.log.Warn("4");
-
-                        Thread.Sleep(5000);
-                        dbusConnection.Quit();
-
-                        bus.Close();*/
-        }
-
-        [DBus.Interface("omxplayer.root")]
-        public interface ITest
-        {
-            void Quit();
         }
 
         private void PlayTrack()
@@ -466,7 +447,7 @@ namespace Animatroller.MonoExpander
             string fileName = this.backgroundAudioTracks[index];
             this.currentBgTrackName = Path.GetFileName(fileName);
 
-            this.log.Info("Play background track {0}", Path.GetFileName(fileName));
+            this.log.Information("Play background track {0}", Path.GetFileName(fileName));
 
             var sound = this.fmodSystem.CreateStream(fileName, Mode.Default);
 
@@ -627,9 +608,9 @@ namespace Animatroller.MonoExpander
         {
             try
             {
-                this.log.Info("Starting up listeners, etc");
+                this.log.Information("Starting up listeners, etc");
 
-                this.log.Info("Running");
+                this.log.Information("Running");
 
                 if (this.autoStartBackgroundTrack)
                     PlayNextBackground();
@@ -664,7 +645,7 @@ namespace Animatroller.MonoExpander
                     if (reportCounter % 10 == 0 && watch.ElapsedMilliseconds > 5000)
                     {
                         // Send ping
-                        this.log.Trace("Send ping");
+                        this.log.Verbose("Send ping");
 
                         SendMessage(new Ping());
 
@@ -674,7 +655,7 @@ namespace Animatroller.MonoExpander
                     Thread.Sleep(50);
                 }
 
-                this.log.Info("Shutting down");
+                this.log.Information("Shutting down");
             }
             finally
             {

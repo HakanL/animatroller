@@ -1,18 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
 using PowerArgs;
-using NLog;
+using Serilog;
 using System.Threading;
+using System.IO;
 
 namespace Animatroller.MonoExpander
 {
     public class Program
     {
+        private static ILogger log;
+        private const string FileTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
+        private const string TraceTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
+
         public static void Main(string[] args)
         {
-            var log = LogManager.GetLogger("Program");
+            var logConfig = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .MinimumLevel.Verbose()
+                .WriteTo.ColoredConsole(outputTemplate: TraceTemplate)
+                .WriteTo.Trace(outputTemplate: TraceTemplate)
+                .WriteTo.RollingFile(
+                    pathFormat: Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),
+                    outputTemplate: FileTemplate);
 
-            log.Info("Starting");
+            log = Log.Logger = logConfig.CreateLogger();
+
+            log.Information("Starting up!");
 
             try
             {
@@ -41,7 +55,7 @@ namespace Animatroller.MonoExpander
             }
             catch (ArgException ex)
             {
-                log.Warn(ex.Message);
+                log.Warning(ex.Message);
                 Console.WriteLine(ArgUsage.GenerateUsageFromTemplate<Arguments>());
             }
             catch (Exception ex)
@@ -50,7 +64,7 @@ namespace Animatroller.MonoExpander
                 Console.WriteLine("Unhandled exception: {0}", ex);
             }
 
-            log.Info("Closing");
+            log.Information("Closing");
         }
     }
 }

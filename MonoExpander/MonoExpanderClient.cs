@@ -4,7 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using NLog;
+using Serilog;
 using Animatroller.Framework.MonoExpanderMessages;
 
 namespace Animatroller.MonoExpander
@@ -81,7 +81,7 @@ namespace Animatroller.MonoExpander
             }
         }
 
-        protected Logger log = LogManager.GetCurrentClassLogger();
+        protected ILogger log;
         private Main main;
         private Dictionary<string, DownloadInfo> downloadInfos;
         private const int ChunkSize = 16384;
@@ -91,6 +91,7 @@ namespace Animatroller.MonoExpander
 
         public MonoExpanderClient(Main main)
         {
+            this.log = Log.Logger;
             this.main = main;
             this.downloadInfos = new Dictionary<string, DownloadInfo>();
             this.typeCache = new Dictionary<string, Type>();
@@ -278,7 +279,7 @@ namespace Animatroller.MonoExpander
 
             CleanUpDownloadInfo();
 
-            this.log.Info("Missing file {0} of type {1}", fileName, fileType);
+            this.log.Information("Missing file {0} of type {1}", fileName, fileType);
 
             string downloadId;
 
@@ -287,7 +288,7 @@ namespace Animatroller.MonoExpander
                 if (this.downloadInfos.Any(x => x.Value.FileType == fileType && x.Value.FileName == fileName))
                 {
                     // Already in the process to be downloaded
-                    this.log.Info("Already in the process of being downloaded");
+                    this.log.Information("Already in the process of being downloaded");
 
                     return false;
                 }
@@ -362,7 +363,7 @@ namespace Animatroller.MonoExpander
 
                 for (int chunkId = 0; chunkId < downloadInfo.Chunks && chunkId < BufferedChunks; chunkId++)
                 {
-                    this.log.Trace("Requesting chunk {0} of file {1}", chunkId, downloadInfo.FileName);
+                    this.log.Verbose("Requesting chunk {0} of file {1}", chunkId, downloadInfo.FileName);
 
                     SendMessage(new FileChunkRequest
                     {
@@ -399,7 +400,7 @@ namespace Animatroller.MonoExpander
                 // Request next chunk
                 if (downloadInfo.RequestedChunks < downloadInfo.Chunks)
                 {
-                    this.log.Trace("Requesting chunk {0} of file {1}", downloadInfo.RequestedChunks, downloadInfo.FileName);
+                    this.log.Verbose("Requesting chunk {0} of file {1}", downloadInfo.RequestedChunks, downloadInfo.FileName);
 
                     SendMessage(new FileChunkRequest
                     {
@@ -434,7 +435,7 @@ namespace Animatroller.MonoExpander
 
                                     if (!File.Exists(chunkFile) || new FileInfo(chunkFile).Length != expectedChunkSize)
                                     {
-                                        this.log.Trace("Re-requesting chunk {0} of file {1}", chunkStart / ChunkSize, downloadInfo.FileName);
+                                        this.log.Verbose("Re-requesting chunk {0} of file {1}", chunkStart / ChunkSize, downloadInfo.FileName);
 
                                         // Re-request
                                         SendMessage(new FileChunkRequest

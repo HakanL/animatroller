@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Raspberry.IO.Components.Devices.PiFaceDigital;
 using SupersonicSound.LowLevel;
-using NLog;
+using Serilog;
 using SupersonicSound.Exceptions;
 using System.Diagnostics;
 using Animatroller.Framework.MonoExpanderMessages;
@@ -20,7 +20,7 @@ namespace Animatroller.MonoExpander
     {
         public void Handle(SetOutputRequest message)
         {
-            this.log.Info("Set output {0} to {1}", message.Output, message.Value);
+            this.log.Information("Set output {0} to {1}", message.Output, message.Value);
 
             if (!message.Output.StartsWith("d"))
                 return;
@@ -41,12 +41,12 @@ namespace Animatroller.MonoExpander
 
         public void Handle(SendSerialRequest message)
         {
-            this.log.Info("Send serial data to port {0}", message.Port);
+            this.log.Information("Send serial data to port {0}", message.Port);
 
             SerialPort serialPort;
             if (!this.serialPorts.TryGetValue(message.Port, out serialPort))
             {
-                this.log.Warn("Invalid serial port {0}", message.Port);
+                this.log.Warning("Invalid serial port {0}", message.Port);
                 return;
             }
 
@@ -55,14 +55,14 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioEffectCue message)
         {
-            this.log.Info("Cue audio FX {0}", message.FileName);
+            this.log.Information("Cue audio FX {0}", message.FileName);
 
             LoadSound(message.FileName);
         }
 
         public void Handle(AudioEffectPlay message)
         {
-            this.log.Info("Play audio FX {0}", message.FileName);
+            this.log.Information("Play audio FX {0}", message.FileName);
 
             if (message.VolumeLeft.HasValue && message.VolumeRight.HasValue)
                 PlaySound(message.FileName, message.Simultaneous, message.VolumeLeft.Value, message.VolumeRight.Value);
@@ -72,7 +72,7 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioEffectPause message)
         {
-            this.log.Info("Pause audio FX");
+            this.log.Information("Pause audio FX");
 
             if (this.currentFxChannel.HasValue)
             {
@@ -83,7 +83,7 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioEffectResume message)
         {
-            this.log.Info("Resume audio FX");
+            this.log.Information("Resume audio FX");
 
             if (this.currentFxChannel.HasValue)
             {
@@ -94,28 +94,28 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioEffectSetVolume message)
         {
-            this.log.Info("Set FX audio volume to {0:P0}", message.Volume);
+            this.log.Information("Set FX audio volume to {0:P0}", message.Volume);
 
             this.fxGroup.Volume = (float)message.Volume;
         }
 
         public void Handle(AudioTrackSetVolume message)
         {
-            this.log.Info("Set Track audio volume to {0:P0}", message.Volume);
+            this.log.Information("Set Track audio volume to {0:P0}", message.Volume);
 
             this.trkGroup.Volume = (float)message.Volume;
         }
 
         public void Handle(AudioBackgroundSetVolume message)
         {
-            this.log.Info("Set BG audio volume to {0:P0}", message.Volume);
+            this.log.Information("Set BG audio volume to {0:P0}", message.Volume);
 
             this.bgGroup.Volume = (float)message.Volume;
         }
 
         public void Handle(AudioBackgroundResume message)
         {
-            this.log.Info("Resume audio BG");
+            this.log.Information("Resume audio BG");
 
             if (this.currentBgChannel.HasValue)
             {
@@ -128,7 +128,7 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioBackgroundPause message)
         {
-            this.log.Info("Pause audio BG");
+            this.log.Information("Pause audio BG");
 
             if (this.currentBgChannel.HasValue)
             {
@@ -139,14 +139,14 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioBackgroundNext message)
         {
-            this.log.Info("Next audio BG track");
+            this.log.Information("Next audio BG track");
 
             PlayNextBackground();
         }
 
         public void Handle(AudioTrackPlay message)
         {
-            this.log.Info("Play audio track {0}", message.FileName);
+            this.log.Information("Play audio track {0}", message.FileName);
 
             LoadTrack(message.FileName);
             PlayTrack();
@@ -154,14 +154,14 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioTrackCue message)
         {
-            this.log.Info("Cue audio track {0}", message.FileName);
+            this.log.Information("Cue audio track {0}", message.FileName);
 
             LoadTrack(message.FileName);
         }
 
         public void Handle(AudioTrackResume message)
         {
-            this.log.Info("Resume audio track");
+            this.log.Information("Resume audio track");
 
             if (this.currentTrkChannel.HasValue)
             {
@@ -172,7 +172,7 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioTrackPause message)
         {
-            this.log.Info("Pause audio track");
+            this.log.Information("Pause audio track");
 
             if (this.currentTrkChannel.HasValue)
             {
@@ -183,7 +183,7 @@ namespace Animatroller.MonoExpander
 
         public void Handle(VideoPlay message)
         {
-            this.log.Info("Play video track {0}", message.FileName);
+            this.log.Information("Play video track {0}", message.FileName);
 
             PlayVideo(message.FileName);
         }
