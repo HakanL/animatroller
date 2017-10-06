@@ -63,6 +63,11 @@ namespace Animatroller.Framework.LogicalDevice
             RaiseSpeedChanged();
         }
 
+        public void EnableOutput()
+        {
+            throw new NotImplementedException();
+        }
+
         public string Name
         {
             get { return this.name; }

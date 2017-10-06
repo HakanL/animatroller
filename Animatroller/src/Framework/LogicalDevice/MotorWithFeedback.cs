@@ -132,6 +132,11 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        public void EnableOutput()
+        {
+            throw new NotImplementedException();
+        }
+
         public string Name
         {
             get { return this.name; }

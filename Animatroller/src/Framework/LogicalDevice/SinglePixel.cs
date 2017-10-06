@@ -138,6 +138,9 @@ namespace Animatroller.Framework.LogicalDevice
             this.pixelDevice.SetColor(this.position, value);
         }
 
+        public void EnableOutput()
+        {
+        }
 
         public Color Color
         {

@@ -95,6 +95,7 @@ namespace Animatroller.Framework
 
     public interface ILogicalDevice : IRunningDevice
     {
+        void EnableOutput();
     }
 
     public interface IApiVersion3 : ILogicalDevice

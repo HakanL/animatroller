@@ -26,6 +26,10 @@ namespace Animatroller.Framework.LogicalDevice
 
         public virtual void SetInitialState()
         {
+        }
+
+        public virtual void EnableOutput()
+        {
             UpdateOutput();
         }
 

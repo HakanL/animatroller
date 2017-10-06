@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using Serilog;
@@ -24,7 +27,7 @@ namespace Animatroller.Framework.Controller
         string Name { get; }
     }
 
-    public class EnumStateMachine<T> : IRunnable, IStateMachine, IInputHardware where T : struct, IConvertible
+    public class EnumStateMachine<T> : IRunnable, IStateMachine, IInputHardware where T : struct, IConvertible, IComparable
     {
         public class StateChangedEventArgs : EventArgs
         {
@@ -48,6 +51,7 @@ namespace Animatroller.Framework.Controller
         protected T? nextState;
         private Stack<T> momentaryStates;
         private T? defaultState;
+        private Subject<T?> stateChangedSubject = new Subject<T?>();
 
         public EnumStateMachine(T? defaultState = null, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -66,13 +70,9 @@ namespace Animatroller.Framework.Controller
 
         private void RaiseStateChanged()
         {
-            var handler = StateChanged;
-            if (handler != null)
-                handler(this, new StateChangedEventArgs(this.CurrentState));
+            StateChanged?.Invoke(this, new StateChangedEventArgs(this.CurrentState));
 
-            var handlerString = StateChangedString;
-            if (handlerString != null)
-                handlerString(this, new StateChangedStringEventArgs(this.CurrentStateString));
+            StateChangedString?.Invoke(this, new StateChangedStringEventArgs(this.CurrentStateString));
         }
 
         public EnumStateMachine<T> SetDefaultState(T? defaultState)
@@ -82,9 +82,39 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
+        public IObservable<T?> StateOutput
+        {
+            get { return this.stateChangedSubject.AsObservable(); }
+        }
+
+        public IObservable<bool> WhenState(Func<T?, bool> predicate)
+        {
+            var subject = new Subject<bool>();
+
+            this.stateChangedSubject
+                .Subscribe(x =>
+                {
+                    if (predicate(x))
+                        subject.OnNext(true);
+                    else
+                        subject.OnNext(false);
+                });
+
+            return subject
+                .DistinctUntilChanged()
+                .AsObservable();
+        }
+
+        public IObservable<bool> WhenStates(params T?[] matches)
+        {
+            var comparer = EqualityComparer<T?>.Default;
+
+            return WhenState(matches.Contains);
+        }
+
         public string CurrentStateString
         {
-            get { return this.CurrentState == null ? null : this.CurrentState.Value.ToString(); }
+            get { return this.CurrentState?.ToString(); }
         }
 
         public EnumStateMachine<T> NextState()
@@ -321,6 +351,7 @@ namespace Animatroller.Framework.Controller
                 }
             }
             RaiseStateChanged();
+            this.stateChangedSubject.OnNext(this.currentState);
         }
 
         public EnumStateMachine<T> GoToIdle()
@@ -328,6 +359,7 @@ namespace Animatroller.Framework.Controller
             InternalHold();
 
             RaiseStateChanged();
+            this.stateChangedSubject.OnNext(this.currentState);
 
             return this;
         }

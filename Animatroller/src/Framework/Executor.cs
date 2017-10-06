@@ -7,6 +7,8 @@ using System.Threading;
 using System.Reactive.Subjects;
 using Serilog;
 using System.IO;
+using System.Reactive;
+using System.Reactive.Linq;
 
 namespace Animatroller.Framework
 {
@@ -54,6 +56,7 @@ namespace Animatroller.Framework
         private ControlSubject<double> blackout;
         private ControlSubject<double> whiteout;
         private ControlSubject<double> masterVolume;
+        private Subject<(string Name, object Value)> masterStatus;
 
         private Executor()
         {
@@ -84,6 +87,26 @@ namespace Animatroller.Framework
             this.masterVolume = new ControlSubject<double>(1.0);
 
             threadStorage = new ThreadLocal<ThreadLocalStorage>(() => new ThreadLocalStorage());
+            this.masterStatus = new Subject<(string, object)>();
+            this.masterStatus.Subscribe(x =>
+            {
+                this.log.Debug("Master status for {Name} is {Status}", x.Name, x.Value);
+            });
+        }
+
+        public void SetLogger(ILogger logger)
+        {
+            this.log = logger;
+        }
+
+        public void LogMasterStatus(string device, object value)
+        {
+            this.masterStatus.OnNext((device, value));
+        }
+
+        public IObservable<(string Name, object Value)> MasterStatus
+        {
+            get { return this.masterStatus.AsObservable(); }
         }
 
         public ISubjectWithValue<double> Blackout
@@ -378,6 +401,9 @@ namespace Animatroller.Framework
                 startedObjects.Add(runnable);
                 runnable.Start();
             }
+
+            foreach (var device in this.devices.OfType<ILogicalDevice>())
+                device.EnableOutput();
 
             // Then start hardware inputs
             foreach (var runnable in this.runnable.Where(x => (x is IInputHardware)))

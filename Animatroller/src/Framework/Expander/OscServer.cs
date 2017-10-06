@@ -60,14 +60,16 @@ namespace Animatroller.Framework.Expander
         private Dictionary<string, Action<Message>> dispatch;
         private Dictionary<string, Action<Message>> dispatchPartial;
         private Dictionary<IPEndPoint, ConnectedClient> clients;
+        private int forcedClientPort;
 
         public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
-            : this(Executor.Current.GetSetKey<int>(name, 9999))
+            : this(Executor.Current.GetSetKey<int>(name, 8000))
         {
         }
 
-        public OscServer(int listenPort)
+        public OscServer(int listenPort, int forcedClientPort = 0)
         {
+            this.forcedClientPort = forcedClientPort;
             this.log = Log.Logger;
             this.receiver = new Rug.Osc.OscReceiver(listenPort);
             this.cancelSource = new System.Threading.CancellationTokenSource();
@@ -93,7 +95,7 @@ namespace Animatroller.Framework.Expander
 
                                     if (!this.clients.TryGetValue(packet.Origin, out connectedClient))
                                     {
-                                        connectedClient = new ConnectedClient(packet.Origin.Address, packet.Origin.Port);
+                                        connectedClient = new ConnectedClient(packet.Origin.Address, forcedClientPort == 0 ? packet.Origin.Port : forcedClientPort);
 
                                         this.clients.Add(packet.Origin, connectedClient);
                                     }
@@ -113,7 +115,7 @@ namespace Animatroller.Framework.Expander
                                             {
 #if DEBUG_OSC
                                                 if (oscMessage.Address != "/ping")
-                                                    log.Debug("Received OSC message: {0}", oscMessage);
+                                                    log.Debug("Received OSC message at {Address}: {Value}", oscMessage.Address, oscMessage);
 #endif
 
                                                 Invoke(oscMessage);
@@ -128,7 +130,7 @@ namespace Animatroller.Framework.Expander
 
 #if DEBUG_OSC
                                     if (msg.Address != "/ping")
-                                        log.Debug("Received OSC message: {0}", msg);
+                                        log.Debug("Received OSC message at {Address}: {Value}", msg.Address, msg);
 #endif
 
                                     Invoke(msg);
@@ -307,7 +309,7 @@ namespace Animatroller.Framework.Expander
 
                     var ep = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
 
-                    this.clients.Add(ep, new ConnectedClient(ep.Address, ep.Port));
+                    this.clients[ep] = new ConnectedClient(ep.Address, this.forcedClientPort == 0 ? ep.Port : this.forcedClientPort);
                 }
             }
         }

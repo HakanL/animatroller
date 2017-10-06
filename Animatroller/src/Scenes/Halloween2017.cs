@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
@@ -36,7 +37,7 @@ namespace Animatroller.Scenes
 
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
-        Expander.OscServer oscServer = new Expander.OscServer(8000);
+        Expander.OscServer oscServer = new Expander.OscServer(8000, 9000);
         AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioCat = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
@@ -102,8 +103,6 @@ namespace Animatroller.Scenes
         DigitalInput2 floodLights = new DigitalInput2();
 
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
-        Effect.Pulsating pulsatingCatLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
-        Effect.Pulsating pulsatingCatHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         Effect.Pulsating pulsatingPumpkinLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Effect.Pulsating pulsatingPumpkinHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
@@ -119,7 +118,7 @@ namespace Animatroller.Scenes
         DigitalInput2 secondBeam = new DigitalInput2();
         DigitalInput2 ghostBeam = new DigitalInput2();
         DigitalInput2 lastBeam = new DigitalInput2();
-        DigitalOutput2 catAir = new DigitalOutput2(initial: true);
+        DigitalOutput2 catAir = new DigitalOutput2();
         DigitalOutput2 mrPumpkinAir = new DigitalOutput2(initial: true);
         DigitalOutput2 fog = new DigitalOutput2();
         DigitalOutput2 popper = new DigitalOutput2();
@@ -163,7 +162,6 @@ namespace Animatroller.Scenes
         StrobeDimmer3 flash2 = new StrobeDimmer3("Eliminator Flash");
         //        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
-        Controller.Sequence catSeq = new Controller.Sequence();
         Controller.Sequence pumpkinSeq = new Controller.Sequence();
         Controller.Sequence welcomeSeq = new Controller.Sequence();
         Controller.Sequence motionSeq = new Controller.Sequence();
@@ -223,16 +221,17 @@ namespace Animatroller.Scenes
             masterVolume.ConnectTo(Exec.MasterVolume);
 
             hoursSmall
-                .ControlsMasterPower(catAir)
                 .ControlsMasterPower(mrPumpkinAir);
             hoursFull
-                .ControlsMasterPower(catAir)
                 .ControlsMasterPower(mrPumpkinAir);
 
             grumpyCat = new Modules.HalloweenGrumpyCat(
-                acnOutput: acnOutput,
-                airAddress: (SacnUniverseDMXCat, 64),
-                lightAddress: (SacnUniverseDMXCat, 65));
+                catAir: catAir,
+                catLights: catLights,
+                audioPlayer: audioCat,
+                name: nameof(grumpyCat));
+
+            stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(grumpyCat.InputPower);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -379,14 +378,12 @@ namespace Animatroller.Scenes
             //pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
             //pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
-            pulsatingCatLow.ConnectTo(catLights);
-            pulsatingCatHigh.ConnectTo(catLights);
             pulsatingPumpkinLow.ConnectTo(pumpkinLights);
             pulsatingPumpkinHigh.ConnectTo(pumpkinLights);
             pulsatingGargoyle.ConnectTo(spiderWebLights);
 
             stateMachine.For(States.BackgroundSmall)
-                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingCatLow, pulsatingPumpkinLow)
+                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingPumpkinLow)
                 .Execute(i =>
                     {
                         treeGhosts.SetBrightness(1.0);
@@ -410,7 +407,7 @@ namespace Animatroller.Scenes
                     });
 
             stateMachine.For(States.BackgroundFull)
-                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingCatLow, pulsatingPumpkinLow)
+                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingPumpkinLow)
                 .Execute(i =>
                 {
                     treeGhosts.SetBrightness(1.0);
@@ -602,10 +599,10 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
             //            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
-            acnOutput.Connect(new Physical.GenericDimmer(catAir, 64), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 50), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(catLights, 65), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(spiderWebLights, 99), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(catAir, 64), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(catLights, 65), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 51), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsCrystal, 128), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsEyes, 129), SacnUniverseDMXCat);
@@ -643,13 +640,17 @@ namespace Animatroller.Scenes
             blockLast.WhenOutputChanges(x => UpdateOSC());
             blockPumpkin.WhenOutputChanges(x => UpdateOSC());
 
+            catMotion.Output.Controls(grumpyCat.InputTrigger);
 
-            catMotion.Output.Subscribe(x =>
+            Exec.MasterStatus.Subscribe(x =>
             {
-                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen) && !blockMaster.Value && !blockCat.Value)
-                    Executor.Current.Execute(catSeq);
+                object data = null;
 
-                oscServer.SendAllClients("/1/led1", x ? 1 : 0);
+                if (x.Value is bool)
+                    data = (bool)x.Value ? 1 : 0;
+
+                if (data != null)
+                    oscServer.SendAllClients($"/{x.Name}", data);
             });
 
             pumpkinMotion.Output.Subscribe(x =>
@@ -843,54 +844,6 @@ namespace Animatroller.Scenes
                 {
                     fog.SetValue(false);
                     i.WaitFor(S(1.0));
-                });
-
-            catSeq.WhenExecuted
-                .Execute(instance =>
-                {
-                    var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
-
-                    pulsatingCatLow.Stop();
-                    pulsatingCatHigh.Start();
-                    //                catLights.SetBrightness(1.0, instance.Token);
-
-                    while (true)
-                    {
-                        switch (random.Next(4))
-                        {
-                            case 0:
-                                audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(2.0));
-                                break;
-                            case 1:
-                                audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(3.0));
-                                break;
-                            case 2:
-                                audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(2.5));
-                                break;
-                            case 3:
-                                audioCat.PlayEffect("287 Monster Snarl 4.wav", 1.0, 1.0);
-                                instance.WaitFor(TimeSpan.FromSeconds(1.5));
-                                break;
-                            default:
-                                instance.WaitFor(TimeSpan.FromSeconds(3.0));
-                                break;
-                        }
-
-                        instance.CancelToken.ThrowIfCancellationRequested();
-
-                        if (maxRuntime.Elapsed.TotalSeconds > 10)
-                            break;
-                    }
-                })
-                .TearDown(instance =>
-                {
-                    //                Exec.MasterEffect.Fade(catLights, 1.0, 0.0, 1000, token: instance.Token);
-                    //TODO: Fade out
-                    pulsatingCatHigh.Stop();
-                    pulsatingCatLow.Start();
                 });
 
             pumpkinSeq.WhenExecuted
