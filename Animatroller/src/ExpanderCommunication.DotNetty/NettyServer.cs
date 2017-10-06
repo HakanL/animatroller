@@ -65,7 +65,11 @@ namespace Animatroller.ExpanderCommunication
 
         public async Task StopAsync()
         {
-            await this.boundChannel?.CloseAsync();
+            if (this.boundChannel != null)
+            {
+                await this.boundChannel.CloseAsync();
+                this.boundChannel = null;
+            }
 
             await Task.WhenAll(
                 this.bossGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)),

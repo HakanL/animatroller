@@ -31,10 +31,13 @@ namespace Animatroller.Simulator.Control.Bulb
             get { return _color; }
             set
             {
-                _color = value;
-                this.DarkColor = ControlPaint.Dark(_color);
-                this.DarkDarkColor = ControlPaint.DarkDark(_color);
-                this.Invalidate();  // Redraw the control
+                if (_color != value)
+                {
+                    _color = value;
+                    this.DarkColor = ControlPaint.Dark(_color);
+                    this.DarkDarkColor = ControlPaint.DarkDark(_color);
+                    this.Invalidate();  // Redraw the control
+                }
             }
         }
 
@@ -51,7 +54,18 @@ namespace Animatroller.Simulator.Control.Bulb
         /// <summary>
         /// Gets or Sets whether the light is turned on
         /// </summary>
-        public bool On { get { return _on; } set { _on = value; this.Invalidate(); } }
+        public bool On
+        {
+            get { return _on; }
+            set
+            {
+                if (_on != value)
+                {
+                    _on = value;
+                    this.Invalidate();
+                }
+            }
+        }
 
         #endregion
 

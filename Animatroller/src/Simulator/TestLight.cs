@@ -36,7 +36,7 @@ namespace Animatroller.Simulator
                     {
                         this.newDataAvailable = false;
 
-                        Output();
+                        this.control.Invalidate();
                     }
                 }
             });

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define MANUAL_REDRAW
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -39,8 +40,13 @@ namespace Animatroller.Simulator.Control.Bulb
             get { return _color; }
             set
             {
-                _color = value;
-                this.Invalidate();	// Redraw the control
+                if (_color != value)
+                {
+                    _color = value;
+#if !MANUAL_REDRAW
+                    this.Invalidate();  // Redraw the control
+#endif
+                }
             }
         }
 
@@ -49,8 +55,13 @@ namespace Animatroller.Simulator.Control.Bulb
             get { return _colorGel; }
             set
             {
-                _colorGel = value;
-                this.Invalidate();	// Redraw the control
+                if (_colorGel != value)
+                {
+                    _colorGel = value;
+#if !MANUAL_REDRAW
+                    this.Invalidate();  // Redraw the control
+#endif
+                }
             }
         }
 
@@ -59,8 +70,13 @@ namespace Animatroller.Simulator.Control.Bulb
             get { return _intensity; }
             set
             {
-                _intensity = value;
-                this.Invalidate();	// Redraw the control
+                if (_intensity != value)
+                {
+                    _intensity = value;
+#if !MANUAL_REDRAW
+                    this.Invalidate();  // Redraw the control
+#endif
+                }
             }
         }
 
@@ -69,8 +85,13 @@ namespace Animatroller.Simulator.Control.Bulb
             get { return _pan; }
             set
             {
-                _pan = value;
-                this.Invalidate();	// Redraw the control
+                if (_pan != value)
+                {
+                    _pan = value;
+#if !MANUAL_REDRAW
+                    this.Invalidate();  // Redraw the control
+#endif
+                }
             }
         }
 
@@ -79,8 +100,13 @@ namespace Animatroller.Simulator.Control.Bulb
             get { return _tilt; }
             set
             {
-                _tilt = value;
-                this.Invalidate();	// Redraw the control
+                if (_tilt != value)
+                {
+                    _tilt = value;
+#if !MANUAL_REDRAW
+                    this.Invalidate();  // Redraw the control
+#endif
+                }
             }
         }
 
@@ -89,19 +115,37 @@ namespace Animatroller.Simulator.Control.Bulb
             get { return this.text; }
             set
             {
-                this.text = value;
-                this.Invalidate();
+                if (this.text != value)
+                {
+                    this.text = value;
+#if !MANUAL_REDRAW
+                    this.Invalidate();  // Redraw the control
+#endif
+                }
             }
         }
 
         /// <summary>
         /// Gets or Sets whether the light is turned on
         /// </summary>
-        public bool On { get { return _on; } set { _on = value; this.Invalidate(); } }
+        public bool On
+        {
+            get { return _on; }
+            set
+            {
+                if (_on != value)
+                {
+                    _on = value;
+#if !MANUAL_REDRAW
+                    this.Invalidate();  // Redraw the control
+#endif
+                }
+            }
+        }
 
-        #endregion
+#endregion
 
-        #region Constructor
+#region Constructor
 
         public SuperSimpleBulb()
         {
@@ -111,9 +155,9 @@ namespace Animatroller.Simulator.Control.Bulb
             this._tinyFont = new Font(Font.FontFamily, 6);
         }
 
-        #endregion
+#endregion
 
-        #region Transpanency Methods
+#region Transpanency Methods
 
         protected override CreateParams CreateParams
         {
@@ -133,9 +177,9 @@ namespace Animatroller.Simulator.Control.Bulb
 
         }
 
-        #endregion
+#endregion
 
-        #region Drawing Methods
+#region Drawing Methods
 
         /// <summary>
         /// Handles the Paint event for this UserControl
@@ -241,6 +285,6 @@ namespace Animatroller.Simulator.Control.Bulb
             g.FillRectangle(whiteSolidBrush, intensityRectangle2);
         }
 
-        #endregion
+#endregion
     }
 }

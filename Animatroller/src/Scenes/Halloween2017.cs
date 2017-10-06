@@ -37,7 +37,7 @@ namespace Animatroller.Scenes
 
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
-        Expander.OscServer oscServer = new Expander.OscServer(8000, 9000);
+        Expander.OscServer oscServer = new Expander.OscServer(8000, 9000, registerAutoHandlers: true);
         AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioCat = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
@@ -641,17 +641,6 @@ namespace Animatroller.Scenes
             blockPumpkin.WhenOutputChanges(x => UpdateOSC());
 
             catMotion.Output.Controls(grumpyCat.InputTrigger);
-
-            Exec.MasterStatus.Subscribe(x =>
-            {
-                object data = null;
-
-                if (x.Value is bool)
-                    data = (bool)x.Value ? 1 : 0;
-
-                if (data != null)
-                    oscServer.SendAllClients($"/{x.Name}", data);
-            });
 
             pumpkinMotion.Output.Subscribe(x =>
             {

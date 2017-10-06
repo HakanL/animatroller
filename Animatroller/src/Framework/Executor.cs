@@ -456,7 +456,15 @@ namespace Animatroller.Framework
             foreach (var runnable in this.runnable)
                 runnable.Stop();
 
+            foreach (var runnable in this.runnable.OfType<IDisposable>())
+                runnable.Dispose();
+
             return this;
+        }
+
+        public ICollection<T> AllDevicesOfType<T>()
+        {
+            return this.devices.OfType<T>().ToList();
         }
 
         public bool EverythingStopped()

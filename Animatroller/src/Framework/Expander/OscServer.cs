@@ -9,10 +9,13 @@ using System.IO.Ports;
 using Serilog;
 using System.Net;
 using Newtonsoft.Json;
+using System.Reactive.Concurrency;
+using System.Reactive.Subjects;
+using System.Reactive;
 
 namespace Animatroller.Framework.Expander
 {
-    public class OscServer : IPort, IRunnable, ISupportsPersistence
+    public class OscServer : IPort, IRunnable, ISupportsPersistence, IDisposable
     {
         protected class ConnectedClient
         {
@@ -26,6 +29,11 @@ namespace Animatroller.Framework.Expander
             {
                 Client = new OscClient(address, port);
                 this.lastAccess = DateTime.Now;
+            }
+
+            public ConnectedClient(IPEndPoint ipe)
+                : this(ipe.Address, ipe.Port)
+            {
             }
 
             public bool Expired
@@ -61,21 +69,26 @@ namespace Animatroller.Framework.Expander
         private Dictionary<string, Action<Message>> dispatchPartial;
         private Dictionary<IPEndPoint, ConnectedClient> clients;
         private int forcedClientPort;
+        private EventLoopScheduler scheduler;
+        private bool registerAutoHandlers;
+        private IObserver<(string, object[])> sender;
 
         public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : this(Executor.Current.GetSetKey<int>(name, 8000))
         {
         }
 
-        public OscServer(int listenPort, int forcedClientPort = 0)
+        public OscServer(int listenPort, int forcedClientPort = 0, bool registerAutoHandlers = false)
         {
             this.forcedClientPort = forcedClientPort;
+            this.registerAutoHandlers = registerAutoHandlers;
             this.log = Log.Logger;
             this.receiver = new Rug.Osc.OscReceiver(listenPort);
             this.cancelSource = new System.Threading.CancellationTokenSource();
             this.dispatch = new Dictionary<string, Action<Message>>();
             this.dispatchPartial = new Dictionary<string, Action<Message>>();
             this.clients = new Dictionary<IPEndPoint, ConnectedClient>();
+            this.scheduler = new EventLoopScheduler();
 
             this.receiverTask = new Task(x =>
             {
@@ -93,11 +106,12 @@ namespace Animatroller.Framework.Expander
                                 {
                                     ConnectedClient connectedClient;
 
-                                    if (!this.clients.TryGetValue(packet.Origin, out connectedClient))
+                                    var ipe = new IPEndPoint(packet.Origin.Address, forcedClientPort == 0 ? packet.Origin.Port : forcedClientPort);
+                                    if (!this.clients.TryGetValue(ipe, out connectedClient))
                                     {
-                                        connectedClient = new ConnectedClient(packet.Origin.Address, forcedClientPort == 0 ? packet.Origin.Port : forcedClientPort);
+                                        connectedClient = new ConnectedClient(ipe);
 
-                                        this.clients.Add(packet.Origin, connectedClient);
+                                        this.clients.Add(ipe, connectedClient);
                                     }
 
                                     connectedClient.Touch();
@@ -144,24 +158,29 @@ namespace Animatroller.Framework.Expander
                 }
             }, this.cancelSource.Token, TaskCreationOptions.LongRunning);
 
+            this.sender = Observer.NotifyOn(Observer.Create<(string Address, object[] Data)>(x =>
+            {
+                lock (this.clients)
+                {
+                    foreach (var kvp in this.clients.ToList())
+                    {
+                        if (kvp.Value.Expired)
+                        {
+                            this.clients.Remove(kvp.Key);
+                            continue;
+                        }
+
+                        kvp.Value.Client.Send(x.Address, true, x.Data);
+                    }
+                }
+            }), this.scheduler);
+
             Executor.Current.Register(this);
         }
 
         public void SendAllClients(string address, params object[] data)
         {
-            lock (this.clients)
-            {
-                foreach (var kvp in this.clients.ToList())
-                {
-                    if (kvp.Value.Expired)
-                    {
-                        this.clients.Remove(kvp.Key);
-                        continue;
-                    }
-
-                    kvp.Value.Client.Send(address, true, data);
-                }
-            }
+            this.sender.OnNext((address, data));
         }
 
         private void Invoke(Rug.Osc.OscMessage oscMessage)
@@ -201,12 +220,39 @@ namespace Animatroller.Framework.Expander
         {
             this.receiverTask.Start();
             this.receiver.Connect();
+
+            if (this.registerAutoHandlers)
+                RegisterAutoHandlers();
         }
 
         public void Stop()
         {
             this.cancelSource.Cancel();
             this.receiver.Close();
+        }
+
+        public void RegisterAutoHandlers()
+        {
+            var allInputs = Executor.Current.AllDevicesOfType<LogicalDevice.DigitalInput2>();
+
+            foreach (var inputDevice in allInputs)
+            {
+                RegisterAction<int>($"/auto/{inputDevice.Name}", (msg, data) =>
+                {
+                    inputDevice.Control.OnNext(data.First() != 0);
+                }, 1);
+            }
+
+            Executor.Current.MasterStatus.Subscribe(x =>
+            {
+                object data = null;
+
+                if (x.Value is bool)
+                    data = (bool)x.Value ? 1 : 0;
+
+                if (data != null)
+                    SendAllClients($"/auto/{x.Name}", data);
+            });
         }
 
         public OscServer RegisterAction(string address, Action<Message> action)
@@ -307,9 +353,9 @@ namespace Animatroller.Framework.Expander
                     if (parts.Length != 2)
                         continue;
 
-                    var ep = new IPEndPoint(IPAddress.Parse(parts[0]), int.Parse(parts[1]));
+                    var ipe = new IPEndPoint(IPAddress.Parse(parts[0]), this.forcedClientPort == 0 ? int.Parse(parts[1]) : this.forcedClientPort);
 
-                    this.clients[ep] = new ConnectedClient(ep.Address, this.forcedClientPort == 0 ? ep.Port : this.forcedClientPort);
+                    this.clients[ipe] = new ConnectedClient(ipe);
                 }
             }
         }
@@ -321,6 +367,11 @@ namespace Animatroller.Framework.Expander
                 string clientsIPList = JsonConvert.SerializeObject(this.clients.Select(x => $"{x.Key.Address}:{x.Key.Port}").ToList());
                 setKeyFunc("clients", clientsIPList);
             }
+        }
+
+        public void Dispose()
+        {
+            this.scheduler?.Dispose();
         }
     }
 }
