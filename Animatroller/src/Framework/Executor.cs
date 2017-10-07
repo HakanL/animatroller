@@ -94,6 +94,8 @@ namespace Animatroller.Framework
             });
         }
 
+        public string ExpanderSharedFiles { get; set; }
+
         public void SetLogger(ILogger logger)
         {
             this.log = logger;

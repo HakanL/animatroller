@@ -121,7 +121,7 @@ namespace Animatroller.Framework.Expander
             this.clientInstances.Add(instanceId, expanderLocal);
 
             expanderLocal.Initialize(
-                expanderSharedFiles: ExpanderSharedFiles,
+                expanderSharedFiles: Executor.Current.ExpanderSharedFiles,
                 instanceId: instanceId,
                 sendAction: async msg => await SendData(instanceId, msg));
         }
@@ -140,8 +140,6 @@ namespace Animatroller.Framework.Expander
         {
             Stop();
         }
-
-        public string ExpanderSharedFiles { get; set; }
 
         private void ClientConnected(string instanceId, string connectionId)
         {

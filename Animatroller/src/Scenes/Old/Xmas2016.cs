@@ -222,15 +222,13 @@ namespace Animatroller.Scenes
 
             hours.Output.Log("Hours");
 
-            string expanderFilesFolder = string.Empty;
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
             {
                 string[] parts = expFilesParam.Split('=');
                 if (parts.Length == 2)
                 {
-                    expanderFilesFolder =
-                    expanderServer.ExpanderSharedFiles = parts[1];
+                    Exec.ExpanderSharedFiles = parts[1];
                 }
             }
 
@@ -281,11 +279,11 @@ namespace Animatroller.Scenes
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            dmxPlayback.Load(Path.Combine(expanderFilesFolder, "Seq", "XmasLoop.bin"), 15);
+            dmxPlayback.Load(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "XmasLoop.bin"), 15);
             dmxPlayback.Loop = true;
 
             var pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMappingFromGlediatorPatch(
-                Path.Combine(expanderFilesFolder, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
+                Path.Combine(Exec.ExpanderSharedFiles, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
             dmxPlayback.SetOutput(pixelsMatrix, pixelMapping);
 
             buttonOverrideHours.Output.Subscribe(x =>
@@ -1045,7 +1043,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapChristmasCanon()
         {
-            lorChristmasCanon.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Cannon Rock104.lms"));
+            lorChristmasCanon.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Cannon Rock104.lms"));
 
             lorChristmasCanon.Progress.Subscribe(x =>
             {
@@ -1188,7 +1186,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapBelieve()
         {
-            lorBelieve.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Believe - Josh Groban 64 chns.lms"));
+            lorBelieve.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Believe - Josh Groban 64 chns.lms"));
 
             lorBelieve.Progress.Subscribe(x =>
             {
@@ -1312,7 +1310,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapJingleBells()
         {
-            lorJingleBells.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Jingle Bell Rock, Randy Travis.lms"));
+            lorJingleBells.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Jingle Bell Rock, Randy Travis.lms"));
 
             lorJingleBells.Progress.Subscribe(x =>
             {
@@ -1433,7 +1431,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapSarajevo()
         {
-            lorSarajevo.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Christmas Eve (Sarajevo) 64 done 4.lms"));
+            lorSarajevo.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Christmas Eve (Sarajevo) 64 done 4.lms"));
 
             lorSarajevo.Progress.Subscribe(x =>
             {
@@ -1672,7 +1670,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapHolyNight()
         {
-            lorHolyNight.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Oh Come All Ye Faithful Oh Holy Night - TSO 64 done 1.lms"));
+            lorHolyNight.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Oh Come All Ye Faithful Oh Holy Night - TSO 64 done 1.lms"));
 
             lorHolyNight.Progress.Subscribe(x =>
             {
@@ -1911,7 +1909,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapCarol()
         {
-            lorCarol.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "David Foster - Carol of the Bells.lms"));
+            lorCarol.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "David Foster - Carol of the Bells.lms"));
 
             lorCarol.Progress.Subscribe(x =>
             {

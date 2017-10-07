@@ -79,7 +79,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public AudioPlayer PlayEffect(string audioFile, Import.LevelsPlayback levelsPlayback = null)
         {
-            levelsPlayback?.Load(GetLevelsFromAudioFX(audioFile));
+            levelsPlayback?.Load(GetLevelsFromAudioFX("AudioEffect", audioFile));
 
             RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayFX, audioFile);
 
@@ -228,13 +228,10 @@ namespace Animatroller.Framework.LogicalDevice
             // Nothing to do here
         }
 
-        public string ExpanderSharedFiles { get; set; }
-
-
-        public string GetLevelsFromAudioFX(string audioFile)
+        public string GetLevelsFromAudioFX(string audioType, string audioFile)
         {
-            string audioFilename = Path.Combine(ExpanderSharedFiles, "AudioEffect", audioFile);
-            string levelsFilename = Path.Combine(ExpanderSharedFiles, "AudioEffect", audioFile + ".levels");
+            string audioFilename = Path.Combine(Executor.Current.ExpanderSharedFiles, audioType, audioFile);
+            string levelsFilename = Path.Combine(Executor.Current.ExpanderSharedFiles, audioType, audioFile + ".levels");
 
             if (!File.Exists(levelsFilename))
             {

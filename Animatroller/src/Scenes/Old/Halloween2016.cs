@@ -201,15 +201,13 @@ namespace Animatroller.Scenes
             hoursSmall.Output.Log("Hours small");
             hoursFull.Output.Log("Hours full");
 
-            string expanderFilesFolder = string.Empty;
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
             {
                 string[] parts = expFilesParam.Split('=');
                 if (parts.Length == 2)
                 {
-                    expanderFilesFolder =
-                    expanderServer.ExpanderSharedFiles = parts[1];
+                    Exec.ExpanderSharedFiles = parts[1];
                 }
             }
 

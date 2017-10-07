@@ -64,6 +64,11 @@ namespace Animatroller.Framework.Extensions
             return input;
         }
 
+        public static void Controls<T>(this LogicalDevice.ILogicalOutputDevice<T> input, IObserver<T> control)
+        {
+            input.Output.Subscribe(control);
+        }
+
         public static IObservable<T> Controls<T>(this IObservable<T> input, Action<T> control)
         {
             input.Subscribe(control);

@@ -8,38 +8,38 @@ namespace Animatroller.Scenes.Modules
 {
     public class HalloweenGrumpyCat : TriggeredSequence, IDisposable
     {
-        Effect.Pulsating pulsatingCatLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
-        Effect.Pulsating pulsatingCatHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
+        Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
+        Effect.Pulsating pulsatingHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         GroupControlToken lockObject = null;
 
         public HalloweenGrumpyCat(
-            Dimmer3 catLights,
-            DigitalOutput2 catAir,
+            Dimmer3 light,
+            DigitalOutput2 air,
             AudioPlayer audioPlayer,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            pulsatingCatLow.ConnectTo(catLights);
-            pulsatingCatHigh.ConnectTo(catLights);
+            pulsatingLow.ConnectTo(light);
+            pulsatingHigh.ConnectTo(light);
 
             OutputPower.Subscribe(x =>
             {
-                catAir.SetValue(x, this.lockObject);
+                air.SetValue(x, this.lockObject);
 
                 if (x)
                 {
                     this.lockObject?.Dispose();
                     this.lockObject = new GroupControlToken(new List<IOwnedDevice>()
                     {
-                        catAir,
-                        catLights
+                        air,
+                        light
                     }, null, nameof(HalloweenGrumpyCat));
 
-                    pulsatingCatLow.Start(token: this.lockObject);
+                    pulsatingLow.Start(token: this.lockObject);
                 }
                 else
                 {
-                    pulsatingCatLow.Stop();
+                    pulsatingLow.Stop();
                     this.lockObject?.Dispose();
                 }
             });
@@ -51,8 +51,8 @@ namespace Animatroller.Scenes.Modules
 
                     var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
-                    pulsatingCatLow.Stop();
-                    pulsatingCatHigh.Start(token: this.lockObject);
+                    pulsatingLow.Stop();
+                    pulsatingHigh.Start(token: this.lockObject);
 
                     while (true)
                     {
@@ -88,8 +88,8 @@ namespace Animatroller.Scenes.Modules
                 .TearDown(instance =>
                 {
                     //TODO: Fade out
-                    pulsatingCatHigh.Stop();
-                    pulsatingCatLow.Start(token: this.lockObject);
+                    pulsatingHigh.Stop();
+                    pulsatingLow.Start(token: this.lockObject);
 
                     Executor.Current.LogMasterStatus(Name, false);
                 });

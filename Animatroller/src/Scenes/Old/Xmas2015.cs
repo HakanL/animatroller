@@ -142,15 +142,13 @@ namespace Animatroller.Scenes
         {
             hours.AddRange("4:00 pm", "10:00 pm");
 
-            string expanderFilesFolder = string.Empty;
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
             {
                 string[] parts = expFilesParam.Split('=');
                 if (parts.Length == 2)
                 {
-                    expanderFilesFolder =
-                    expanderServer.ExpanderSharedFiles = parts[1];
+                    Exec.ExpanderSharedFiles = parts[1];
                 }
             }
 
@@ -186,11 +184,11 @@ namespace Animatroller.Scenes
             midiAkai.Controller(midiChannel, 1).Subscribe(x => blackOut.Value = x.Value);
             midiAkai.Controller(midiChannel, 2).Subscribe(x => whiteOut.Value = x.Value);
 
-            dmxPlayback.Load(Path.Combine(expanderFilesFolder, "Seq", "XmasLoop.bin"), 15);
+            dmxPlayback.Load(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "XmasLoop.bin"), 15);
             dmxPlayback.Loop = true;
 
             var pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMappingFromGlediatorPatch(
-                Path.Combine(expanderFilesFolder, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
+                Path.Combine(Exec.ExpanderSharedFiles, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
             dmxPlayback.SetOutput(pixelsMatrix, pixelMapping);
 
             buttonOverrideHours.Output.Subscribe(x =>
@@ -725,7 +723,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapFeelTheLight()
         {
-            lorFeelTheLight.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Feel The Light, Jennifer Lopez.lms"));
+            lorFeelTheLight.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Feel The Light, Jennifer Lopez.lms"));
 
             lorFeelTheLight.Progress.Subscribe(x =>
             {
@@ -796,7 +794,7 @@ namespace Animatroller.Scenes
 
         private void ImportAndMapBelieve()
         {
-            lorBelieve.LoadFromFile(Path.Combine(expanderServer.ExpanderSharedFiles, "Seq", "Believe - Josh Groban 64 chns.lms"));
+            lorBelieve.LoadFromFile(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Believe - Josh Groban 64 chns.lms"));
 
             lorBelieve.Progress.Subscribe(x =>
             {

@@ -28,7 +28,7 @@ namespace Animatroller.Scenes
             {
                 string[] parts = expFilesParam.Split('=');
                 if (parts.Length == 2)
-                    expanderServer.ExpanderSharedFiles = parts[1];
+                    Exec.ExpanderSharedFiles = parts[1];
             }
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);

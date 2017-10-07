@@ -35,5 +35,15 @@ namespace Animatroller.Framework
                 Utils.AdditionalData(DataElements.Color, color),
                 Utils.AdditionalData(DataElements.Brightness, brightness));
         }
+
+        public static Utility.ReactiveOr ReactiveOr(params IObservable<bool>[] inputs)
+        {
+            return new Utility.ReactiveOr(inputs);
+        }
+
+        public static Utility.ReactiveOr ReactiveOr(params LogicalDevice.ILogicalOutputDevice<bool>[] inputs)
+        {
+            return new Utility.ReactiveOr(inputs.Select(x => x.Output).ToArray());
+        }
     }
 }

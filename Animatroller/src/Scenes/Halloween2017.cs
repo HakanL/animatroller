@@ -104,8 +104,6 @@ namespace Animatroller.Scenes
         DigitalInput2 floodLights = new DigitalInput2();
 
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
-        Effect.Pulsating pulsatingPumpkinLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
-        Effect.Pulsating pulsatingPumpkinHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingGargoyle = new Effect.Pulsating(S(4), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.4, 1.0, false);
@@ -163,7 +161,6 @@ namespace Animatroller.Scenes
         StrobeDimmer3 flash2 = new StrobeDimmer3("Eliminator Flash");
         //        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
-        Controller.Sequence pumpkinSeq = new Controller.Sequence();
         Controller.Sequence welcomeSeq = new Controller.Sequence();
         Controller.Sequence motionSeq = new Controller.Sequence();
 
@@ -176,8 +173,6 @@ namespace Animatroller.Scenes
         Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
         Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
-        Framework.Import.LevelsPlayback pumpkinPlayback = new Framework.Import.LevelsPlayback();
-
         IControlToken manualFaderToken;
         IControlToken bigSpiderEyesToken;
         int soundBoardOutputIndex = 0;
@@ -185,6 +180,7 @@ namespace Animatroller.Scenes
 
         // Modules
         Modules.HalloweenGrumpyCat grumpyCat;
+        Modules.HalloweenMrPumpkin mrPumpkin;
 
         public Halloween2017(IEnumerable<string> args)
         {
@@ -201,16 +197,13 @@ namespace Animatroller.Scenes
             hoursSmall.Output.Log("Hours small");
             hoursFull.Output.Log("Hours full");
 
-            string expanderFilesFolder = string.Empty;
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
             {
                 string[] parts = expFilesParam.Split('=');
                 if (parts.Length == 2)
                 {
-                    expanderFilesFolder =
-                        audioPumpkin.ExpanderSharedFiles =
-                        expanderServer.ExpanderSharedFiles = parts[1];
+                    Exec.ExpanderSharedFiles = parts[1];
                 }
             }
 
@@ -232,14 +225,18 @@ namespace Animatroller.Scenes
                 .ControlsMasterPower(mrPumpkinAir);
 
             grumpyCat = new Modules.HalloweenGrumpyCat(
-                catAir: catAir,
-                catLights: catLights,
+                air: catAir,
+                light: catLights,
                 audioPlayer: audioCat,
                 name: nameof(grumpyCat));
 
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(grumpyCat.InputPower);
 
-            pumpkinPlayback.SetOutput(pumpkinLights);
+            mrPumpkin = new Modules.HalloweenMrPumpkin(
+                air: mrPumpkinAir,
+                light: pumpkinLights,
+                audioPlayer: audioPumpkin,
+                name: nameof(mrPumpkin));
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -386,12 +383,10 @@ namespace Animatroller.Scenes
             //pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
             //pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
-            pulsatingPumpkinLow.ConnectTo(pumpkinLights);
-            pulsatingPumpkinHigh.ConnectTo(pumpkinLights);
             pulsatingGargoyle.ConnectTo(spiderWebLights);
 
             stateMachine.For(States.BackgroundSmall)
-                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingPumpkinLow)
+                .Controls(1, flickerEffect, pulsatingGargoyle)
                 .Execute(i =>
                     {
                         treeGhosts.SetBrightness(1.0);
@@ -415,7 +410,7 @@ namespace Animatroller.Scenes
                     });
 
             stateMachine.For(States.BackgroundFull)
-                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingPumpkinLow)
+                .Controls(1, flickerEffect, pulsatingGargoyle)
                 .Execute(i =>
                 {
                     treeGhosts.SetBrightness(1.0);
@@ -649,15 +644,11 @@ namespace Animatroller.Scenes
             blockLast.WhenOutputChanges(x => UpdateOSC());
             blockPumpkin.WhenOutputChanges(x => UpdateOSC());
 
-            catMotion.Output.Controls(grumpyCat.InputTrigger);
+            Utils.ReactiveOr(blockCat, blockMaster).Controls(grumpyCat.InputTriggerBlock);
+            Utils.ReactiveOr(blockPumpkin, blockMaster).Controls(mrPumpkin.InputTriggerBlock);
 
-            pumpkinMotion.Output.Subscribe(x =>
-            {
-                if (x && /*(hoursFull.IsOpen || hoursSmall.IsOpen) &&*/ !blockMaster.Value && !blockPumpkin.Value)
-                    Executor.Current.Execute(pumpkinSeq);
-
-                //                oscServer.SendAllClients("/1/led1", x ? 1 : 0);
-            });
+            catMotion.Controls(grumpyCat.InputTrigger);
+            pumpkinMotion.Controls(mrPumpkin.InputTrigger);
 
             firstBeam.Output.Subscribe(x =>
             {
@@ -842,26 +833,6 @@ namespace Animatroller.Scenes
                 {
                     fog.SetValue(false);
                     i.WaitFor(S(1.0));
-                });
-
-            pumpkinSeq.WhenExecuted
-                .Execute(instance =>
-                {
-                    pulsatingPumpkinLow.Stop();
-                    //                    pulsatingPumpkinHigh.Start();
-                    if (hoursFull.IsOpen)
-                        audioPumpkin.PlayEffect("Thriller2.wav");
-                    else
-                    {
-                        audioPumpkin.PlayEffect("Thriller2.wav", pumpkinPlayback);
-                        pumpkinPlayback.Start();
-                    }
-                    instance.CancelToken.WaitHandle.WaitOne(40000);
-                })
-                .TearDown(instance =>
-                {
-                    //                    pulsatingPumpkinHigh.Stop();
-                    pulsatingPumpkinLow.Start();
                 });
 
             motionSeq.WhenExecuted
