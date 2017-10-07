@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using Effect = Animatroller.Framework.Effect;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
+using System.Drawing;
 
 namespace Animatroller.Scenes.Modules
 {
-    public class HalloweenMrPumpkin : TriggeredSequence, IDisposable
+    public class HalloweenFrankGhost : TriggeredSequence, IDisposable
     {
         Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Framework.Import.LevelsPlayback levelsPlayback = new Framework.Import.LevelsPlayback();
         GroupControlToken lockObject = null;
 
-        public HalloweenMrPumpkin(
-            Dimmer3 light,
+        public HalloweenFrankGhost(
+            IReceivesColor light,
             DigitalOutput2 air,
             AudioPlayer audioPlayer,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
@@ -24,8 +25,6 @@ namespace Animatroller.Scenes.Modules
 
             OutputPower.Subscribe(x =>
             {
-                air.SetValue(x, this.lockObject);
-
                 if (x)
                 {
                     this.lockObject?.Dispose();
@@ -33,12 +32,15 @@ namespace Animatroller.Scenes.Modules
                     {
                         air,
                         light
-                    }, null, nameof(HalloweenGrumpyCat));
+                    }, null, nameof(HalloweenFrankGhost));
 
+                    air.SetValue(true, this.lockObject);
+                    light.SetColor(Color.Red, null, this.lockObject);
                     pulsatingLow.Start(token: this.lockObject);
                 }
                 else
                 {
+                    air.SetValue(false, this.lockObject);
                     pulsatingLow.Stop();
                     this.lockObject?.Dispose();
                 }
@@ -52,15 +54,25 @@ namespace Animatroller.Scenes.Modules
                     pulsatingLow.Stop();
 
                     audioPlayer.PlayEffect("Thriller2.wav", levelsPlayback);
-                    levelsPlayback.Start(this.lockObject);
+                    light.SetColor(Color.Purple, null, this.lockObject);
+                    var cts = levelsPlayback.Start(this.lockObject);
 
-                    instance.CancelToken.WaitHandle.WaitOne(40000);
+                    instance.CancelToken.WaitHandle.WaitOne(45000);
+                    cts.Cancel();
                 })
                 .TearDown(instance =>
                 {
+                    light.SetColor(Color.Red, null, this.lockObject);
                     pulsatingLow.Start(token: this.lockObject);
 
                     Executor.Current.LogMasterStatus(Name, false);
+                });
+
+            PowerOffSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    audioPlayer.PlayEffect("Happy Halloween.wav", 0.15);
+                    instance.CancelToken.WaitHandle.WaitOne(5000);
                 });
         }
 

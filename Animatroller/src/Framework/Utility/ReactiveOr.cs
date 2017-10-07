@@ -45,7 +45,9 @@ namespace Animatroller.Framework.Utility
 
         public IDisposable Subscribe(IObserver<bool> observer)
         {
-            return this.outputSubject.Subscribe(observer);
+            return this.outputSubject
+                .DistinctUntilChanged()
+                .Subscribe(observer);
         }
 
         public ReactiveOr Add(IObservable<bool> input, bool initialValue = false)

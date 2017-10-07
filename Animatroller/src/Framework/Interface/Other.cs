@@ -38,7 +38,7 @@ namespace Animatroller.Framework
         void SetStrobeSpeed(double strobeSpeed, IControlToken token);
     }
 
-    public interface IReceivesColor : IReceivesData
+    public interface IReceivesColor : IReceivesBrightness
     {
         Color Color { get; }
 

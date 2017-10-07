@@ -24,6 +24,7 @@ namespace Animatroller.Scenes
         const int SacnUniverseDMXLedmx = 10;
         const int SacnUniversePixel100 = 5;
         const int SacnUniversePixel50 = 6;
+        const int SacnUniverseFrankGhost = 7;
 
         public enum States
         {
@@ -39,6 +40,7 @@ namespace Animatroller.Scenes
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         Expander.OscServer oscServer = new Expander.OscServer(8000, 9000, registerAutoHandlers: true);
         AudioPlayer audioPumpkin = new AudioPlayer();
+        AudioPlayer audioFrankGhost = new AudioPlayer();
         AudioPlayer audioCat = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
@@ -52,11 +54,12 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderPop = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderMrPumpkin = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
+        VirtualPixel1D3 pixelsFrankGhost = new VirtualPixel1D3(5);
         AnalogInput3 faderR = new AnalogInput3(persistState: true);
         AnalogInput3 faderG = new AnalogInput3(persistState: true);
         AnalogInput3 faderB = new AnalogInput3(persistState: true);
@@ -84,22 +87,34 @@ namespace Animatroller.Scenes
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 buttonOverrideHours = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 emergencyStop = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockMaster = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockCat = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockFirst = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockPicture = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockGhost = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockLast = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockPumpkin = new DigitalInput2(persistState: true);
+
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 blockFrankGhost = new DigitalInput2(persistState: true);
+
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 floodLights = new DigitalInput2();
 
@@ -118,7 +133,8 @@ namespace Animatroller.Scenes
         DigitalInput2 ghostBeam = new DigitalInput2();
         DigitalInput2 lastBeam = new DigitalInput2();
         DigitalOutput2 catAir = new DigitalOutput2();
-        DigitalOutput2 mrPumpkinAir = new DigitalOutput2(initial: true);
+        DigitalOutput2 mrPumpkinAir = new DigitalOutput2();
+        DigitalOutput2 frankGhostAir = new DigitalOutput2();
         DigitalOutput2 fog = new DigitalOutput2();
         DigitalOutput2 popper = new DigitalOutput2();
         DigitalOutput2 spiderJump1 = new DigitalOutput2();
@@ -181,6 +197,7 @@ namespace Animatroller.Scenes
         // Modules
         Modules.HalloweenGrumpyCat grumpyCat;
         Modules.HalloweenMrPumpkin mrPumpkin;
+        Modules.HalloweenFrankGhost frankGhost;
 
         public Halloween2017(IEnumerable<string> args)
         {
@@ -189,7 +206,7 @@ namespace Animatroller.Scenes
             hoursSmall.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday);
 
-            hoursFull.AddRange("6:00 pm", "8:30 pm");
+            hoursFull.AddRange("6:00 pm", "10:59 pm");
             //hoursFull.Disabled = true;
             hoursSmall.Disabled = true;
 
@@ -213,16 +230,12 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHifi);       // rpi-eb428ef1
             expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
-            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderPop);        // rpi-ebd43a38
+            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderMrPumpkin);  // rpi-ebd43a38
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);      // HL-DEV
 
             masterVolume.ConnectTo(Exec.MasterVolume);
 
-            hoursSmall
-                .ControlsMasterPower(mrPumpkinAir);
-            hoursFull
-                .ControlsMasterPower(mrPumpkinAir);
 
             grumpyCat = new Modules.HalloweenGrumpyCat(
                 air: catAir,
@@ -232,11 +245,24 @@ namespace Animatroller.Scenes
 
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(grumpyCat.InputPower);
 
+
             mrPumpkin = new Modules.HalloweenMrPumpkin(
                 air: mrPumpkinAir,
                 light: pumpkinLights,
                 audioPlayer: audioPumpkin,
                 name: nameof(mrPumpkin));
+
+            stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(mrPumpkin.InputPower);
+
+            pixelsFrankGhost.SetColor(Color.Red, 0);
+            frankGhost = new Modules.HalloweenFrankGhost(
+                air: frankGhostAir,
+                light: pixelsFrankGhost,
+                audioPlayer: audioFrankGhost,
+                name: nameof(frankGhost));
+
+            stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(frankGhost.InputPower);
+
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -339,6 +365,7 @@ namespace Animatroller.Scenes
             popOutAll.ConnectTo(flash1);
             popOutAll.ConnectTo(flash2);
             popOutAll.ConnectTo(pixelsRoofEdge);
+            popOutAll.ConnectTo(pixelsFrankGhost);
             //            popOutAll.ConnectTo(pinSpot);
 
             allLights.Add(
@@ -354,6 +381,7 @@ namespace Animatroller.Scenes
                 flash1,
                 flash2,
                 pixelsRoofEdge,
+                pixelsFrankGhost,
                 //                pinSpot,
                 spiderLight,
                 spiderWebLights,
@@ -580,6 +608,7 @@ namespace Animatroller.Scenes
 
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, true), SacnUniversePixel50, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniversePixel100, 1);
+            acnOutput.Connect(new Physical.Pixel1D(pixelsFrankGhost, 0, 5), SacnUniverseFrankGhost, 1);
 
             //acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.RGBStrobe(wall6Light, 60), SacnUniverseDMXLedmx);
@@ -602,6 +631,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
             //            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
+            acnOutput.Connect(new Physical.GenericDimmer(frankGhostAir, 10), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 50), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(spiderWebLights, 99), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 64), SacnUniverseDMXCat);
@@ -623,15 +653,15 @@ namespace Animatroller.Scenes
             expanderCat.DigitalInputs[6].Connect(firstBeam);
             expanderLedmx.DigitalInputs[5].Connect(ghostBeam);
             expanderLedmx.DigitalInputs[6].Connect(lastBeam);
-            expanderPop.DigitalOutputs[7].Connect(popper);
-            expanderPop.DigitalOutputs[6].Connect(fog);
+            expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
+            expanderMrPumpkin.DigitalOutputs[6].Connect(fog);
             expanderCat.DigitalOutputs[7].Connect(spiderJump1);
             expanderCat.DigitalOutputs[6].Connect(spiderJump2);
-            expanderLedmx.Connect(audioPumpkin);
-            //expanderLocal.Connect(audioPumpkin);
+            expanderLedmx.Connect(audioFrankGhost);
+            //expanderLocal.Connect(audioPop);
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
-            expanderPop.Connect(audioPop);
+            expanderMrPumpkin.Connect(audioPumpkin);
             expanderAudio2.Connect(audio2);
             expanderPicture.Connect(audioFlying);
 
@@ -646,9 +676,11 @@ namespace Animatroller.Scenes
 
             Utils.ReactiveOr(blockCat, blockMaster).Controls(grumpyCat.InputTriggerBlock);
             Utils.ReactiveOr(blockPumpkin, blockMaster).Controls(mrPumpkin.InputTriggerBlock);
+            Utils.ReactiveOr(blockFrankGhost, blockMaster).Controls(frankGhost.InputTriggerBlock);
 
             catMotion.Controls(grumpyCat.InputTrigger);
-            pumpkinMotion.Controls(mrPumpkin.InputTrigger);
+            //pumpkinMotion.Controls(mrPumpkin.InputTrigger);
+            pumpkinMotion.Controls(frankGhost.InputTrigger);
 
             firstBeam.Output.Subscribe(x =>
             {

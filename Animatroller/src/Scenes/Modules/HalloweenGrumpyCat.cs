@@ -24,8 +24,6 @@ namespace Animatroller.Scenes.Modules
 
             OutputPower.Subscribe(x =>
             {
-                air.SetValue(x, this.lockObject);
-
                 if (x)
                 {
                     this.lockObject?.Dispose();
@@ -35,16 +33,18 @@ namespace Animatroller.Scenes.Modules
                         light
                     }, null, nameof(HalloweenGrumpyCat));
 
+                    air.SetValue(true, this.lockObject);
                     pulsatingLow.Start(token: this.lockObject);
                 }
                 else
                 {
+                    air.SetValue(false, this.lockObject);
                     pulsatingLow.Stop();
                     this.lockObject?.Dispose();
                 }
             });
 
-            Seq.WhenExecuted
+            PowerOnSeq.WhenExecuted
                 .Execute(instance =>
                 {
                     Executor.Current.LogMasterStatus(Name, true);
@@ -92,6 +92,13 @@ namespace Animatroller.Scenes.Modules
                     pulsatingLow.Start(token: this.lockObject);
 
                     Executor.Current.LogMasterStatus(Name, false);
+                });
+
+            PowerOffSeq.WhenExecuted
+                .Execute(instance =>
+                {
+                    audioPlayer.PlayEffect("How you doing.wav", 0.15);
+                    instance.CancelToken.WaitHandle.WaitOne(5000);
                 });
         }
 

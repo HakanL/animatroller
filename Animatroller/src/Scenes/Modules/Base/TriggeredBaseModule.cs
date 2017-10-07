@@ -20,15 +20,18 @@ namespace Animatroller.Scenes.Modules
             {
                 if (x)
                 {
-                    if (!Power)
-                        this.log.Verbose("{Name} has been triggered, but power is off", Name);
+                    if (this.inputTriggerBlock.Value)
+                        this.log.Verbose("{Name} has been triggered, but is blocked", Name);
                     else
                     {
-                        if (this.inputTriggerBlock.Value)
-                            this.log.Verbose("{Name} has been triggered, but is blocked", Name);
+                        if (!Power)
+                        {
+                            this.log.Verbose("{Name} has been triggered, with power off", Name);
+                            this.trigger.OnNext(false);
+                        }
                         else
                         {
-                            this.log.Verbose("{Name} has been triggered", Name);
+                            this.log.Verbose("{Name} has been triggered, with power on", Name);
                             this.trigger.OnNext(true);
                         }
                     }
