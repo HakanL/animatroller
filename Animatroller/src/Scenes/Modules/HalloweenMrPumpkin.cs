@@ -24,8 +24,6 @@ namespace Animatroller.Scenes.Modules
 
             OutputPower.Subscribe(x =>
             {
-                air.SetValue(x, this.lockObject);
-
                 if (x)
                 {
                     this.lockObject?.Dispose();
@@ -35,10 +33,12 @@ namespace Animatroller.Scenes.Modules
                         light
                     }, null, nameof(HalloweenGrumpyCat));
 
+                    air.SetValue(true, this.lockObject);
                     pulsatingLow.Start(token: this.lockObject);
                 }
                 else
                 {
+                    air.SetValue(false, this.lockObject);
                     pulsatingLow.Stop();
                     this.lockObject?.Dispose();
                 }
@@ -51,10 +51,10 @@ namespace Animatroller.Scenes.Modules
 
                     pulsatingLow.Stop();
 
-                    audioPlayer.PlayEffect("Thriller2.wav", levelsPlayback);
+                    audioPlayer.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav", levelsPlayback);
                     levelsPlayback.Start(this.lockObject);
 
-                    instance.CancelToken.WaitHandle.WaitOne(40000);
+                    instance.CancelToken.WaitHandle.WaitOne(10000);
                 })
                 .TearDown(instance =>
                 {

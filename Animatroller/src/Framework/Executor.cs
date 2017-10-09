@@ -131,7 +131,10 @@ namespace Animatroller.Framework
         public IControlToken GetControlToken(IOwnedDevice device)
         {
             IControlToken token;
-            this.controlTokens.TryGetValue(device, out token);
+            lock (this.lockObject)
+            {
+                this.controlTokens.TryGetValue(device, out token);
+            }
 
             return token;
         }
@@ -141,7 +144,12 @@ namespace Animatroller.Framework
         public void SetControlToken(IOwnedDevice device, IControlToken token)
         {
             if (token != null)
-                this.controlTokens[device] = token;
+            {
+                lock (this.lockObject)
+                {
+                    this.controlTokens[device] = token;
+                }
+            }
             else
                 RemoveControlToken(device);
         }
@@ -193,7 +201,10 @@ namespace Animatroller.Framework
 
         public void RemoveControlToken(IOwnedDevice device)
         {
-            this.controlTokens.Remove(device);
+            lock (this.lockObject)
+            {
+                this.controlTokens.Remove(device);
+            }
         }
 
         public Effect2.TimerJobRunner TimerJobRunner { get { return this.timerJobRunner; } }

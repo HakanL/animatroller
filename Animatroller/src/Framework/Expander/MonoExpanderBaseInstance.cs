@@ -54,7 +54,7 @@ namespace Animatroller.Framework.Expander
         {
             this.connectionId = connectionId;
 
-            this.log.Information("Client {0} connected to instance {1}", connectionId, this.instanceId);
+            this.log.Information("Client {0} connected to instance {1} ({2})", connectionId, this.instanceId, this.name);
 
             // Send all state data
             lock (this.lastState)

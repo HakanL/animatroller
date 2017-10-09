@@ -39,8 +39,8 @@ namespace Animatroller.Scenes
 
             Executor.Current.SetLogger(log);
 
-            Console.SetWindowPosition(0, 0);
             Console.SetWindowSize(Math.Min(Console.LargestWindowWidth, 180), Math.Min(Console.LargestWindowHeight, 70));
+            Console.SetWindowPosition(0, 0);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
