@@ -41,6 +41,7 @@ namespace Animatroller.Scenes
         Expander.OscServer oscServer = new Expander.OscServer(8000, 9000, registerAutoHandlers: true);
         AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioFrankGhost = new AudioPlayer();
+        AudioPlayer audioSpider = new AudioPlayer();
         AudioPlayer audioCat = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
@@ -80,7 +81,6 @@ namespace Animatroller.Scenes
         Controller.Subroutine sub3dfxMan = new Controller.Subroutine();
         Controller.Subroutine sub3dfxKids = new Controller.Subroutine();
         Controller.Subroutine subSpiderJump = new Controller.Subroutine();
-        Controller.Subroutine subSpiderDrop = new Controller.Subroutine();
         Controller.Subroutine subPicture = new Controller.Subroutine();
         Controller.Subroutine subGhost = new Controller.Subroutine();
         Controller.Subroutine subLast = new Controller.Subroutine();
@@ -117,6 +117,9 @@ namespace Animatroller.Scenes
         DigitalInput2 blockFrankGhost = new DigitalInput2(persistState: true);
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 blockSpiderDrop = new DigitalInput2(persistState: true);
+
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 floodLights = new DigitalInput2();
 
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
@@ -140,7 +143,7 @@ namespace Animatroller.Scenes
         DigitalOutput2 frankGhostAir = new DigitalOutput2();
         DigitalOutput2 fog = new DigitalOutput2();
         DigitalOutput2 popper = new DigitalOutput2();
-        DigitalOutput2 spiderDrop = new DigitalOutput2();
+        DigitalOutput2 spiderDropRelease = new DigitalOutput2();
         DigitalOutput2 spiderVenom = new DigitalOutput2();
         DigitalOutput2 spiderJump2 = new DigitalOutput2();
         DateTime? lastFogRun = DateTime.Now;
@@ -202,6 +205,7 @@ namespace Animatroller.Scenes
         Modules.HalloweenGrumpyCat grumpyCat;
         Modules.HalloweenMrPumpkin mrPumpkin;
         Modules.HalloweenFrankGhost frankGhost;
+        Modules.HalloweenSpiderDrop spiderDrop;
 
         public Halloween2017(IEnumerable<string> args)
         {
@@ -258,7 +262,6 @@ namespace Animatroller.Scenes
 
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(mrPumpkin.InputPower);
 
-            pixelsFrankGhost.SetColor(Color.Red, 0);
             frankGhost = new Modules.HalloweenFrankGhost(
                 air: frankGhostAir,
                 light: pixelsFrankGhost,
@@ -267,6 +270,14 @@ namespace Animatroller.Scenes
 
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(frankGhost.InputPower);
 
+            spiderDrop = new Modules.HalloweenSpiderDrop(
+                eyesLight: spiderEyes,
+                drop: spiderDropRelease,
+                venom: spiderVenom,
+                audioPlayer: audioSpider,
+                name: nameof(spiderDrop));
+
+            stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(spiderDrop.InputPower);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -283,7 +294,7 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     allLights.TakeAndHoldControl(100, "FlashBaby");
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                    allLights.SetData(null, Utils.Data(1.0), Utils.Data(Color.White));
                 }
                 else
                     allLights.ReleaseControl();
@@ -295,7 +306,7 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     allLights.TakeAndHoldControl(200, "FlashBaby");
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();
@@ -428,9 +439,10 @@ namespace Animatroller.Scenes
                         var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
 
-                        purpleLights.SetBrightness(purpleColor.Brightness, new Data(
-                            Utils.AdditionalData(DataElements.Color, purpleColor.Color),
-                            Utils.AdditionalData(DataElements.ColorUltraViolet, 1.0)));
+                        purpleLights.SetData(null,
+                            Utils.Data(purpleColor.Brightness),
+                            Utils.Data(purpleColor.Color),
+                            Utils.Data(DataElements.ColorUltraViolet, 1.0));
 
                         i.WaitUntilCancel();
                     })
@@ -454,7 +466,7 @@ namespace Animatroller.Scenes
                     var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                         0.16470588235294117);
 
-                    purpleLights.SetBrightness(purpleColor.Brightness, new Data(DataElements.Color, purpleColor.Color));
+                    purpleLights.SetData(null, Utils.Data(purpleColor.Color, purpleColor.Brightness));
 
                     while (!i.IsCancellationRequested && stateMachine.CurrentState == States.BackgroundFull)
                     {
@@ -660,7 +672,7 @@ namespace Animatroller.Scenes
             expanderLedmx.DigitalInputs[6].Connect(lastBeam);
             expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
             expanderMrPumpkin.DigitalOutputs[6].Connect(fog);
-            expanderLedmx.DigitalOutputs[0].Connect(spiderDrop);
+            expanderLedmx.DigitalOutputs[0].Connect(spiderDropRelease);
             expanderLedmx.DigitalOutputs[1].Connect(spiderVenom);
             expanderCat.DigitalOutputs[6].Connect(spiderJump2);
             expanderLedmx.Connect(audioFrankGhost);
@@ -683,10 +695,12 @@ namespace Animatroller.Scenes
             Utils.ReactiveOr(blockCat, blockMaster).Controls(grumpyCat.InputTriggerBlock);
             Utils.ReactiveOr(blockPumpkin, blockMaster).Controls(mrPumpkin.InputTriggerBlock);
             Utils.ReactiveOr(blockFrankGhost, blockMaster).Controls(frankGhost.InputTriggerBlock);
+            Utils.ReactiveOr(blockSpiderDrop, blockMaster).Controls(spiderDrop.InputTriggerBlock);
 
             catMotion.Controls(grumpyCat.InputTrigger);
             mrPumpkinMotion.Controls(mrPumpkin.InputTrigger);
             frankGhostMotion.Controls(frankGhost.InputTrigger);
+            spiderDropTrigger.Controls(spiderDrop.InputTrigger);
 
             firstBeam.Output.Subscribe(x =>
             {
@@ -702,12 +716,6 @@ namespace Animatroller.Scenes
 
                 if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockPicture.Value)
                     subPicture.Run();
-            });
-
-            spiderDropTrigger.Output.Subscribe(x =>
-            {
-                if (x /*&& hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockPicture.Value*/)
-                    subSpiderDrop.Run();
             });
 
             ghostBeam.Output.Subscribe(x =>
@@ -787,38 +795,17 @@ namespace Animatroller.Scenes
 
                     audio2.PlayNewEffect("348 Spider Hiss.wav", 0, 1);
                     bigSpiderEyes.SetBrightness(1, bigSpiderEyesToken);
-                    spiderDrop.SetValue(true);
+                    //spiderDrop.SetValue(true);
                     i.WaitFor(S(0.5));
                     spiderJump2.SetValue(true);
                     i.WaitFor(S(2.0));
-                    spiderDrop.SetValue(false);
+                    //spiderDrop.SetValue(false);
                     spiderJump2.SetValue(false);
                 })
                 .TearDown(i =>
                 {
                     bigSpiderEyesToken?.Dispose();
                     bigSpiderEyesToken = null;
-                });
-
-            subSpiderDrop
-                .RunAction(i =>
-                {
-                    //audio2.PlayNewEffect("348 Spider Hiss.wav", 0, 1);
-                    //bigSpiderEyes.SetBrightness(1, bigSpiderEyesToken);
-                    i.WaitFor(S(2));
-
-                    spiderEyes.SetBrightness(1);
-                    spiderDrop.SetValue(true);
-                    i.WaitFor(S(0.2));
-                    spiderVenom.SetValue(true);
-                    i.WaitFor(S(2.0));
-                    spiderVenom.SetValue(false);
-                    i.WaitFor(S(2.0));
-                })
-                .TearDown(i =>
-                {
-                    spiderDrop.SetValue(false);
-                    spiderEyes.SetBrightness(0);
                 });
 
             sub3dfxRandom

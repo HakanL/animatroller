@@ -241,15 +241,15 @@ namespace Animatroller.Scenes
             pulsatingEffectGeneral.ConnectTo(lightR2D2);
             pulsatingEffectGeneral.ConnectTo(lightPoppy);
             pulsatingEffectGeneral.ConnectTo(lightTreeStars);
-            pulsatingEffectGeneral.ConnectTo(lightVader, Utils.AdditionalData(Color.Red));
-            pulsatingPinSpot.ConnectTo(lightPinSpot, Utils.AdditionalData(Color.Red));
-            pulsatingEffectTree.ConnectTo(pixelsTree, Utils.AdditionalData(treeColors[0]));
-            pulsatingEffectTree.ConnectTo(pixelsBetweenTrees, Utils.AdditionalData(treeColors[0]));
+            pulsatingEffectGeneral.ConnectTo(lightVader, Utils.Data(Color.Red));
+            pulsatingPinSpot.ConnectTo(lightPinSpot, Utils.Data(Color.Red));
+            pulsatingEffectTree.ConnectTo(pixelsTree, Utils.Data(treeColors[0]));
+            pulsatingEffectTree.ConnectTo(pixelsBetweenTrees, Utils.Data(treeColors[0]));
             pulsatingEffectTree.NewIterationAction = i =>
                 {
                     Color newColor = treeColors[i % treeColors.Length];
-                    pulsatingEffectTree.SetAdditionalData(pixelsTree, Utils.AdditionalData(newColor));
-                    pulsatingEffectTree.SetAdditionalData(pixelsBetweenTrees, Utils.AdditionalData(newColor));
+                    pulsatingEffectTree.SetAdditionalData(pixelsTree, Utils.Data(newColor));
+                    pulsatingEffectTree.SetAdditionalData(pixelsBetweenTrees, Utils.Data(newColor));
                 };
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
@@ -595,14 +595,14 @@ namespace Animatroller.Scenes
             subSnow
                 .RunAction(ins =>
                 {
-                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.AdditionalData(Color.White));
+                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.Data(Color.White));
                     snowMachine.SetValue(true);
 
                     ins.WaitFor(S(15));
                 })
                 .TearDown(i =>
                 {
-                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.AdditionalData(Color.Red));
+                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.Data(Color.Red));
                     snowMachine.SetValue(false);
                 });
 
@@ -862,7 +862,7 @@ namespace Animatroller.Scenes
 
                     pulsatingStar.Start();
 
-                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.AdditionalData(Color.Red));
+                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.Data(Color.Red));
                     instance.WaitFor(S(2.5));
 
                     Exec.Cancel(subStarWarsCane);
@@ -1052,9 +1052,9 @@ namespace Animatroller.Scenes
 
             //            lorChristmasCanon.Dump();
 
-            lorChristmasCanon.MapDevice("Roof 1", pixelsGround, Utils.AdditionalData(Color.Red));
-            lorChristmasCanon.MapDevice("Roof 2", pixelsTree, Utils.AdditionalData(Color.Green));
-            lorChristmasCanon.MapDevice("Roof 3", pixelsHeart, Utils.AdditionalData(Color.Red));
+            lorChristmasCanon.MapDevice("Roof 1", pixelsGround, Utils.Data(Color.Red));
+            lorChristmasCanon.MapDevice("Roof 2", pixelsTree, Utils.Data(Color.Green));
+            lorChristmasCanon.MapDevice("Roof 3", pixelsHeart, Utils.Data(Color.Red));
 
             lorChristmasCanon.ControlDevice(pixelsBetweenTrees);
             lorChristmasCanon.MapDevice("Big Tree 1",
@@ -1092,15 +1092,15 @@ namespace Animatroller.Scenes
 
             lorChristmasCanon.MapDevice("Bush Right", lightSanta);
             lorChristmasCanon.MapDevice("Bush Right", lightTopper1);
-            lorChristmasCanon.MapDevice("Column Red Right", lightFlood1, Utils.AdditionalData(Color.Red));
-            lorChristmasCanon.MapDevice("Column Blue Right", lightFlood2, Utils.AdditionalData(Color.Blue));
-            lorChristmasCanon.MapDevice("Column Red Right", lightFlood5, Utils.AdditionalData(Color.Red));
-            lorChristmasCanon.MapDevice("Column Blue Right", lightFlood6, Utils.AdditionalData(Color.Blue));
+            lorChristmasCanon.MapDevice("Column Red Right", lightFlood1, Utils.Data(Color.Red));
+            lorChristmasCanon.MapDevice("Column Blue Right", lightFlood2, Utils.Data(Color.Blue));
+            lorChristmasCanon.MapDevice("Column Red Right", lightFlood5, Utils.Data(Color.Red));
+            lorChristmasCanon.MapDevice("Column Blue Right", lightFlood6, Utils.Data(Color.Blue));
             lorChristmasCanon.MapDevice("Rail Right", lightStairRail1);
             lorChristmasCanon.MapDevice("Rail Right", lightInflatableTree);
-            lorChristmasCanon.MapDevice("Column Red Left", lightFlood3, Utils.AdditionalData(Color.Red));
-            lorChristmasCanon.MapDevice("Column Blue Left", lightFlood4, Utils.AdditionalData(Color.Blue));
-            lorChristmasCanon.MapDevice("Column Blue Left", lightFlood7, Utils.AdditionalData(Color.Blue));
+            lorChristmasCanon.MapDevice("Column Red Left", lightFlood3, Utils.Data(Color.Red));
+            lorChristmasCanon.MapDevice("Column Blue Left", lightFlood4, Utils.Data(Color.Blue));
+            lorChristmasCanon.MapDevice("Column Blue Left", lightFlood7, Utils.Data(Color.Blue));
             lorChristmasCanon.MapDevice("Rail Left", lightStairRail2);
             lorChristmasCanon.MapDevice("Ice Cycles", lightHangingStar);
             lorChristmasCanon.MapDevice("Ice Cycles", lightTreeStars);
@@ -1300,10 +1300,10 @@ namespace Animatroller.Scenes
             lorBelieve.MapDevice("Mega Tree 16",
                 new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 45, 3, lorBelieve.Token)));
 
-            lorBelieve.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
-            lorBelieve.MapDevice("Mega Star", pixelsGround, Utils.AdditionalData(Color.White));
-            lorBelieve.MapDevice("Mega Star", pixelsTree, Utils.AdditionalData(Color.Red));
-            lorBelieve.MapDevice("Mega Star", pixelsHeart, Utils.AdditionalData(Color.Red));
+            lorBelieve.MapDevice("Mega Star", pixelsRoofEdge, Utils.Data(Color.Red));
+            lorBelieve.MapDevice("Mega Star", pixelsGround, Utils.Data(Color.White));
+            lorBelieve.MapDevice("Mega Star", pixelsTree, Utils.Data(Color.Red));
+            lorBelieve.MapDevice("Mega Star", pixelsHeart, Utils.Data(Color.Red));
 
             lorBelieve.Prepare();
         }
@@ -1337,13 +1337,13 @@ namespace Animatroller.Scenes
             lorJingleBells.MapDevice("Unit 0115 arch 2.7", lightTopper1);
             lorJingleBells.MapDevice("Unit 01.16 arch 2.8", lightTopper2);
 
-            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood1, Utils.AdditionalData(Color.Red));
-            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood2, Utils.AdditionalData(Color.Red));
-            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood3, Utils.AdditionalData(Color.Red));
-            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood4, Utils.AdditionalData(Color.Red));
-            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood5, Utils.AdditionalData(Color.Red));
-            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood6, Utils.AdditionalData(Color.Red));
-            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood7, Utils.AdditionalData(Color.Red));
+            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood1, Utils.Data(Color.Red));
+            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood2, Utils.Data(Color.Red));
+            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood3, Utils.Data(Color.Red));
+            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood4, Utils.Data(Color.Red));
+            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood5, Utils.Data(Color.Red));
+            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood6, Utils.Data(Color.Red));
+            lorJingleBells.MapDevice("03.13 deer rudolf", lightFlood7, Utils.Data(Color.Red));
 
             lorJingleBells.ControlDevice(pixelsMatrix);
             lorJingleBells.MapDevice("Unit 02.1 Mega tree 1",
@@ -1401,10 +1401,10 @@ namespace Animatroller.Scenes
             lorJingleBells.MapDevice("Unit 02.16 Mega tree 16",
                 new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Blue, b, 45, 3, lorJingleBells.Token)));
 
-            lorJingleBells.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
-            lorJingleBells.MapDevice("03.15 candy cane lane", pixelsGround, Utils.AdditionalData(Color.Yellow));
-            lorJingleBells.MapDevice("03.15 candy cane lane", pixelsTree, Utils.AdditionalData(Color.Green));
-            lorJingleBells.MapDevice("03.15 candy cane lane", pixelsHeart, Utils.AdditionalData(Color.Blue));
+            lorJingleBells.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.Data(Color.Red));
+            lorJingleBells.MapDevice("03.15 candy cane lane", pixelsGround, Utils.Data(Color.Yellow));
+            lorJingleBells.MapDevice("03.15 candy cane lane", pixelsTree, Utils.Data(Color.Green));
+            lorJingleBells.MapDevice("03.15 candy cane lane", pixelsHeart, Utils.Data(Color.Blue));
 
             lorJingleBells.MapDevice("03.1 mega tree topper 01", lightHangingStar);
             lorJingleBells.MapDevice("03.2 mini tree 01", lightStairRail1);
@@ -1658,10 +1658,10 @@ namespace Animatroller.Scenes
             lorSarajevo.MapDevice("Mega Tree 16",
                 new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 45, 3, lorSarajevo.Token)));
 
-            lorSarajevo.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.White));
-            lorSarajevo.MapDevice("Mega Star", pixelsGround, Utils.AdditionalData(Color.White));
-            lorSarajevo.MapDevice("Mega Star", pixelsTree, Utils.AdditionalData(Color.White));
-            lorSarajevo.MapDevice("Mega Star", pixelsHeart, Utils.AdditionalData(Color.White));
+            lorSarajevo.MapDevice("Mega Star", pixelsRoofEdge, Utils.Data(Color.White));
+            lorSarajevo.MapDevice("Mega Star", pixelsGround, Utils.Data(Color.White));
+            lorSarajevo.MapDevice("Mega Star", pixelsTree, Utils.Data(Color.White));
+            lorSarajevo.MapDevice("Mega Star", pixelsHeart, Utils.Data(Color.White));
 
             lorSarajevo.Prepare();
 
@@ -1897,10 +1897,10 @@ namespace Animatroller.Scenes
             lorHolyNight.MapDevice("Mega Tree 16",
                 new VirtualDevice(b => pixelsBetweenTrees.SetColorRange(Color.Red, b, 45, 3, lorHolyNight.Token)));
 
-            lorHolyNight.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
-            lorHolyNight.MapDevice("Mega Star", pixelsGround, Utils.AdditionalData(Color.White));
-            lorHolyNight.MapDevice("Mega Star", pixelsTree, Utils.AdditionalData(Color.Red));
-            lorHolyNight.MapDevice("Mega Star", pixelsHeart, Utils.AdditionalData(Color.Red));
+            lorHolyNight.MapDevice("Mega Star", pixelsRoofEdge, Utils.Data(Color.Red));
+            lorHolyNight.MapDevice("Mega Star", pixelsGround, Utils.Data(Color.White));
+            lorHolyNight.MapDevice("Mega Star", pixelsTree, Utils.Data(Color.Red));
+            lorHolyNight.MapDevice("Mega Star", pixelsHeart, Utils.Data(Color.Red));
 
             lorHolyNight.Prepare();
 

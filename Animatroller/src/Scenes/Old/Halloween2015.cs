@@ -232,7 +232,7 @@ namespace Animatroller.Scenes
                         ColorBrightness purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
 
-                        purpleLights.SetBrightness(purpleColor.Brightness, new Data(DataElements.Color, purpleColor.Color));
+                        purpleLights.SetData(null, Utils.Data(purpleColor.Color, purpleColor.Brightness));
 
                         while (!i.IsCancellationRequested && stateMachine.CurrentState == States.Background)
                         {
@@ -529,7 +529,7 @@ namespace Animatroller.Scenes
                 if (data.First() != 0)
                 {
                     allLights.TakeAndHoldControl();
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();
@@ -819,7 +819,7 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     allLights.TakeAndHoldControl();
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();

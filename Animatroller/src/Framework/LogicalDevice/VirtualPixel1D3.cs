@@ -181,7 +181,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetBrightness(double brightness, IControlToken token = null)
         {
-            SetData(token, Utils.AdditionalData(DataElements.Brightness, brightness));
+            this.SetData(token, Utils.Data(DataElements.Brightness, brightness));
         }
 
         private Color GetColorFromColorAndBrightness(Color input, double brightness)

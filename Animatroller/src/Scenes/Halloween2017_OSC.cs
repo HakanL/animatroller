@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes
 {
@@ -332,7 +333,7 @@ namespace Animatroller.Scenes
                 if (data != 0)
                 {
                     allLights.TakeAndHoldControl(100);
-                    allLights.SetBrightness(1.0, new Data(DataElements.Color, Color.White));
+                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();

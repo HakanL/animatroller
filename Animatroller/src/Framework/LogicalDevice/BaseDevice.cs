@@ -9,6 +9,7 @@ namespace Animatroller.Framework.LogicalDevice
         protected string name;
         protected bool persistState;
         protected IData currentData;
+        protected object lockObject = new object();
 
         public BaseDevice(string name, bool persistState = false)
         {
@@ -33,11 +34,29 @@ namespace Animatroller.Framework.LogicalDevice
             UpdateOutput();
         }
 
-        protected abstract void UpdateOutput();
+        protected virtual void UpdateOutput()
+        {
+        }
 
         public override string ToString()
         {
             return string.Format("{0} ({1})", Name, GetType().Name);
+        }
+
+        public IData CurrentData
+        {
+            get { return this.currentData; }
+        }
+
+        public object GetCurrentData(DataElements dataElement)
+        {
+            object value;
+            lock (this.lockObject)
+            {
+                this.currentData.TryGetValue(dataElement, out value);
+            }
+
+            return value;
         }
     }
 }

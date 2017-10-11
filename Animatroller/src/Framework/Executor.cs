@@ -154,6 +154,19 @@ namespace Animatroller.Framework
                 RemoveControlToken(device);
         }
 
+        public IControlToken GetControlTokenFromContext(IControlToken token)
+        {
+            if (token != null)
+                return token;
+
+            token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
+
+            if (token != null)
+                return token;
+
+            return null;
+        }
+
         public void SetManagedTask(Task task, CancellationTokenSource cancelSource)
         {
             var tuple = Tuple.Create(task, cancelSource);

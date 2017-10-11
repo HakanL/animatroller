@@ -181,7 +181,7 @@ namespace Animatroller.Framework.Import
 
             public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
             {
-                var currentColor = device.Color;
+                var currentColor = device.GetCurrentColor();
                 switch (deviceType)
                 {
                     case ChannelEffectInstance.DeviceType.ColorR:
@@ -214,7 +214,7 @@ namespace Animatroller.Framework.Import
             {
                 Executor.Current.MasterEffect.Fade(new LogicalDevice.VirtualDevice(b =>
                 {
-                    var currentColor = device.Color;
+                    var currentColor = device.GetCurrentColor();
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
@@ -244,7 +244,7 @@ namespace Animatroller.Framework.Import
             {
                 Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice(b =>
                 {
-                    var currentColor = device.Color;
+                    var currentColor = device.GetCurrentColor();
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
@@ -278,7 +278,7 @@ namespace Animatroller.Framework.Import
             {
                 Executor.Current.MasterEffect.Shimmer(new LogicalDevice.VirtualDevice(b =>
                 {
-                    var currentColor = device.Color;
+                    var currentColor = device.GetCurrentColor();
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:

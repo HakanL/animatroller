@@ -177,7 +177,7 @@ namespace Animatroller.Scenes
             {
                 if (x)
                 {
-                    Exec.MasterEffect.Fade(pixelsMatrix, 0.0, 1.0, 2000, additionalData: Utils.AdditionalData(Color.White));
+                    Exec.MasterEffect.Fade(pixelsMatrix, 0.0, 1.0, 2000, additionalData: Utils.Data(Color.White));
                 }
             });
 

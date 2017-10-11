@@ -33,7 +33,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetStrobeSpeed(double strobeSpeed, IControlToken token)
         {
-            SetData(token, Tuple.Create(DataElements.StrobeSpeed, (object)strobeSpeed));
+            this.SetData(token, Tuple.Create(DataElements.StrobeSpeed, (object)strobeSpeed));
         }
     }
 }

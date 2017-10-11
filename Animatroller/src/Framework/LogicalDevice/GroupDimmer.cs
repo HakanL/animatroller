@@ -14,57 +14,43 @@ namespace Animatroller.Framework.LogicalDevice
             : base(name)
         {
         }
+        /*FIXME
+                public void SetBrightness(double brightness, IData additionalData, IControlToken token = null)
+                {
+                    if (token == null)
+                        token = this.internalLock;
 
-        public void SetBrightness(double brightness, IControlToken token = null)
-        {
-            if (token == null)
-                token = this.internalLock;
+                    foreach (var member in AllMembers)
+                    {
+                        var data = GetFrameBuffer(token, member);
 
-            foreach (var member in AllMembers)
-            {
-                member.SetBrightness(brightness, token);
-            }
-        }
+                        data[DataElements.Brightness] = brightness;
+                        if (additionalData != null)
+                            foreach (var kvp in additionalData)
+                                data[kvp.Key] = kvp.Value;
 
-        public void SetBrightness(double brightness, IData additionalData, IControlToken token = null)
-        {
-            if (token == null)
-                token = this.internalLock;
-
-            foreach (var member in AllMembers)
-            {
-                var data = GetFrameBuffer(token, member);
-
-                data[DataElements.Brightness] = brightness;
-                if (additionalData != null)
-                    foreach (var kvp in additionalData)
-                        data[kvp.Key] = kvp.Value;
-
-                member.PushOutput(token);
-            }
-        }
-
-        //public void PushData(IControlToken token, IData data)
-        //{
-        //    lock (this.members)
-        //    {
-        //        foreach (var member in this.members)
-        //        {
-        //            member.PushData(token, data);
-        //        }
-        //    }
-        //}
-
+                        member.PushOutput(token);
+                    }
+                }
+        */
         public void BuildDefaultData(IData data)
         {
             // Do nothing
         }
 
-        public double Brightness
+        public void SetData(IControlToken token, IData data)
         {
-            get
+            if (token == null)
+                token = this.internalLock;
+
+            foreach (var member in AllMembers)
             {
-                return double.NaN;
+                var frame = GetFrameBuffer(token, member);
+
+                foreach (var kvp in data)
+                    frame[kvp.Key] = kvp.Value;
+
+                member.PushOutput(token);
             }
         }
     }

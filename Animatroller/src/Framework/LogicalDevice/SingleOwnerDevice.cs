@@ -16,7 +16,6 @@ namespace Animatroller.Framework.LogicalDevice
         protected ControlSubject<IData, IControlToken> outputData;
         protected Subject<IData> outputChanged;
         private IData ownerlessData;
-        protected object lockObject = new object();
 
         public SingleOwnerDevice(string name)
             : base(name)
@@ -63,6 +62,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void RefreshOutput()
         {
+            // FIXME: Should we lock the CurrentData here?
             this.outputChanged.OnNext(CurrentData);
         }
 
@@ -94,18 +94,6 @@ namespace Animatroller.Framework.LogicalDevice
         protected virtual IData PreprocessPushData(IData data)
         {
             return data;
-        }
-
-        public IData CurrentData
-        {
-            get { return this.currentData; }
-        }
-
-        [Obsolete]
-        protected override void UpdateOutput()
-        {
-            // Don't think we need this any more
-            //            SetData(Executor.Current.GetControlToken(this));
         }
 
         public IPushDataController GetDataObserver(IControlToken token)
@@ -163,12 +151,12 @@ namespace Animatroller.Framework.LogicalDevice
                 this.outputData.OnNext(data, token);
         }
 
-        public void SetData(IControlToken token, params Tuple<DataElements, object>[] values)
+        public void SetData(IControlToken token, IData data)
         {
-            var data = GetFrameBuffer(token, this);
+            var frame = GetFrameBuffer(token, this);
 
-            foreach (var kvp in values)
-                data[kvp.Item1] = kvp.Item2;
+            foreach (var kvp in data)
+                frame[kvp.Key] = kvp.Value;
 
             PushOutput(token);
         }
@@ -204,7 +192,7 @@ namespace Animatroller.Framework.LogicalDevice
                             Executor.Current.SetControlToken(this, nextOwner);
                         }
 
-                        SetData(nextOwner, restoreData.Select(x => Tuple.Create(x.Key, x.Value)).ToArray());
+                        SetData(nextOwner, restoreData);
                     });
 
                 // Insert new owner

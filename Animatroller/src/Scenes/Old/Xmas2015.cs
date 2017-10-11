@@ -12,6 +12,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Import = Animatroller.Framework.Import;
 using System.IO;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes
 {
@@ -154,7 +155,7 @@ namespace Animatroller.Scenes
 
             pulsatingEffect1.ConnectTo(lightOlaf);
             pulsatingEffect2.ConnectTo(lightR2D2);
-            pulsatingEffect3.ConnectTo(pixelsRoofEdge, Utils.AdditionalData(Color.Red));
+            pulsatingEffect3.ConnectTo(pixelsRoofEdge, Utils.Data(Color.Red));
             pulsatingEffect4.ConnectTo(lightBlueButton);
             pulsatingEffect4.ConnectTo(lightRedButton);
 
@@ -548,7 +549,7 @@ namespace Animatroller.Scenes
                         light3wise.SetOnlyColor(Color.LightYellow);
                         light3wise.RunEffect(new Effect2.Fader(0.0, 1.0), S(1.0));*/
 
-                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.AdditionalData(Color.Red));
+                    Exec.MasterEffect.Fade(lightVader, 0.0, 1.0, 1000, token: instance.Token, additionalData: Utils.Data(Color.Red));
                     instance.WaitFor(S(2.5));
 
                     Exec.Cancel(subStarWarsCane);
@@ -756,12 +757,12 @@ namespace Animatroller.Scenes
             lorFeelTheLight.MapDevice("03.12 house eve 03", lightReindeer1);
             lorFeelTheLight.MapDevice("03.14 deer 02", lightReindeer2);
 
-            lorFeelTheLight.MapDevice("03.9 mini tree 08", lightWall1, Utils.AdditionalData(Color.Red));
-            lorFeelTheLight.MapDevice("03.8 mini tree 07", lightWall2, Utils.AdditionalData(Color.Red));
-            lorFeelTheLight.MapDevice("03.7 mini tree 06", lightWall3, Utils.AdditionalData(Color.Red));
+            lorFeelTheLight.MapDevice("03.9 mini tree 08", lightWall1, Utils.Data(Color.Red));
+            lorFeelTheLight.MapDevice("03.8 mini tree 07", lightWall2, Utils.Data(Color.Red));
+            lorFeelTheLight.MapDevice("03.7 mini tree 06", lightWall3, Utils.Data(Color.Red));
             lorFeelTheLight.MapDevice("03.6 mini tree 05", lightSanta);
             lorFeelTheLight.MapDevice("03.5 mini tree 04", lightSnowman);
-            lorFeelTheLight.MapDevice("03.4 mini tree 03", lightVader, Utils.AdditionalData(Color.Red));
+            lorFeelTheLight.MapDevice("03.4 mini tree 03", lightVader, Utils.Data(Color.Red));
             lorFeelTheLight.MapDevice("03.3 mini tree 02",
                 new VirtualDevice(b => saberPixels.SetColorRange(Color.Red, b, 0, 32, lorFeelTheLight.Token)));
 
@@ -787,7 +788,7 @@ namespace Animatroller.Scenes
                 new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.16 Mega tree 16",
                 new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, lorFeelTheLight.Token)));
-            lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.AdditionalData(Color.White));
+            lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.Data(Color.White));
 
             lorFeelTheLight.Prepare();
         }
@@ -823,9 +824,9 @@ namespace Animatroller.Scenes
             lorBelieve.MapDevice("Wreath R", lightStairs2);
             lorBelieve.MapDevice("Mega Star", lightXmasTree);
 
-            lorBelieve.MapDevice("Floods B", lightWall1, Utils.AdditionalData(Color.Blue));
-            lorBelieve.MapDevice("Floods G", lightWall2, Utils.AdditionalData(Color.Green));
-            lorBelieve.MapDevice("Floods R", lightWall3, Utils.AdditionalData(Color.Red));
+            lorBelieve.MapDevice("Floods B", lightWall1, Utils.Data(Color.Blue));
+            lorBelieve.MapDevice("Floods G", lightWall2, Utils.Data(Color.Green));
+            lorBelieve.MapDevice("Floods R", lightWall3, Utils.Data(Color.Red));
 
             lorBelieve.MapDevice("Ferris Wheel 1", lightTopper1);
             lorBelieve.MapDevice("Ferris Wheel 2", lightTopper2);
@@ -836,7 +837,7 @@ namespace Animatroller.Scenes
             lorBelieve.MapDevice("Ferris Wheel 7", lightSanta);
             lorBelieve.MapDevice("Ferris Wheel 8", lightSnowman);
 
-            lorBelieve.MapDevice("NATIVITY", lightVader, Utils.AdditionalData(Color.Red));
+            lorBelieve.MapDevice("NATIVITY", lightVader, Utils.Data(Color.Red));
             lorBelieve.MapDevice("House 3",
                 new VirtualDevice(b => saberPixels.SetColorRange(Color.Red, b, 0, 32, lorBelieve.Token)));
 
@@ -862,7 +863,7 @@ namespace Animatroller.Scenes
                 new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 10",
                 new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, lorBelieve.Token)));
-            lorBelieve.MapDevice("Mega Star", pixelsRoofEdge, Utils.AdditionalData(Color.Red));
+            lorBelieve.MapDevice("Mega Star", pixelsRoofEdge, Utils.Data(Color.Red));
 
             lorBelieve.Prepare();
         }

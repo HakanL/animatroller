@@ -6,8 +6,8 @@ namespace Animatroller.Scenes.Modules
 {
     public class TriggeredSequence : TriggeredBaseModule
     {
-        private Controller.Sequence powerOnSeq = new Controller.Sequence();
-        private Controller.Sequence powerOffSeq = new Controller.Sequence();
+        private Controller.Subroutine powerOnSub = new Controller.Subroutine();
+        private Controller.Subroutine powerOffSub = new Controller.Subroutine();
 
         public TriggeredSequence([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
@@ -15,29 +15,45 @@ namespace Animatroller.Scenes.Modules
             OutputTrigger.Subscribe(x =>
             {
                 if (x)
-                    Executor.Current.Execute(this.powerOnSeq);
+                    Executor.Current.Execute(this.powerOnSub);
                 else
-                    Executor.Current.Execute(this.powerOffSeq);
+                    Executor.Current.Execute(this.powerOffSub);
 
             });
 
             OutputPower.Subscribe(x =>
             {
                 if (x)
-                    Executor.Current.Cancel(this.powerOffSeq);
+                    Executor.Current.Cancel(this.powerOffSub);
                 else
-                    Executor.Current.Cancel(this.powerOnSeq);
+                    Executor.Current.Cancel(this.powerOnSub);
             });
         }
 
-        public Controller.Sequence PowerOnSeq
+        public Controller.Subroutine PowerOn
         {
-            get { return this.powerOnSeq; }
+            get { return this.powerOnSub; }
         }
 
-        public Controller.Sequence PowerOffSeq
+        public Controller.Subroutine PowerOff
         {
-            get { return this.powerOffSeq; }
+            get { return this.powerOffSub; }
+        }
+
+        protected override void LockDevices(params IOwnedDevice[] devices)
+        {
+            base.LockDevices(devices);
+
+            this.powerOnSub.SetControlToken(this.controlToken);
+            this.powerOffSub.SetControlToken(this.controlToken);
+        }
+
+        protected override void UnlockDevices()
+        {
+            base.UnlockDevices();
+
+            this.powerOnSub.SetControlToken(this.controlToken);
+            this.powerOffSub.SetControlToken(this.controlToken);
         }
     }
 }

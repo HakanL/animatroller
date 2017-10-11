@@ -7,10 +7,8 @@ using Serilog;
 
 namespace Animatroller.Framework.Interface
 {
-    public abstract class BaseModule
+    public abstract class BaseModule : BaseClass
     {
-        protected ILogger log;
-        protected static Random random = new Random();
         private string name;
 
         public BaseModule(string name)
@@ -22,16 +20,6 @@ namespace Animatroller.Framework.Interface
         public string Name
         {
             get { return this.name; }
-        }
-
-        protected static TimeSpan S(double seconds)
-        {
-            return TimeSpan.FromSeconds(seconds);
-        }
-
-        protected static TimeSpan MS(double seconds)
-        {
-            return TimeSpan.FromMilliseconds(seconds);
         }
     }
 }

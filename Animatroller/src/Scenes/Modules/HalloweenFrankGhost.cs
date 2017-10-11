@@ -4,14 +4,14 @@ using Effect = Animatroller.Framework.Effect;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
 using System.Drawing;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes.Modules
 {
-    public class HalloweenFrankGhost : TriggeredSequence, IDisposable
+    public class HalloweenFrankGhost : TriggeredSequence
     {
         Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Framework.Import.LevelsPlayback levelsPlayback = new Framework.Import.LevelsPlayback();
-        GroupControlToken lockObject = null;
 
         public HalloweenFrankGhost(
             IReceivesColor light,
@@ -21,64 +21,54 @@ namespace Animatroller.Scenes.Modules
             : base(name)
         {
             pulsatingLow.ConnectTo(light);
-            levelsPlayback.SetOutput(light);
+            levelsPlayback.Output.Controls(b => light.SetBrightness(b, this.controlToken));
 
             OutputPower.Subscribe(x =>
             {
                 if (x)
                 {
-                    this.lockObject?.Dispose();
-                    this.lockObject = new GroupControlToken(new List<IOwnedDevice>()
-                    {
-                        air,
-                        light
-                    }, null, nameof(HalloweenFrankGhost));
+                    LockDevices(air, light);
 
-                    air.SetValue(true, this.lockObject);
-                    light.SetColor(Color.Red, null, this.lockObject);
-                    pulsatingLow.Start(token: this.lockObject);
+                    air.SetValue(true, this.controlToken);
+                    light.SetColor(Color.Red, this.controlToken);
+                    pulsatingLow.Start(token: this.controlToken);
                 }
                 else
                 {
-                    air.SetValue(false, this.lockObject);
                     pulsatingLow.Stop();
-                    this.lockObject?.Dispose();
+
+                    UnlockDevices();
                 }
             });
 
-            PowerOnSeq.WhenExecuted
-                .Execute(instance =>
+            PowerOn
+                .RunAction(instance =>
                 {
                     Executor.Current.LogMasterStatus(Name, true);
 
                     pulsatingLow.Stop();
 
                     audioPlayer.PlayEffect("Thriller2.wav", levelsPlayback);
-                    light.SetColor(Color.Purple, null, this.lockObject);
-                    var cts = levelsPlayback.Start(this.lockObject);
+                    // The control token is optional since it's passed in via the Subroutine
+                    light.SetColor(Color.Purple);
+                    var cts = levelsPlayback.Start(this.controlToken);
 
                     instance.CancelToken.WaitHandle.WaitOne(45000);
                     cts.Cancel();
                 })
                 .TearDown(instance =>
                 {
-                    light.SetColor(Color.Red, null, this.lockObject);
-                    pulsatingLow.Start(token: this.lockObject);
+                    light.SetColor(Color.Red);
+                    pulsatingLow.Start(token: this.controlToken);
 
                     Executor.Current.LogMasterStatus(Name, false);
                 });
 
-            PowerOffSeq.WhenExecuted
-                .Execute(instance =>
+            PowerOff.RunAction(instance =>
                 {
                     audioPlayer.PlayEffect("Happy Halloween.wav", 0.15);
                     instance.CancelToken.WaitHandle.WaitOne(5000);
                 });
-        }
-
-        public void Dispose()
-        {
-            this.lockObject?.Dispose();
         }
     }
 }

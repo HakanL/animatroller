@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using Effect = Animatroller.Framework.Effect;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes.Modules
 {
-    public class HalloweenMrPumpkin : TriggeredSequence, IDisposable
+    public class HalloweenMrPumpkin : TriggeredSequence
     {
         Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Framework.Import.LevelsPlayback levelsPlayback = new Framework.Import.LevelsPlayback();
-        GroupControlToken lockObject = null;
 
         public HalloweenMrPumpkin(
             Dimmer3 light,
@@ -20,53 +20,42 @@ namespace Animatroller.Scenes.Modules
             : base(name)
         {
             pulsatingLow.ConnectTo(light);
-            levelsPlayback.SetOutput(light);
+            levelsPlayback.Output.Controls(b => light.SetBrightness(b, this.controlToken));
 
             OutputPower.Subscribe(x =>
             {
                 if (x)
                 {
-                    this.lockObject?.Dispose();
-                    this.lockObject = new GroupControlToken(new List<IOwnedDevice>()
-                    {
-                        air,
-                        light
-                    }, null, nameof(HalloweenGrumpyCat));
+                    LockDevices(air, light);
 
-                    air.SetValue(true, this.lockObject);
-                    pulsatingLow.Start(token: this.lockObject);
+                    air.SetValue(true, this.controlToken);
+                    pulsatingLow.Start(token: this.controlToken);
                 }
                 else
                 {
-                    air.SetValue(false, this.lockObject);
                     pulsatingLow.Stop();
-                    this.lockObject?.Dispose();
+                    UnlockDevices();
                 }
             });
 
-            PowerOnSeq.WhenExecuted
-                .Execute(instance =>
+            PowerOn
+                .RunAction(ins =>
                 {
                     Executor.Current.LogMasterStatus(Name, true);
 
                     pulsatingLow.Stop();
 
                     audioPlayer.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav", levelsPlayback);
-                    levelsPlayback.Start(this.lockObject);
+                    levelsPlayback.Start(this.controlToken);
 
-                    instance.CancelToken.WaitHandle.WaitOne(10000);
+                    ins.CancelToken.WaitHandle.WaitOne(8000);
                 })
-                .TearDown(instance =>
+                .TearDown(ins =>
                 {
-                    pulsatingLow.Start(token: this.lockObject);
+                    pulsatingLow.Start(token: this.controlToken);
 
                     Executor.Current.LogMasterStatus(Name, false);
                 });
-        }
-
-        public void Dispose()
-        {
-            this.lockObject?.Dispose();
         }
     }
 }

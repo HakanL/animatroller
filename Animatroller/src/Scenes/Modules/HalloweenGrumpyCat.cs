@@ -6,11 +6,10 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Scenes.Modules
 {
-    public class HalloweenGrumpyCat : TriggeredSequence, IDisposable
+    public class HalloweenGrumpyCat : TriggeredSequence
     {
         Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Effect.Pulsating pulsatingHigh = new Effect.Pulsating(S(2), 0.5, 1.0, false);
-        GroupControlToken lockObject = null;
 
         public HalloweenGrumpyCat(
             Dimmer3 light,
@@ -26,33 +25,26 @@ namespace Animatroller.Scenes.Modules
             {
                 if (x)
                 {
-                    this.lockObject?.Dispose();
-                    this.lockObject = new GroupControlToken(new List<IOwnedDevice>()
-                    {
-                        air,
-                        light
-                    }, null, nameof(HalloweenGrumpyCat));
+                    LockDevices(air, light);
 
-                    air.SetValue(true, this.lockObject);
-                    pulsatingLow.Start(token: this.lockObject);
+                    air.SetValue(true, this.controlToken);
+                    pulsatingLow.Start(token: this.controlToken);
                 }
                 else
                 {
-                    air.SetValue(false, this.lockObject);
                     pulsatingLow.Stop();
-                    this.lockObject?.Dispose();
+                    UnlockDevices();
                 }
             });
 
-            PowerOnSeq.WhenExecuted
-                .Execute(instance =>
+            PowerOn.RunAction(instance =>
                 {
                     Executor.Current.LogMasterStatus(Name, true);
 
                     var maxRuntime = System.Diagnostics.Stopwatch.StartNew();
 
                     pulsatingLow.Stop();
-                    pulsatingHigh.Start(token: this.lockObject);
+                    pulsatingHigh.Start(token: this.controlToken);
 
                     while (true)
                     {
@@ -89,22 +81,16 @@ namespace Animatroller.Scenes.Modules
                 {
                     //TODO: Fade out
                     pulsatingHigh.Stop();
-                    pulsatingLow.Start(token: this.lockObject);
+                    pulsatingLow.Start(token: this.controlToken);
 
                     Executor.Current.LogMasterStatus(Name, false);
                 });
 
-            PowerOffSeq.WhenExecuted
-                .Execute(instance =>
+            PowerOff.RunAction(instance =>
                 {
                     audioPlayer.PlayEffect("How you doing.wav", 0.15);
                     instance.CancelToken.WaitHandle.WaitOne(5000);
                 });
-        }
-
-        public void Dispose()
-        {
-            this.lockObject?.Dispose();
         }
     }
 }

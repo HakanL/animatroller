@@ -27,18 +27,5 @@ namespace Animatroller.Framework.LogicalDevice
         {
             data[DataElements.Brightness] = 0.0;
         }
-
-        public void SetBrightness(double brightness, IControlToken token = null)
-        {
-            SetData(token, Utils.AdditionalData(DataElements.Brightness, brightness));
-        }
-
-        public double Brightness
-        {
-            get
-            {
-                return (double)this.currentData[DataElements.Brightness];
-            }
-        }
     }
 }

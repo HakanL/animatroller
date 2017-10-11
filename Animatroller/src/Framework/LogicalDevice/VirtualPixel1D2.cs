@@ -362,7 +362,7 @@ namespace Animatroller.Framework.LogicalDevice
             for (int i = 0; i < pixelBrightness.Length; i++)
                 pixelBrightness[i] = brightness;
 
-            SetData(token, Tuple.Create(DataElements.PixelBrightness, (object)pixelBrightness));
+            this.SetData(token, Tuple.Create(DataElements.PixelBrightness, (object)pixelBrightness));
         }
 
         protected class PixelDevice

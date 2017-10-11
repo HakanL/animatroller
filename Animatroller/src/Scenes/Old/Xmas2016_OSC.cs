@@ -12,6 +12,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 using Effect = Animatroller.Framework.Effect;
 using Import = Animatroller.Framework.Import;
 using System.IO;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes
 {

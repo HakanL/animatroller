@@ -8,6 +8,7 @@ using Controller = Animatroller.Framework.Controller;
 using Expander = Animatroller.Framework.Expander;
 using Physical = Animatroller.Framework.PhysicalDevice;
 using Effect = Animatroller.Framework.Effect;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes
 {

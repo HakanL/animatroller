@@ -22,6 +22,7 @@ namespace Animatroller.Framework.Controller
         protected System.Threading.CancellationToken cancelToken;
         private HashSet<IOwnedDevice> handleLocks;
         protected GroupControlToken groupControlToken;
+        private IControlToken externalControlToken;
         private int lockPriority;
         private bool autoAddDevices;
 
@@ -64,7 +65,7 @@ namespace Animatroller.Framework.Controller
         {
             get
             {
-                return this.groupControlToken;
+                return this.externalControlToken ?? this.groupControlToken;
             }
         }
 
@@ -110,17 +111,22 @@ namespace Animatroller.Framework.Controller
                 heldLocks.Add(handleLock, control);
             }
 
-            this.groupControlToken = new GroupControlToken(heldLocks, disposeLocks: true, priority: this.lockPriority);
-            this.groupControlToken.AutoAddDevices = this.autoAddDevices;
+            if (this.externalControlToken == null)
+            {
+                this.groupControlToken = new GroupControlToken(heldLocks, disposeLocks: true, priority: this.lockPriority);
+                this.groupControlToken.AutoAddDevices = this.autoAddDevices;
+            }
         }
 
         private void Release()
         {
-            if (this.groupControlToken != null)
-            {
-                this.groupControlToken.Dispose();
-                this.groupControlToken = null;
-            }
+            this.groupControlToken?.Dispose();
+            this.groupControlToken = null;
+        }
+
+        public void SetControlToken(IControlToken token)
+        {
+            this.externalControlToken = token;
         }
 
         public void Execute(System.Threading.CancellationToken cancelToken)
@@ -137,7 +143,7 @@ namespace Animatroller.Framework.Controller
 
                 Lock();
 
-                CallContext.LogicalSetData("TOKEN", this.groupControlToken);
+                CallContext.LogicalSetData("TOKEN", this.externalControlToken ?? this.groupControlToken);
 
                 try
                 {

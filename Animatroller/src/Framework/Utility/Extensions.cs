@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
+using System.Drawing;
 
 namespace Animatroller.Framework.Extensions
 {
@@ -148,6 +149,64 @@ namespace Animatroller.Framework.Extensions
             }
 
             return data;
+        }
+
+        public static void SetData(this IReceivesData device, IControlToken token, params Tuple<DataElements, object>[] data)
+        {
+            device.SetData(token, new LogicalDevice.Data(data));
+        }
+
+        public static void SetBrightness(this IReceivesBrightness device, double brightness, IControlToken token = null)
+        {
+            device.SetData(token, Utils.Data(DataElements.Brightness, brightness));
+        }
+
+        public static void SetStrobeSpeed(this IReceivesStrobeSpeed device, double strobeSpeed, IControlToken token = null)
+        {
+            device.SetData(token, Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
+        }
+
+        public static void SetColor(this IReceivesColor device, Color color, double? brightness, IControlToken token = null)
+        {
+            if (brightness.HasValue)
+                device.SetData(token, Utils.Data(color, brightness.Value));
+            else
+                device.SetData(token, Utils.Data(color));
+        }
+
+        public static void SetColor(this IReceivesColor device, Color color, IControlToken token = null)
+        {
+            device.SetColor(color, null, token);
+        }
+
+        public static void SetPanTilt(this IReceivesStrobeSpeed device, double pan, double tilt, IControlToken token = null)
+        {
+            device.SetData(token, Utils.Data(DataElements.Pan, pan), Utils.Data(DataElements.Tilt, tilt));
+        }
+
+        public static double GetCurrentBrightness(this IReceivesBrightness device)
+        {
+            return (double)device.GetCurrentData(DataElements.Brightness);
+        }
+
+        public static Color GetCurrentColor(this IReceivesColor device)
+        {
+            return (Color)device.GetCurrentData(DataElements.Color);
+        }
+
+        public static double GetCurrentStrobeSpeed(this IReceivesStrobeSpeed device)
+        {
+            return (double)device.GetCurrentData(DataElements.StrobeSpeed);
+        }
+
+        public static double GetCurrentPan(this IReceivesPanTilt device)
+        {
+            return (double)device.GetCurrentData(DataElements.Pan);
+        }
+
+        public static double GetCurrentTilt(this IReceivesPanTilt device)
+        {
+            return (double)device.GetCurrentData(DataElements.Tilt);
         }
     }
 }

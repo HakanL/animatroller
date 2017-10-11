@@ -17,41 +17,29 @@ namespace Animatroller.Framework
     {
         IPushDataController GetDataObserver(IControlToken token);
 
-        //        void PushData(IControlToken token, IData data);
-
         void PushOutput(IControlToken token);
 
         void BuildDefaultData(IData data);
+
+        void SetData(IControlToken token, IData data);
+
+        object GetCurrentData(DataElements dataElement);
     }
 
     public interface IReceivesBrightness : IReceivesData
     {
-        double Brightness { get; }
-
-        void SetBrightness(double brightness, IControlToken token);
     }
 
     public interface IReceivesStrobeSpeed : IReceivesData
     {
-        double StrobeSpeed { get; }
-
-        void SetStrobeSpeed(double strobeSpeed, IControlToken token);
     }
 
     public interface IReceivesColor : IReceivesBrightness
     {
-        Color Color { get; }
-
-        void SetColor(Color color, double? brightness, IControlToken token);
     }
 
     public interface IReceivesPanTilt : IReceivesData
     {
-        double Pan { get; }
-
-        double Tilt { get; }
-
-        void SetPanTilt(double pan, double tilt, IControlToken token);
     }
 
     public interface ISendsData : ILogicalDevice

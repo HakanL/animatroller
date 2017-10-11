@@ -97,7 +97,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetValue(bool value, IControlToken token = null)
         {
-            SetData(token, Utils.AdditionalData(DataElements.Power, value));
+            this.SetData(token, Utils.Data(DataElements.Power, value));
         }
     }
 }

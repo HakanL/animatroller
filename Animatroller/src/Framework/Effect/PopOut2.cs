@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Threading.Tasks;
 using Animatroller.Framework.Controller;
 using Animatroller.Framework.LogicalDevice;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Framework.Effect
 {

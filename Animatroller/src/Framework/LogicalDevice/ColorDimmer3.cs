@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Framework.LogicalDevice
 {
@@ -15,24 +16,6 @@ namespace Animatroller.Framework.LogicalDevice
             base.BuildDefaultData(data);
 
             data[DataElements.Color] = Color.White;
-        }
-
-        public Color Color
-        {
-            get { return (Color)this.currentData[DataElements.Color]; }
-        }
-
-        public void SetColor(Color color, double? brightness = 1.0, IControlToken token = null)
-        {
-            if (brightness.HasValue)
-            {
-                SetData(token,
-                    Tuple.Create(DataElements.Brightness, (object)brightness),
-                    Tuple.Create(DataElements.Color, (object)color)
-                    );
-            }
-            else
-                SetData(token, Tuple.Create(DataElements.Color, (object)color));
         }
     }
 }

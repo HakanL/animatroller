@@ -81,21 +81,6 @@ namespace Animatroller.Framework.LogicalDevice
             this.outputValue.Subscribe(component);
         }
 
-        public void ConnectTo(IReceivesBrightness device)
-        {
-            Expression<Func<IReceivesBrightness, double>> expr = _ => device.Brightness;
-
-            var memberSelectorExpression = expr.Body as MemberExpression;
-            if (memberSelectorExpression != null)
-            {
-                var property = memberSelectorExpression.Member as PropertyInfo;
-                if (property != null)
-                {
-                    this.outputValue.Subscribe(x => property.SetValue(device, x, null));
-                }
-            }
-        }
-
         public double Value
         {
             get { return this.currentValue; }
