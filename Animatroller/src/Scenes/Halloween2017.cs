@@ -730,11 +730,11 @@ namespace Animatroller.Scenes
             {
                 "68 Creaky Wooden Floorboards.wav"
             };
-            //expanderLocal.BackgroundAudioFiles = new string[]
-            //{
-            //    "68 Creaky Wooden Floorboards.wav",
-            //    "Thunder2.wav"
-            //};
+            expanderLocal.BackgroundAudioFiles = new string[]
+            {
+                "68 Creaky Wooden Floorboards.wav",
+                "Thunder2.wav"
+            };
 
             blockMaster.WhenOutputChanges(x => UpdateOSC());
             blockCat.WhenOutputChanges(x => UpdateOSC());

@@ -90,6 +90,7 @@ namespace Animatroller.MonoExpander
         private const int BufferedChunks = 5;
         private Dictionary<string, Type> typeCache;
         private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
+        private HashSet<string> downloadQueue;
 
         public MonoExpanderClient(Main main)
         {
@@ -98,6 +99,7 @@ namespace Animatroller.MonoExpander
             this.downloadInfos = new Dictionary<string, DownloadInfo>();
             this.typeCache = new Dictionary<string, Type>();
             this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
+            this.downloadQueue = new HashSet<string>();
         }
 
         public void HandleMessage(string messageType, byte[] data)
@@ -182,15 +184,44 @@ namespace Animatroller.MonoExpander
                 this.main.Handle(message);
         }
 
+        private void CheckDownloadQueue()
+        {
+            string filename;
+            lock (this.downloadQueue)
+            {
+                filename = this.downloadQueue.FirstOrDefault();
+
+                if (filename != null)
+                    this.downloadQueue.Remove(filename);
+            }
+
+            if (!string.IsNullOrEmpty(filename))
+            {
+                CheckFile(null, s =>
+                {
+                    CheckDownloadQueue();
+                }, FileTypes.AudioBackground, filename);
+            }
+        }
+
         public void Handle(SetBackgroundAudioFiles message)
         {
-            Task.Run(() =>
+            lock (this.downloadQueue)
             {
                 foreach (string filename in message.Filenames)
                 {
-                    CheckFile(null, null, FileTypes.AudioBackground, filename);
+                    if (!this.downloadQueue.Contains(filename))
+                        this.downloadQueue.Add(filename);
                 }
-            });
+            }
+
+            if (this.downloadQueue.Any())
+            {
+                Task.Run(() =>
+                {
+                    CheckDownloadQueue();
+                });
+            }
 
             this.main.Handle(message);
         }
@@ -513,7 +544,7 @@ namespace Animatroller.MonoExpander
                                 method.SingleOrDefault()?.Invoke(this, new object[] { downloadInfo.TriggerMessage });
                             }
 
-                            downloadInfo?.FinishedDownloadAction(downloadInfo.FileName);
+                            downloadInfo.FinishedDownloadAction?.Invoke(downloadInfo.FileName);
                         }
                         finally
                         {
