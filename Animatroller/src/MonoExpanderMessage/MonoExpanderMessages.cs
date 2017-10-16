@@ -166,6 +166,11 @@ namespace Animatroller.Framework.MonoExpanderMessages
         public string FileName { get; set; }
     }
 
+    public class SetBackgroundAudioFiles
+    {
+        public string[] Filenames { get; set; }
+    }
+
     //
     // File requests
     //

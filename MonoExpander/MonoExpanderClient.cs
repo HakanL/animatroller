@@ -39,6 +39,8 @@ namespace Animatroller.MonoExpander
 
             public object TriggerMessage { get; set; }
 
+            public Action<string> FinishedDownloadAction { get; set; }
+
             public DownloadInfo(string fileStoragePath, FileTypes fileType)
             {
                 Id = Guid.NewGuid().ToString("n");
@@ -170,14 +172,27 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioEffectCue message)
         {
-            if (CheckFile(message, FileTypes.AudioEffect, message.FileName))
+            if (CheckFile(message, null, FileTypes.AudioEffect, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioEffectPlay message)
         {
-            if (CheckFile(message, FileTypes.AudioEffect, message.FileName))
+            if (CheckFile(message, null, FileTypes.AudioEffect, message.FileName))
                 this.main.Handle(message);
+        }
+
+        public void Handle(SetBackgroundAudioFiles message)
+        {
+            Task.Run(() =>
+            {
+                foreach (string filename in message.Filenames)
+                {
+                    CheckFile(null, null, FileTypes.AudioBackground, filename);
+                }
+            });
+
+            this.main.Handle(message);
         }
 
         public void Handle(AudioEffectPause message)
@@ -222,13 +237,13 @@ namespace Animatroller.MonoExpander
 
         public void Handle(AudioTrackPlay message)
         {
-            if (CheckFile(message, FileTypes.AudioTrack, message.FileName))
+            if (CheckFile(message, null, FileTypes.AudioTrack, message.FileName))
                 this.main.Handle(message);
         }
 
         public void Handle(AudioTrackCue message)
         {
-            if (CheckFile(message, FileTypes.AudioTrack, message.FileName))
+            if (CheckFile(message, null, FileTypes.AudioTrack, message.FileName))
                 this.main.Handle(message);
         }
 
@@ -244,7 +259,7 @@ namespace Animatroller.MonoExpander
 
         public void Handle(VideoPlay message)
         {
-            if (CheckFile(message, FileTypes.Video, message.FileName))
+            if (CheckFile(message, null, FileTypes.Video, message.FileName))
                 this.main.Handle(message);
         }
 
@@ -265,7 +280,7 @@ namespace Animatroller.MonoExpander
             }
         }
 
-        private bool CheckFile(object triggerMessage, FileTypes fileType, string fileName)
+        private bool CheckFile(object triggerMessage, Action<string> finishedDownloadAction, FileTypes fileType, string fileName)
         {
             if (!string.IsNullOrEmpty(Path.GetDirectoryName(fileName)))
                 throw new ArgumentException("FileName should be without path");
@@ -296,6 +311,7 @@ namespace Animatroller.MonoExpander
                 var downloadInfo = new DownloadInfo(this.main.FileStoragePath, fileType)
                 {
                     TriggerMessage = triggerMessage,
+                    FinishedDownloadAction = finishedDownloadAction,
                     FileName = fileName,
                     FinalFilePath = filePath
                 };
@@ -496,6 +512,8 @@ namespace Animatroller.MonoExpander
 
                                 method.SingleOrDefault()?.Invoke(this, new object[] { downloadInfo.TriggerMessage });
                             }
+
+                            downloadInfo?.FinishedDownloadAction(downloadInfo.FileName);
                         }
                         finally
                         {

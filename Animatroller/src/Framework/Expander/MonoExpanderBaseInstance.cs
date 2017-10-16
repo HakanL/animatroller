@@ -36,6 +36,8 @@ namespace Animatroller.Framework.Expander
             this.sendAction = sendAction;
         }
 
+        public string[] BackgroundAudioFiles { get; set; }
+
         protected void SendMessage(object message, string stateKey = null)
         {
             if (Executor.Current.IsOffline)
@@ -61,6 +63,14 @@ namespace Animatroller.Framework.Expander
             {
                 foreach (var kvp in this.lastState)
                     SendMessage(kvp.Value);
+            }
+
+            if (BackgroundAudioFiles?.Length > 0)
+            {
+                SendMessage(new MonoExpanderMessages.SetBackgroundAudioFiles
+                {
+                    Filenames = BackgroundAudioFiles
+                });
             }
         }
 

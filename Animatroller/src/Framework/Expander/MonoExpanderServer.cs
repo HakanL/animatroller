@@ -146,7 +146,10 @@ namespace Animatroller.Framework.Expander
             // Find instance
             MonoExpanderInstance instance;
             if (!this.clientInstances.TryGetValue(instanceId, out instance))
+            {
+                this.log.Warning("Instance {InstanceId} is not configured", instanceId);
                 return;
+            }
 
             instance.ClientConnected(connectionId);
         }

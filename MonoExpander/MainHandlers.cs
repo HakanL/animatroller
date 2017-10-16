@@ -124,6 +124,7 @@ namespace Animatroller.MonoExpander
             }
             else
                 PlayNextBackground();
+            this.backgroundAudioPlaying = true;
         }
 
         public void Handle(AudioBackgroundPause message)
@@ -135,6 +136,19 @@ namespace Animatroller.MonoExpander
                 var chn = this.currentBgChannel.Value;
                 chn.Pause = true;
             }
+
+            this.backgroundAudioPlaying = false;
+        }
+
+        public void Handle(SetBackgroundAudioFiles message)
+        {
+            this.log.Information("Set background audio files");
+
+            this.backgroundAudioTracks = message.Filenames
+                .Select(x => Path.Combine(FileStoragePath, FileTypes.AudioBackground.ToString(), x)).ToList();
+
+            if (this.backgroundAudioPlaying)
+                PlayNextBackground();
         }
 
         public void Handle(AudioBackgroundNext message)
@@ -142,6 +156,8 @@ namespace Animatroller.MonoExpander
             this.log.Information("Next audio BG track");
 
             PlayNextBackground();
+
+            this.backgroundAudioPlaying = true;
         }
 
         public void Handle(AudioTrackPlay message)

@@ -51,6 +51,7 @@ namespace Animatroller.MonoExpander
         private bool autoStartBackgroundTrack;
         private VideoSystems videoSystem;
         private bool videoPlaying;
+        private bool backgroundAudioPlaying;
         private List<IDisposable> disposeList;
         private int? lastPosBg;
         private int? lastPosTrk;
@@ -438,7 +439,7 @@ namespace Animatroller.MonoExpander
             int index;
             while (true)
             {
-                index = this.random.Next(this.backgroundAudioTracks.Count - 1);
+                index = this.random.Next(this.backgroundAudioTracks.Count);
                 if (this.backgroundAudioTracks.Count > 1 && this.currentBgTrack == index)
                     continue;
                 break;

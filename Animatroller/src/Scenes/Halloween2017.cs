@@ -42,6 +42,8 @@ namespace Animatroller.Scenes
         AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioFrankGhost = new AudioPlayer();
         AudioPlayer audioSpider = new AudioPlayer();
+        AudioPlayer audioRocking = new AudioPlayer();
+        AudioPlayer audioLocal = new AudioPlayer();
         AudioPlayer audioCat = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
         AudioPlayer audio2 = new AudioPlayer();
@@ -56,6 +58,8 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderMrPumpkin = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderSpider = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderRocking = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.AcnStream acnOutput = new Expander.AcnStream();
 
@@ -122,6 +126,13 @@ namespace Animatroller.Scenes
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 floodLights = new DigitalInput2();
 
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 testButton1 = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 testButton2 = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 testButton3 = new DigitalInput2();
+
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingGargoyle = new Effect.Pulsating(S(4), 0.5, 1.0, false);
@@ -146,6 +157,8 @@ namespace Animatroller.Scenes
         DigitalOutput2 spiderDropRelease = new DigitalOutput2();
         DigitalOutput2 spiderVenom = new DigitalOutput2();
         DigitalOutput2 spiderJump2 = new DigitalOutput2();
+        DigitalOutput2 ladyMovingEyes = new DigitalOutput2();
+        DigitalOutput2 rockingChair = new DigitalOutput2();
         DateTime? lastFogRun = DateTime.Now;
         Dimmer3 catLights = new Dimmer3();
         Dimmer3 pumpkinLights = new Dimmer3();
@@ -209,7 +222,7 @@ namespace Animatroller.Scenes
 
         public Halloween2017(IEnumerable<string> args)
         {
-            hoursSmall.AddRange("6:00 pm", "8:30 pm",
+            hoursSmall.AddRange("5:00 pm", "8:30 pm",
                 DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday);
             hoursSmall.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday);
@@ -239,6 +252,8 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
             expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderMrPumpkin);  // rpi-ebd43a38
+            expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderSpider);     // rpi-
+            expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderRocking);    // rpi-
 
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);      // HL-DEV
 
@@ -298,6 +313,28 @@ namespace Animatroller.Scenes
                 }
                 else
                     allLights.ReleaseControl();
+            });
+
+            testButton1.Output.Subscribe(x =>
+            {
+                rockingChair.SetValue(x);
+                if (x)
+                    audioRocking.PlayBackground();
+                else
+                    audioRocking.PauseBackground();
+            });
+            testButton2.Output.Subscribe(x =>
+            {
+                ladyMovingEyes.SetValue(x);
+                if (x)
+                    audioRocking.PlayEffect("Maniacal Witches Laugh-SoundBible.com-262127569.wav");
+            });
+            testButton3.Output.Subscribe(x =>
+            {
+                if (x)
+                    audioLocal.PlayBackground();
+                else
+                    audioLocal.PauseBackground();
             });
 
             floodLights.Output.Subscribe(x =>
@@ -667,22 +704,37 @@ namespace Animatroller.Scenes
             expanderLedmx.DigitalInputs[5].Connect(mrPumpkinMotion, false);
             expanderCat.DigitalInputs[7].Connect(catMotion);
             expanderCat.DigitalInputs[5].Connect(secondBeam);
-            expanderCat.DigitalInputs[6].Connect(firstBeam);
+            //            expanderCat.DigitalInputs[6].Connect(firstBeam);
+            //expanderCat.DigitalInputs[4].Connect(spiderDropTrigger);
+            expanderCat.DigitalInputs[4].Connect(firstBeam);
             expanderLedmx.DigitalInputs[5].Connect(ghostBeam);
             expanderLedmx.DigitalInputs[6].Connect(lastBeam);
-            expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
-            expanderMrPumpkin.DigitalOutputs[6].Connect(fog);
+            //expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
+            //expanderMrPumpkin.DigitalOutputs[6].Connect(fog);
+            expanderMrPumpkin.DigitalOutputs[7].Connect(rockingChair);
+            expanderMrPumpkin.DigitalOutputs[4].Connect(ladyMovingEyes);
             expanderLedmx.DigitalOutputs[0].Connect(spiderDropRelease);
             expanderLedmx.DigitalOutputs[1].Connect(spiderVenom);
             expanderCat.DigitalOutputs[6].Connect(spiderJump2);
             expanderLedmx.Connect(audioFrankGhost);
-            //expanderLocal.Connect(audioPop);
+            expanderLocal.Connect(audioLocal);
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
             expanderMrPumpkin.Connect(audioPumpkin);
             expanderAudio2.Connect(audio2);
             expanderPicture.Connect(audioFlying);
+            expanderSpider.Connect(audioSpider);
+            expanderRocking.Connect(audioRocking);
 
+            expanderRocking.BackgroundAudioFiles = new string[]
+            {
+                "68 Creaky Wooden Floorboards.wav"
+            };
+            //expanderLocal.BackgroundAudioFiles = new string[]
+            //{
+            //    "68 Creaky Wooden Floorboards.wav",
+            //    "Thunder2.wav"
+            //};
 
             blockMaster.WhenOutputChanges(x => UpdateOSC());
             blockCat.WhenOutputChanges(x => UpdateOSC());
@@ -704,10 +756,12 @@ namespace Animatroller.Scenes
 
             firstBeam.Output.Subscribe(x =>
             {
-                UpdateOSC();
+                //                UpdateOSC();
 
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockFirst.Value)
-                    subFirst.Run();
+                if (x)
+                    audioSpider.PlayEffect("242004__junkfood2121__fart-01.wav");
+                //if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockFirst.Value)
+                //    subFirst.Run();
             });
 
             secondBeam.Output.Subscribe(x =>
