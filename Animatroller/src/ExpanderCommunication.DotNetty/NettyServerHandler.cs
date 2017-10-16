@@ -13,7 +13,7 @@ namespace Animatroller.ExpanderCommunication
     {
         protected ILogger log;
         private Action<string, string, string, byte[]> dataReceivedAction;
-        private Action<string, string> clientConnectedAction;
+        private Action<string, string, System.Net.EndPoint> clientConnectedAction;
         private NettyServer parent;
         private bool clientConnectedInvoked;
 
@@ -21,7 +21,7 @@ namespace Animatroller.ExpanderCommunication
             ILogger logger,
             NettyServer parent,
             Action<string, string, string, byte[]> dataReceivedAction,
-            Action<string, string> clientConnectedAction)
+            Action<string, string, System.Net.EndPoint> clientConnectedAction)
         {
             this.log = logger;
             this.dataReceivedAction = dataReceivedAction;
@@ -31,7 +31,7 @@ namespace Animatroller.ExpanderCommunication
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            this.log.Information($"Channel {context.Channel.Id.AsShortText()} connected");
+            this.log.Debug("Channel {ChannelId} connected", context.Channel.Id.AsShortText());
 
             this.clientConnectedInvoked = false;
 
@@ -57,7 +57,7 @@ namespace Animatroller.ExpanderCommunication
 
                 if (!this.clientConnectedInvoked)
                 {
-                    this.clientConnectedAction?.Invoke(instanceId, context.Channel.Id.AsShortText());
+                    this.clientConnectedAction?.Invoke(instanceId, context.Channel.Id.AsShortText(), context.Channel.RemoteAddress);
                     this.clientConnectedInvoked = true;
                 }
 

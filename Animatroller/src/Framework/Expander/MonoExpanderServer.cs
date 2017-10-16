@@ -141,17 +141,17 @@ namespace Animatroller.Framework.Expander
             Stop();
         }
 
-        private void ClientConnected(string instanceId, string connectionId)
+        private void ClientConnected(string instanceId, string connectionId, System.Net.EndPoint endPoint)
         {
             // Find instance
             MonoExpanderInstance instance;
             if (!this.clientInstances.TryGetValue(instanceId, out instance))
             {
-                this.log.Warning("Instance {InstanceId} is not configured", instanceId);
+                this.log.Warning("Instance {InstanceId} is not configured at {EndPoint}", instanceId, endPoint);
                 return;
             }
 
-            instance.ClientConnected(connectionId);
+            instance.ClientConnected(connectionId, endPoint);
         }
 
         private void DataReceived(string instanceId, string connectionId, string messageType, byte[] data)

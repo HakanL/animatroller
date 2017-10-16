@@ -31,7 +31,7 @@ namespace Animatroller.ExpanderCommunication
             ILogger logger,
             int listenPort,
             Action<string, string, string, byte[]> dataReceivedAction,
-            Action<string, string> clientConnectedAction)
+            Action<string, string, System.Net.EndPoint> clientConnectedAction)
         {
             this.log = logger;
             this.listenPort = listenPort;

@@ -1,13 +1,10 @@
 ﻿//#define VERBOSE_LOGGING
+using Animatroller.Framework.MonoExpanderMessages;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Animatroller.Framework.MonoExpanderMessages;
-using Newtonsoft.Json.Linq;
-using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
@@ -52,11 +49,12 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        public void ClientConnected(string connectionId)
+        public void ClientConnected(string connectionId, System.Net.EndPoint endPoint)
         {
             this.connectionId = connectionId;
 
-            this.log.Information("Client {0} connected to instance {1} ({2})", connectionId, this.instanceId, this.name);
+            this.log.Information("Client {0} connected to instance {1} ({2}) at {EndPoint}",
+                connectionId, this.instanceId, this.name, endPoint);
 
             // Send all state data
             lock (this.lastState)
