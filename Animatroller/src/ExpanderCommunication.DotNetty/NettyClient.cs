@@ -122,10 +122,16 @@ namespace Animatroller.ExpanderCommunication
 
         public async Task StopAsync()
         {
-            this.cts.Cancel();
+            try
+            {
+                this.cts.Cancel();
 
-            await this.clientChannel?.CloseAsync();
-            await this.group.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
+                await this.clientChannel?.CloseAsync();
+                await this.group.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1));
+            }
+            catch
+            {
+            }
         }
 
         internal void DataReceived(string messageType, byte[] data)
