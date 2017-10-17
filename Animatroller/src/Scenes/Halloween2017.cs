@@ -143,6 +143,7 @@ namespace Animatroller.Scenes
 
         DigitalInput2 frankGhostMotion = new DigitalInput2();
         DigitalInput2 mrPumpkinMotion = new DigitalInput2();
+        DigitalInput2 rockingMotion = new DigitalInput2();
         DigitalInput2 catMotion = new DigitalInput2();
         DigitalInput2 spiderDropTrigger = new DigitalInput2();
         DigitalInput2 firstBeam = new DigitalInput2();
@@ -702,6 +703,7 @@ namespace Animatroller.Scenes
 
             expanderLedmx.DigitalInputs[4].Connect(frankGhostMotion, false);
             expanderLedmx.DigitalInputs[5].Connect(mrPumpkinMotion, false);
+            expanderLedmx.DigitalInputs[6].Connect(rockingMotion, false);
             expanderCat.DigitalInputs[7].Connect(catMotion);
             expanderCat.DigitalInputs[5].Connect(secondBeam);
             //            expanderCat.DigitalInputs[6].Connect(firstBeam);
@@ -754,12 +756,18 @@ namespace Animatroller.Scenes
             frankGhostMotion.Controls(frankGhost.InputTrigger);
             spiderDropTrigger.Controls(spiderDrop.InputTrigger);
 
+            rockingMotion.Output.Subscribe(x =>
+            {
+                if (x)
+                    audioRocking.PlayEffect("Evil-Laugh.wav");
+            });
+
             firstBeam.Output.Subscribe(x =>
             {
                 //                UpdateOSC();
 
                 if (x)
-                    audioSpider.PlayEffect("242004__junkfood2121__fart-01.wav");
+                    audioSpider.PlayEffect("Short Laugh.wav");
                 //if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockFirst.Value)
                 //    subFirst.Run();
             });
