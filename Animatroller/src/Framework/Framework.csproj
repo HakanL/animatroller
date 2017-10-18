@@ -32,10 +32,4 @@
     <ProjectReference Include="..\MonoExpanderMessage\MonoExpanderMessage.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Acn">
-      <HintPath>..\..\lib\Acn.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
