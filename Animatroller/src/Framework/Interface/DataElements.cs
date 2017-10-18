@@ -17,6 +17,7 @@ namespace Animatroller.Framework
         ColorRGB,
         ColorUltraViolet,
         ColorWhite,
-        ColorAmber
+        ColorAmber,
+        Throughput
     }
 }

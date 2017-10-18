@@ -20,6 +20,7 @@ namespace Animatroller.Scenes
 {
     internal partial class Halloween2017 : BaseScene
     {
+        const int SacnUniverseDMXFogA = 3;
         const int SacnUniverseDMXCat = 4;
         const int SacnUniverseDMXLedmx = 10;
         const int SacnUniversePixel100 = 5;
@@ -161,6 +162,8 @@ namespace Animatroller.Scenes
         DigitalOutput2 ladyMovingEyes = new DigitalOutput2();
         DigitalOutput2 rockingChair = new DigitalOutput2();
         DateTime? lastFogRun = DateTime.Now;
+        ThroughputDevice fogStairsPump1 = new ThroughputDevice();
+        ThroughputDevice fogStairsPump2 = new ThroughputDevice();
         Dimmer3 catLights = new Dimmer3();
         Dimmer3 pumpkinLights = new Dimmer3();
         Dimmer3 spiderWebLights = new Dimmer3();
@@ -184,6 +187,8 @@ namespace Animatroller.Scenes
         GroupDimmer allLights = new GroupDimmer();
         GroupDimmer purpleLights = new GroupDimmer();
 
+        StrobeColorDimmer3 fogStairsLight1 = new StrobeColorDimmer3();
+        StrobeColorDimmer3 fogStairsLight2 = new StrobeColorDimmer3();
         StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
         StrobeColorDimmer3 wall1Light = new StrobeColorDimmer3("Wall 1");
         StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2");
@@ -437,6 +442,8 @@ namespace Animatroller.Scenes
                 pixelsFrankGhost,
                 //                pinSpot,
                 spiderLight,
+                fogStairsLight1,
+                fogStairsLight2,
                 spiderWebLights,
                 pumpkinLights);
 
@@ -664,6 +671,9 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 50, 100), SacnUniversePixel100, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelsFrankGhost, 0, 5), SacnUniverseFrankGhost, 1);
 
+            acnOutput.Connect(new Physical.FogMachineA(fogStairsPump1, fogStairsLight1, 1), SacnUniverseDMXFogA);
+            acnOutput.Connect(new Physical.FogMachineA(fogStairsPump2, fogStairsLight2, 10), SacnUniverseDMXFogA);
+
             //acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.RGBStrobe(wall6Light, 60), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
@@ -764,12 +774,8 @@ namespace Animatroller.Scenes
 
             firstBeam.Output.Subscribe(x =>
             {
-                //                UpdateOSC();
-
-                if (x)
-                    audioSpider.PlayEffect("Short Laugh.wav");
-                //if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockFirst.Value)
-                //    subFirst.Run();
+                if (x && hoursSmall.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockFirst.Value)
+                    subFirst.Run();
             });
 
             secondBeam.Output.Subscribe(x =>
@@ -809,21 +815,34 @@ namespace Animatroller.Scenes
                 .AutoAddDevices(lockPriority: 100)
                 .RunAction(i =>
                 {
-                    flyingSkeletonEyes.SetBrightness(1.0);
-                    wall3Light.SetColor(Color.FromArgb(255, 0, 100), 0.5);
-                    wall3Light.SetStrobeSpeed(1.0, i.Token);
+                    //flyingSkeletonEyes.SetBrightness(1.0);
+                    //wall3Light.SetColor(Color.FromArgb(255, 0, 100), 0.5);
+                    //wall3Light.SetStrobeSpeed(1.0, i.Token);
 
                     //                    audioPicture.PlayEffect("162 Blood Curdling Scream of Terror.wav");
                     //audioFlying.PlayEffect("05 I'm a Little Teapot.wav", 0.05);
-                    audioFlying.PlayEffect("Who is that knocking.wav");
-                    i.WaitFor(S(3.0));
-                    audioFlying.PlayEffect("Evil-Laugh.wav");
+                    //audioFlying.PlayEffect("Who is that knocking.wav");
+                    //i.WaitFor(S(3.0));
+                    //audioFlying.PlayEffect("Evil-Laugh.wav");
+
+                    audioSpider.PlayEffect("Short Laugh.wav");
+
+                    fogStairsPump1.SetThroughput(0.5);
+                    fogStairsLight1.SetColor(Color.Purple, 1.0);
+
+                    fogStairsPump2.SetThroughput(0.5);
+                    fogStairsLight2.SetColor(Color.Purple, 1.0);
 
                     i.WaitFor(S(2.0));
+
+                    fogStairsPump1.SetThroughput(0);
+                    fogStairsPump2.SetThroughput(0);
+                    fogStairsLight1.SetBrightness(0);
+                    fogStairsLight2.SetBrightness(0);
                 })
                 .TearDown(i =>
                 {
-                    Exec.MasterEffect.Fade(wall3Light, 0.5, 0.0, 2000, token: i.Token).Wait();
+                    //Exec.MasterEffect.Fade(wall3Light, 0.5, 0.0, 2000, token: i.Token).Wait();
                 });
 
             subPicture

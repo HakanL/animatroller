@@ -26,6 +26,10 @@ namespace Animatroller.Framework
         object GetCurrentData(DataElements dataElement);
     }
 
+    public interface IReceivesThroughput : IReceivesData
+    {
+    }
+
     public interface IReceivesBrightness : IReceivesData
     {
     }

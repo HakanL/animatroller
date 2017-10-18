@@ -161,6 +161,11 @@ namespace Animatroller.Framework.Extensions
             device.SetData(token, Utils.Data(DataElements.Brightness, brightness));
         }
 
+        public static void SetThroughput(this IReceivesThroughput device, double throughput, IControlToken token = null)
+        {
+            device.SetData(token, Utils.Data(DataElements.Throughput, throughput));
+        }
+
         public static void SetStrobeSpeed(this IReceivesStrobeSpeed device, double strobeSpeed, IControlToken token = null)
         {
             device.SetData(token, Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
