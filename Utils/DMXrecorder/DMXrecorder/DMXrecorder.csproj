@@ -34,8 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Acn">
-      <HintPath>..\..\..\Animatroller\lib\Acn.dll</HintPath>
+    <Reference Include="Acn, Version=1.2.6.0, Culture=neutral, PublicKeyToken=005de0e0a5e51e6d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\Acn.dll</HintPath>
     </Reference>
     <Reference Include="PowerArgs, Version=3.0.0.0, Culture=neutral, PublicKeyToken=26a276264bbd55b8, processorArchitecture=MSIL">
       <HintPath>..\packages\PowerArgs.3.0.0\lib\netstandard2.0\PowerArgs.dll</HintPath>
@@ -46,7 +47,6 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>

@@ -5,16 +5,41 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Animatroller.ConverterUI"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        <Button x:Name="buttonBrowseInput" Content="Browse..." HorizontalAlignment="Left" Margin="416,67,0,0" VerticalAlignment="Top" Width="75" Click="buttonBrowseInput_Click"/>
-        <Label x:Name="labelInputFile" Content="FSEQ File" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="textBoxInputFile" HorizontalAlignment="Left" Height="23" Margin="10,93,0,0" Text="TextBox" VerticalAlignment="Top" Width="481" FontSize="10"/>
-        <ProgressBar x:Name="progress" HorizontalAlignment="Left" Height="25" Margin="44,268,0,0" VerticalAlignment="Top" Width="424"/>
-        <Button x:Name="buttonConvert" Content="Convert" HorizontalAlignment="Left" Margin="416,225,0,0" VerticalAlignment="Top" Width="75" Click="buttonConvert_Click"/>
-        <TextBox x:Name="textBoxInputConfigFile" HorizontalAlignment="Left" Height="23" Margin="10,168,0,0" Text="TextBox" VerticalAlignment="Top" Width="481" FontSize="10"/>
-        <Label x:Name="labelInputConfigFile" Content="Config File" HorizontalAlignment="Left" Margin="10,142,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="buttonBrowseInputConfig" Content="Browse..." HorizontalAlignment="Left" Margin="416,142,0,0" VerticalAlignment="Top" Width="75" Click="buttonBrowseInputConfig_Click"/>
-
+        Title="FSeq to PCap converter" Height="300.741" Width="524.136">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="23"/>
+        </Grid.RowDefinitions>
+        <Grid HorizontalAlignment="Stretch" Height="57" VerticalAlignment="Top" Margin="0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="labelInputConfigFile" Content="Config File" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+            <Button x:Name="buttonBrowseInputConfig" Content="Browse..." HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Click="buttonBrowseInputConfig_Click" Grid.Column="1"/>
+            <TextBox x:Name="textBoxInputConfigFile" HorizontalAlignment="Stretch" Height="23" Text="Input Config File" VerticalAlignment="Top" FontSize="10" Grid.Row="1" Grid.ColumnSpan="2"/>
+        </Grid>
+        <Grid HorizontalAlignment="Stretch" Height="57" VerticalAlignment="Top" Grid.Row="1" Margin="0,10">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="labelInputFile" Content="FSEQ File" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+            <Button x:Name="buttonBrowseInput" Content="Browse..." HorizontalAlignment="Right" VerticalAlignment="Top" Width="75" Click="buttonBrowseInput_Click" Grid.Column="1"/>
+            <TextBox x:Name="textBoxInputFile" HorizontalAlignment="Stretch" Height="23" Text="Input File" VerticalAlignment="Top" FontSize="10" Grid.ColumnSpan="2" Grid.Row="1"/>
+        </Grid>
+        <Button x:Name="buttonConvert" Content="Convert" HorizontalAlignment="Right" VerticalAlignment="Center" Width="75" Click="buttonConvert_Click" Grid.Row="2"/>
+        <ProgressBar x:Name="progress" HorizontalAlignment="Stretch" Height="25" VerticalAlignment="Bottom" Grid.Row="3" />
     </Grid>
 </Window>
