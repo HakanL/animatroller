@@ -27,6 +27,10 @@ namespace Animatroller.PostProcessor.Command
             {
                 var data = this.fileReader.ReadFrame();
 
+                if (data.DataType == Common.DmxData.DataTypes.Nop)
+                    // Skip/null data
+                    continue;
+
                 if (!this.universes.Contains(data.Universe))
                 {
                     // Write header

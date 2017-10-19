@@ -27,6 +27,10 @@ namespace Animatroller.PostProcessor
                         fileReader = new Common.PCapAcnFileReader(arguments.InputFile);
                         break;
 
+                    case Arguments.FileFormats.FSeq:
+                        fileReader = new Common.FseqFileReader(arguments.InputFile, arguments.InputConfigFile);
+                        break;
+
                     default:
                         throw new ArgumentException("Unhandled input file format " + arguments.InputFileFormat);
                 }

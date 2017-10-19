@@ -11,7 +11,8 @@ namespace Animatroller.Common
         public enum DataTypes
         {
             NoChange,
-            FullFrame
+            FullFrame,
+            Nop
         }
 
         public DataTypes DataType { get; set; }

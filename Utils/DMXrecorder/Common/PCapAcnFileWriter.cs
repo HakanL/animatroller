@@ -51,7 +51,7 @@ namespace Animatroller.Common
             return mac;
         }
 
-        private void BuildNetworkPacket(Stream stream, System.Net.IPEndPoint destinationEP)
+        private void BuildNetworkPacket(Stream stream, System.Net.IPEndPoint destinationEP, int packetLength)
         {
             var writer = new BinaryWriter(stream);
 
@@ -65,9 +65,10 @@ namespace Animatroller.Common
             writer.Write((byte)0x45);
             // Differentiated Services Field
             writer.Write((byte)0x00);
-            // Total Length (666 bytes)
-            writer.Write((byte)0x02);
-            writer.Write((byte)0x9A);
+            // Total Length (666 bytes for 512 channels)
+            int ipTotalSize = packetLength + 20 + 8;
+            writer.Write((byte)(ipTotalSize >> 8));
+            writer.Write((byte)(ipTotalSize & 0xFF));
             // Id
             writer.Write((byte)0x00);
             writer.Write((byte)0x00);
@@ -75,10 +76,10 @@ namespace Animatroller.Common
             writer.Write((byte)0x00);
             writer.Write((byte)0x00);
             // TTL
-            writer.Write((byte)0x01);
+            writer.Write((byte)0x3C);
             // Protocol (UDP)
             writer.Write((byte)17);
-            // Checksum
+            // Checksum (calculated later)
             writer.Write((byte)0x00);
             writer.Write((byte)0x00);
 
@@ -87,7 +88,7 @@ namespace Animatroller.Common
             writer.Write((byte)0x02);
             writer.Write((byte)0x03);
             writer.Write((byte)0x04);
-            // Destiation Address
+            // Destination Address
             writer.Write(destinationEP.Address.GetAddressBytes());
 
             // Start of UDP protocol
@@ -97,9 +98,10 @@ namespace Animatroller.Common
             // Destination port
             writer.Write((byte)(destinationEP.Port >> 8));
             writer.Write((byte)(destinationEP.Port & 0xFF));
-            // UDP Length (646 bytes)
-            writer.Write((byte)0x02);
-            writer.Write((byte)0x86);
+            // UDP Length (646 bytes for 512 channels)
+            int udpPacketSize = packetLength + 8;
+            writer.Write((byte)(udpPacketSize >> 8));
+            writer.Write((byte)(udpPacketSize & 0xFF));
             // UDP Checksum
             writer.Write((byte)0x00);
             writer.Write((byte)0x00);
@@ -108,6 +110,61 @@ namespace Animatroller.Common
         public void Header(int universeId)
         {
             // Ignore
+        }
+
+        private int CalculateChecksum(byte[] buf, int offset, int count, int sum)
+        {
+            int i;
+
+            /* Checksum all the pairs of bytes first... */
+            for (i = 0; i < (count & ~1U); i += 2)
+            {
+                sum += (ushort)(((buf[offset + i] << 8) & 0xFF00)
+                    + (buf[offset + i + 1] & 0xFF));
+                if (sum > 0xFFFF)
+                    sum -= 0xFFFF;
+            }
+
+            /*
+	         * If there's a single byte left over, checksum it, too.
+	         * Network byte order is big-endian, so the remaining byte is
+	         * the high byte.
+	         */
+            if (i < count)
+            {
+                sum += buf[offset + i] << 8;
+                if (sum > 0xFFFF)
+                    sum -= 0xFFFF;
+            }
+
+            return sum;
+        }
+
+        private ushort WrapChecksum(int sum)
+        {
+            return (ushort)~sum;
+        }
+
+        private void SetIPCheckSum(MemoryStream memStream)
+        {
+            var buf = memStream.GetBuffer();
+
+            ushort sum = WrapChecksum(CalculateChecksum(buf, 14, 20, 0));
+
+            buf[24] = (byte)(sum >> 8);
+            buf[25] = (byte)(sum & 0xFF);
+        }
+
+        private void SetUDPCheckSum(MemoryStream memStream)
+        {
+            var buf = memStream.GetBuffer();
+
+            int sum1 = CalculateChecksum(buf, 26, 8, (17 << 16) + ((int)buf[38] << 8 | buf[39]));
+            int sum2 = CalculateChecksum(buf, 34, (int)memStream.Length - 34, sum1);
+            ushort sum = WrapChecksum(sum2);
+
+            buf[40] = (byte)(sum >> 8);
+            buf[41] = (byte)(sum & 0xFF);
         }
 
         public void Output(DmxData dmxData)
@@ -132,9 +189,14 @@ namespace Animatroller.Common
 
                 using (var networkData = new MemoryStream())
                 {
-                    BuildNetworkPacket(networkData, destinationEP);
+                    BuildNetworkPacket(networkData, destinationEP, (int)data.Position);
+
+                    SetIPCheckSum(networkData);
+
                     data.Position = 0;
                     data.WriteTo(networkData);
+
+                    SetUDPCheckSum(networkData);
 
                     ulong secs = dmxData.TimestampMS / 1000;
                     ulong usecs = (dmxData.TimestampMS * 1000) - (secs * 1000000);

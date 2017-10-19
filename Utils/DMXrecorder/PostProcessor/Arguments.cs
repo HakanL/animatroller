@@ -17,7 +17,8 @@ namespace Animatroller.PostProcessor
         public enum FileFormats
         {
             Binary,
-            PCapAcn
+            PCapAcn,
+            FSeq
         }
 
         [ArgShortcut("i")]
@@ -25,6 +26,11 @@ namespace Animatroller.PostProcessor
         [ArgRequired()]
         [ArgExistingFile()]
         public string InputFile { get; set; }
+
+        [ArgShortcut("ic")]
+        [ArgDescription("Input config file")]
+        [ArgExistingFile()]
+        public string InputConfigFile { get; set; }
 
         [ArgShortcut("o")]
         [ArgDescription("Output file")]
