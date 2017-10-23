@@ -48,7 +48,8 @@ namespace Animatroller.Scenes
             midiInput.Note(midiChannel, 40).Subscribe(x =>
             {
                 if (x)
-                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
+                    audioHifi.PlayEffect("violin screech.wav");
+                    //expanderPicture.SendSerial(0, new byte[] { 0x02 });
 
                 //if (x)
                 //{

@@ -21,11 +21,14 @@ namespace Animatroller.Scenes
     internal partial class Halloween2017 : BaseScene
     {
         const int SacnUniverseDMXFogA = 3;
+        const int SacnUniverseEdmx4A = 20;
+        const int SacnUniverseEdmx4B = 21;
         const int SacnUniverseDMXCat = 4;
         const int SacnUniverseDMXLedmx = 10;
         const int SacnUniversePixel100 = 5;
         const int SacnUniversePixel50 = 6;
         const int SacnUniverseFrankGhost = 7;
+        const int SacnUniverseFire = 99;
 
         public enum States
         {
@@ -104,6 +107,9 @@ namespace Animatroller.Scenes
         DigitalInput2 blockCat = new DigitalInput2(persistState: true);
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 blockFire = new DigitalInput2(persistState: true);
+
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 blockFirst = new DigitalInput2(persistState: true);
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
@@ -133,6 +139,8 @@ namespace Animatroller.Scenes
         DigitalInput2 testButton2 = new DigitalInput2();
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 testButton3 = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 testButton4 = new DigitalInput2();
 
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
@@ -152,6 +160,7 @@ namespace Animatroller.Scenes
         DigitalInput2 ghostBeam = new DigitalInput2();
         DigitalInput2 lastBeam = new DigitalInput2();
         DigitalOutput2 catAir = new DigitalOutput2();
+        DigitalOutput2 fire = new DigitalOutput2();
         DigitalOutput2 mrPumpkinAir = new DigitalOutput2();
         DigitalOutput2 frankGhostAir = new DigitalOutput2();
         DigitalOutput2 fog = new DigitalOutput2();
@@ -164,6 +173,7 @@ namespace Animatroller.Scenes
         DateTime? lastFogRun = DateTime.Now;
         ThroughputDevice fogStairsPump1 = new ThroughputDevice();
         ThroughputDevice fogStairsPump2 = new ThroughputDevice();
+        SerialDevice pictureFrame1 = new SerialDevice();
         Dimmer3 catLights = new Dimmer3();
         Dimmer3 pumpkinLights = new Dimmer3();
         Dimmer3 spiderWebLights = new Dimmer3();
@@ -225,6 +235,7 @@ namespace Animatroller.Scenes
         Modules.HalloweenMrPumpkin mrPumpkin;
         Modules.HalloweenFrankGhost frankGhost;
         Modules.HalloweenSpiderDrop spiderDrop;
+        Modules.FireProjector fireProjector;
 
         public Halloween2017(IEnumerable<string> args)
         {
@@ -254,7 +265,7 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);      // rpi-eb0092ca
             expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderCat);        // rpi-eb81c94e
             expanderServer.AddInstance("4ea781ef257442edb524493da8f52220", expanderAudio2);     // rpi-eba6cbc7
-            expanderServer.AddInstance("76d09e6032d54e77aafec90e1fc4b35b", expanderHifi);       // rpi-eb428ef1
+            expanderServer.AddInstance("d6fc4e752af04022bf3c1a1166a557bb", expanderHifi);       // rpi-eb428ef1
             expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
             expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderMrPumpkin);  // rpi-ebd43a38
@@ -300,6 +311,12 @@ namespace Animatroller.Scenes
 
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(spiderDrop.InputPower);
 
+            fireProjector = new Modules.FireProjector(
+                fire: fire,
+                name: nameof(fireProjector));
+
+            stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall, null).Controls(fireProjector.InputPower);
+
             buttonOverrideHours.Output.Subscribe(x =>
             {
                 if (x)
@@ -338,9 +355,17 @@ namespace Animatroller.Scenes
             testButton3.Output.Subscribe(x =>
             {
                 if (x)
-                    audioLocal.PlayBackground();
+                    audioHifi.PlayBackground();
                 else
-                    audioLocal.PauseBackground();
+                    audioHifi.PauseBackground();
+            });
+
+            testButton4.Output.Subscribe(x =>
+            {
+                //popper.SetValue(x);
+                //fireProjector.InputTriggerShort.OnNext(x);
+                //if (x)
+                //    pictureFrame1.SendSerial(0x01);
             });
 
             floodLights.Output.Subscribe(x =>
@@ -675,25 +700,28 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.FogMachineA(fogStairsPump2, fogStairsLight2, 10), SacnUniverseDMXFogA);
 
             //acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.RGBStrobe(wall6Light, 60), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.RGBStrobe(wall8Light, 40), SacnUniverseDMXCat);
-            acnOutput.Connect(new Physical.RGBStrobe(wall7Light, 80), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 310, 8), SacnUniverseDMXCat);
-            acnOutput.Connect(new Physical.MarcGamutParH7(wall2Light, 300, 8), SacnUniverseDMXCat);
-            acnOutput.Connect(new Physical.MFL7x10WPar(wall3Light, 320), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.MarcGamutParH7(wall4Light, 330, 8), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 340, 8), SacnUniverseDMXLedmx);
+            //acnOutput.Connect(new Physical.RGBStrobe(wall6Light, 60), SacnUniverseDMXLedmx);
+            //acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
+            //acnOutput.Connect(new Physical.RGBStrobe(wall8Light, 40), SacnUniverseDMXCat);
+            //acnOutput.Connect(new Physical.RGBStrobe(wall7Light, 80), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 340, 8), SacnUniverseEdmx4A);
+            acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 80), SacnUniverseEdmx4A);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall3Light, 330, 8), SacnUniverseEdmx4A);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall4Light, 310, 8), SacnUniverseEdmx4A);
+            //acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 340, 8), SacnUniverseEdmx4A);
             //            acnOutput.Connect(new Physical.MarcGamutParH7(wall6Light, 350, 8), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 66), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 51), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 52), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(treeSkulls, 263), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 67), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(treeSkulls, 131), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(spiderEyes, 128), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 259), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 132), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(popper, 133), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.AmericanDJStrobe(flash1, 100), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
             //            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
+
+            acnOutput.Connect(new Physical.GenericDimmer(fire, 1), SacnUniverseFire);
 
             acnOutput.Connect(new Physical.GenericDimmer(frankGhostAir, 10), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 11), SacnUniverseDMXLedmx);
@@ -738,6 +766,17 @@ namespace Animatroller.Scenes
             expanderSpider.Connect(audioSpider);
             expanderRocking.Connect(audioRocking);
 
+            expanderHifi.BackgroundAudioFiles = new string[]
+            {
+                "Thunder1.wav",
+                "Thunder2.wav",
+                "Thunder3.wav",
+                "Thunder4.wav",
+                "Thunder5.wav",
+                "Thunder6.wav",
+                "Thunder7.wav",
+                "Thunder8.wav"
+            };
             expanderRocking.BackgroundAudioFiles = new string[]
             {
                 "68 Creaky Wooden Floorboards.wav"
@@ -760,6 +799,7 @@ namespace Animatroller.Scenes
             Utils.ReactiveOr(blockPumpkin, blockMaster).Controls(mrPumpkin.InputTriggerBlock);
             Utils.ReactiveOr(blockFrankGhost, blockMaster).Controls(frankGhost.InputTriggerBlock);
             Utils.ReactiveOr(blockSpiderDrop, blockMaster).Controls(spiderDrop.InputTriggerBlock);
+            Utils.ReactiveOr(blockFire, blockMaster).Controls(fireProjector.InputTriggerBlock);
 
             catMotion.Controls(grumpyCat.InputTrigger);
             mrPumpkinMotion.Controls(mrPumpkin.InputTrigger);
@@ -825,20 +865,26 @@ namespace Animatroller.Scenes
                     //i.WaitFor(S(3.0));
                     //audioFlying.PlayEffect("Evil-Laugh.wav");
 
+                    i.WaitFor(S(0.5));
+
                     audioSpider.PlayEffect("Short Laugh.wav");
 
-                    fogStairsPump1.SetThroughput(0.5);
+                    fogStairsPump1.SetThroughput(0.4);
                     fogStairsLight1.SetColor(Color.Purple, 1.0);
 
-                    fogStairsPump2.SetThroughput(0.5);
+                    fogStairsPump2.SetThroughput(0.4);
                     fogStairsLight2.SetColor(Color.Purple, 1.0);
 
                     i.WaitFor(S(2.0));
 
                     fogStairsPump1.SetThroughput(0);
                     fogStairsPump2.SetThroughput(0);
+
+                    i.WaitFor(S(2.0));
                     fogStairsLight1.SetBrightness(0);
                     fogStairsLight2.SetBrightness(0);
+
+                    i.WaitFor(S(2.0));
                 })
                 .TearDown(i =>
                 {
