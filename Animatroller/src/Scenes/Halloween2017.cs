@@ -173,7 +173,7 @@ namespace Animatroller.Scenes
         DateTime? lastFogRun = DateTime.Now;
         ThroughputDevice fogStairsPump1 = new ThroughputDevice();
         ThroughputDevice fogStairsPump2 = new ThroughputDevice();
-        SerialDevice pictureFrame1 = new SerialDevice();
+        CommandDevice pictureFrame1 = new CommandDevice();
         Dimmer3 catLights = new Dimmer3();
         Dimmer3 pumpkinLights = new Dimmer3();
         Dimmer3 spiderWebLights = new Dimmer3();
@@ -364,8 +364,11 @@ namespace Animatroller.Scenes
             {
                 //popper.SetValue(x);
                 //fireProjector.InputTriggerShort.OnNext(x);
-                //if (x)
-                //    pictureFrame1.SendSerial(0x01);
+                if (x)
+                {
+                    pictureFrame1.SendCommand(new byte[] { 0x01 });
+                    pictureFrame1.SendCommand(new byte[] { 0x00 });
+                }
             });
 
             floodLights.Output.Subscribe(x =>
@@ -704,6 +707,7 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.RGBStrobe(wall8Light, 40), SacnUniverseDMXCat);
             //acnOutput.Connect(new Physical.RGBStrobe(wall7Light, 80), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.DMXCommandOutput(pictureFrame1, 1), SacnUniverseEdmx4B);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 340, 8), SacnUniverseEdmx4A);
             acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 80), SacnUniverseEdmx4A);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall3Light, 330, 8), SacnUniverseEdmx4A);

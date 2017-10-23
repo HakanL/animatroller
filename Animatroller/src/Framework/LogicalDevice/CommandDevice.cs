@@ -16,15 +16,20 @@ using Animatroller.Framework.LogicalDevice.Event;
 
 namespace Animatroller.Framework.LogicalDevice
 {
-    public class SerialDevice : SingleOwnerDevice, IReceivesData
+    public class CommandDevice : SingleOwnerDevice, IReceivesData
     {
-        public SerialDevice([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public CommandDevice([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
         }
 
         public override void BuildDefaultData(IData data)
         {
+        }
+
+        public void SendCommand(byte[] command, IControlToken token = null)
+        {
+            SetData(token, new Data(DataElements.Command, (object)command));
         }
     }
 }
