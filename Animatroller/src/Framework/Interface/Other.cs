@@ -34,7 +34,7 @@ namespace Animatroller.Framework
     {
     }
 
-    public interface IReceivesStrobeSpeed : IReceivesData
+    public interface IReceivesStrobeSpeed : IReceivesBrightness
     {
     }
 

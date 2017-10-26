@@ -200,17 +200,17 @@ namespace Animatroller.Scenes
         StrobeColorDimmer3 fogStairsLight1 = new StrobeColorDimmer3();
         StrobeColorDimmer3 fogStairsLight2 = new StrobeColorDimmer3();
         StrobeColorDimmer3 spiderLight = new StrobeColorDimmer3("Spider");
-        StrobeColorDimmer3 wall1Light = new StrobeColorDimmer3("Wall 1");
-        StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2");
+        StrobeColorDimmer3 wall1Light = new StrobeColorDimmer3("Wall 1 (cat)");
+        StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2 (flag)");
         StrobeColorDimmer3 wall3Light = new StrobeColorDimmer3("Wall 3");
         StrobeColorDimmer3 wall4Light = new StrobeColorDimmer3("Wall 4");
         StrobeColorDimmer3 wall5Light = new StrobeColorDimmer3("Wall 5");
         StrobeColorDimmer3 wall6Light = new StrobeColorDimmer3("Wall 6");
-        StrobeColorDimmer3 wall7Light = new StrobeColorDimmer3("Wall 7");
-        StrobeColorDimmer3 wall8Light = new StrobeColorDimmer3("Wall 8");
-        StrobeColorDimmer3 wall9Light = new StrobeColorDimmer3("Wall 9");
-        StrobeDimmer3 flash1 = new StrobeDimmer3("ADJ Flash");
-        StrobeDimmer3 flash2 = new StrobeDimmer3("Eliminator Flash");
+        StrobeColorDimmer3 rockingChairLight = new StrobeColorDimmer3("Rocking chair");
+        //StrobeColorDimmer3 wall8Light = new StrobeColorDimmer3("Wall 8");
+        //StrobeColorDimmer3 wall9Light = new StrobeColorDimmer3("Wall 9");
+        StrobeDimmer3 flashTree = new StrobeDimmer3("ADJ Flash");
+        StrobeDimmer3 flashUnderSpider = new StrobeDimmer3("Eliminator Flash");
         //        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
         Controller.Sequence welcomeSeq = new Controller.Sequence();
@@ -308,6 +308,7 @@ namespace Animatroller.Scenes
                 eyesLight: spiderEyes,
                 drop: spiderDropRelease,
                 venom: spiderVenom,
+                strobeLight: flashUnderSpider,
                 audioPlayer: audioSpider,
                 name: nameof(spiderDrop));
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(spiderDrop.InputPower);
@@ -362,12 +363,9 @@ namespace Animatroller.Scenes
 
             testButton4.Output.Subscribe(x =>
             {
-                //popper.SetValue(x);
-                //fireProjector.InputTriggerShort.OnNext(x);
-                if (x)
-                {
-                    //                    pictureFrame1.SendCommand(null, 0x01);
-                }
+                //rockingChairLight.SetColor(Color.Yellow, x ? 1 : 0);
+                //flashUnderSpider.SetBrightnessStrobeSpeed(x ? 1 : 0, 1.0);
+                flashTree.SetBrightness(x);
             });
 
             floodLights.Output.Subscribe(x =>
@@ -434,21 +432,21 @@ namespace Animatroller.Scenes
             popOut1.ConnectTo(wall1Light);
             popOut1.ConnectTo(wall4Light);
             popOut1.ConnectTo(wall6Light);
-            popOut1.ConnectTo(flash1);
+            popOut1.ConnectTo(flashTree);
             popOut2.ConnectTo(wall2Light);
-            popOut2.ConnectTo(wall7Light);
-            popOut2.ConnectTo(flash2);
+            //popOut2.ConnectTo(wall7Light);
+            //popOut2.ConnectTo(flashUnderSpider);
             popOutAll.ConnectTo(wall1Light);
             popOutAll.ConnectTo(wall2Light);
             popOutAll.ConnectTo(wall3Light);
             popOutAll.ConnectTo(wall4Light);
             popOutAll.ConnectTo(wall5Light);
             popOutAll.ConnectTo(wall6Light);
-            popOutAll.ConnectTo(wall7Light);
-            popOutAll.ConnectTo(wall8Light);
-            popOutAll.ConnectTo(wall9Light);
-            popOutAll.ConnectTo(flash1);
-            popOutAll.ConnectTo(flash2);
+            //popOutAll.ConnectTo(wall7Light);
+            //popOutAll.ConnectTo(wall8Light);
+            //popOutAll.ConnectTo(wall9Light);
+            popOutAll.ConnectTo(flashTree);
+            //popOutAll.ConnectTo(flashUnderSpider);
             popOutAll.ConnectTo(pixelsRoofEdge);
             popOutAll.ConnectTo(pixelsFrankGhost);
             //            popOutAll.ConnectTo(pinSpot);
@@ -460,11 +458,12 @@ namespace Animatroller.Scenes
                 wall4Light,
                 wall5Light,
                 wall6Light,
-                wall7Light,
-                wall8Light,
-                wall9Light,
-                flash1,
-                flash2,
+                rockingChairLight,
+                //wall7Light,
+                //wall8Light,
+                //wall9Light,
+                flashTree,
+                flashUnderSpider,
                 pixelsRoofEdge,
                 pixelsFrankGhost,
                 //                pinSpot,
@@ -481,9 +480,9 @@ namespace Animatroller.Scenes
                 wall4Light,
                 wall5Light,
                 wall6Light,
-                wall7Light,
-                wall8Light,
-                wall9Light,
+                //wall7Light,
+                //wall8Light,
+                //wall9Light,
                 pixelsRoofEdge);
 
             flickerEffect.ConnectTo(stairs1Light);
@@ -702,16 +701,16 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.FogMachineA(fogStairsPump2, fogStairsLight2, 10), SacnUniverseDMXFogA);
 
             //acnOutput.Connect(new Physical.SmallRGBStrobe(spiderLight, 1), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.RGBStrobe(wall6Light, 60), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.RGBStrobe(wall6Light, 60), SacnUniverseEdmx4A);
             //acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.RGBStrobe(wall8Light, 40), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.RGBStrobe(rockingChairLight, 40), SacnUniverseEdmx4A);
             //acnOutput.Connect(new Physical.RGBStrobe(wall7Light, 80), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.DMXCommandOutput(pictureFrame1, 1, TimeSpan.FromMilliseconds(500), 0), SacnUniverseEdmx4B);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 340, 8), SacnUniverseEdmx4A);
             acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 80), SacnUniverseEdmx4A);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall3Light, 330, 8), SacnUniverseEdmx4A);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall4Light, 310, 8), SacnUniverseEdmx4A);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 340, 8), SacnUniverseEdmx4A);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 300, 8), SacnUniverseEdmx4A);
             //            acnOutput.Connect(new Physical.MarcGamutParH7(wall6Light, 350, 8), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 66), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 51), SacnUniverseDMXLedmx);
@@ -720,8 +719,8 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(spiderEyes, 128), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 132), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(popper, 133), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.AmericanDJStrobe(flash1, 100), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.EliminatorFlash192(flash2, 110), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.AmericanDJStrobe(flashTree, 100), SacnUniverseEdmx4A);
+            acnOutput.Connect(new Physical.EliminatorFlash192(flashUnderSpider, 110), SacnUniverseDMXFogA);
             //            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
             acnOutput.Connect(new Physical.GenericDimmer(fire, 1), SacnUniverseFire);
@@ -813,8 +812,8 @@ namespace Animatroller.Scenes
 
             rockingMotion.Output.Subscribe(x =>
             {
-                if (x)
-                    audioRocking.PlayEffect("Evil-Laugh.wav");
+                if (x && hoursSmall.IsOpen)
+                    audioRocking.PlayEffect("Evil-Laugh.wav", 0.15);
             });
 
             firstBeam.Output.Subscribe(x =>

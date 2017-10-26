@@ -14,6 +14,7 @@ namespace Animatroller.Scenes.Modules
             IReceivesBrightness eyesLight,
             DigitalOutput2 drop,
             DigitalOutput2 venom,
+            StrobeDimmer3 strobeLight,
             AudioPlayer audioPlayer,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
@@ -22,7 +23,7 @@ namespace Animatroller.Scenes.Modules
             {
                 if (x)
                 {
-                    LockDevices(drop, venom, eyesLight);
+                    LockDevices(drop, venom, eyesLight, strobeLight);
                 }
                 else
                 {
@@ -36,9 +37,11 @@ namespace Animatroller.Scenes.Modules
                     eyesLight.SetBrightness(1);
                     drop.SetValue(true);
                     ins.WaitFor(S(0.2));
+                    strobeLight.SetBrightnessStrobeSpeed(1, 1);
                     venom.SetValue(true);
                     ins.WaitFor(S(2.0));
                     venom.SetValue(false);
+                    strobeLight.SetBrightnessStrobeSpeed(0, 0);
                     ins.WaitFor(S(2.0));
 
                     ins.WaitFor(S(5.0));
@@ -48,6 +51,7 @@ namespace Animatroller.Scenes.Modules
                     drop.SetValue(false);
                     venom.SetValue(false);
                     eyesLight.SetBrightness(0);
+                    strobeLight.SetBrightnessStrobeSpeed(0, 0);
                 });
         }
     }

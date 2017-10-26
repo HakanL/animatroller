@@ -161,6 +161,11 @@ namespace Animatroller.Framework.Extensions
             device.SetData(token, Utils.Data(DataElements.Brightness, brightness));
         }
 
+        public static void SetBrightness(this IReceivesBrightness device, bool value, IControlToken token = null)
+        {
+            device.SetData(token, Utils.Data(DataElements.Brightness, value ? 1.0 : 0.0));
+        }
+
         public static void SetThroughput(this IReceivesThroughput device, double throughput, IControlToken token = null)
         {
             device.SetData(token, Utils.Data(DataElements.Throughput, throughput));
@@ -169,6 +174,11 @@ namespace Animatroller.Framework.Extensions
         public static void SetStrobeSpeed(this IReceivesStrobeSpeed device, double strobeSpeed, IControlToken token = null)
         {
             device.SetData(token, Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
+        }
+
+        public static void SetBrightnessStrobeSpeed(this IReceivesStrobeSpeed device, double brightness, double strobeSpeed, IControlToken token = null)
+        {
+            device.SetData(token, Utils.Data(DataElements.Brightness, brightness), Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
         }
 
         public static void SetColor(this IReceivesColor device, Color color, double? brightness, IControlToken token = null)
