@@ -13,6 +13,9 @@ namespace Animatroller.Scenes.Modules
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+            //TODO
+            AlwaysUsePowerOnSub = true;
+
             PowerOn
                 .SetLoop(true)
                 .SetMaxRuntime(S(60))

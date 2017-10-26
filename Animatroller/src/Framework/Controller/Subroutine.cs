@@ -241,12 +241,13 @@ namespace Animatroller.Framework.Controller
 
                     while (Loop && !this.cancelRequested && this.mainAction != null)
                     {
+                        this.iterationCounter++;
                         this.lifecycle.OnNext(LifeCycles.RunningLoop);
 
                         if (this.cancelRequested)
                             break;
 
-                        if (this.MaxIterations.HasValue && this.iterationCounter >= this.MaxIterations.Value)
+                        if (this.MaxIterations.HasValue && this.iterationCounter > this.MaxIterations.Value)
                         {
                             this.lifecycle.OnNext(LifeCycles.MaxIterationsReached);
                             break;
@@ -258,7 +259,6 @@ namespace Animatroller.Framework.Controller
                             break;
                         }
 
-                        this.iterationCounter++;
                         this.mainAction?.Invoke(this);
 
                         if (!this.cancelRequested)

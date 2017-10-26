@@ -57,29 +57,7 @@ namespace Animatroller.Scenes.Modules
                             QueueCheckState();
                         }
                     }
-                    /*
-                                        if (this.currentState != this.requestedState)
-                                        {
-                                            if (this.inRunningState)
-                                            {
-                                                this.transition = true;
-                                                QueueCheckState();
-                                                return;
-                                            }
-
-                                            switch (this.requestedState)
-                                            {
-                                                case States.Trigger:
-                                                    this.inRunningState = true;
-                                                    this.currentState = this.requestedState;
-                                                    Executor.Current.Execute(this.powerOnSub);
-                                                    QueueCheckState();
-                                                    break;
-                                            }
-                                        }
-                    */
                 }), this.scheduler);
-
 
             WireupLifeCycle(this.powerOffSub);
             WireupLifeCycle(this.powerOnSub);
@@ -88,7 +66,7 @@ namespace Animatroller.Scenes.Modules
             {
                 if (x.Trigger)
                 {
-                    this.requestedSub = x.Power ? this.powerOnSub : this.powerOffSub;
+                    this.requestedSub = (x.Power || AlwaysUsePowerOnSub) ? this.powerOnSub : this.powerOffSub;
                 }
                 else
                 {
@@ -98,6 +76,8 @@ namespace Animatroller.Scenes.Modules
                 QueueCheckState();
             });
         }
+
+        public bool AlwaysUsePowerOnSub { get; set; }
 
         private void WireupLifeCycle(Controller.Subroutine sub)
         {
