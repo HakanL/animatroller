@@ -8,7 +8,7 @@ using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes.Modules
 {
-    public class HalloweenFrankGhost : TriggeredSequence
+    public class HalloweenFrankGhost : TriggeredSubBaseModule
     {
         Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Framework.Import.LevelsPlayback levelsPlayback = new Framework.Import.LevelsPlayback();
@@ -42,32 +42,32 @@ namespace Animatroller.Scenes.Modules
             });
 
             PowerOn
-                .RunAction(instance =>
+                .SetLoop(true)
+                .SetMaxRuntime(S(60))
+                .SetUp(ins =>
                 {
-                    Executor.Current.LogMasterStatus(Name, true);
-
                     pulsatingLow.Stop();
-
+                })
+                .RunAction(ins =>
+                {
                     audioPlayer.PlayEffect("Thriller2.wav", levelsPlayback);
                     // The control token is optional since it's passed in via the Subroutine
                     light.SetColor(Color.Purple);
                     var cts = levelsPlayback.Start(this.controlToken);
 
-                    instance.CancelToken.WaitHandle.WaitOne(45000);
+                    ins.WaitFor(S(45));
                     cts.Cancel();
                 })
-                .TearDown(instance =>
+                .TearDown(ins =>
                 {
                     light.SetColor(Color.Red);
                     pulsatingLow.Start(token: this.controlToken);
-
-                    Executor.Current.LogMasterStatus(Name, false);
                 });
 
-            PowerOff.RunAction(instance =>
+            PowerOff.RunAction(ins =>
                 {
                     audioPlayer.PlayEffect("Happy Halloween.wav", 0.15);
-                    instance.CancelToken.WaitHandle.WaitOne(5000);
+                    ins.WaitFor(S(5));
                 });
         }
     }

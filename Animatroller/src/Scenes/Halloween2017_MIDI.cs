@@ -79,15 +79,8 @@ namespace Animatroller.Scenes
 
             midiInput.Note(midiChannel, 43).Subscribe(x =>
             {
-                if (x)
-                {
-                    //                    audioEeebox.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-
-                    //                    treeSkulls.SetBrightness(1);
-                    audioHifi.PlayBackground();
-                }
-                else
-                    audioHifi.PauseBackground();
+                //if (x)
+                //    pictureFrame1.SendCommand(null, 0x01);
             });
         }
     }

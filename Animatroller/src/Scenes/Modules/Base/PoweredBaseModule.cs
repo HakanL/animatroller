@@ -10,12 +10,14 @@ namespace Animatroller.Scenes.Modules
 {
     public class PoweredBaseModule : BaseModule, IDisposable
     {
-        private ControlSubject<bool> inputPower = new ControlSubject<bool>(false);
+        private ControlSubject<bool> inputPower;
         protected GroupControlToken controlToken = null;
 
-        public PoweredBaseModule([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public PoweredBaseModule([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool defaultPower = true)
             : base(name)
         {
+            this.inputPower = new ControlSubject<bool>(defaultPower);
+
             this.inputPower.Subscribe(x =>
             {
                 this.log.Verbose("Power for {Name} changed to {Power}", Name, x);

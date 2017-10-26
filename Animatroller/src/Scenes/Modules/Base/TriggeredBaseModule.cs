@@ -9,38 +9,40 @@ namespace Animatroller.Scenes.Modules
 {
     public class TriggeredBaseModule : PoweredBaseModule
     {
-        private Subject<bool> inputTrigger = new Subject<bool>();
+        private ControlSubject<bool> inputTrigger = new ControlSubject<bool>(false);
         private ControlSubject<bool> inputTriggerBlock = new ControlSubject<bool>(false);
-        private Subject<bool> trigger = new Subject<bool>();
+        private Subject<(bool Power, bool Trigger)> trigger = new Subject<(bool Power, bool Trigger)>();
 
         public TriggeredBaseModule([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             this.inputTrigger.Subscribe(x =>
             {
-                if (x)
+                if (x && this.inputTriggerBlock.Value)
+                    this.log.Verbose("{Name} has been triggered, but is blocked", Name);
+                else
                 {
-                    if (this.inputTriggerBlock.Value)
-                        this.log.Verbose("{Name} has been triggered, but is blocked", Name);
-                    else
+                    if (x)
                     {
-                        if (!Power)
-                        {
-                            this.log.Verbose("{Name} has been triggered, with power off", Name);
-                            this.trigger.OnNext(false);
-                        }
-                        else
-                        {
+                        if (Power)
                             this.log.Verbose("{Name} has been triggered, with power on", Name);
-                            this.trigger.OnNext(true);
-                        }
+                        else
+                            this.log.Verbose("{Name} has been triggered, with power off", Name);
                     }
+
+                    this.trigger.OnNext((Power, x));
                 }
             });
 
             this.inputTriggerBlock.Subscribe(x =>
             {
                 this.log.Verbose("Trigger block for {Name} changed to {TriggerBlock}", Name, x);
+            });
+
+            OutputPower.Subscribe(p =>
+            {
+                // Force a trigger when power changed
+                this.inputTrigger.OnNext(this.inputTrigger.Value);
             });
         }
 
@@ -54,7 +56,7 @@ namespace Animatroller.Scenes.Modules
             get { return this.inputTriggerBlock.AsObserver(); }
         }
 
-        public IObservable<bool> OutputTrigger
+        public IObservable<(bool Power, bool Trigger)> OutputTrigger
         {
             get { return this.trigger.AsObservable(); }
         }

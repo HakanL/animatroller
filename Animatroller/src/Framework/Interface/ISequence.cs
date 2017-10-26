@@ -22,15 +22,19 @@ namespace Animatroller.Framework
 
         bool IsCancellationRequested { get; }
 
-        ISequenceInstance WaitFor(TimeSpan value);
+        TimeSpan Runtime { get; }
 
-        ISequenceInstance WaitFor(TimeSpan value, bool throwExceptionIfCanceled);
+        void AbortIfCanceled();
 
-        ISequenceInstance WaitUntilCancel();
+        ISequenceInstance WaitFor(TimeSpan value, bool abortImmediatelyIfCanceled = false);
 
-        ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled);
+        ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled = true);
 
         IControlToken Token { get; }
+
+        void Stop();
+
+        int IterationCounter { get; }
     }
 
     public interface ISequenceInstance2 : ISequenceInstance

@@ -6,17 +6,36 @@ using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice;
 using Serilog;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
+using System.Diagnostics;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
 
 namespace Animatroller.Framework.Controller
 {
     public class Subroutine : ICanExecute, ISequenceInstance2
     {
+        public enum LifeCycles
+        {
+            Setup,
+            Running,
+            RunningLoop,
+            IterationCompleted,
+            Completed,
+            CancelRequested,
+            MaxIterationsReached,
+            MaxRuntimeReached,
+            CancelPending,
+            Teardown,
+            Stopped
+        }
+
         protected ILogger log;
 
         private object lockObject = new object();
         private string id;
         private string name;
-        protected Action setUpAction;
+        protected Action<ISequenceInstance> setUpAction;
         protected Action<ISequenceInstance> tearDownAction;
         protected Action<ISequenceInstance> mainAction;
         protected System.Threading.CancellationToken cancelToken;
@@ -25,6 +44,10 @@ namespace Animatroller.Framework.Controller
         private IControlToken externalControlToken;
         private int lockPriority;
         private bool autoAddDevices;
+        private bool cancelRequested;
+        private Stopwatch runtime;
+        private Subject<LifeCycles> lifecycle;
+        private int iterationCounter;
 
         public Subroutine([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -32,6 +55,27 @@ namespace Animatroller.Framework.Controller
             this.name = name;
             this.id = Guid.NewGuid().GetHashCode().ToString();
             this.handleLocks = new HashSet<IOwnedDevice>();
+            this.lifecycle = new Subject<LifeCycles>();
+
+            this.lifecycle.Subscribe(lc =>
+            {
+                switch (lc)
+                {
+                    case LifeCycles.IterationCompleted:
+                    case LifeCycles.RunningLoop:
+                        this.log.Verbose("Sub {Name} is in lifecycle {LifeCycle} ({IterationCount} iterations)", Name, lc, IterationCounter);
+                        break;
+
+                    default:
+                        this.log.Verbose("Sub {Name} is in lifecycle {LifeCycle}", Name, lc);
+                        break;
+                }
+            });
+        }
+
+        public IObservable<LifeCycles> Lifecycle
+        {
+            get { return this.lifecycle.AsObservable(); }
         }
 
         public System.Threading.CancellationToken CancelToken
@@ -41,12 +85,14 @@ namespace Animatroller.Framework.Controller
 
         public bool IsCancellationRequested
         {
-            get { return this.cancelToken.IsCancellationRequested; }
+            get { return this.cancelRequested || this.cancelToken.IsCancellationRequested; }
         }
 
-        public void SetUp(Action action)
+        public Subroutine SetUp(Action<ISequenceInstance> action)
         {
             this.setUpAction = action;
+
+            return this;
         }
 
         public Subroutine RunAction(Action<ISequenceInstance> action)
@@ -69,29 +115,60 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        public ISequenceInstance WaitFor(TimeSpan value)
+        public void RequestCancel()
         {
-            return WaitFor(value, true);
+            this.cancelRequested = true;
         }
 
-        public ISequenceInstance WaitFor(TimeSpan value, bool throwExceptionIfCanceled)
-        {
-            this.cancelToken.WaitHandle.WaitOne(value);
+        public bool Loop { get; set; }
 
-            if (throwExceptionIfCanceled)
+        public TimeSpan? MaxRuntime { get; set; }
+        public int? MaxIterations { get; set; }
+
+        public Subroutine SetLoop(bool value)
+        {
+            Loop = value;
+
+            return this;
+        }
+
+        public Subroutine SetMaxRuntime(TimeSpan? value)
+        {
+            MaxRuntime = value;
+
+            return this;
+        }
+
+        public Subroutine SetMaxIterations(int? value)
+        {
+            MaxIterations = value;
+
+            return this;
+        }
+
+        public void AbortIfCanceled()
+        {
+            if (this.cancelRequested)
+                throw new OperationCanceledException();
+            this.cancelToken.ThrowIfCancellationRequested();
+        }
+
+        public ISequenceInstance WaitFor(TimeSpan value, bool abortImmediatelyIfCanceled)
+        {
+            if (abortImmediatelyIfCanceled)
+            {
+                this.cancelToken.WaitHandle.WaitOne(value);
                 this.cancelToken.ThrowIfCancellationRequested();
+            }
+            else
+            {
+                Thread.Sleep(value);
+            }
 
             return this;
         }
 
-        public ISequenceInstance WaitUntilCancel()
-        {
-            this.cancelToken.WaitHandle.WaitOne();
-
-            return this;
-        }
-
-        public ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled)
+        public ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled = true)
         {
             this.cancelToken.WaitHandle.WaitOne();
 
@@ -131,15 +208,19 @@ namespace Animatroller.Framework.Controller
 
         public void Execute(System.Threading.CancellationToken cancelToken)
         {
+            this.runtime = Stopwatch.StartNew();
+
             // Can only execute one at a time
             lock (lockObject)
             {
                 this.log.Information("Starting Subroutine {0}", Name);
 
                 this.cancelToken = cancelToken;
+                this.cancelRequested = false;
+                this.iterationCounter = 0;
 
-                if (this.setUpAction != null)
-                    this.setUpAction.Invoke();
+                this.lifecycle.OnNext(LifeCycles.Setup);
+                this.setUpAction?.Invoke(this);
 
                 Lock();
 
@@ -147,8 +228,42 @@ namespace Animatroller.Framework.Controller
 
                 try
                 {
-                    if (this.mainAction != null)
-                        this.mainAction(this);
+                    this.lifecycle.OnNext(LifeCycles.Running);
+
+                    if (!this.cancelRequested)
+                    {
+                        this.iterationCounter++;
+                        this.mainAction?.Invoke(this);
+
+                        if (!this.cancelRequested)
+                            this.lifecycle.OnNext(LifeCycles.IterationCompleted);
+                    }
+
+                    while (Loop && !this.cancelRequested && this.mainAction != null)
+                    {
+                        this.lifecycle.OnNext(LifeCycles.RunningLoop);
+
+                        if (this.cancelRequested)
+                            break;
+
+                        if (this.MaxIterations.HasValue && this.iterationCounter >= this.MaxIterations.Value)
+                        {
+                            this.lifecycle.OnNext(LifeCycles.MaxIterationsReached);
+                            break;
+                        }
+
+                        if (this.MaxRuntime.HasValue && this.runtime.Elapsed > this.MaxRuntime.Value)
+                        {
+                            this.lifecycle.OnNext(LifeCycles.MaxRuntimeReached);
+                            break;
+                        }
+
+                        this.iterationCounter++;
+                        this.mainAction?.Invoke(this);
+
+                        if (!this.cancelRequested)
+                            this.lifecycle.OnNext(LifeCycles.IterationCompleted);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -156,18 +271,34 @@ namespace Animatroller.Framework.Controller
                         log.Debug(ex, "Exception when executing subroutine/mainAction");
                 }
 
+                if (this.cancelRequested)
+                    this.lifecycle.OnNext(LifeCycles.CancelRequested);
+                else
+                    this.lifecycle.OnNext(LifeCycles.Completed);
+
+                this.lifecycle.OnNext(LifeCycles.CancelPending);
                 Executor.Current.WaitForManagedTasks(true);
 
-                if (this.tearDownAction != null)
-                    this.tearDownAction.Invoke(this);
+                this.lifecycle.OnNext(LifeCycles.Teardown);
+                this.tearDownAction?.Invoke(this);
 
                 CallContext.LogicalSetData("TOKEN", null);
                 Release();
+
+                this.lifecycle.OnNext(LifeCycles.Stopped);
 
                 if (cancelToken.IsCancellationRequested)
                     this.log.Information("SequenceJob {0} canceled and stopped", Name);
                 else
                     this.log.Information("SequenceJob {0} completed", Name);
+            }
+        }
+
+        public TimeSpan Runtime
+        {
+            get
+            {
+                return this.runtime.Elapsed;
             }
         }
 
@@ -183,6 +314,11 @@ namespace Animatroller.Framework.Controller
             get { return this.name; }
         }
 
+        public int IterationCounter
+        {
+            get => this.iterationCounter;
+        }
+
         public Task Run()
         {
             Task task;
@@ -193,14 +329,14 @@ namespace Animatroller.Framework.Controller
 
         public Task Run(out System.Threading.CancellationTokenSource cts)
         {
-            Task task;
-            cts = Executor.Current.Execute(this, out task);
+            cts = Executor.Current.Execute(this, out Task task);
 
             return task;
         }
 
         public void Stop()
         {
+            this.cancelRequested = true;
             log.Debug("Cancel 6");
             Executor.Current.Cancel(this);
         }

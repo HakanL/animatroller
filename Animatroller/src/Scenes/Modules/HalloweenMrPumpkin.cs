@@ -7,7 +7,7 @@ using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes.Modules
 {
-    public class HalloweenMrPumpkin : TriggeredSequence
+    public class HalloweenMrPumpkin : TriggeredSubBaseModule
     {
         Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
         Framework.Import.LevelsPlayback levelsPlayback = new Framework.Import.LevelsPlayback();
@@ -41,20 +41,16 @@ namespace Animatroller.Scenes.Modules
             PowerOn
                 .RunAction(ins =>
                 {
-                    Executor.Current.LogMasterStatus(Name, true);
-
                     pulsatingLow.Stop();
 
                     audioPlayer.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav", levelsPlayback);
                     levelsPlayback.Start(this.controlToken);
 
-                    ins.CancelToken.WaitHandle.WaitOne(8000);
+                    ins.WaitFor(S(8));
                 })
                 .TearDown(ins =>
                 {
                     pulsatingLow.Start(token: this.controlToken);
-
-                    Executor.Current.LogMasterStatus(Name, false);
                 });
         }
     }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.Effect;
 using Serilog;
+using System.Threading;
 
 namespace Animatroller.Framework.Controller
 {
@@ -23,6 +24,7 @@ namespace Animatroller.Framework.Controller
             protected List<Action<ISequenceInstance>> actions;
             protected List<Tuple<int, Effect.IEffect>> effects;
             protected System.Threading.CancellationToken cancelToken;
+            protected bool cancelRequested;
 
             public SequenceJob(ILogger logger, string name)
             {
@@ -64,29 +66,22 @@ namespace Animatroller.Framework.Controller
                 return this;
             }
 
-            public ISequenceInstance WaitFor(TimeSpan value)
+            public ISequenceInstance WaitFor(TimeSpan value, bool abortImmediatelyIfCanceled)
             {
-                return WaitFor(value, true);
-            }
-
-            public ISequenceInstance WaitFor(TimeSpan value, bool throwExceptionIfCanceled)
-            {
-                this.cancelToken.WaitHandle.WaitOne(value);
-
-                if (throwExceptionIfCanceled)
+                if (abortImmediatelyIfCanceled)
+                {
+                    this.cancelToken.WaitHandle.WaitOne(value);
                     this.cancelToken.ThrowIfCancellationRequested();
+                }
+                else
+                {
+                    Thread.Sleep(value);
+                }
 
                 return this;
             }
 
-            public ISequenceInstance WaitUntilCancel()
-            {
-                this.cancelToken.WaitHandle.WaitOne();
-
-                return this;
-            }
-
-            public ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled)
+            public ISequenceInstance WaitUntilCancel(bool throwExceptionIfCanceled = true)
             {
                 this.cancelToken.WaitHandle.WaitOne();
 
@@ -104,6 +99,7 @@ namespace Animatroller.Framework.Controller
                     this.log.Information("Starting SequenceJob {0}", this.name);
 
                     this.cancelToken = cancelToken;
+                    this.cancelRequested = false;
 
                     if (this.setUpAction != null)
                         this.setUpAction.Invoke(this);
@@ -127,7 +123,7 @@ namespace Animatroller.Framework.Controller
                             }
                         }
 
-                    } while (loop && !cancelToken.IsCancellationRequested);
+                    } while (loop && !cancelToken.IsCancellationRequested && !this.cancelRequested);
 
                     foreach (var effect in this.effects)
                         effect.Item2.Stop();
@@ -150,6 +146,18 @@ namespace Animatroller.Framework.Controller
                 return this;
             }
 
+            public void Stop()
+            {
+                this.cancelRequested = true;
+            }
+
+            public void AbortIfCanceled()
+            {
+                if (this.cancelRequested)
+                    throw new OperationCanceledException();
+                this.cancelToken.ThrowIfCancellationRequested();
+            }
+
             public string Id
             {
                 get { return this.id; }
@@ -161,6 +169,16 @@ namespace Animatroller.Framework.Controller
                 {
                     return null;
                 }
+            }
+
+            public TimeSpan Runtime
+            {
+                get => TimeSpan.FromMilliseconds(-1);
+            }
+
+            public int IterationCounter
+            {
+                get => 0;
             }
         }
 

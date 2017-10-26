@@ -372,6 +372,7 @@ namespace Animatroller.Framework.Expander
         public void Dispose()
         {
             this.scheduler?.Dispose();
+            this.scheduler = null;
         }
     }
 }

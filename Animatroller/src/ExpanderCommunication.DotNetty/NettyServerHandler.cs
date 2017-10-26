@@ -31,7 +31,7 @@ namespace Animatroller.ExpanderCommunication
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            this.log.Debug("Channel {ChannelId} connected", context.Channel.Id.AsShortText());
+            this.log.Verbose("Channel {ChannelId} connected", context.Channel.Id.AsShortText());
 
             this.clientConnectedInvoked = false;
 

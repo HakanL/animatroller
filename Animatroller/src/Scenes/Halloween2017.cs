@@ -236,6 +236,7 @@ namespace Animatroller.Scenes
         Modules.HalloweenFrankGhost frankGhost;
         Modules.HalloweenSpiderDrop spiderDrop;
         Modules.FireProjector fireProjector;
+        Modules.HalloweenPictureFrame pictureFrame;
 
         public Halloween2017(IEnumerable<string> args)
         {
@@ -282,16 +283,18 @@ namespace Animatroller.Scenes
                 light: catLights,
                 audioPlayer: audioCat,
                 name: nameof(grumpyCat));
-
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(grumpyCat.InputPower);
 
+            pictureFrame = new Modules.HalloweenPictureFrame(
+                medeaWizPlayer: pictureFrame1,
+                name: nameof(pictureFrame));
+            stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(pictureFrame.InputPower);
 
             mrPumpkin = new Modules.HalloweenMrPumpkin(
                 air: mrPumpkinAir,
                 light: pumpkinLights,
                 audioPlayer: audioPumpkin,
                 name: nameof(mrPumpkin));
-
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(mrPumpkin.InputPower);
 
             frankGhost = new Modules.HalloweenFrankGhost(
@@ -299,7 +302,6 @@ namespace Animatroller.Scenes
                 light: pixelsFrankGhost,
                 audioPlayer: audioFrankGhost,
                 name: nameof(frankGhost));
-
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(frankGhost.InputPower);
 
             spiderDrop = new Modules.HalloweenSpiderDrop(
@@ -308,13 +310,11 @@ namespace Animatroller.Scenes
                 venom: spiderVenom,
                 audioPlayer: audioSpider,
                 name: nameof(spiderDrop));
-
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(spiderDrop.InputPower);
 
             fireProjector = new Modules.FireProjector(
                 fire: fire,
                 name: nameof(fireProjector));
-
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall, null).Controls(fireProjector.InputPower);
 
             buttonOverrideHours.Output.Subscribe(x =>
@@ -366,7 +366,7 @@ namespace Animatroller.Scenes
                 //fireProjector.InputTriggerShort.OnNext(x);
                 if (x)
                 {
-                    pictureFrame1.SendCommand(null, 0x01);
+                    //                    pictureFrame1.SendCommand(null, 0x01);
                 }
             });
 
@@ -746,7 +746,7 @@ namespace Animatroller.Scenes
             expanderLedmx.DigitalInputs[5].Connect(mrPumpkinMotion, false);
             expanderLedmx.DigitalInputs[6].Connect(rockingMotion, false);
             expanderCat.DigitalInputs[7].Connect(catMotion);
-            expanderCat.DigitalInputs[5].Connect(secondBeam);
+            expanderCat.DigitalInputs[6].Connect(secondBeam);
             //            expanderCat.DigitalInputs[6].Connect(firstBeam);
             //expanderCat.DigitalInputs[4].Connect(spiderDropTrigger);
             expanderCat.DigitalInputs[4].Connect(firstBeam);
@@ -803,8 +803,10 @@ namespace Animatroller.Scenes
             Utils.ReactiveOr(blockFrankGhost, blockMaster).Controls(frankGhost.InputTriggerBlock);
             Utils.ReactiveOr(blockSpiderDrop, blockMaster).Controls(spiderDrop.InputTriggerBlock);
             Utils.ReactiveOr(blockFire, blockMaster).Controls(fireProjector.InputTriggerBlock);
+            Utils.ReactiveOr(blockPicture, blockMaster).Controls(pictureFrame.InputTriggerBlock);
 
             catMotion.Controls(grumpyCat.InputTrigger);
+            secondBeam.Controls(pictureFrame.InputTrigger);
             mrPumpkinMotion.Controls(mrPumpkin.InputTrigger);
             frankGhostMotion.Controls(frankGhost.InputTrigger);
             spiderDropTrigger.Controls(spiderDrop.InputTrigger);
@@ -821,13 +823,13 @@ namespace Animatroller.Scenes
                     subFirst.Run();
             });
 
-            secondBeam.Output.Subscribe(x =>
-            {
-                UpdateOSC();
+            //secondBeam.Output.Subscribe(x =>
+            //{
+            //    //UpdateOSC();
 
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockPicture.Value)
-                    subPicture.Run();
-            });
+            //    //if (x && (hoursFull.IsOpen || hoursSmall.IsOpen) && !emergencyStop.Value && !blockMaster.Value && !blockPicture.Value)
+            //    //    subPicture.Run();
+            //});
 
             ghostBeam.Output.Subscribe(x =>
             {
@@ -895,25 +897,28 @@ namespace Animatroller.Scenes
                 });
 
             subPicture
-                .RunAction(i =>
+                .RunAction(ins =>
                 {
-                    if (bigSpiderEyesToken != null)
-                        bigSpiderEyesToken.Dispose();
+                    //pictureFrame1.SendCommand(null, 0x01);
 
-                    wall8Light.SetColor(Color.White, 1, bigSpiderEyesToken);
-                    wall8Light.SetStrobeSpeed(1, bigSpiderEyesToken);
-                    bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
-                    bigSpiderEyes.SetBrightness(0, bigSpiderEyesToken);
-                    audioHifi.PlayNewEffect("Happy Halloween.wav");
-                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
-                    i.WaitFor(S(4.0));
-                    sub3dfxRandom.Run();
-                    i.WaitFor(S(10.0));
-                    wall8Light.SetBrightness(0);
-                    subSpiderJump.Run();
-                    i.WaitFor(S(4.0));
+                    //ins.WaitFor(S(4.0));
+                    //if (bigSpiderEyesToken != null)
+                    //    bigSpiderEyesToken.Dispose();
+
+                    //wall8Light.SetColor(Color.White, 1, bigSpiderEyesToken);
+                    //wall8Light.SetStrobeSpeed(1, bigSpiderEyesToken);
+                    //bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
+                    //bigSpiderEyes.SetBrightness(0, bigSpiderEyesToken);
+                    //audioHifi.PlayNewEffect("Happy Halloween.wav");
+                    //expanderPicture.SendSerial(0, new byte[] { 0x02 });
+                    //i.WaitFor(S(4.0));
+                    //sub3dfxRandom.Run();
+                    //i.WaitFor(S(10.0));
+                    //wall8Light.SetBrightness(0);
+                    //subSpiderJump.Run();
+                    //i.WaitFor(S(4.0));
                 })
-                .TearDown(i =>
+                .TearDown(ins =>
                 {
                 });
 
