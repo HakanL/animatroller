@@ -10,8 +10,11 @@ namespace Animatroller.Scenes.Modules
 {
     public class HalloweenSpiderDrop : TriggeredSubBaseModule
     {
+        Effect.Pulsating pulsating = new Effect.Pulsating(S(4), 0.1, 1.0, false);
+
         public HalloweenSpiderDrop(
             IReceivesBrightness eyesLight,
+            IReceivesBrightness smallSpiderEyes,
             DigitalOutput2 drop,
             DigitalOutput2 venom,
             StrobeDimmer3 strobeLight,
@@ -19,20 +22,26 @@ namespace Animatroller.Scenes.Modules
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+            pulsating.ConnectTo(smallSpiderEyes);
+
             OutputPower.Subscribe(x =>
             {
                 if (x)
                 {
-                    LockDevices(drop, venom, eyesLight, strobeLight);
+                    LockDevices(drop, venom, eyesLight, strobeLight, smallSpiderEyes);
+
+                    pulsating.Start(token: this.controlToken);
                 }
                 else
                 {
+                    pulsating.Stop();
                     UnlockDevices();
                 }
             });
 
             PowerOn.RunAction(ins =>
                 {
+                    pulsating.Stop();
                     audioPlayer.PlayNewEffect("348 Spider Hiss.wav", 0, 1);
                     eyesLight.SetBrightness(1);
                     drop.SetValue(true);
@@ -43,8 +52,6 @@ namespace Animatroller.Scenes.Modules
                     venom.SetValue(false);
                     strobeLight.SetBrightnessStrobeSpeed(0, 0);
                     ins.WaitFor(S(2.0));
-
-                    ins.WaitFor(S(5.0));
                 })
                 .TearDown(ins =>
                 {
@@ -52,6 +59,8 @@ namespace Animatroller.Scenes.Modules
                     venom.SetValue(false);
                     eyesLight.SetBrightness(0);
                     strobeLight.SetBrightnessStrobeSpeed(0, 0);
+                    pulsating.Start(token: this.controlToken);
+                    ins.WaitFor(S(1.0));
                 });
         }
     }

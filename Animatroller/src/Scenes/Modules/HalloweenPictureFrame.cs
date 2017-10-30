@@ -13,20 +13,17 @@ namespace Animatroller.Scenes.Modules
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
-            //TODO
-            AlwaysUsePowerOnSub = true;
-
             PowerOn
                 .SetLoop(true)
                 .SetMaxRuntime(S(60))
                 .RunAction(ins =>
                 {
-                    medeaWizPlayer.SendCommand(this.controlToken, 0x02);
+                    medeaWizPlayer.SendCommand(this.controlToken, 99);
                     ins.WaitFor(S(10));
                 })
                 .TearDown(ins =>
                 {
-                    medeaWizPlayer.SendCommand(this.controlToken, 0xff);
+                    medeaWizPlayer.SendCommand(this.controlToken, 255);
                 });
         }
     }

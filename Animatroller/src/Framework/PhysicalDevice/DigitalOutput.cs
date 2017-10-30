@@ -15,9 +15,15 @@ namespace Animatroller.Framework.PhysicalDevice
             this.physicalTrigger = physicalTrigger;
         }
 
-        public DigitalOutput Connect(ILogicalOutputDevice<bool> logicalDevice)
+        public DigitalOutput Connect(ILogicalOutputDevice<bool> logicalDevice, bool inverted = false)
         {
-            logicalDevice.Output.Subscribe(this.physicalTrigger);
+            logicalDevice.Output.Subscribe(x =>
+            {
+                if (inverted)
+                    this.physicalTrigger(!x);
+                else
+                    this.physicalTrigger(x);
+            });
 
             return this;
         }

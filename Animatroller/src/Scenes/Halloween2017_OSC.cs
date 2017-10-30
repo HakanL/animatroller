@@ -46,7 +46,7 @@ namespace Animatroller.Scenes
                 bigSpiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
 
                 if (data[6])
-                    audio2.PlayEffect("sixthsense-deadpeople.wav");
+                    audioHifi.PlayEffect("sixthsense-deadpeople.wav");
 
                 //                flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
 
@@ -152,7 +152,7 @@ namespace Animatroller.Scenes
                     fileName = "violin screech.wav";
 
                 if (data[24])
-                    fileName = "WarmHugs.wav";
+                    fileName = "Tornado Siren Single.wav";
 
                 if (string.IsNullOrEmpty(fileName))
                     // Ignore
@@ -165,7 +165,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 1:
-                        audio2.PlayNewEffect(fileName);
+                        //audio2.PlayNewEffect(fileName);
                         break;
 
                     case 2:
@@ -173,7 +173,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 3:
-                        audioPop.PlayNewEffect(fileName);
+                        audioPopper.PlayNewEffect(fileName);
                         break;
 
                     case 4:
@@ -202,7 +202,7 @@ namespace Animatroller.Scenes
                 soundBoardOutputIndex = data;
             });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
+/*            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
             {
                 audio2.PlayEffect("sixthsense-deadpeople.wav");
             });
@@ -280,7 +280,7 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<int>("/3/multipush1/3/1", d => d.First() != 0, (msg, data) =>
             {
                 audio2.PlayEffect("180 Babbling Lunatic.wav");
-            });
+            });*/
 
             oscServer.RegisterAction<int>("/1/eStop", (msg, data) =>
             {
@@ -295,6 +295,16 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<int>("/1/push3", d => d.First() != 0, (msg, data) =>
             {
                 audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
+            });
+
+            oscServer.RegisterAction<int>("/ShortBurst/x", d => d.First() != 0, (msg, data) =>
+            {
+                fireProjector.InputTriggerShort.OnNext(true);
+            });
+
+            oscServer.RegisterAction<int>("/LongBurn/x", d => d.First() != 0, (msg, data) =>
+            {
+                fireProjector.InputTriggerLong.OnNext(true);
             });
 
             oscServer.RegisterActionSimple<bool>("/ManualFader/x", (msg, data) =>
@@ -370,13 +380,13 @@ namespace Animatroller.Scenes
                 //                pinSpot.SetBrightness(data.First());
             });
 
-            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
+/*            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
             {
                 if (data.First() != 0)
                     audio2.PlayBackground();
                 else
                     audio2.PauseBackground();
-            });
+            });*/
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
             {

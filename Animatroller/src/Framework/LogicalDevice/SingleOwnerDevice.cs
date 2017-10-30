@@ -77,7 +77,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         internal IData GetOwnerlessData()
         {
-            lock (this)
+            lock (this.lockObject)
             {
                 if (this.ownerlessData == null)
                 {
@@ -111,8 +111,7 @@ namespace Animatroller.Framework.LogicalDevice
                 // Attempt to get from call context
                 token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
 
-                var groupToken = token as GroupControlToken;
-                if (groupToken != null)
+                if (token is GroupControlToken groupToken)
                 {
                     if (!groupToken.LockAndGetDataFromDevice(this))
                         token = null;
@@ -132,8 +131,7 @@ namespace Animatroller.Framework.LogicalDevice
                 // Attempt to get from call context
                 token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
 
-                var groupToken = token as GroupControlToken;
-                if (groupToken != null)
+                if (token is GroupControlToken groupToken)
                 {
                     if (!groupToken.LockAndGetDataFromDevice(this))
                         token = null;
@@ -153,17 +151,20 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetData(IControlToken token, IData data)
         {
-            var frame = GetFrameBuffer(token, this);
+            lock (this.lockObject)
+            {
+                var frame = GetFrameBuffer(token, this);
 
-            foreach (var kvp in data)
-                frame[kvp.Key] = kvp.Value;
+                foreach (var kvp in data)
+                    frame[kvp.Key] = kvp.Value;
+            }
 
             PushOutput(token);
         }
 
         public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            lock (this)
+            lock (this.lockObject)
             {
                 var ownerCandidate = new ControlledDevice(
                     name,
@@ -174,7 +175,7 @@ namespace Animatroller.Framework.LogicalDevice
                         IData restoreData;
                         IControlToken nextOwner;
 
-                        lock (this)
+                        lock (this.lockObject)
                         {
                             this.owners.Remove(cToken);
 
@@ -196,7 +197,7 @@ namespace Animatroller.Framework.LogicalDevice
                     });
 
                 // Insert new owner
-                lock (this)
+                lock (this.lockObject)
                 {
                     int pos = -1;
                     for (int i = 0; i < this.owners.Count; i++)
