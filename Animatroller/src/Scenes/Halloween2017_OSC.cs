@@ -56,8 +56,8 @@ namespace Animatroller.Scenes
                 if (data[8])
                     audioFlying.PlayEffect("162 Blood Curdling Scream of Terror.wav");
 
-                if (data[9])
-                    sub3dfxRandom.Run();
+                //if (data[9])
+                //    sub3dfxRandom.Run();
 
                 //wall8Light.SetBrightness(data[10] ? 1 : 0);
                 //wall9Light.SetBrightness(data[11] ? 1 : 0);
@@ -68,11 +68,11 @@ namespace Animatroller.Scenes
                 if (data[13])
                     sub3dfxLady.Run();
 
-                if (data[14])
-                    sub3dfxMan.Run();
+                //if (data[14])
+                //    sub3dfxMan.Run();
 
-                if (data[15])
-                    sub3dfxKids.Run();
+                //if (data[15])
+                //    sub3dfxKids.Run();
             }, 25);
 
             oscServer.RegisterAction<bool>("/SoundBoard/x", (msg, data) =>
@@ -165,23 +165,31 @@ namespace Animatroller.Scenes
                         break;
 
                     case 1:
-                        //audio2.PlayNewEffect(fileName);
-                        break;
-
-                    case 2:
                         audioFlying.PlayNewEffect(fileName);
                         break;
 
-                    case 3:
+                    case 2:
                         audioPopper.PlayNewEffect(fileName);
                         break;
 
-                    case 4:
+                    case 3:
                         audioCat.PlayNewEffect(fileName);
                         break;
 
-                    case 5:
+                    case 4:
                         audioPumpkin.PlayNewEffect(fileName);
+                        break;
+
+                    case 5:
+                        audioFrankGhost.PlayNewEffect(fileName);
+                        break;
+
+                    case 6:
+                        audioSpider.PlayNewEffect(fileName);
+                        break;
+
+                    case 7:
+                        audioRocking.PlayNewEffect(fileName);
                         break;
                 }
             }, 25);

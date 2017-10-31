@@ -51,7 +51,6 @@ namespace Animatroller.Scenes
         AudioPlayer audioCat = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
         AudioPlayer audioPopper = new AudioPlayer();
-        AudioPlayer audioDIN = new AudioPlayer();
         AudioPlayer audioFlying = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
@@ -81,12 +80,8 @@ namespace Animatroller.Scenes
         AnalogInput3 inputH = new AnalogInput3(true, name: "Hue");
         AnalogInput3 inputS = new AnalogInput3(true, name: "Saturation");
 
-        Controller.Subroutine sub3dfxRandom = new Controller.Subroutine();
         Controller.Subroutine sub3dfxLady = new Controller.Subroutine();
-        Controller.Subroutine sub3dfxMan = new Controller.Subroutine();
-        Controller.Subroutine sub3dfxKids = new Controller.Subroutine();
         Controller.Subroutine subSpiderJump = new Controller.Subroutine();
-        Controller.Subroutine subGhost = new Controller.Subroutine();
         Controller.Subroutine subLast = new Controller.Subroutine();
         Controller.Subroutine subFog = new Controller.Subroutine();
 
@@ -144,6 +139,9 @@ namespace Animatroller.Scenes
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 setupMode = new DigitalInput2(persistState: true);
 
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 fullOn = new DigitalInput2(persistState: true);
+
         Effect.Flicker flickerEffect = new Effect.Flicker(0.4, 0.6, false);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingGargoyle = new Effect.Pulsating(S(4), 0.5, 1.0, false);
@@ -159,7 +157,6 @@ namespace Animatroller.Scenes
         DigitalInput2 spiderDropTrigger = new DigitalInput2();
         DigitalInput2 firstBeam = new DigitalInput2();
         DigitalInput2 secondBeam = new DigitalInput2();
-        DigitalInput2 ghostBeam = new DigitalInput2();
         DigitalInput2 lastBeam = new DigitalInput2();
         DigitalOutput2 catAir = new DigitalOutput2();
         DigitalOutput2 fire = new DigitalOutput2();
@@ -195,8 +192,7 @@ namespace Animatroller.Scenes
         Dimmer3 treeSkulls = new Dimmer3();
         Dimmer3 popperEyes = new Dimmer3();
 
-        OperatingHours2 hoursSmall = new OperatingHours2("Hours Small");
-        OperatingHours2 hoursFull = new OperatingHours2("Hours Full");
+        OperatingHours2 mainSchedule = new OperatingHours2("Hours");
 
         GroupDimmer allLights = new GroupDimmer();
         GroupDimmer purpleLights = new GroupDimmer();
@@ -246,14 +242,10 @@ namespace Animatroller.Scenes
 
         public Halloween2017(IEnumerable<string> args)
         {
-            hoursSmall.AddRange("5:00 pm", "8:30 pm",
+            mainSchedule.AddRange("5:00 pm", "8:30 pm",
                 DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Sunday);
-            hoursSmall.AddRange("5:00 pm", "9:00 pm",
+            mainSchedule.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Friday, DayOfWeek.Saturday);
-
-            hoursFull.AddRange("6:00 pm", "8:30 pm");
-            hoursFull.Disabled = true;
-            //hoursSmall.Disabled = true;
 
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
@@ -346,9 +338,9 @@ namespace Animatroller.Scenes
             buttonOverrideHours.Output.Subscribe(x =>
             {
                 if (x)
-                    hoursSmall.SetForced(true);
+                    mainSchedule.SetForced(true);
                 else
-                    hoursSmall.SetForced(null);
+                    mainSchedule.SetForced(null);
             });
 
 
@@ -366,7 +358,6 @@ namespace Animatroller.Scenes
 
             testButton1.Output.Subscribe(x =>
             {
-                ladyMovingEyes.SetValue(x);
             });
 
             testButton2.Output.Subscribe(x =>
@@ -385,6 +376,14 @@ namespace Animatroller.Scenes
             {
                 if (x)
                     stateMachine.GoToState(States.Setup);
+                else
+                    stateMachine.GoToDefaultState();
+            });
+
+            fullOn.Output.Subscribe(x =>
+            {
+                if (x)
+                    stateMachine.GoToState(States.BackgroundFull);
                 else
                     stateMachine.GoToDefaultState();
             });
@@ -409,33 +408,14 @@ namespace Animatroller.Scenes
                 }
                 else
                 {
-                    if (hoursFull.IsOpen || hoursSmall.IsOpen)
+                    if (mainSchedule.IsOpen)
                         stateMachine.GoToDefaultState();
                     else
                         stateMachine.GoToIdle();
                 }
             });
 
-            hoursFull.Output.Subscribe(x =>
-            {
-                if (x)
-                {
-                    stateMachine.SetDefaultState(States.BackgroundFull);
-
-                    if (emergencyStop.Value)
-                        stateMachine.GoToState(States.EmergencyStop);
-                    else
-                        stateMachine.GoToDefaultState();
-                }
-                else
-                {
-                    stateMachine.GoToIdle();
-                    stateMachine.SetDefaultState(null);
-                }
-                SetManualColor();
-            });
-
-            hoursSmall.Output.Subscribe(x =>
+            mainSchedule.Output.Subscribe(x =>
             {
                 if (x)
                 {
@@ -535,6 +515,7 @@ namespace Animatroller.Scenes
                         treeSkulls.SetBrightness(1.0);
                         audioHifi.SetBackgroundVolume(0.5);
                         audioHifi.PlayBackground();
+                        ladyMovingEyes.SetValue(true);
 
                         var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
@@ -548,6 +529,7 @@ namespace Animatroller.Scenes
                     })
                 .TearDown(instance =>
                     {
+                        ladyMovingEyes.SetValue(false);
                         Exec.Cancel(sub3dfxLady);
                         audioHifi.PauseBackground();
                         purpleLights.SetBrightness(0.0);
@@ -778,10 +760,8 @@ namespace Animatroller.Scenes
             expanderLedmx.DigitalInputs[6].Connect(rockingMotion, false);
             expanderCat.DigitalInputs[7].Connect(catMotion);
             expanderCat.DigitalInputs[6].Connect(secondBeam);
-            //            expanderCat.DigitalInputs[6].Connect(firstBeam);
             expanderCat.DigitalInputs[5].Connect(spiderDropTrigger, inverted: true);
             expanderCat.DigitalInputs[4].Connect(firstBeam);
-            //expanderLedmx.DigitalInputs[5].Connect(ghostBeam);
             expanderLedmx.DigitalInputs[7].Connect(lastBeam);
             //expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
             expanderLedmx.DigitalOutputs[2].Connect(lastFog, inverted: true);
@@ -838,19 +818,11 @@ namespace Animatroller.Scenes
             frankGhostMotion.Controls(frankGhost.InputTrigger);
             spiderDropTrigger.Controls(spiderDrop.InputTrigger);
 
-            ghostBeam.Output.Subscribe(x =>
-            {
-                UpdateOSC();
-
-                if (x && hoursFull.IsOpen && !emergencyStop.Value && !blockMaster.Value && !blockGhost.Value)
-                    subGhost.Run();
-            });
-
             lastBeam.Output.Subscribe(x =>
             {
                 UpdateOSC();
 
-                if (x && (hoursFull.IsOpen || hoursSmall.IsOpen || stateMachine.CurrentState == States.Setup) && !emergencyStop.Value && !blockMaster.Value && !blockLast.Value)
+                if (x && (stateMachine.CurrentState == States.BackgroundFull || stateMachine.CurrentState == States.Setup) && !emergencyStop.Value && !blockMaster.Value && !blockLast.Value)
                     subLast.Run();
             });
 
@@ -861,23 +833,6 @@ namespace Animatroller.Scenes
                     lastFogRun = DateTime.Now;
                     i.WaitFor(S(4));
                     lastFog.SetValue(false);
-                });
-
-            sub3dfxRandom
-                .RunAction(i =>
-                {
-                    byte video;
-                    do
-                    {
-                        video = (byte)(random.Next(3) + 1);
-                    } while (video == last3dfxVideo);
-                    last3dfxVideo = video;
-
-                    expanderLedmx.SendSerial(0, new byte[] { video });
-                    i.WaitFor(S(12.0));
-                })
-                .TearDown(i =>
-                {
                 });
 
             sub3dfxLady
@@ -892,36 +847,6 @@ namespace Animatroller.Scenes
                 .TearDown(i =>
                 {
                     lady3dfx.SendCommand(null, 255);
-                });
-
-            sub3dfxMan
-                .RunAction(i =>
-                {
-                    expanderLedmx.SendSerial(0, new byte[] { 0x03 });
-                    i.WaitFor(S(12.0));
-                })
-                .TearDown(i =>
-                {
-                });
-
-            sub3dfxKids
-                .RunAction(i =>
-                {
-                    expanderLedmx.SendSerial(0, new byte[] { 0x01 });
-                    i.WaitFor(S(12.0));
-                })
-                .TearDown(i =>
-                {
-                });
-
-            subGhost
-                .RunAction(i =>
-                {
-                    expanderGhost.SendSerial(0, new byte[] { 0x01 });
-                    i.WaitFor(S(12.0));
-                })
-                .TearDown(i =>
-                {
                 });
 
             subLast
@@ -1000,7 +925,7 @@ namespace Animatroller.Scenes
             oscServer.SendAllClients("/Beams/x",
                 firstBeam.Value ? 1 : 0,
                 secondBeam.Value ? 1 : 0,
-                ghostBeam.Value ? 1 : 0,
+                spiderDropTrigger.Value ? 1 : 0,
                 lastBeam.Value ? 1 : 0);
 
             oscServer.SendAllClients("/Blocks/x",

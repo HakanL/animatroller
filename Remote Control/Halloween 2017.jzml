@@ -1,6 +1,6 @@
 <JZML>
 <PROJECT version="5320" width="1280" height="756" osc_target="-1" midi_target="-1" kbmouse_target="-1" skin="Pixel"/>
-<WINDOW class="JAZZINTERFACE" text="Fire" x="0" y="0" width="1280" height="756" id="3" state="1" group="0" font="tahoma,11,0" >
+<WINDOW class="JAZZINTERFACE" text="Fire" x="0" y="0" width="1280" height="756" id="3" state="0" group="0" font="tahoma,11,0" >
 <WINDOW class="CustomButton" text="ShortBurst" x="86" y="90" width="158" height="122" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="0,0" capture="1" color="865343,1596013" label_off="Short Burst" label_on="" outline="1">
 <PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ShortBurst/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ShortBurst/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -102,7 +102,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 <VARIABLE name="speed=1" send="0" osc_target="0" osc_trigger="1" osc_message="/FaderBrightness/speed" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>
-<WINDOW class="JAZZINTERFACE" text="Sound Board" x="0" y="0" width="1280" height="756" id="2" state="0" group="0" font="tahoma,11,0" >
+<WINDOW class="JAZZINTERFACE" text="Sound Board" x="0" y="0" width="1280" height="756" id="2" state="1" group="0" font="tahoma,11,0" >
 <WINDOW class="Pads" text="SoundBoard" x="24" y="107" width="1234" height="620" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="5" label="0" multicolor="0" multilabel="1" row="5">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -139,7 +139,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 		'Tornado Siren'
 });" trigger_script="" trigger_type="5" trigger="1" clock="0" clock_div="4" osc_message="/SoundBoard/onstart" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="LemurMenu" text="AudioOutput" x="32" y="9" width="228" height="90" id="1" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" color="8326402" scale="0" content="Hifi,Audio 2,Flying,Popper,Cat,Pumpkin">
+<WINDOW class="LemurMenu" text="AudioOutput" x="32" y="9" width="228" height="90" id="1" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" color="8326402" scale="0" content="Hifi,Flying,Popper,Cat,Pumpkin,Frank,Spider,Rocking">
 <PARAM name="selection=" value="0.000000" send="1" osc_target="0" osc_trigger="1" osc_message="/AudioOutput/selection" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>
