@@ -10,11 +10,11 @@
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/LongBurn/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>
-<WINDOW class="JAZZINTERFACE" text="Halloween 2016" x="0" y="0" width="1280" height="756" state="0" group="0" font="tahoma,11,0" >
-<WINDOW class="Switches" text="Blocks" x="27" y="63" width="769" height="113" id="1" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="4194304,6684672" column="7" label="1" multicolor="0" multilabel="1" paint="0" radio="0" row="1">
-<PARAM name="x=" value="1.000000,1.000000,1.000000,1.000000,1.000000,1.000000,0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/Blocks/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<WINDOW class="JAZZINTERFACE" text="Halloween 2017" x="0" y="0" width="1280" height="756" state="1" group="0" font="tahoma,11,0" >
+<WINDOW class="Switches" text="Blocks" x="17" y="116" width="1031" height="113" id="1" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="4194304,6684672" column="9" label="1" multicolor="0" multilabel="1" paint="0" radio="0" row="1">
+<PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/Blocks/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/Blocks/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<SCRIPT name="onstart()" script="setattribute(getobject(), 'labels', {'Master', 'Cat', 'First', 'Picture', 'Ghost', 'Last', 'Pumpkin'});
+<SCRIPT name="onstart()" script="setattribute(getobject(), 'labels', {'Master', 'First', 'Picture', 'Spider', 'Rocker', 'Last', 'Cat', 'Frank', 'Pumpkin'});
 " trigger_script="" trigger_type="5" trigger="1" clock="0" clock_div="4" osc_message="/Blocks/onstart" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
 <WINDOW class="Fader" text="MasterVolume" x="1138" y="43" width="112" height="298" id="2" state="1" group="0" font="tahoma,10,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="1596013" cursor="0" grid="0" grid_steps="1" label="1" physic="1" precision="3" unit="" value="1" zoom="1.000000">
@@ -102,7 +102,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 <VARIABLE name="speed=1" send="0" osc_target="0" osc_trigger="1" osc_message="/FaderBrightness/speed" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>
-<WINDOW class="JAZZINTERFACE" text="Sound Board" x="0" y="0" width="1280" height="756" id="2" state="1" group="0" font="tahoma,11,0" >
+<WINDOW class="JAZZINTERFACE" text="Sound Board" x="0" y="0" width="1280" height="756" id="2" state="0" group="0" font="tahoma,11,0" >
 <WINDOW class="Pads" text="SoundBoard" x="24" y="107" width="1234" height="620" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="5" label="0" multicolor="0" multilabel="1" row="5">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>

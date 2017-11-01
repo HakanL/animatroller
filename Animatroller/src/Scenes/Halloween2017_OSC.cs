@@ -197,13 +197,15 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<bool>("/Blocks/x", (msg, data) =>
             {
                 blockMaster.Value = data[0];
-                blockCat.Value = data[1];
-                blockFirst.Value = data[2];
-                blockPicture.Value = data[3];
-                blockGhost.Value = data[4];
+                blockFirst.Value = data[1];
+                blockPicture.Value = data[2];
+                blockSpiderDrop.Value = data[3];
+                blockRocking.Value = data[4];
                 blockLast.Value = data[5];
-                blockPumpkin.Value = data[6];
-            }, 7);
+                blockCat.Value = data[6];
+                blockFrankGhost.Value = data[7];
+                blockPumpkin.Value = data[8];
+            }, 9);
 
             oscServer.RegisterActionSimple<int>("/AudioOutput/selection", (msg, data) =>
             {

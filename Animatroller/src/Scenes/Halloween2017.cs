@@ -242,7 +242,7 @@ namespace Animatroller.Scenes
 
         public Halloween2017(IEnumerable<string> args)
         {
-            mainSchedule.AddRange("5:00 pm", "8:30 pm",
+            mainSchedule.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Sunday);
             mainSchedule.AddRange("5:00 pm", "9:00 pm",
                 DayOfWeek.Friday, DayOfWeek.Saturday);
@@ -545,7 +545,7 @@ namespace Animatroller.Scenes
                     treeSkulls.SetBrightness(1.0);
                     audioHifi.PlayBackground();
                     audioHifi.SetBackgroundVolume(0.7);
-                    Exec.Execute(sub3dfxLady);
+                    //Exec.Execute(sub3dfxLady);
 
                     var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                         0.16470588235294117);
@@ -811,12 +811,19 @@ namespace Animatroller.Scenes
             Utils.ReactiveOr(blockFire, blockMaster).Controls(fireProjector.InputTriggerBlock);
             Utils.ReactiveOr(blockPicture, blockMaster).Controls(pictureFrame.InputTriggerBlock);
             Utils.ReactiveOr(blockRocking, blockMaster).Controls(rockingChair.InputTriggerBlock);
+            Utils.ReactiveOr(blockFirst, blockMaster).Controls(flyingSkeleton.InputTriggerBlock);
 
             catMotion.Controls(grumpyCat.InputTrigger);
             secondBeam.Controls(pictureFrame.InputTrigger);
             mrPumpkinMotion.Controls(mrPumpkin.InputTrigger);
             frankGhostMotion.Controls(frankGhost.InputTrigger);
             spiderDropTrigger.Controls(spiderDrop.InputTrigger);
+
+            spiderDropTrigger.Output.Subscribe(x =>
+            {
+                if (x)
+                    Exec.Execute(sub3dfxLady);
+            });
 
             lastBeam.Output.Subscribe(x =>
             {
@@ -838,10 +845,17 @@ namespace Animatroller.Scenes
             sub3dfxLady
                 .RunAction(i =>
                 {
-                    while (!i.IsCancellationRequested)
+                    i.WaitFor(S(1));
+
+                    if (random.Next(2) == 0)
+                    {
+                        lady3dfx.SendCommand(null, 99);
+                        i.WaitFor(S(30));
+                    }
+                    else
                     {
                         lady3dfx.SendCommand(null, (byte)(random.Next(4) + 1));
-                        i.WaitFor(S(60 * 3.0));
+                        i.WaitFor(S(60 * 2.0));
                     }
                 })
                 .TearDown(i =>
@@ -922,6 +936,7 @@ namespace Animatroller.Scenes
 
         void UpdateOSC()
         {
+            return;
             oscServer.SendAllClients("/Beams/x",
                 firstBeam.Value ? 1 : 0,
                 secondBeam.Value ? 1 : 0,

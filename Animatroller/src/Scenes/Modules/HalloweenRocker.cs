@@ -88,7 +88,7 @@ namespace Animatroller.Scenes.Modules
                         }
                     }
 
-                    ins.WaitFor(S(3));
+                    ins.WaitFor(S(7));
                 })
                 .TearDown(ins =>
                 {
