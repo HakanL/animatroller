@@ -104,20 +104,20 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        public IEffect Start(int priority = 1, IControlToken token = null)
+        public IEffect Start(int channel = 0, int priority = 1, IControlToken token = null)
         {
             if (this.token == null)
             {
                 IControlToken controlToken = token;
                 if (controlToken == null)
                 {
-                    this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, Name, priority);
+                    this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, Name, channel, priority);
                     controlToken = this.token;
                 }
 
                 foreach (var device in this.devices)
                 {
-                    device.Observer = device.Device.GetDataObserver(controlToken);
+                    device.Observer = device.Device.GetDataObserver(channel, controlToken);
                 }
             }
 

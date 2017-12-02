@@ -45,8 +45,8 @@ namespace Animatroller.Scenes.Modules
             sub
                 .SetUp(ins =>
                 {
-                    ladyEyes.SetValue(true, this.controlToken);
-                    rockingMotor.SetValue(true, this.controlToken);
+                    ladyEyes.SetValue(true, token: this.controlToken);
+                    rockingMotor.SetValue(true, token: this.controlToken);
                 })
                 .RunAction(ins =>
                 {
@@ -63,8 +63,8 @@ namespace Animatroller.Scenes.Modules
                 .TearDown(ins =>
                 {
                     audioPlayer.PauseFX();
-                    ladyEyes.SetValue(false, this.controlToken);
-                    rockingMotor.SetValue(false, this.controlToken);
+                    ladyEyes.SetValue(false, token: this.controlToken);
+                    rockingMotor.SetValue(false, token: this.controlToken);
                 });
 
             PowerOn.RunAction(ins =>

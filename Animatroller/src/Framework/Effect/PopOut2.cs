@@ -24,14 +24,14 @@ namespace Animatroller.Framework.Effect
             this.defaultSweepDuration = defaultSweepDuration;
         }
 
-        public Task Pop(double? startBrightness = null, Color? color = null, int priority = 1, TimeSpan? sweepDuration = null)
+        public Task Pop(double? startBrightness = null, Color? color = null, int priority = 1, int channel = 0, TimeSpan? sweepDuration = null)
         {
-            var token = TakeControl(priority: priority, name: Name);
+            var token = TakeControl(channel: currentChannel, priority: priority, name: Name);
 
             if (color.HasValue)
             {
                 this.members.OfType<IReceivesColor>().ToList()
-                    .ForEach(x => x.SetColor(color.Value, null, token));
+                    .ForEach(x => x.SetColor(color.Value, null, channel, token));
             }
 
             return Executor.Current.MasterEffect.Fade(

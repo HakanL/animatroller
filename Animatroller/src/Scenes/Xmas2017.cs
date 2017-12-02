@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Scenes
 {
-    internal partial class Xmas2016 : BaseScene
+    internal partial class Xmas2017 : BaseScene
     {
         const int SacnUniverseEdmx4 = 4;
         const int SacnUniverseLedmx = 10;
@@ -47,7 +47,8 @@ namespace Animatroller.Scenes
             DarthVader,
             MusicSarajevo,
             MusicHolyNight,
-            MusicCarol
+            MusicCarol,
+            Setup
         }
 
         Color[] treeColors = new Color[]
@@ -102,6 +103,8 @@ namespace Animatroller.Scenes
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 inShowMachine = new DigitalInput2();
+        [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
+        DigitalInput2 inSetupMode = new DigitalInput2(persistState: true);
 
         DigitalOutput2 laser = new DigitalOutput2(initial: true);
         DigitalOutput2 airR2D2Olaf = new DigitalOutput2(initial: true);
@@ -216,7 +219,7 @@ namespace Animatroller.Scenes
 
         Import.DmxPlayback dmxPlayback = new Import.DmxPlayback();
 
-        public Xmas2016(IEnumerable<string> args)
+        public Xmas2017(IEnumerable<string> args)
         {
             hours.AddRange("4:00 pm", "10:00 pm");
 
@@ -308,6 +311,16 @@ namespace Animatroller.Scenes
             stateMachine.ForFromSubroutine(States.SantaVideo, subSantaVideo);
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
+            stateMachine.For(States.Setup)
+//                .Controls(1, flickerEffect, pulsatingGargoyle)
+                .Execute(ins =>
+                {
+                    airReindeerBig.SetValue(true, 1);
+                    ins.WaitUntilCancel();
+                    airReindeerBig.SetValue(false, 1);
+                });
+
+
             hours
                 .ControlsMasterPower(laser)
                 .ControlsMasterPower(airR2D2Olaf)
@@ -332,6 +345,7 @@ namespace Animatroller.Scenes
 
             buttonTest.WhenOutputChanges(x =>
             {
+                airReindeerBig.SetValue(x);
             });
 
             buttonReset.WhenOutputChanges(x =>
@@ -438,11 +452,11 @@ namespace Animatroller.Scenes
             faderBright.WhenOutputChanges(v => { SetManualColor(); });
             faderPan.Output.Subscribe(p =>
             {
-                movingHead.SetPan(p * 540);
+                movingHead.SetPan(p * 540, token: null);
             });
             faderTilt.Output.Subscribe(t =>
             {
-                movingHead.SetTilt(t * 270);
+                movingHead.SetTilt(t * 270, token: null);
             });
 
             hours.Output.Subscribe(x =>
@@ -1017,6 +1031,14 @@ namespace Animatroller.Scenes
                 snowMachine.SetValue(x);
             });
 
+            inSetupMode.Output.Subscribe(x =>
+            {
+                if (x)
+                    stateMachine.GoToState(States.Setup);
+                else
+                    stateMachine.GoToDefaultState();
+            });
+
             ImportAndMapChristmasCanon();
             ImportAndMapBelieve();
             ImportAndMapJingleBells();
@@ -1037,7 +1059,7 @@ namespace Animatroller.Scenes
         {
             //if (manualFaderToken != null)
             //{
-            movingHead.SetColor(GetFaderColor(), faderBright.Value);
+            movingHead.SetColor(GetFaderColor(), faderBright.Value, token: null);
             //}
         }
 

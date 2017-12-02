@@ -30,10 +30,12 @@ namespace Animatroller.Framework.Import
         private int pixelWidth;
         private int pixelHeight;
         private bool loop;
+        private int channel;
 
-        public DmxPlayback([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public DmxPlayback(int channel = 0, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
+            this.channel = channel;
             this.sub = new Subroutine("SUB_" + this.name);
             this.watch = new Stopwatch();
             this.pixelMapping = new Dictionary<int, int[]>();
@@ -41,7 +43,7 @@ namespace Animatroller.Framework.Import
 
             this.sub.RunAction(ins =>
             {
-                var bitmap = (Bitmap)this.device.GetFrameBuffer(this.sub.Token, this.device)[DataElements.PixelBitmap];
+                var bitmap = (Bitmap)this.device.GetFrameBuffer(channel, this.sub.Token, this.device)[DataElements.PixelBitmap];
                 if (bitmap.Width != this.pixelWidth || bitmap.Height != this.pixelHeight)
                     throw new ArgumentException("Invalid bitmap size");
 
@@ -120,7 +122,7 @@ namespace Animatroller.Framework.Import
             }
 
             if (dmxFrame.Universe == this.triggerSyncOnUniverse)
-                this.device.PushOutput(this.sub.Token);
+                this.device.PushOutput(this.channel, this.sub.Token);
         }
 
         private DmxFrame ReadFrame(BinaryReader binRead)

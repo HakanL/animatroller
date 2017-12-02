@@ -131,18 +131,18 @@ namespace Animatroller.Framework.LogicalDevice
                 throw new ArgumentOutOfRangeException("position");
         }
 
-        private Color[] GetColorArray(IData data)
+        private Color[] GetColorArray(IData data, int channel = 0)
         {
             if (data == null)
-                data = GetOwnerlessData();
+                data = GetOwnerlessData(channel);
 
             return (Color[])data[DataElements.PixelColor];
         }
 
-        private double[] GetBrightnessArray(IData data)
+        private double[] GetBrightnessArray(IData data, int channel = 0)
         {
             if (data == null)
-                data = GetOwnerlessData();
+                data = GetOwnerlessData(channel);
 
             return (double[])data[DataElements.PixelBrightness];
         }
@@ -163,8 +163,8 @@ namespace Animatroller.Framework.LogicalDevice
         {
             CheckBounds(position);
 
-            Color[] currentColorArray = (Color[])this.currentData[DataElements.PixelColor];
-            double[] currentBrightnessArray = (double[])this.currentData[DataElements.PixelBrightness];
+            Color[] currentColorArray = (Color[])GetCurrentData(DataElements.PixelColor);
+            double[] currentBrightnessArray = (double[])GetCurrentData(DataElements.PixelBrightness);
 
             return new ColorBrightness(currentColorArray[position], currentBrightnessArray[position]);
         }
@@ -230,8 +230,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void Output()
         {
-            Color[] currentColorArray = (Color[])this.currentData[DataElements.PixelColor];
-            double[] currentBrightnessArray = (double[])this.currentData[DataElements.PixelBrightness];
+            Color[] currentColorArray = GetCurrentData<Color[]>(DataElements.PixelColor);
+            double[] currentBrightnessArray = GetCurrentData<double[]>(DataElements.PixelBrightness);
 
             foreach (var pixelDevice in this.devices)
             {
@@ -356,13 +356,13 @@ namespace Animatroller.Framework.LogicalDevice
             return newData;
         }
 
-        public void SetBrightness(double brightness, IControlToken token = null)
+        public void SetBrightness(double brightness, int channel = 0, IControlToken token = null)
         {
             var pixelBrightness = new double[this.pixelCount];
             for (int i = 0; i < pixelBrightness.Length; i++)
                 pixelBrightness[i] = brightness;
 
-            this.SetData(token, Tuple.Create(DataElements.PixelBrightness, (object)pixelBrightness));
+            this.SetData(channel, token, Tuple.Create(DataElements.PixelBrightness, (object)pixelBrightness));
         }
 
         protected class PixelDevice
@@ -421,9 +421,9 @@ namespace Animatroller.Framework.LogicalDevice
         //    //    RaiseMultiPixelChanged(pixelOffset, pixel - pixelOffset);
         //}
 
-        public void SetColor(Color color, double? brightness = 1.0, IControlToken token = null)
+        public void SetColor(Color color, double? brightness = 1.0, int channel = 0, IControlToken token = null)
         {
-            SetColorRange(color, brightness, 0, null, token);
+            SetColorRange(color, brightness, 0, null, channel, token);
         }
 
         public void SetColorRange(
@@ -431,9 +431,10 @@ namespace Animatroller.Framework.LogicalDevice
             double? brightness = 1.0,
             int startPosition = 0,
             int? length = null,
+            int channel = 0,
             IControlToken token = null)
         {
-            IData data = GetFrameBuffer(token, this);
+            IData data = GetFrameBuffer(channel, token, this);
             //if (token == null)
             //    data = GetOwnerlessData();
             //else
@@ -460,12 +461,12 @@ namespace Animatroller.Framework.LogicalDevice
                     pixelBrightness[startPosition + i] = brightness.Value;
             }
 
-            PushOutput(token);
+            PushOutput(channel, token);
         }
 
-        public void Inject(Color color, double brightness, IControlToken token = null)
+        public void Inject(Color color, double brightness, int channel = 0, IControlToken token = null)
         {
-            IData data = GetFrameBuffer(token, this);
+            IData data = GetFrameBuffer(channel, token, this);
             //if (token == null)
             //    data = GetOwnerlessData();
             //else
@@ -483,12 +484,12 @@ namespace Animatroller.Framework.LogicalDevice
             bArray[0] = brightness;
             cArray[0] = color;
 
-            PushOutput(token);
+            PushOutput(channel, token);
         }
 
-        public void InjectRev(Color color, double brightness, IControlToken token = null)
+        public void InjectRev(Color color, double brightness, int channel = 0, IControlToken token = null)
         {
-            IData data = GetFrameBuffer(token, this);
+            IData data = GetFrameBuffer(channel, token, this);
             //if (token == null)
             //    data = GetOwnerlessData();
             //else
@@ -506,7 +507,7 @@ namespace Animatroller.Framework.LogicalDevice
             bArray[bArray.Length - 1] = brightness;
             cArray[cArray.Length - 1] = color;
 
-            PushOutput(token);
+            PushOutput(channel, token);
         }
     }
 }

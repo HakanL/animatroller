@@ -38,19 +38,29 @@ namespace Animatroller.Framework.LogicalDevice
             // Do nothing
         }
 
+        public void SetData(IData data)
+        {
+            SetData(channel: 0, token: null, data: data);
+        }
+
         public void SetData(IControlToken token, IData data)
+        {
+            SetData(channel: 0, token: token, data: data);
+        }
+
+        public void SetData(int channel, IControlToken token, IData data)
         {
             if (token == null)
                 token = this.internalLock;
 
             foreach (var member in AllMembers)
             {
-                var frame = GetFrameBuffer(token, member);
+                var frame = GetFrameBuffer(channel, token, member);
 
                 foreach (var kvp in data)
                     frame[kvp.Key] = kvp.Value;
 
-                member.PushOutput(token);
+                member.PushOutput(channel, token);
             }
         }
     }

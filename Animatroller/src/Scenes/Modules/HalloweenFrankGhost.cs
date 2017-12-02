@@ -21,7 +21,7 @@ namespace Animatroller.Scenes.Modules
             : base(name)
         {
             pulsatingLow.ConnectTo(light);
-            levelsPlayback.Output.Controls(b => light.SetBrightness(b, this.controlToken));
+            levelsPlayback.Output.Controls(b => light.SetBrightness(b, token: this.controlToken));
 
             OutputPower.Subscribe(x =>
             {
@@ -29,8 +29,8 @@ namespace Animatroller.Scenes.Modules
                 {
                     LockDevices(air, light);
 
-                    air.SetValue(true, this.controlToken);
-                    light.SetColor(Color.Red, this.controlToken);
+                    air.SetValue(true, token: this.controlToken);
+                    light.SetColor(Color.Red, token: this.controlToken);
                     pulsatingLow.Start(token: this.controlToken);
                 }
                 else

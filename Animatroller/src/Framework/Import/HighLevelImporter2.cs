@@ -1,4 +1,5 @@
-﻿using System;
+﻿//#define LOG_CHANNELS
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Xml.Serialization;
@@ -69,12 +70,14 @@ namespace Animatroller.Framework.Import
             {
                 if (!kvp.Value.Mapped && kvp.Value.HasEffects)
                 {
+#if LOG_CHANNELS
                     this.log.Warning("No devices mapped to {0} ({1})", kvp.Key, kvp.Value.Name);
+#endif
                 }
             }
         }
 
-        protected void PopulateTimeline()
+        protected void PopulateTimeline(int channel = 0)
         {
             foreach (var kvp in this.mappedDevices)
             {
@@ -94,11 +97,11 @@ namespace Animatroller.Framework.Import
                 {
                     if (this.token == null)
                     {
-                        this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, this.name, this.priority);
+                        this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, this.name, channel, this.priority);
 
                         foreach (var device in this.devices)
                         {
-                            device.Observer = device.Device.GetDataObserver(this.token);
+                            device.Observer = device.Device.GetDataObserver(channel, this.token);
 
                             device.Observer.SetDataFromIData(device.AdditionalData);
                         }
@@ -224,14 +227,18 @@ namespace Animatroller.Framework.Import
 
         public void Dump()
         {
+#if LOG_CHANNELS
             this.log.Information("Used channels:");
+#endif
 
             int count = 0;
             foreach (var kvp in this.channelData.Where(x => x.Value.HasEffects).OrderBy(x => x.Key))
             {
                 count++;
 
+#if LOG_CHANNELS
                 this.log.Information("Channel {0} - {1}", kvp.Key, kvp.Value.Name);
+#endif
             }
 
             this.log.Information("Total used channels: {0}", count);

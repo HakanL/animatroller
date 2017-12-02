@@ -26,12 +26,16 @@ namespace Animatroller.Framework.LogicalDevice
             Name = name;
         }
 
-        public GroupControlToken(IEnumerable<IOwnedDevice> devices, Action<IControlToken> disposeAction, string name, int priority = 1)
+        public GroupControlToken(
+            IEnumerable<IOwnedDevice> devices, Action<IControlToken> disposeAction,
+            string name,
+            int channel = 0,
+            int priority = 1)
         {
             MemberTokens = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var device in devices)
             {
-                MemberTokens.Add(device, device.TakeControl(priority, name));
+                MemberTokens.Add(device, device.TakeControl(channel, priority, name));
             }
             this.disposeAction = disposeAction;
             this.ownsTokens = true;
@@ -45,26 +49,26 @@ namespace Animatroller.Framework.LogicalDevice
 
         public bool AutoAddDevices { get; set; }
 
-        public IData GetDataForDevice(IOwnedDevice device)
+        public IData GetDataForDevice(IOwnedDevice device, int channel)
         {
             IControlToken token;
 
             if (MemberTokens.TryGetValue(device, out token))
             {
-                return token.GetDataForDevice(device);
+                return token.GetDataForDevice(device, channel);
             }
 
             if (AutoAddDevices)
             {
-                token = device.TakeControl(priority: Priority, name: Name);
+                token = device.TakeControl(channel: channel, priority: Priority, name: Name);
                 Add(device, token);
 
-                return token.GetDataForDevice(device);
+                return token.GetDataForDevice(device, channel);
             }
 
             var sod = device as SingleOwnerDevice;
             if (sod != null)
-                return sod.GetOwnerlessData();
+                return sod.GetOwnerlessData(channel);
 
             throw new ArgumentException("Unhandled device");
         }
@@ -102,7 +106,7 @@ namespace Animatroller.Framework.LogicalDevice
         /// </summary>
         /// <param name="device"></param>
         /// <returns>True if device is controlled by this group token</returns>
-        public bool LockAndGetDataFromDevice(IOwnedDevice device)
+        public bool LockAndGetDataFromDevice(IOwnedDevice device, int channel)
         {
             if (MemberTokens.ContainsKey(device))
                 return true;
@@ -111,7 +115,7 @@ namespace Animatroller.Framework.LogicalDevice
                 return false;
 
             // Add
-            MemberTokens.Add(device, device.TakeControl(Priority, Name));
+            MemberTokens.Add(device, device.TakeControl(channel, Priority, Name));
 
             return true;
         }

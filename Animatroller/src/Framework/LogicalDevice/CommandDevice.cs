@@ -29,7 +29,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SendCommand(IControlToken token, params byte[] command)
         {
-            SetData(token, new Data(DataElements.Command, (object)command));
+            SetData(channel: 0, token: token, data: new Data(DataElements.Command, (object)command));
         }
     }
 }

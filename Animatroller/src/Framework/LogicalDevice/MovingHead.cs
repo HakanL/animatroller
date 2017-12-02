@@ -31,30 +31,30 @@ namespace Animatroller.Framework.LogicalDevice
 
         public double Pan
         {
-            get { return (double)this.currentData[DataElements.Pan]; }
+            get { return GetCurrentData<double>(DataElements.Pan); }
         }
 
         public double Tilt
         {
-            get { return (double)this.currentData[DataElements.Tilt]; }
+            get { return GetCurrentData<double>(DataElements.Tilt); }
         }
 
-        public void SetPanTilt(double pan, double tilt, IControlToken token)
+        public void SetPanTilt(double pan, double tilt, int channel = 0, IControlToken token = null)
         {
-            this.SetData(token,
+            this.SetData(channel, token,
                 Tuple.Create(DataElements.Pan, (object)pan),
                 Tuple.Create(DataElements.Tilt, (object)tilt)
                 );
         }
 
-        public void SetPan(double pan, IControlToken token)
+        public void SetPan(double pan, int channel = 0, IControlToken token = null)
         {
-            this.SetData(token, Tuple.Create(DataElements.Pan, (object)pan));
+            this.SetData(channel, token, Tuple.Create(DataElements.Pan, (object)pan));
         }
 
-        public void SetTilt(double tilt, IControlToken token)
+        public void SetTilt(double tilt, int channel = 0, IControlToken token = null)
         {
-            this.SetData(token, Tuple.Create(DataElements.Tilt, (object)tilt));
+            this.SetData(channel, token, Tuple.Create(DataElements.Tilt, (object)tilt));
         }
     }
 }

@@ -28,12 +28,12 @@ namespace Animatroller.Framework.LogicalDevice
 
         public double StrobeSpeed
         {
-            get { return (double)this.currentData[DataElements.StrobeSpeed]; }
+            get { return (double)GetCurrentData(DataElements.StrobeSpeed); }
         }
 
-        public void SetStrobeSpeed(double strobeSpeed, IControlToken token)
+        public void SetStrobeSpeed(double strobeSpeed, int channel = 0, IControlToken token = null)
         {
-            this.SetData(token, Tuple.Create(DataElements.StrobeSpeed, (object)strobeSpeed));
+            this.SetData(channel, token, Tuple.Create(DataElements.StrobeSpeed, (object)strobeSpeed));
         }
     }
 }

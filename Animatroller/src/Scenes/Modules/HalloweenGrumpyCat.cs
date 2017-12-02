@@ -27,7 +27,7 @@ namespace Animatroller.Scenes.Modules
                 {
                     LockDevices(air, light);
 
-                    air.SetValue(true, this.controlToken);
+                    air.SetValue(true, token: this.controlToken);
                     pulsatingLow.Start(token: this.controlToken);
                 }
                 else

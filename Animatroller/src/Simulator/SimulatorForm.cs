@@ -143,7 +143,7 @@ namespace Animatroller.Simulator
                     else
                         AddDigitalInput_Momentarily((DigitalInput2)fieldValue);
                 }
-                else if (field.FieldType == typeof(DigitalOutput2))
+                else if (typeof(DigitalOutput2).IsAssignableFrom(field.FieldType))
                 {
                     this.AddDigitalOutput((DigitalOutput2)fieldValue);
                 }

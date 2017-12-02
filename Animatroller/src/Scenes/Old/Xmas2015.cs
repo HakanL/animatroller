@@ -345,37 +345,37 @@ namespace Animatroller.Scenes
                 .RunAction(i =>
                 {
                     pulsatingEffect4.Start();
-                    lightR2D2.SetBrightness(1, i.Token);
-                    lightOlaf.SetBrightness(1, i.Token);
-                    lightNet1.SetBrightness(1, i.Token);
-                    lightNet2.SetBrightness(1, i.Token);
-                    lightNet3.SetBrightness(1, i.Token);
-                    lightNet4.SetBrightness(1, i.Token);
-                    lightNet5.SetBrightness(1, i.Token);
-                    lightNet6.SetBrightness(1, i.Token);
-                    lightNet7.SetBrightness(1, i.Token);
-                    lightNet8.SetBrightness(1, i.Token);
-                    lightTopper1.SetBrightness(1, i.Token);
-                    lightTopper2.SetBrightness(1, i.Token);
-                    lightXmasTree.SetBrightness(1, i.Token);
-                    lightStairs1.SetBrightness(1, i.Token);
-                    lightStairs2.SetBrightness(1, i.Token);
-                    lightRail1.SetBrightness(1, i.Token);
-                    lightRail2.SetBrightness(1, i.Token);
-                    lightSanta.SetBrightness(1, i.Token);
-                    lightSnowman.SetBrightness(1, i.Token);
-                    lightHat1.SetBrightness(1, i.Token);
-                    lightHat2.SetBrightness(1, i.Token);
-                    lightHat3.SetBrightness(1, i.Token);
-                    lightHat4.SetBrightness(1, i.Token);
-                    lightReindeer1.SetBrightness(1, i.Token);
-                    lightReindeer2.SetBrightness(1, i.Token);
-                    lightVader.SetColor(Color.Red, 1, i.Token);
-                    lightWall1.SetColor(Color.Red, 1, i.Token);
-                    lightWall2.SetColor(Color.Red, 1, i.Token);
-                    lightWall3.SetColor(Color.Red, 1, i.Token);
+                    lightR2D2.SetBrightness(1, token: i.Token);
+                    lightOlaf.SetBrightness(1, token: i.Token);
+                    lightNet1.SetBrightness(1, token: i.Token);
+                    lightNet2.SetBrightness(1, token: i.Token);
+                    lightNet3.SetBrightness(1, token: i.Token);
+                    lightNet4.SetBrightness(1, token: i.Token);
+                    lightNet5.SetBrightness(1, token: i.Token);
+                    lightNet6.SetBrightness(1, token: i.Token);
+                    lightNet7.SetBrightness(1, token: i.Token);
+                    lightNet8.SetBrightness(1, token: i.Token);
+                    lightTopper1.SetBrightness(1, token: i.Token);
+                    lightTopper2.SetBrightness(1, token: i.Token);
+                    lightXmasTree.SetBrightness(1, token: i.Token);
+                    lightStairs1.SetBrightness(1, token: i.Token);
+                    lightStairs2.SetBrightness(1, token: i.Token);
+                    lightRail1.SetBrightness(1, token: i.Token);
+                    lightRail2.SetBrightness(1, token: i.Token);
+                    lightSanta.SetBrightness(1, token: i.Token);
+                    lightSnowman.SetBrightness(1, token: i.Token);
+                    lightHat1.SetBrightness(1, token: i.Token);
+                    lightHat2.SetBrightness(1, token: i.Token);
+                    lightHat3.SetBrightness(1, token: i.Token);
+                    lightHat4.SetBrightness(1, token: i.Token);
+                    lightReindeer1.SetBrightness(1, token: i.Token);
+                    lightReindeer2.SetBrightness(1, token: i.Token);
+                    lightVader.SetColor(Color.Red, 1, token: i.Token);
+                    lightWall1.SetColor(Color.Red, 1, token: i.Token);
+                    lightWall2.SetColor(Color.Red, 1, token: i.Token);
+                    lightWall3.SetColor(Color.Red, 1, token: i.Token);
 
-                    saberPixels.SetColor(Color.Red, 0.4, i.Token);
+                    saberPixels.SetColor(Color.Red, 0.4, token: i.Token);
 
                     subCandyCane.Run();
                     dmxPlayback.Run();
@@ -397,7 +397,7 @@ namespace Animatroller.Scenes
                     {
                         for (int x = 0; x < spacing; x++)
                         {
-                            pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, i.Token);
+                            pixelsRoofEdge.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, token: i.Token);
 
                             i.WaitFor(S(0.30), true);
                         }
@@ -432,11 +432,11 @@ namespace Animatroller.Scenes
                             {
                                 case 0:
                                 case 1:
-                                    pixelsRoofEdge.InjectRev(Color.Yellow, 1.0, instance.Token);
+                                    pixelsRoofEdge.InjectRev(Color.Yellow, 1.0, token: instance.Token);
                                     break;
                                 case 2:
                                 case 3:
-                                    pixelsRoofEdge.InjectRev(Color.Orange, 0.2, instance.Token);
+                                    pixelsRoofEdge.InjectRev(Color.Orange, 0.2, token: instance.Token);
                                     break;
                             }
 
@@ -536,7 +536,7 @@ namespace Animatroller.Scenes
                 {
                     //Exec.Cancel(subCandyCane);
                     subStarWarsCane.Run();
-                    lightR2D2.SetBrightness(1.0, instance.Token);
+                    lightR2D2.SetBrightness(1.0, token: instance.Token);
 
                     audioMain.PlayTrack("01. Star Wars - Main Title.wav");
 
@@ -558,17 +558,17 @@ namespace Animatroller.Scenes
                     audioDarthVader.PlayEffect("saberon.wav");
                     for (int sab = 00; sab < 32; sab++)
                     {
-                        saberPixels.Inject(Color.Red, 0.5, instance.Token);
+                        saberPixels.Inject(Color.Red, 0.5, token: instance.Token);
                         instance.WaitFor(S(0.01));
                     }
                     instance.WaitFor(S(1));
                     audioMain.PauseTrack();
 
-                    lightVader.SetColor(Color.Red, 1.0, instance.Token);
+                    lightVader.SetColor(Color.Red, 1.0, token: instance.Token);
                     audioDarthVader.PlayEffect("father.wav");
                     instance.WaitFor(S(5));
 
-                    lightVader.SetBrightness(0.0, instance.Token);
+                    lightVader.SetBrightness(0.0, token: instance.Token);
                     //light3wise.TurnOff();
                     //lightJesus.TurnOff();
                     //pulsatingStar.Stop();
@@ -581,8 +581,8 @@ namespace Animatroller.Scenes
                     instance.WaitFor(S(0.7));
                     for (int sab = 0; sab < 16; sab++)
                     {
-                        saberPixels.InjectRev(Color.Black, 0, instance.Token);
-                        saberPixels.InjectRev(Color.Black, 0, instance.Token);
+                        saberPixels.InjectRev(Color.Black, 0, token: instance.Token);
+                        saberPixels.InjectRev(Color.Black, 0, token: instance.Token);
                         instance.WaitFor(S(0.01));
                     }
                     //elLightsaber.SetPower(false);
@@ -764,30 +764,30 @@ namespace Animatroller.Scenes
             lorFeelTheLight.MapDevice("03.5 mini tree 04", lightSnowman);
             lorFeelTheLight.MapDevice("03.4 mini tree 03", lightVader, Utils.Data(Color.Red));
             lorFeelTheLight.MapDevice("03.3 mini tree 02",
-                new VirtualDevice(b => saberPixels.SetColorRange(Color.Red, b, 0, 32, lorFeelTheLight.Token)));
+                new VirtualDevice(b => saberPixels.SetColorRange(Color.Red, b, 0, 32, token: lorFeelTheLight.Token)));
 
             lorFeelTheLight.ControlDevice(pixelsMatrix);
             lorFeelTheLight.ControlDevice(saberPixels);
             lorFeelTheLight.MapDevice("Unit 02.1 Mega tree 1",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 0, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 0, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.2 Mega tree 2",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 1, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 1, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.3 Mege tree 3",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 2, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 2, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.4 Mega tree 4",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.9 Mega tree 9",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 4, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 4, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.10 Mega tree 10",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 5, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 5, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.11 Mega tree 11",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 6, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 6, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.12 Mega tree 12",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 7, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 7, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.15 Mega tree 15",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("Unit 02.16 Mega tree 16",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, lorFeelTheLight.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, token: lorFeelTheLight.Token)));
             lorFeelTheLight.MapDevice("03.1 mega tree topper 01", pixelsRoofEdge, Utils.Data(Color.White));
 
             lorFeelTheLight.Prepare();
@@ -839,30 +839,30 @@ namespace Animatroller.Scenes
 
             lorBelieve.MapDevice("NATIVITY", lightVader, Utils.Data(Color.Red));
             lorBelieve.MapDevice("House 3",
-                new VirtualDevice(b => saberPixels.SetColorRange(Color.Red, b, 0, 32, lorBelieve.Token)));
+                new VirtualDevice(b => saberPixels.SetColorRange(Color.Red, b, 0, 32, token: lorBelieve.Token)));
 
             lorBelieve.ControlDevice(pixelsMatrix);
             lorBelieve.ControlDevice(saberPixels);
             lorBelieve.MapDevice("Mega Tree 1",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 0, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 0, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 2",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 1, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 1, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 3",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 2, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 2, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 4",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 3, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 5",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 4, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 4, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 6",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 5, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 5, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 7",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 6, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 6, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 8",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 7, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Red, b, 0, 7, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 9",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 8, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Tree 10",
-                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, lorBelieve.Token)));
+                new VirtualDevice(b => pixelsMatrix.SetColorRange(Color.Blue, b, 0, 9, 20, 1, token: lorBelieve.Token)));
             lorBelieve.MapDevice("Mega Star", pixelsRoofEdge, Utils.Data(Color.Red));
 
             lorBelieve.Prepare();

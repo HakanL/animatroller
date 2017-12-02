@@ -79,22 +79,22 @@ namespace Animatroller.Scenes.Modules
 
             sub1.RunAction(ins =>
             {
-                fire.SetValue(true, this.controlToken);
+                fire.SetValue(true, token: this.controlToken);
                 ins.WaitFor(S(0.5));
             })
             .TearDown(ins =>
             {
-                fire.SetValue(false, this.controlToken);
+                fire.SetValue(false, token: this.controlToken);
             });
 
             sub2.RunAction(ins =>
             {
-                fire.SetValue(true, this.controlToken);
+                fire.SetValue(true, token: this.controlToken);
                 ins.WaitFor(S(2.0));
             })
             .TearDown(ins =>
             {
-                fire.SetValue(false, this.controlToken);
+                fire.SetValue(false, token: this.controlToken);
             });
         }
 

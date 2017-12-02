@@ -226,9 +226,7 @@ namespace Animatroller.Scenes
         Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
         IControlToken manualFaderToken;
-        IControlToken bigSpiderEyesToken;
         int soundBoardOutputIndex = 0;
-        byte last3dfxVideo = 0;
 
         // Modules
         Modules.HalloweenGrumpyCat grumpyCat;
@@ -349,8 +347,8 @@ namespace Animatroller.Scenes
                 // Flash
                 if (x)
                 {
-                    allLights.TakeAndHoldControl(100, "FlashBaby");
-                    allLights.SetData(null, Utils.Data(1.0), Utils.Data(Color.White));
+                    allLights.TakeAndHoldControl(priority: 100, name: "FlashBaby");
+                    allLights.SetData(0, null, Utils.Data(1.0), Utils.Data(Color.White));
                 }
                 else
                     allLights.ReleaseControl();
@@ -393,8 +391,8 @@ namespace Animatroller.Scenes
                 // Flash
                 if (x)
                 {
-                    allLights.TakeAndHoldControl(200, "FlashBaby");
-                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
+                    allLights.TakeAndHoldControl(priority: 200, name: "FlashBaby");
+                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();
@@ -520,7 +518,7 @@ namespace Animatroller.Scenes
                         var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
 
-                        purpleLights.SetData(null,
+                        purpleLights.SetData(0, null,
                             Utils.Data(purpleColor.Brightness),
                             Utils.Data(purpleColor.Color),
                             Utils.Data(DataElements.ColorUltraViolet, 1.0));
@@ -550,7 +548,7 @@ namespace Animatroller.Scenes
                     var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                         0.16470588235294117);
 
-                    purpleLights.SetData(null, Utils.Data(purpleColor.Color, purpleColor.Brightness));
+                    purpleLights.SetData(0, null, Utils.Data(purpleColor.Color, purpleColor.Brightness));
 
                     while (!i.IsCancellationRequested && stateMachine.CurrentState == States.BackgroundFull)
                     {
@@ -929,8 +927,8 @@ namespace Animatroller.Scenes
         {
             if (manualFaderToken != null)
             {
-                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value, manualFaderToken);
-                wall3Light.SetColor(GetFaderColor(), faderBright.Value, manualFaderToken);
+                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
+                wall3Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
             }
         }
 

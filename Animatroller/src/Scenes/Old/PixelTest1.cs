@@ -97,11 +97,11 @@ namespace Animatroller.Scenes
                             {
                                 case 0:
                                 case 1:
-                                    pixelRope.InjectRev(Color.Yellow, 1.0, instance.Token);
+                                    pixelRope.InjectRev(Color.Yellow, 1.0, token: instance.Token);
                                     break;
                                 case 2:
                                 case 3:
-                                    pixelRope.InjectRev(Color.Orange, 0.2, instance.Token);
+                                    pixelRope.InjectRev(Color.Orange, 0.2, token: instance.Token);
                                     break;
                             }
 
@@ -123,7 +123,7 @@ namespace Animatroller.Scenes
                     {
                         for (int x = 0; x < spacing; x++)
                         {
-                            pixelRope.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, i.Token);
+                            pixelRope.Inject((x % spacing) == 0 ? Color.Red : Color.White, 0.5, token: i.Token);
 
                             i.WaitFor(S(0.30), true);
                         }

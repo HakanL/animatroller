@@ -332,8 +332,8 @@ namespace Animatroller.Scenes
                 // Flash
                 if (data != 0)
                 {
-                    allLights.TakeAndHoldControl(100);
-                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
+                    allLights.TakeAndHoldControl(priority: 100);
+                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();

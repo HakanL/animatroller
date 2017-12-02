@@ -176,7 +176,7 @@ namespace Animatroller.Framework.Import
 
             public override void Execute(IReceivesBrightness device, IControlToken token)
             {
-                device.SetBrightness(Brightness, token);
+                device.SetBrightness(Brightness, channel: 0, token: token);
             }
 
             public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)

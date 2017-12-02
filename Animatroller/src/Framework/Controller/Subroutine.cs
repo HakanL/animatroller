@@ -178,12 +178,12 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        private void Lock()
+        private void Lock(int channel = 0)
         {
             var heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var handleLock in this.handleLocks)
             {
-                var control = handleLock.TakeControl(priority: this.lockPriority, name: Name);
+                var control = handleLock.TakeControl(channel: channel, priority: this.lockPriority, name: Name);
 
                 heldLocks.Add(handleLock, control);
             }

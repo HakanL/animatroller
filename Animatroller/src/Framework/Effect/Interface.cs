@@ -8,7 +8,7 @@ namespace Animatroller.Framework.Effect
 {
     public interface IEffect : IOwner
     {
-        IEffect Start(int priority, IControlToken token = null);
+        IEffect Start(int channel = 0, int priority = 1, IControlToken token = null);
 
         IEffect Stop();
     }

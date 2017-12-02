@@ -232,7 +232,7 @@ namespace Animatroller.Scenes
                         ColorBrightness purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
 
-                        purpleLights.SetData(null, Utils.Data(purpleColor.Color, purpleColor.Brightness));
+                        purpleLights.SetData(Utils.Data(purpleColor.Color, purpleColor.Brightness));
 
                         while (!i.IsCancellationRequested && stateMachine.CurrentState == States.Background)
                         {
@@ -529,7 +529,7 @@ namespace Animatroller.Scenes
                 if (data.First() != 0)
                 {
                     allLights.TakeAndHoldControl();
-                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
+                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();
@@ -819,7 +819,7 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     allLights.TakeAndHoldControl();
-                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
+                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();
@@ -899,7 +899,7 @@ namespace Animatroller.Scenes
 
                     i.WaitFor(S(2.0));
                     dropSpiderEyes.SetValue(false);
-                    spiderLight.SetBrightness(0.0, i.Token);
+                    spiderLight.SetBrightness(0.0, token: i.Token);
                     switch (random.Next(4))
                     {
                         case 0:
@@ -955,8 +955,8 @@ namespace Animatroller.Scenes
                     pulsatingEffect2.Stop();
                     pulsatingEffect1.Start();
                     candyEyes.SetValue(true);
-                    underGeorge.SetStrobeSpeed(0.5, i.Token);
-                    underGeorge.SetBrightness(1.0, i.Token);
+                    underGeorge.SetStrobeSpeed(0.5, token: i.Token);
+                    underGeorge.SetBrightness(1.0, token: i.Token);
                     audioPop.PlayEffect("laugh.wav", 1.0, 0.0);
                     for (int r = 0; r < 2; r++)
                     {
@@ -967,8 +967,8 @@ namespace Animatroller.Scenes
                     }
                     i.WaitFor(S(1));
                     audioDIN.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
-                    underGeorge.SetStrobeSpeed(0.0, i.Token);
-                    underGeorge.SetBrightness(0.0, i.Token);
+                    underGeorge.SetStrobeSpeed(0.0, token: i.Token);
+                    underGeorge.SetBrightness(0.0, token: i.Token);
                     i.WaitFor(S(1));
 
                     popper.SetValue(true);
@@ -979,13 +979,13 @@ namespace Animatroller.Scenes
                     i.WaitFor(S(8));
 
                     Exec.MasterEffect.Fade(underGeorge, 0.5, 0.0, 1000, token: i.Token);
-                    //                    underGeorge.SetBrightness(0.3, i.Token);
+                    //                    underGeorge.SetBrightness(0.3, token: i.Token);
                     i.WaitFor(S(0.5));
                     george2.SetValue(true);
                     i.WaitFor(S(1.0));
                     george2.SetValue(false);
                     i.WaitFor(S(1.0));
-                    //                    underGeorge.SetBrightness(0.0, i.Token);
+                    //                    underGeorge.SetBrightness(0.0, token: i.Token);
                 })
                 .TearDown(i =>
                 {

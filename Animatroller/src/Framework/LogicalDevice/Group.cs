@@ -37,17 +37,17 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void PushOutput(IControlToken token)
+        public void PushOutput(int channel, IControlToken token)
         {
             foreach (var member in AllMembers)
             {
-                member.PushOutput(token);
+                member.PushOutput(channel, token);
             }
         }
 
-        public IData GetFrameBuffer(IControlToken token, IReceivesData device)
+        public IData GetFrameBuffer(int channel, IControlToken token, IReceivesData device)
         {
-            return device.GetFrameBuffer(token, device);
+            return device.GetFrameBuffer(channel, token, device);
         }
 
         protected override void UpdateOutput()
@@ -55,7 +55,7 @@ namespace Animatroller.Framework.LogicalDevice
             // No need to do anything here, each individual member should be started on its own
         }
 
-        public IPushDataController GetDataObserver(IControlToken token)
+        public IPushDataController GetDataObserver(int channel, IControlToken token)
         {
             if (token == null)
                 throw new ArgumentNullException("token");
@@ -65,7 +65,7 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 foreach (var member in this.members)
                 {
-                    observers.Add(member.GetDataObserver(token));
+                    observers.Add(member.GetDataObserver(channel, token));
                 }
             }
 
@@ -82,14 +82,14 @@ namespace Animatroller.Framework.LogicalDevice
             return new ControlledGroupData(token, groupObserver);
         }
 
-        public void TakeAndHoldControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public void TakeAndHoldControl(int channel = 0, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             if (this.internalLock != null)
             {
                 this.internalLock.Dispose();
             }
 
-            this.internalLock = TakeControl(priority, name);
+            this.internalLock = TakeControl(channel, priority, name);
         }
 
         public void ReleaseControl()
@@ -101,13 +101,13 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public IControlToken TakeControl(int channel = 0, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this.members)
             {
                 var memberTokens = new Dictionary<IOwnedDevice, IControlToken>();
                 foreach (var device in this.members)
-                    memberTokens.Add(device, device.TakeControl(priority, name));
+                    memberTokens.Add(device, device.TakeControl(channel, priority, name));
 
                 var ownerCandidate = new GroupControlToken(
                     memberTokens,

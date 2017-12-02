@@ -63,10 +63,10 @@ namespace Animatroller.Scenes
                 .LockWhenRunning(lightA, lightB)
                 .RunAction(i =>
                 {
-                    lightA.SetBrightness(1.0, i.Token);
+                    lightA.SetBrightness(1.0, token: i.Token);
                     i.WaitFor(S(2.5));
 
-                    lightB.SetBrightness(0.5, i.Token);
+                    lightB.SetBrightness(0.5, token: i.Token);
                     i.WaitFor(S(2.5));
 
                     Exec.MasterEffect.Fade(lightGroup, 1.0, 0.0, 3000, token: i.Token);
@@ -75,11 +75,11 @@ namespace Animatroller.Scenes
 
                     using (var takeOver = lightGroup.TakeControl(5))
                     {
-                        lightGroup.SetBrightness(1, takeOver);
+                        lightGroup.SetBrightness(1, token: takeOver);
                         i.WaitFor(S(1));
                     }
 
-                    lightGroup.SetBrightness(1, i.Token);
+                    lightGroup.SetBrightness(1, token: i.Token);
 
                     i.WaitFor(S(2));
                 });

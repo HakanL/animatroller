@@ -61,43 +61,18 @@ namespace Animatroller.Framework.LogicalDevice
             data[DataElements.Power] = this.initialValue;
         }
 
-        //public Switch Follow(OperatingHours source)
-        //{
-        //    source.OpenHoursChanged += (o, e) =>
-        //    {
-        //        if (e.IsOpenNow)
-        //            this.SetPower(true);
-        //        else
-        //            this.TurnOff();
-        //    };
+        public virtual IObserver<bool> Control => this.controlValue.AsObserver();
 
-        //    return this;
-        //}
-
-        public IObserver<bool> Control
-        {
-            get
-            {
-                return this.controlValue.AsObserver();
-            }
-        }
-
-        public IObservable<bool> Output
-        {
-            get
-            {
-                return this.outputValue.AsObservable();
-            }
-        }
+        public IObservable<bool> Output => this.outputValue.AsObservable();
 
         public bool Value
         {
-            get { return (bool)this.currentData[DataElements.Power]; }
+            get { return GetCurrentData<bool>(DataElements.Power); }
         }
 
-        public void SetValue(bool value, IControlToken token = null)
+        public void SetValue(bool value, int channel = 0, IControlToken token = null)
         {
-            this.SetData(token, Utils.Data(DataElements.Power, value));
+            this.SetData(channel, token, Utils.Data(DataElements.Power, value));
         }
     }
 }

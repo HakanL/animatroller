@@ -242,8 +242,8 @@ namespace Animatroller.Scenes
                 // Flash
                 if (x)
                 {
-                    allLights.TakeAndHoldControl(100, "FlashBaby");
-                    allLights.SetData(null, Utils.Data(Color.White, 1.0));
+                    allLights.TakeAndHoldControl(priority: 100, name: "FlashBaby");
+                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();
@@ -254,7 +254,7 @@ namespace Animatroller.Scenes
                 // Flash
                 if (x)
                 {
-                    allLights.TakeAndHoldControl(200, "FlashBaby");
+                    allLights.TakeAndHoldControl(priority: 200, name: "FlashBaby");
                     allLights.SetData(null, Utils.Data(Color.White, 1.0));
                 }
                 else
@@ -390,7 +390,7 @@ namespace Animatroller.Scenes
                         var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                             0.16470588235294117);
 
-                        purpleLights.SetData(null,
+                        purpleLights.SetData(0, null,
                             Utils.Data(purpleColor.Brightness),
                             Utils.Data(purpleColor.Color),
                             Utils.Data(DataElements.ColorUltraViolet, 1.0));
@@ -417,7 +417,7 @@ namespace Animatroller.Scenes
                     var purpleColor = new ColorBrightness(HSV.ColorFromRGB(0.73333333333333328, 0, 1),
                         0.16470588235294117);
 
-                    purpleLights.SetData(null, Utils.Data(purpleColor.Color, purpleColor.Brightness));
+                    purpleLights.SetData(0, null, Utils.Data(purpleColor.Color, purpleColor.Brightness));
 
                     while (!i.IsCancellationRequested && stateMachine.CurrentState == States.BackgroundFull)
                     {
@@ -702,7 +702,7 @@ namespace Animatroller.Scenes
                 {
                     flyingSkeletonEyes.SetBrightness(1.0);
                     wall3Light.SetColor(Color.FromArgb(255, 0, 100), 0.5);
-                    wall3Light.SetStrobeSpeed(1.0, i.Token);
+                    wall3Light.SetStrobeSpeed(1.0, token: i.Token);
 
                     //                    audioPicture.PlayEffect("162 Blood Curdling Scream of Terror.wav");
                     //audioFlying.PlayEffect("05 I'm a Little Teapot.wav", 0.05);
@@ -724,9 +724,9 @@ namespace Animatroller.Scenes
                         bigSpiderEyesToken.Dispose();
 
                     wall8Light.SetColor(Color.White, 1, bigSpiderEyesToken);
-                    wall8Light.SetStrobeSpeed(1, bigSpiderEyesToken);
+                    wall8Light.SetStrobeSpeed(1, token: bigSpiderEyesToken);
                     bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
-                    bigSpiderEyes.SetBrightness(0, bigSpiderEyesToken);
+                    bigSpiderEyes.SetBrightness(0, token: bigSpiderEyesToken);
                     audioHifi.PlayNewEffect("Happy Halloween.wav");
                     expanderPicture.SendSerial(0, new byte[] { 0x02 });
                     i.WaitFor(S(4.0));
@@ -747,7 +747,7 @@ namespace Animatroller.Scenes
                         bigSpiderEyesToken = bigSpiderEyes.TakeControl(100);
 
                     audio2.PlayNewEffect("348 Spider Hiss.wav", 0, 1);
-                    bigSpiderEyes.SetBrightness(1, bigSpiderEyesToken);
+                    bigSpiderEyes.SetBrightness(1, token: bigSpiderEyesToken);
                     spiderJump1.SetValue(true);
                     i.WaitFor(S(0.5));
                     spiderJump2.SetValue(true);
@@ -847,7 +847,7 @@ namespace Animatroller.Scenes
 
                     pulsatingCatLow.Stop();
                     pulsatingCatHigh.Start();
-                    //                catLights.SetBrightness(1.0, instance.Token);
+                    //                catLights.SetBrightness(1.0, token: instance.Token);
 
                     while (true)
                     {
@@ -949,8 +949,8 @@ namespace Animatroller.Scenes
         {
             if (manualFaderToken != null)
             {
-                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value, manualFaderToken);
-                wall3Light.SetColor(GetFaderColor(), faderBright.Value, manualFaderToken);
+                pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
+                wall3Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
             }
         }
 

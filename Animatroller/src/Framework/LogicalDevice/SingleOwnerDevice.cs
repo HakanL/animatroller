@@ -15,14 +15,16 @@ namespace Animatroller.Framework.LogicalDevice
         protected IControlToken currentOwner;
         protected ControlSubject<IData, IControlToken> outputData;
         protected Subject<IData> outputChanged;
-        private IData ownerlessData;
+        private Dictionary<int, IData> ownerlessData;
 
         public SingleOwnerDevice(string name)
             : base(name)
         {
+            base.newDataFunc = GetDefaultData;
             this.owners = new List<IControlToken>();
             this.outputData = new ControlSubject<IData, IControlToken>(null, HasControl);
             this.outputChanged = new Subject<IData>();
+            this.ownerlessData = new Dictionary<int, IData>();
 
             this.outputData.Subscribe(x =>
             {
@@ -32,7 +34,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                     var usedKeys = new HashSet<DataElements>();
 
-                    var dataList = this.currentData.Copy();
+                    var dataList = CurrentData.Copy();
 
                     foreach (var kvp in data.ToList())
                     {
@@ -51,9 +53,9 @@ namespace Animatroller.Framework.LogicalDevice
                     }
 
                     dataList.Where(k => !usedKeys.Contains(k.Key)).ToList()
-                        .ForEach(k => this.currentData.Remove(k.Key));
+                        .ForEach(k => dataList.Remove(k.Key));
 
-                    this.currentData = dataList;
+                    SetNewData(dataList, channel: 0);
 
                     this.outputChanged.OnNext(CurrentData);
                 }
@@ -68,27 +70,23 @@ namespace Animatroller.Framework.LogicalDevice
 
         public override void SetInitialState()
         {
-            BuildDefaultData(this.currentData);
-
             base.SetInitialState();
 
             this.outputChanged.OnNext(CurrentData);
         }
 
-        internal IData GetOwnerlessData()
+        internal IData GetOwnerlessData(int channel)
         {
             lock (this.lockObject)
             {
-                if (this.ownerlessData == null)
+                if (!this.ownerlessData.TryGetValue(channel, out IData data))
                 {
-                    var data = new Data();
-                    BuildDefaultData(data);
-
-                    this.ownerlessData = data;
+                    data = GetDefaultData();
+                    this.ownerlessData[channel] = data;
                 }
-            }
 
-            return this.ownerlessData;
+                return data;
+            }
         }
 
         protected virtual IData PreprocessPushData(IData data)
@@ -96,15 +94,15 @@ namespace Animatroller.Framework.LogicalDevice
             return data;
         }
 
-        public IPushDataController GetDataObserver(IControlToken token)
+        public IPushDataController GetDataObserver(int channel, IControlToken token)
         {
             if (token == null)
                 throw new ArgumentNullException("token");
 
-            return new ControlledObserverData(token, this.outputData, token.GetDataForDevice(this));
+            return new ControlledObserverData(token, this.outputData, token.GetDataForDevice(this, channel));
         }
 
-        public IData GetFrameBuffer(IControlToken token, IReceivesData device)
+        public IData GetFrameBuffer(int channel, IControlToken token, IReceivesData device)
         {
             if (token == null)
             {
@@ -113,18 +111,18 @@ namespace Animatroller.Framework.LogicalDevice
 
                 if (token is GroupControlToken groupToken)
                 {
-                    if (!groupToken.LockAndGetDataFromDevice(this))
+                    if (!groupToken.LockAndGetDataFromDevice(this, channel))
                         token = null;
                 }
             }
 
             if (token == null)
-                return GetOwnerlessData();
+                return GetOwnerlessData(channel);
 
-            return token.GetDataForDevice(device);
+            return token.GetDataForDevice(device, channel);
         }
 
-        public void PushOutput(IControlToken token)
+        public void PushOutput(int channel, IControlToken token)
         {
             if (token == null)
             {
@@ -133,7 +131,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                 if (token is GroupControlToken groupToken)
                 {
-                    if (!groupToken.LockAndGetDataFromDevice(this))
+                    if (!groupToken.LockAndGetDataFromDevice(this, channel))
                         token = null;
                 }
             }
@@ -141,28 +139,28 @@ namespace Animatroller.Framework.LogicalDevice
             IData data;
 
             if (token == null)
-                data = GetOwnerlessData();
+                data = GetOwnerlessData(channel);
             else
-                data = token.GetDataForDevice(this);
+                data = token.GetDataForDevice(this, channel);
 
             if (data != null)
                 this.outputData.OnNext(data, token);
         }
 
-        public void SetData(IControlToken token, IData data)
+        public void SetData(int channel, IControlToken token, IData data)
         {
             lock (this.lockObject)
             {
-                var frame = GetFrameBuffer(token, this);
+                var frame = GetFrameBuffer(channel, token, this);
 
                 foreach (var kvp in data)
                     frame[kvp.Key] = kvp.Value;
             }
 
-            PushOutput(token);
+            PushOutput(channel, token);
         }
 
-        public virtual IControlToken TakeControl(int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public virtual IControlToken TakeControl(int channel = 0, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this.lockObject)
             {
@@ -182,9 +180,9 @@ namespace Animatroller.Framework.LogicalDevice
                             nextOwner = this.owners.LastOrDefault();
 
                             if (nextOwner != null)
-                                restoreData = nextOwner.GetDataForDevice(this);
+                                restoreData = nextOwner.GetDataForDevice(this, channel);
                             else
-                                restoreData = GetOwnerlessData();
+                                restoreData = GetOwnerlessData(channel);
 
                             restoreData = restoreData.Copy();
 
@@ -193,7 +191,7 @@ namespace Animatroller.Framework.LogicalDevice
                             Executor.Current.SetControlToken(this, nextOwner);
                         }
 
-                        SetData(nextOwner, restoreData);
+                        SetData(channel, nextOwner, restoreData);
                     });
 
                 // Insert new owner
@@ -233,6 +231,15 @@ namespace Animatroller.Framework.LogicalDevice
         public bool HasControl()
         {
             return HasControl(Executor.Current.GetControlToken(this));
+        }
+
+        private IData GetDefaultData()
+        {
+            var data = new Data();
+
+            BuildDefaultData(data);
+
+            return data;
         }
 
         public abstract void BuildDefaultData(IData data);

@@ -15,15 +15,17 @@ namespace Animatroller.Framework
 
     public interface IReceivesData : IOwnedDevice
     {
-        IPushDataController GetDataObserver(IControlToken token);
+        IPushDataController GetDataObserver(int channel, IControlToken token);
 
-        void PushOutput(IControlToken token);
+        void PushOutput(int channel, IControlToken token);
 
         void BuildDefaultData(IData data);
 
-        void SetData(IControlToken token, IData data);
+        void SetData(int channel, IControlToken token, IData data);
 
         object GetCurrentData(DataElements dataElement);
+
+        T GetCurrentData<T>(DataElements dataElement);
     }
 
     public interface IReceivesThroughput : IReceivesData

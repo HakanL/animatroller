@@ -54,7 +54,7 @@ namespace Animatroller.Framework.Effect
 
         protected abstract void ExecutePerDevice(T device);
 
-        public IEffect Start(int priority = 1, IControlToken token = null)
+        public IEffect Start(int channel = 0, int priority = 1, IControlToken token = null)
         {
             //FIXME: token isn't used
             this.timer.Change(TimeSpan.FromMilliseconds(0), this.interval);

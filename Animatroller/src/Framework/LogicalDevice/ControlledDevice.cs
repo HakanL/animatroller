@@ -9,21 +9,22 @@ namespace Animatroller.Framework.LogicalDevice
     public class ControlledDevice : IControlToken
     {
         private Action<IControlToken> disposeAction;
-        private IData data;
+        private Dictionary<int, IData> dataPerChannel;
+        private Action<IData> populateData;
+        private object lockObject = new object();
 
         public ControlledDevice(string name, int priority, Action<IData> populateData, Action<IControlToken> dispose)
         {
             this.Name = name;
             this.Priority = priority;
             this.disposeAction = dispose;
-            this.data = new Data();
-            populateData(this.data);
+            this.populateData = populateData;
+            this.dataPerChannel = new Dictionary<int, IData>();
         }
 
         public void Dispose()
         {
-            if (this.disposeAction != null)
-                this.disposeAction(this);
+            this.disposeAction?.Invoke(this);
         }
 
         public bool IsOwner(IControlToken checkToken)
@@ -31,9 +32,19 @@ namespace Animatroller.Framework.LogicalDevice
             return this == checkToken;
         }
 
-        public IData GetDataForDevice(IOwnedDevice device)
+        public IData GetDataForDevice(IOwnedDevice device, int channel)
         {
-            return this.data;
+            lock (this.lockObject)
+            {
+                if (!this.dataPerChannel.TryGetValue(channel, out IData data))
+                {
+                    data = new Data();
+                    this.populateData(data);
+                    this.dataPerChannel[channel] = data;
+                }
+
+                return data;
+            }
         }
 
         public string Name { get; private set; }

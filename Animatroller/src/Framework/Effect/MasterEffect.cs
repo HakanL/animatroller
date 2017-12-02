@@ -37,16 +37,17 @@ namespace Animatroller.Framework.Effect2
             double end,
             int durationMs,
             int priority = 1,
+            int channel = 0,
             ITransformer transformer = null,
             IControlToken token = null,
             params Tuple<DataElements, object>[] additionalData)
         {
             if (token != null)
-                return Fade(device.GetDataObserver(token), start, end, durationMs, transformer, additionalData);
+                return Fade(device.GetDataObserver(channel, token), start, end, durationMs, transformer, additionalData);
 
-            var controlToken = device.TakeControl(priority);
+            var controlToken = device.TakeControl(channel, priority);
 
-            return Fade(device.GetDataObserver(controlToken), start, end, durationMs, transformer, additionalData)
+            return Fade(device.GetDataObserver(channel, controlToken), start, end, durationMs, transformer, additionalData)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
@@ -98,11 +99,11 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Custom(double[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int priority = 1)
+        public Task Custom(double[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int channel = 0, int priority = 1)
         {
-            var controlToken = device.TakeControl(priority);
+            var controlToken = device.TakeControl(channel, priority);
 
-            return Custom(customList, device.GetDataObserver(controlToken), durationMs, loop)
+            return Custom(customList, device.GetDataObserver(channel, controlToken), durationMs, loop)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
@@ -155,11 +156,11 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Custom(IData[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int priority = 1)
+        public Task Custom(IData[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int channel = 0, int priority = 1)
         {
-            var controlToken = device.TakeControl(priority);
+            var controlToken = device.TakeControl(channel, priority);
 
-            return Custom(customList, device.GetDataObserver(controlToken), durationMs, loop)
+            return Custom(customList, device.GetDataObserver(channel, controlToken), durationMs, loop)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();
@@ -292,14 +293,14 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Shimmer(IReceivesBrightness device, double minBrightness, double maxBrightness, int durationMs, int priority = 1, IControlToken token = null)
+        public Task Shimmer(IReceivesBrightness device, double minBrightness, double maxBrightness, int durationMs, int channel = 0, int priority = 1, IControlToken token = null)
         {
             if (token != null)
-                return Shimmer(device.GetDataObserver(token), minBrightness, maxBrightness, durationMs);
+                return Shimmer(device.GetDataObserver(channel, token), minBrightness, maxBrightness, durationMs);
 
-            var controlToken = device.TakeControl(priority);
+            var controlToken = device.TakeControl(channel, priority);
 
-            return Shimmer(device.GetDataObserver(controlToken), minBrightness, maxBrightness, durationMs)
+            return Shimmer(device.GetDataObserver(channel, controlToken), minBrightness, maxBrightness, durationMs)
                 .ContinueWith(x =>
                 {
                     controlToken.Dispose();

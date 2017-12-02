@@ -151,77 +151,77 @@ namespace Animatroller.Framework.Extensions
             return data;
         }
 
-        public static void SetData(this IReceivesData device, IControlToken token, params Tuple<DataElements, object>[] data)
+        public static void SetData(this IReceivesData device, int channel, IControlToken token, params Tuple<DataElements, object>[] data)
         {
-            device.SetData(token, new LogicalDevice.Data(data));
+            device.SetData(channel, token, new LogicalDevice.Data(data));
         }
 
-        public static void SetBrightness(this IReceivesBrightness device, double brightness, IControlToken token = null)
+        public static void SetBrightness(this IReceivesBrightness device, double brightness, int channel = 0, IControlToken token = null)
         {
-            device.SetData(token, Utils.Data(DataElements.Brightness, brightness));
+            device.SetData(channel, token, Utils.Data(DataElements.Brightness, brightness));
         }
 
-        public static void SetBrightness(this IReceivesBrightness device, bool value, IControlToken token = null)
+        public static void SetBrightness(this IReceivesBrightness device, bool value, int channel = 0, IControlToken token = null)
         {
-            device.SetData(token, Utils.Data(DataElements.Brightness, value ? 1.0 : 0.0));
+            device.SetData(channel, token, Utils.Data(DataElements.Brightness, value ? 1.0 : 0.0));
         }
 
-        public static void SetThroughput(this IReceivesThroughput device, double throughput, IControlToken token = null)
+        public static void SetThroughput(this IReceivesThroughput device, double throughput, int channel = 0, IControlToken token = null)
         {
-            device.SetData(token, Utils.Data(DataElements.Throughput, throughput));
+            device.SetData(channel, token, Utils.Data(DataElements.Throughput, throughput));
         }
 
-        public static void SetStrobeSpeed(this IReceivesStrobeSpeed device, double strobeSpeed, IControlToken token = null)
+        public static void SetStrobeSpeed(this IReceivesStrobeSpeed device, double strobeSpeed, int channel = 0, IControlToken token = null)
         {
-            device.SetData(token, Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
+            device.SetData(channel, token, Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
         }
 
-        public static void SetBrightnessStrobeSpeed(this IReceivesStrobeSpeed device, double brightness, double strobeSpeed, IControlToken token = null)
+        public static void SetBrightnessStrobeSpeed(this IReceivesStrobeSpeed device, double brightness, double strobeSpeed, int channel = 0, IControlToken token = null)
         {
-            device.SetData(token, Utils.Data(DataElements.Brightness, brightness), Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
+            device.SetData(channel, token, Utils.Data(DataElements.Brightness, brightness), Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
         }
 
-        public static void SetColor(this IReceivesColor device, Color color, double? brightness, IControlToken token = null)
+        public static void SetColor(this IReceivesColor device, Color color, double? brightness, int channel = 0, IControlToken token = null)
         {
             if (brightness.HasValue)
-                device.SetData(token, Utils.Data(color, brightness.Value));
+                device.SetData(channel, token, Utils.Data(color, brightness.Value));
             else
-                device.SetData(token, Utils.Data(color));
+                device.SetData(channel, token, Utils.Data(color));
         }
 
-        public static void SetColor(this IReceivesColor device, Color color, IControlToken token = null)
+        public static void SetColor(this IReceivesColor device, Color color, int channel = 0, IControlToken token = null)
         {
-            device.SetColor(color, null, token);
+            device.SetColor(color, null, channel, token);
         }
 
-        public static void SetPanTilt(this IReceivesStrobeSpeed device, double pan, double tilt, IControlToken token = null)
+        public static void SetPanTilt(this IReceivesStrobeSpeed device, double pan, double tilt, int channel = 0, IControlToken token = null)
         {
-            device.SetData(token, Utils.Data(DataElements.Pan, pan), Utils.Data(DataElements.Tilt, tilt));
+            device.SetData(channel, token, Utils.Data(DataElements.Pan, pan), Utils.Data(DataElements.Tilt, tilt));
         }
 
         public static double GetCurrentBrightness(this IReceivesBrightness device)
         {
-            return (double)device.GetCurrentData(DataElements.Brightness);
+            return device.GetCurrentData<double>(DataElements.Brightness);
         }
 
         public static Color GetCurrentColor(this IReceivesColor device)
         {
-            return (Color)device.GetCurrentData(DataElements.Color);
+            return device.GetCurrentData<Color>(DataElements.Color);
         }
 
         public static double GetCurrentStrobeSpeed(this IReceivesStrobeSpeed device)
         {
-            return (double)device.GetCurrentData(DataElements.StrobeSpeed);
+            return device.GetCurrentData<double>(DataElements.StrobeSpeed);
         }
 
         public static double GetCurrentPan(this IReceivesPanTilt device)
         {
-            return (double)device.GetCurrentData(DataElements.Pan);
+            return device.GetCurrentData<double>(DataElements.Pan);
         }
 
         public static double GetCurrentTilt(this IReceivesPanTilt device)
         {
-            return (double)device.GetCurrentData(DataElements.Tilt);
+            return device.GetCurrentData<double>(DataElements.Tilt);
         }
     }
 }
