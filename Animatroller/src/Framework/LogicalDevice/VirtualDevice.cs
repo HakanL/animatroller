@@ -19,7 +19,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             this.action = action;
 
-            this.outputData.Subscribe(x =>
+            OutputData.Subscribe(x =>
             {
                 object value;
 

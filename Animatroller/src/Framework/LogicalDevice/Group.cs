@@ -75,7 +75,7 @@ namespace Animatroller.Framework.LogicalDevice
                 foreach (var observer in observers)
                 {
                     observer.SetDataFromIData(x);
-                    observer.PushData();
+                    observer.PushData(channel);
                 }
             });
 

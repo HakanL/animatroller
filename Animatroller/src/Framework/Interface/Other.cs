@@ -6,7 +6,7 @@ namespace Animatroller.Framework
 {
     public interface IPushDataController
     {
-        void PushData();
+        void PushData(int channel);
 
         IData Data { get; }
 

@@ -78,7 +78,7 @@ namespace Animatroller.Framework.Effect
                         deviceOwner.Data[DataElements.Brightness] =
                                 this.random.NextDouble().ScaleToMinMax(this.minBrightness, this.maxBrightness);
 
-                        deviceOwner.PushData();
+                        deviceOwner.PushData(channel: 0);
                     }
                 }
                 catch

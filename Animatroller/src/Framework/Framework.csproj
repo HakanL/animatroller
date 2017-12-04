@@ -16,7 +16,7 @@
     <PackageReference Include="BinaryRage" Version="1.4.0" />
     <PackageReference Include="Collections.Generic.CircularBuffer" Version="1.0.0" />
     <PackageReference Include="CSCore" Version="1.2.1.1" />
-    <PackageReference Include="kadmium-sacn-core" Version="0.0.4" />
+    <PackageReference Include="kadmium-sacn-core" Version="0.0.9" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Rug.Osc" Version="1.2.5" />
     <PackageReference Include="Sanford.Multimedia.Midi" Version="6.4.1" />

@@ -93,8 +93,10 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
-        public AudioPlayer PlayNewEffect(string audioFile, double leftVolume, double rightVolume)
+        public AudioPlayer PlayNewEffect(string audioFile, double leftVolume, double rightVolume, Import.LevelsPlayback levelsPlayback = null)
         {
+            levelsPlayback?.Load(GetLevelsFromAudioFX("AudioEffect", audioFile));
+
             RaiseAudioChanged(AudioChangedEventArgs.Commands.PlayNewFX, audioFile, leftVolume, rightVolume);
 
             return this;

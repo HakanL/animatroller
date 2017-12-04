@@ -85,7 +85,7 @@ namespace Animatroller.Framework.Effect2
                     double brightness = start + (pos * brightnessRange);
 
                     deviceObserver.Data[DataElements.Brightness] = brightness;
-                    deviceObserver.PushData();
+                    deviceObserver.PushData(channel: 0);
                 },
                 onCompleted: () =>
                 {
@@ -129,7 +129,7 @@ namespace Animatroller.Framework.Effect2
                         if (loopCounter >= loop.Value)
                         {
                             deviceObserver.Data[DataElements.Brightness] = customList[customList.Length - 1];
-                            deviceObserver.PushData();
+                            deviceObserver.PushData(channel: 0);
 
                             log.Debug("Cancel 8");
                             cancelSource.Cancel();
@@ -142,7 +142,7 @@ namespace Animatroller.Framework.Effect2
                     int pos = (int)(customList.Length * instanceMs / durationMs);
 
                     deviceObserver.Data[DataElements.Brightness] = customList[pos];
-                    deviceObserver.PushData();
+                    deviceObserver.PushData(channel: 0);
                 },
                 onCompleted: () =>
                 {
@@ -187,7 +187,7 @@ namespace Animatroller.Framework.Effect2
                         {
                             foreach (var kvp in customList[customList.Length - 1])
                                 deviceObserver.Data[kvp.Key] = kvp.Value;
-                            deviceObserver.PushData();
+                            deviceObserver.PushData(channel: 0);
 
                             log.Debug("Cancel 9");
                             cancelSource.Cancel();
@@ -201,7 +201,7 @@ namespace Animatroller.Framework.Effect2
 
                     foreach (var kvp in customList[pos])
                         deviceObserver.Data[kvp.Key] = kvp.Value;
-                    deviceObserver.PushData();
+                    deviceObserver.PushData(channel: 0);
                 },
                 onCompleted: () =>
                 {
@@ -319,7 +319,7 @@ namespace Animatroller.Framework.Effect2
                     state = !state;
 
                     deviceObserver.Data[DataElements.Brightness] = state ? maxBrightness : minBrightness;
-                    deviceObserver.PushData();
+                    deviceObserver.PushData(channel: 0);
                 },
                 onCompleted: () =>
                 {

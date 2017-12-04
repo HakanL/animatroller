@@ -128,7 +128,7 @@ namespace Animatroller.Framework.Effect
                     continue;
 
                 deviceOwner.Data[DataElements.Brightness] = value;
-                deviceOwner.PushData();
+                deviceOwner.PushData(channel: 0);
 
                 watches[i].Stop();
             }

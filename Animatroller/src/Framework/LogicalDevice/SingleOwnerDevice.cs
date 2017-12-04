@@ -13,7 +13,8 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected List<IControlToken> owners;
         protected IControlToken currentOwner;
-        protected ControlSubject<IData, IControlToken> outputData;
+        protected ControlSubject<(int Channel, IData Data), IControlToken> outputData;
+        protected ControlSubject<IData, IControlToken> currentOutputData;
         protected Subject<IData> outputChanged;
         private Dictionary<int, IData> ownerlessData;
 
@@ -22,7 +23,8 @@ namespace Animatroller.Framework.LogicalDevice
         {
             base.newDataFunc = GetDefaultData;
             this.owners = new List<IControlToken>();
-            this.outputData = new ControlSubject<IData, IControlToken>(null, HasControl);
+            this.outputData = new ControlSubject<(int, IData), IControlToken>((0, null), HasControl);
+            this.currentOutputData = new ControlSubject<IData, IControlToken>(null, HasControl);
             this.outputChanged = new Subject<IData>();
             this.ownerlessData = new Dictionary<int, IData>();
 
@@ -30,7 +32,7 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 lock (this.lockObject)
                 {
-                    var data = PreprocessPushData(x);
+                    var data = PreprocessPushData(x.Data);
 
                     var usedKeys = new HashSet<DataElements>();
 
@@ -55,11 +57,22 @@ namespace Animatroller.Framework.LogicalDevice
                     dataList.Where(k => !usedKeys.Contains(k.Key)).ToList()
                         .ForEach(k => dataList.Remove(k.Key));
 
-                    SetNewData(dataList, channel: 0);
+                    SetNewData(dataList, channel: x.Channel);
 
-                    this.outputChanged.OnNext(CurrentData);
+                    if(x.Channel == this.currentChannel)
+                        this.outputChanged.OnNext(CurrentData);
                 }
+
+                if (x.Channel == this.currentChannel)
+                    this.currentOutputData.OnNext(x.Data);
             });
+        }
+
+        public void SetCurrentChannel(int channel)
+        {
+            this.currentChannel = channel;
+
+            RefreshOutput();
         }
 
         protected void RefreshOutput()
@@ -144,7 +157,7 @@ namespace Animatroller.Framework.LogicalDevice
                 data = token.GetDataForDevice(this, channel);
 
             if (data != null)
-                this.outputData.OnNext(data, token);
+                this.outputData.OnNext((channel, data), token);
         }
 
         public void SetData(int channel, IControlToken token, IData data)
@@ -253,7 +266,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             get
             {
-                return this.outputData.AsObservable();
+                return this.currentOutputData.AsObservable();
             }
         }
 

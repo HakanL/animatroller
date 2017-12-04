@@ -223,5 +223,17 @@ namespace Animatroller.Framework.Extensions
         {
             return device.GetCurrentData<double>(DataElements.Tilt);
         }
+
+        public static bool IsInState<T>(this Controller.EnumStateMachine<T> stateMachine, params T[] states)
+            where T : struct, IConvertible, IComparable
+        {
+            foreach (T state in states)
+            {
+                if (state.Equals(stateMachine.CurrentState))
+                    return true;
+            }
+
+            return false;
+        }
     }
 }
