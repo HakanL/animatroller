@@ -63,7 +63,9 @@ namespace Animatroller.ExpanderCommunication
 
                 Task.Run(() =>
                 {
-                    this.dataReceivedAction(instanceId, context.Channel.Id.AsShortText(), messageType, buffer.ToArray());
+                    var data = new byte[buffer.ReadableBytes];
+                    buffer.GetBytes(buffer.ReaderIndex, data);
+                    this.dataReceivedAction(instanceId, context.Channel.Id.AsShortText(), messageType, data);
                 });
             }
         }

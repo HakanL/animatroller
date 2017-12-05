@@ -37,7 +37,9 @@ namespace Animatroller.ExpanderCommunication
                 buffer.ReadBytes(b, 0, b.Length);
                 string messageType = Encoding.UTF8.GetString(b);
 
-                this.parent.DataReceived(messageType, buffer.ToArray());
+                var data = new byte[buffer.ReadableBytes];
+                buffer.GetBytes(buffer.ReaderIndex, data);
+                this.parent.DataReceived(messageType, data);
             }
         }
 
