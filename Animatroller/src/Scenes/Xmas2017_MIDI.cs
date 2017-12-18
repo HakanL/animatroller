@@ -48,23 +48,6 @@ namespace Animatroller.Scenes
                     stateMachine.GoToState(States.MusicSarajevo);
             });
 
-            midiAkai.Note(midiChannel, 40).Subscribe(x =>
-            {
-                if (x)
-                {
-                    if (Exec.IsRunning(subRandomSantaVideo))
-                        Exec.Cancel(subRandomSantaVideo);
-                    else
-                        subRandomSantaVideo.Run();
-                }
-            });
-
-            midiAkai.Note(midiChannel, 41).Subscribe(x =>
-            {
-                if (x)
-                    stateMachine.GoToState(States.SantaVideo);
-            });
-
             midiAkai.Note(midiChannel, 42).Subscribe(x =>
             {
                 if (x)
@@ -82,8 +65,6 @@ namespace Animatroller.Scenes
             midiAkai.Controller(midiChannel, 2).Controls(faderG.Control);
             midiAkai.Controller(midiChannel, 3).Controls(faderB.Control);
             midiAkai.Controller(midiChannel, 4).Controls(faderBright.Control);
-            midiAkai.Controller(midiChannel, 5).Controls(faderPan.Control);
-            midiAkai.Controller(midiChannel, 6).Controls(faderTilt.Control);
         }
     }
 }
