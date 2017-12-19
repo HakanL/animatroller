@@ -28,7 +28,7 @@ namespace Animatroller.Scenes
         const int SacnUniverseRenard18 = 18;        // 2 x 8-channels, 1-16
         const int SacnUniverseLED100 = 5;
         const int SacnUniverseLED50 = 6;
-        const int SacnUniversePixelMatrix = 40;
+        const int SacnUniversePixelMatrixStart = 40;
         const int SacnUniversePixelSaber = 31;
 
         const int midiChannel = 0;
@@ -256,12 +256,15 @@ namespace Animatroller.Scenes
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            dmxPlayback.Load(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "XmasLoop.bin"), 15);
-            dmxPlayback.Loop = true;
+            var fileReaderStarWars = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Star Wars 1.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
+            var fileReaderXmas = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "MerryChristmas.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
 
-            var pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMappingFromGlediatorPatch(
-                Path.Combine(Exec.ExpanderSharedFiles, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
-            //dmxPlayback.SetOutput(pixelsMatrix, pixelMapping);
+            var pixelMapping2D = Framework.Utility.PixelMapping.GeneratePixelMapping(
+                48,
+                24,
+                pixelOrder: Framework.Utility.PixelOrder.VerticalSnakeStartAtTopRight,
+                maxPixelsPerPort: 300);
+            dmxPlayback.SetOutput(pixelsMatrix, pixelMapping2D, 40);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -312,10 +315,13 @@ namespace Animatroller.Scenes
                 {
                     //Exec.SetGlobalChannel(1);
 
+                    dmxPlayback.Load(fileReaderXmas);
+                    dmxPlayback.Run(true);
                     ins.WaitUntilCancel();
                 }).
                 TearDown(ins =>
                 {
+                    dmxPlayback.Stop();
                     Exec.SetGlobalChannel(0);
                 });
 
@@ -337,7 +343,17 @@ namespace Animatroller.Scenes
 
             buttonTest.WhenOutputChanges(x =>
             {
-                //                airReindeerBig.SetValue(x);
+                if (x)
+                {
+                    //    //pixelsMatrix.Inject(Color.FromArgb(random.Next(255), random.Next(255), 128));
+                    dmxPlayback.Load(fileReaderStarWars);
+                    dmxPlayback.Run(false);
+                }
+                //else
+                //{
+                //    dmxPlayback.Load(fileReaderXmas);
+                //    dmxPlayback.Run(true);
+                //}
             });
 
             buttonReset.WhenOutputChanges(x =>
@@ -355,9 +371,7 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.Pixel1D(pixelsGround, 0, 50), SacnUniversePixelGround, 1);
             //acnOutput.Connect(new Physical.Pixel1D(pixelsHeart, 0, 50), SacnUniversePixelString4, 1);
 
-//FIXME
-            var pixelMapping2D = Framework.Utility.PixelMapping.GeneratePixelMapping(48, 24, pixelOrder: Framework.Utility.PixelOrder.HorizontalSnakeBottomLeft);
-//            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrix, 1);
+            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrixStart);
 
             acnOutput.Connect(new Physical.Pixel1D(saberPixels), SacnUniversePixelSaber, 1);
             acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 100);
@@ -500,7 +514,9 @@ namespace Animatroller.Scenes
                     saberPixels.SetColor(Color.Red, 0.4, 0, token: i.Token);
 
                     subCandyCane.Run();
-                    dmxPlayback.Run();
+
+                    dmxPlayback.Load(fileReaderXmas);
+                    dmxPlayback.Run(true);
 
                     i.WaitUntilCancel();
                 })
@@ -533,14 +549,14 @@ namespace Animatroller.Scenes
             subSnow
                 .RunAction(ins =>
                 {
-//                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.Data(Color.White));
+                    //                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.Data(Color.White));
                     snowMachine.SetValue(true);
 
                     ins.WaitFor(S(15), true);
                 })
                 .TearDown(i =>
                 {
-//                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.Data(Color.Red));
+                    //                    pulsatingPinSpot.SetAdditionalData(lightPinSpot, Utils.Data(Color.Red));
                     snowMachine.SetValue(false);
                 });
 
@@ -729,7 +745,10 @@ namespace Animatroller.Scenes
                     subStarWarsCane.Run();
                     lightR2D2.SetBrightness(1.0, token: instance.Token);
 
+                    dmxPlayback.Load(fileReaderStarWars);
+
                     audioHiFi.PlayTrack("01. Star Wars - Main Title.wav");
+                    dmxPlayback.Run(false);
 
                     instance.WaitFor(S(16), true);
 

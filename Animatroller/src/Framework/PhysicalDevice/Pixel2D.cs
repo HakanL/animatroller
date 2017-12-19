@@ -6,7 +6,7 @@ using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.PhysicalDevice
 {
-    public class Pixel2D : BaseDevice, INeedsPixelOutput
+    public class Pixel2D : BaseDevice, INeedsPixel2DOutput
     {
         private object lockObject = new object();
 
@@ -15,11 +15,11 @@ namespace Animatroller.Framework.PhysicalDevice
         public Pixel2D(VirtualPixel2D3 logicalDevice, Dictionary<int, Utility.PixelMap[]> pixelMapping)
             : base(logicalDevice)
         {
-            logicalDevice.AddPixelDevice(pixelMapping, pixels =>
+            logicalDevice.AddPixelDevice(pixelMapping, dmxData =>
             {
                 lock (this.lockObject)
                 {
-                    PixelOutputPort.SendPixelsValue(0, pixels, pixels.Length);
+                    PixelOutputPort.SendPixelsValue(0, dmxData);
                 }
             });
         }

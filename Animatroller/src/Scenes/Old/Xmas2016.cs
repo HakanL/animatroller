@@ -279,12 +279,12 @@ namespace Animatroller.Scenes
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            dmxPlayback.Load(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "XmasLoop.bin"), 15);
+            dmxPlayback.Load(new Import.BinaryFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "XmasLoop.bin")), 15);
             dmxPlayback.Loop = true;
 
             var pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMappingFromGlediatorPatch(
                 Path.Combine(Exec.ExpanderSharedFiles, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
-            dmxPlayback.SetOutput(pixelsMatrix, pixelMapping);
+            dmxPlayback.SetOutput(pixelsMatrix, pixelMapping, 0);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -350,7 +350,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.Pixel1D(pixelsHeart, 0, 50), SacnUniversePixelString4, 1);
 
             var pixelMapping2D = Framework.Utility.PixelMapping.GeneratePixelMapping(20, 10, pixelOrder: Framework.Utility.PixelOrder.HorizontalSnakeBottomLeft);
-            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrix, 1);
+            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrix);
 
             acnOutput.Connect(new Physical.Pixel1D(saberPixels), SacnUniversePixelSaber, 1);
             acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 100);

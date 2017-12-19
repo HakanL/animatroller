@@ -34,7 +34,8 @@ namespace Animatroller.Framework.Utility
     {
         HorizontalLineWiseTopLeft,
         HorizontalSnakeTopLeft,
-        HorizontalSnakeBottomLeft
+        HorizontalSnakeBottomLeft,
+        VerticalSnakeStartAtTopRight
     }
 
     public static class PixelMapping
@@ -145,10 +146,12 @@ namespace Animatroller.Framework.Utility
             int startUniverse = 0,
             RgbOrder rgbOrder = RgbOrder.RGB,
             PixelOrder pixelOrder = PixelOrder.HorizontalSnakeTopLeft,
-            int channelShift = 0)
+            int channelShift = 0,
+            int? maxPixelsPerPort = null)
         {
             int universe = startUniverse;
             int mappingPos = channelShift;
+            int pixelCounter = 0;
 
             var pixelMapping = new Dictionary<int, PixelMap[]>();
 
@@ -157,7 +160,7 @@ namespace Animatroller.Framework.Utility
                 for (int y = 0; y < height; y++)
                 {
                     for (int x = 0; x < width; x++)
-                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift);
+                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, maxPixelsPerPort);
                 }
             }
             else if (pixelOrder == PixelOrder.HorizontalSnakeTopLeft)
@@ -165,7 +168,7 @@ namespace Animatroller.Framework.Utility
                 for (int y = 0; y < height; y++)
                 {
                     for (int x = 0; x < width; x++)
-                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift);
+                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, maxPixelsPerPort);
 
                     y++;
 
@@ -173,7 +176,7 @@ namespace Animatroller.Framework.Utility
                         break;
 
                     for (int x = width - 1; x >= 0; x--)
-                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift);
+                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, maxPixelsPerPort);
                 }
             }
 
@@ -182,7 +185,7 @@ namespace Animatroller.Framework.Utility
                 for (int y = height - 1; y >= 0; y--)
                 {
                     for (int x = 0; x < width; x++)
-                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift);
+                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, maxPixelsPerPort);
 
                     y--;
 
@@ -190,7 +193,22 @@ namespace Animatroller.Framework.Utility
                         break;
 
                     for (int x = width - 1; x >= 0; x--)
-                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift);
+                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, maxPixelsPerPort);
+                }
+            }
+            else if (pixelOrder == PixelOrder.VerticalSnakeStartAtTopRight)
+            {
+                for (int x = width - 1; x >= 0; x--)
+                {
+                    for (int y = 0; y < height; y++)
+                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, maxPixelsPerPort);
+
+                    x--;
+                    if (x < 0)
+                        break;
+
+                    for (int y = height - 1; y >= 0; y--)
+                        MapPixelRGB(pixelMapping, x, y, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, maxPixelsPerPort);
                 }
             }
 
@@ -205,16 +223,17 @@ namespace Animatroller.Framework.Utility
         {
             int universe = startUniverse;
             int mappingPos = channelShift;
+            int pixelCounter = 0;
 
             var pixelMapping = new Dictionary<int, PixelMap[]>();
 
             for (int x = 0; x < pixels; x++)
-                MapPixelRGB(pixelMapping, x, 0, ref universe, ref mappingPos, rgbOrder, channelShift);
+                MapPixelRGB(pixelMapping, x, 0, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, null);
 
             return pixelMapping;
         }
 
-        private static void MapPixelRGB(Dictionary<int, PixelMap[]> pixelMapping, int x, int y, ref int universe, ref int mappingPos, RgbOrder rgbOrder, int channelShift)
+        private static void MapPixelRGB(Dictionary<int, PixelMap[]> pixelMapping, int x, int y, ref int universe, ref int mappingPos, RgbOrder rgbOrder, int channelShift, ref int pixelCounter, int? maxPixelsPerPort = null)
         {
             switch (rgbOrder)
             {
@@ -223,13 +242,27 @@ namespace Animatroller.Framework.Utility
                     MapPixel(pixelMapping, universe, ColorComponent.G, x, y, ref mappingPos);
                     MapPixel(pixelMapping, universe, ColorComponent.B, x, y, ref mappingPos);
                     break;
+
+                default:
+                    throw new NotImplementedException();
             }
+
+            pixelCounter++;
 
             if (mappingPos + 2 >= 512)
             {
                 // Skip to the next universe when we can't fit a full RGB pixel in the current universe
                 universe++;
                 mappingPos = channelShift;
+            }
+            else
+            {
+                if (maxPixelsPerPort.HasValue && pixelCounter >= maxPixelsPerPort.Value)
+                {
+                    universe++;
+                    mappingPos = channelShift;
+                    pixelCounter = 0;
+                }
             }
         }
 

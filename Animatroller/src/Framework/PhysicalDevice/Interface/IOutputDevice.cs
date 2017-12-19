@@ -21,10 +21,15 @@ namespace Animatroller.Framework.PhysicalDevice
         IPixelOutput PixelOutputPort { set; }
     }
 
+    public interface INeedsPixel2DOutput
+    {
+        IPixelOutput PixelOutputPort { set; }
+    }
+
     //    public interface INeedsDigitalOutput
-//    {
-////        IDigitalOutput DigitalOutputPort { set; }
-//    }
+    //    {
+    ////        IDigitalOutput DigitalOutputPort { set; }
+    //    }
 
     //public interface INeedsMotorFeedbackOutput
     //{

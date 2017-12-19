@@ -68,20 +68,20 @@ namespace Animatroller.Scenes
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            dmxPlayback.Load(Path.Combine(expanderFilesFolder, "Seq", "XmasLoop.bin"), 15);
+            dmxPlayback.Load(new Import.BinaryFileReader(Path.Combine(expanderFilesFolder, "Seq", "XmasLoop.bin")), 15);
             dmxPlayback.Loop = true;
 
             //            var pixelMapping = dmxPlayback.GeneratePixelMapping(pixelsMatrix, 8, channelShift: 1);
             var pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMappingFromGlediatorPatch(
                 Path.Combine(expanderFilesFolder, "Glediator", "ArtNet 14-15 20x10.patch.glediator"));
-            dmxPlayback.SetOutput(pixelsMatrix, pixelMapping);
+            dmxPlayback.SetOutput(pixelsMatrix, pixelMapping, 0);
             //dmxPlayback.SetOutput(pixelRope, pixelMapping);
 
             acnOutput.Connect(new Physical.Pixel1D(pixelRope, 0, 50), SacnUniverse6, 1);
             acnOutput.Connect(new Physical.Pixel1D(pixelRope, 50, 100), SacnUniverse5, 1);
 
             pixelMapping = Framework.Utility.PixelMapping.GeneratePixelMapping(20, 10, pixelOrder: Framework.Utility.PixelOrder.HorizontalSnakeBottomLeft);
-            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping), SacnUniverse10, 1);
+            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping), SacnUniverse10);
 
             subStarWarsCane
                 .LockWhenRunning(pixelRope)

@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace Animatroller.Framework.Import
 {
-    public class FseqFileReader : BaseFileReader
+    public class FseqFileReader : BaseFileReader, IFileReader2
     {
         public class Header
         {
@@ -39,6 +39,15 @@ namespace Animatroller.Framework.Import
             public string MediaFilename { get; set; }
         }
 
+        public struct NetworkData
+        {
+            public int MaxChannels { get; set; }
+
+            public int UniverseId { get; set; }
+
+            public bool Skip { get; set; }
+        }
+
         private BinaryReader binRead;
         private Header header;
         private int currentFrame;
@@ -46,6 +55,11 @@ namespace Animatroller.Framework.Import
         private FileFormat.Networks config;
         private int currentNetwork;
         private int currentReadPosition;
+        private Dictionary<int, NetworkData> networks;
+        private int triggerUniverseId;
+        private int maxNetwork;
+
+        public int TriggerUniverseId { get { return this.triggerUniverseId; } }
 
         public FseqFileReader(string fileName, string configFileName)
             : base(fileName)
@@ -61,6 +75,26 @@ namespace Animatroller.Framework.Import
 
             if (this.config.Network.Length == 0)
                 throw new ArgumentOutOfRangeException("Need at least a single network in the networks/config file");
+
+            this.networks = new Dictionary<int, NetworkData>();
+
+            for (int i = 0; i < this.config.Network.Length; i++)
+            {
+                var fseqNetwork = this.config.Network[i];
+                if (fseqNetwork.MaxChannels <= 0)
+                    continue;
+
+                var networkData = new NetworkData
+                {
+                    MaxChannels = fseqNetwork.MaxChannels,
+                    UniverseId = int.Parse(fseqNetwork.BaudRate),
+                    Skip = fseqNetwork.NetworkType != "E131"
+                };
+                this.networks[i] = networkData;
+
+                this.maxNetwork = i + 1;
+                this.triggerUniverseId = networkData.UniverseId;
+            }
 
             ReadHeader();
         }
@@ -132,6 +166,13 @@ namespace Animatroller.Framework.Import
             this.currentFrame = -1;
         }
 
+        public override void Rewind()
+        {
+            Position = this.header.ChannelDataOffset;
+            this.currentFrame = -1;
+            this.currentNetwork = 0;
+        }
+
         private void ReadFullFrame()
         {
             this.frameBuffer = this.binRead.ReadBytes(this.header.StepSize);
@@ -146,24 +187,23 @@ namespace Animatroller.Framework.Import
                 // Read a full frame
                 ReadFullFrame();
 
+                if (this.frameBuffer.Length == 0)
+                    return null;
+
                 this.currentReadPosition = 0;
             }
 
-            FileFormat.NetworkNode network;
+            NetworkData network;
             while (true)
             {
-                network = this.config.Network[this.currentNetwork];
+                network = this.networks[this.currentNetwork];
 
                 this.currentNetwork++;
-                if (this.currentNetwork >= this.config.Network.Length)
+                if (this.currentNetwork >= this.maxNetwork)
                 {
                     this.currentNetwork = 0;
                     break;
                 }
-
-                if (network.MaxChannels == 0)
-                    // Skip this network
-                    continue;
 
                 break;
             }
@@ -172,23 +212,15 @@ namespace Animatroller.Framework.Import
             {
                 Data = new byte[network.MaxChannels],
                 TimestampMS = (ulong)(this.currentFrame * this.header.StepTimeMS),
-                Sequence = this.currentFrame
+                Sequence = this.currentFrame,
+                Universe = network.UniverseId
             };
 
             Buffer.BlockCopy(this.frameBuffer, this.currentReadPosition, dmxData.Data, 0, dmxData.Data.Length);
             this.currentReadPosition += dmxData.Data.Length;
 
-            switch (network.NetworkType)
-            {
-                case "E131":
-                    dmxData.DataType = DmxData.DataTypes.FullFrame;
-                    dmxData.Universe = int.Parse(network.BaudRate);
-                    break;
-
-                default:
-                    dmxData.DataType = DmxData.DataTypes.Nop;
-                    break;
-            }
+            if (network.Skip)
+                dmxData.DataType = network.Skip ? DmxData.DataTypes.Nop : DmxData.DataTypes.FullFrame;
 
             return dmxData;
         }

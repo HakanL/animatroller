@@ -174,9 +174,9 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void AddPixelDevice(Dictionary<int, Utility.PixelMap[]> pixelMapping, Action<byte[]> pixelsChanged)
+        public void AddPixelDevice(Dictionary<int, Utility.PixelMap[]> pixelMapping, Action<byte[][]> dmxDataChanged)
         {
-            var newPixelDevice = new PixelDevice(this.pixelWidth, this.pixelHeight, pixelMapping, pixelsChanged);
+            var newPixelDevice = new PixelDevice(this.pixelWidth, this.pixelHeight, pixelMapping, dmxDataChanged);
 
             this.devices.Add(newPixelDevice);
         }
@@ -206,22 +206,16 @@ namespace Animatroller.Framework.LogicalDevice
         protected class PixelDevice
         {
             private Bitmap outputBitmap;
-
             private Graphics outputGraphics;
-
             private Rectangle outputRectangle;
-
-            private byte[] pixels;
-
-            private Action<byte[]> pixelsChangedAction;
-
-            private int[] pixelMapping;
-
             private int stride;
+            private byte[][] dmxData;
+            private Action<byte[][]> dmxDataChangedAction;
+            private (int Universe, int DmxChannel)[] outputMapping;
 
-            public PixelDevice(int pixelWidth, int pixelHeight, Dictionary<int, Utility.PixelMap[]> pixelMapping, Action<byte[]> pixelsChangedAction)
+            public PixelDevice(int pixelWidth, int pixelHeight, Dictionary<int, Utility.PixelMap[]> pixelMapping, Action<byte[][]> dmxDataChangedAction)
             {
-                this.pixelsChangedAction = pixelsChangedAction;
+                this.dmxDataChangedAction = dmxDataChangedAction;
 
                 this.outputBitmap = new Bitmap(pixelWidth, pixelHeight, PixelFormat.Format24bppRgb);
                 this.outputGraphics = Graphics.FromImage(this.outputBitmap);
@@ -229,35 +223,30 @@ namespace Animatroller.Framework.LogicalDevice
 
                 int bytesPerPixel = System.Drawing.Bitmap.GetPixelFormatSize(this.outputBitmap.PixelFormat) / 8;
                 this.stride = 4 * ((this.outputBitmap.Width * bytesPerPixel + 3) / 4);
-                int byteCount = stride * this.outputBitmap.Height;
-                this.pixels = new byte[bytesPerPixel * this.outputBitmap.Width * this.outputBitmap.Height];
-                this.pixelMapping = new int[byteCount];
+                int byteCount = this.stride * this.outputBitmap.Height;
 
-                UpdatePixelMapping(pixelMapping);
+                this.dmxData = new byte[pixelMapping.Keys.Max() + 1][];
+
+                for (int universe = 0; universe <= pixelMapping.Keys.Max(); universe++)
+                    this.dmxData[universe] = new byte[512];
+
+                UpdatePixelMapping(pixelMapping, byteCount);
             }
 
-            private void UpdatePixelMapping(Dictionary<int, Utility.PixelMap[]> input)
+            private void UpdatePixelMapping(Dictionary<int, Utility.PixelMap[]> input, int byteCount)
             {
-                for (int i = 0; i < this.pixelMapping.Length; i++)
-                    this.pixelMapping[i] = -1;
-
                 if (!input.Any())
                     return;
 
-                int minUniverse = input.Min(x => x.Key);
-                int maxUniverse = input.Max(x => x.Key);
+                this.outputMapping = new(int, int)[byteCount];
 
-                for (int universe = minUniverse; universe <= maxUniverse; universe++)
+                foreach (var kvp in input)
                 {
-                    Utility.PixelMap[] mapping;
-                    if (!input.TryGetValue(universe, out mapping))
-                        continue;
-
-                    for (int i = 0; i < mapping.Length; i++)
+                    for (int i = 0; i < kvp.Value.Length; i++)
                     {
-                        Utility.PixelMap map = mapping[i];
+                        Utility.PixelMap map = kvp.Value[i];
 
-                        int rgbOffset = -1;
+                        int rgbOffset;
                         switch (map.ColorComponent)
                         {
                             case Utility.ColorComponent.R:
@@ -271,33 +260,34 @@ namespace Animatroller.Framework.LogicalDevice
                             case Utility.ColorComponent.B:
                                 rgbOffset = 0;
                                 break;
+
+                            default:
+                                continue;
                         }
-                        if (rgbOffset == -1)
-                            continue;
 
                         int sourcePos = map.Y * this.stride + map.X * 3 + rgbOffset;
-                        if (sourcePos >= 0 && sourcePos <= this.pixelMapping.Length)
-                            this.pixelMapping[sourcePos] = i + (universe - minUniverse) * 510;
+                        if (sourcePos >= 0 && sourcePos <= this.outputMapping.Length)
+                            this.outputMapping[sourcePos] = (kvp.Key, i);
                     }
                 }
             }
 
             public void DrawImage(byte[] rawPixels)
             {
-                if (this.pixelsChangedAction != null)
+                if (this.dmxDataChangedAction != null)
                 {
-                    if (this.pixelMapping.Length != rawPixels.Length)
+                    if (this.outputMapping.Length != rawPixels.Length)
                         // Incorrect pixel mapping
                         return;
 
                     for (int i = 0; i < rawPixels.Length; i++)
                     {
-                        int pos = this.pixelMapping[i];
-                        if (pos >= 0 && pos < this.pixels.Length)
-                            this.pixels[pos] = rawPixels[i];
+                        var (universe, dmxChannel) = this.outputMapping[i];
+
+                        this.dmxData[universe][dmxChannel] = rawPixels[i];
                     }
 
-                    this.pixelsChangedAction(this.pixels);
+                    this.dmxDataChangedAction(this.dmxData);
                 }
             }
         }

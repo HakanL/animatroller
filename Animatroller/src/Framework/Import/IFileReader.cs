@@ -12,4 +12,9 @@ namespace Animatroller.Framework.Import
 
         DmxData ReadFrame();
     }
+
+    public interface IFileReader2 : IFileReader
+    {
+        int TriggerUniverseId { get; }
+    }
 }

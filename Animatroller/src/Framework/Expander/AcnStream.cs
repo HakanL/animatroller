@@ -123,6 +123,15 @@ namespace Animatroller.Framework.Expander
                     localStart = 1;
                 }
             }
+
+            public void SendPixelsValue(int channel, byte[][] dmxData)
+            {
+                for (int universe = 0; universe < dmxData.Length; universe++)
+                {
+                    var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
+                    acnUniverse.SendDimmerValues(1, dmxData[universe], 0, dmxData[universe].Length);
+                }
+            }
         }
 
         protected class AcnUniverse : IDmxOutput
@@ -305,6 +314,13 @@ namespace Animatroller.Framework.Expander
         public AcnStream Connect(PhysicalDevice.INeedsPixelOutput device, int startUniverse, int startDmxChannel)
         {
             device.PixelOutputPort = GetPixelSendingUniverse(startUniverse, startDmxChannel);
+
+            return this;
+        }
+
+        public AcnStream Connect(PhysicalDevice.INeedsPixel2DOutput device, int startUniverse)
+        {
+            device.PixelOutputPort = GetPixelSendingUniverse(startUniverse, 1);
 
             return this;
         }

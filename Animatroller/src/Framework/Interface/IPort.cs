@@ -31,6 +31,8 @@ namespace Animatroller.Framework
 
         SendStatus SendPixelsValue(int channel, PhysicalDevice.PixelRGBByte[] rgb);
 
+        void SendPixelsValue(int channel, byte[][] dmxData);
+
         void SendPixelsValue(int channel, byte[] rgb, int length);
     }
 

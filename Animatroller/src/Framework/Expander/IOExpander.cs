@@ -285,5 +285,10 @@ namespace Animatroller.Framework.Expander
         {
             throw new NotImplementedException();
         }
+
+        public void SendPixelsValue(int channel, byte[][] dmxData)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Framework.Import.FileFormat
 {
+    [Obsolete]
     public class DmxFrame
     {
         public byte Start { get; set; }

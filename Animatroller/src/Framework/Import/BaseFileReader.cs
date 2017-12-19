@@ -24,7 +24,7 @@ namespace Animatroller.Framework.Import
             get { return this.fileStream.Position < this.fileStream.Length; }
         }
 
-        public void Rewind()
+        public virtual void Rewind()
         {
             this.fileStream.Position = 0;
         }
