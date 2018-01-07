@@ -258,6 +258,7 @@ namespace Animatroller.Scenes
 
             var fileReaderStarWars = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Star Wars 1.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
             var fileReaderXmas = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "MerryChristmas.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
+            var fileReaderHappyNewYear = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Happy New Year.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
 
             var pixelMapping2D = Framework.Utility.PixelMapping.GeneratePixelMapping(
                 48,
@@ -315,7 +316,8 @@ namespace Animatroller.Scenes
                 {
                     //Exec.SetGlobalChannel(1);
 
-                    dmxPlayback.Load(fileReaderXmas);
+                    //dmxPlayback.Load(fileReaderXmas);
+                    dmxPlayback.Load(fileReaderHappyNewYear);
                     dmxPlayback.Run(true);
                     ins.WaitUntilCancel();
                 }).
@@ -515,7 +517,8 @@ namespace Animatroller.Scenes
 
                     subCandyCane.Run();
 
-                    dmxPlayback.Load(fileReaderXmas);
+                    //dmxPlayback.Load(fileReaderXmas);
+                    dmxPlayback.Load(fileReaderHappyNewYear);
                     dmxPlayback.Run(true);
 
                     i.WaitUntilCancel();
@@ -562,8 +565,7 @@ namespace Animatroller.Scenes
 
             subStarWarsCane
                 .LockWhenRunning(
-                    pixelsRoofEdge,
-                    pixelsMatrix)
+                    pixelsRoofEdge)
                 .RunAction(instance =>
                 {
                     const int spacing = 4;
@@ -577,12 +579,12 @@ namespace Animatroller.Scenes
                                 case 0:
                                 case 1:
                                     pixelsRoofEdge.InjectRev(Color.Yellow, 1.0, token: instance.Token);
-                                    pixelsMatrix.InjectRow(Color.Yellow, 1.0, token: instance.Token);
+                                    //pixelsMatrix.InjectRow(Color.Yellow, 1.0, token: instance.Token);
                                     break;
                                 case 2:
                                 case 3:
                                     pixelsRoofEdge.InjectRev(Color.Orange, 0.2, token: instance.Token);
-                                    pixelsMatrix.InjectRow(Color.Orange, 0.2, token: instance.Token);
+                                    //pixelsMatrix.InjectRow(Color.Orange, 0.2, token: instance.Token);
                                     break;
                             }
 
@@ -748,7 +750,7 @@ namespace Animatroller.Scenes
                     dmxPlayback.Load(fileReaderStarWars);
 
                     audioHiFi.PlayTrack("01. Star Wars - Main Title.wav");
-                    dmxPlayback.Run(false);
+                    dmxPlayback.Run(true);
 
                     instance.WaitFor(S(16), true);
 
