@@ -196,7 +196,7 @@ namespace Animatroller.Framework.Effect
                         if (this.iterationCounter.HasValue)
                         {
                             this.iterationCounter = this.iterationCounter.Value - 1;
-                            if(this.iterationCounter.Value <= 0)
+                            if (this.iterationCounter.Value <= 0)
                             {
                                 // Set to last position
                                 this.index = SweeperTables.DataPoints - 1;
@@ -230,17 +230,17 @@ namespace Animatroller.Framework.Effect
         private List<Job> jobs;
         private readonly int intervalMs;
 
-        public MasterSweeper(Controller.HighPrecisionTimer timer)
+        public MasterSweeper(Controller.IMasterTimer timer)
         {
             this.log = Log.Logger;
             this.intervalMs = timer.IntervalMs;
             this.jobs = new List<Job>();
 
             // Make sure we don't add to the Tick handler until we're ready to execute
-            timer.Tick += timer_Tick;
+            timer.Output.Subscribe(_ => timer_Tick());
         }
 
-        private void timer_Tick(object sender, Controller.HighPrecisionTimer.TickEventArgs e)
+        private void timer_Tick()
         {
             lock (lockTicks)
             {

@@ -856,7 +856,7 @@ namespace Animatroller.Scenes
                 })
                 .Execute(i =>
                 {
-                    var timer = new Controller.HighPrecisionTimer(50, false);
+                    var timer = new Controller.HighPrecisionTimer3(50, false);
                     byte[] buffer;
                     using (var fs = System.IO.File.OpenRead("Let It Go - Waveform 50ms.dat"))
                     {
@@ -871,7 +871,7 @@ namespace Animatroller.Scenes
 
                     double lastValue = 0;
 
-                    timer.Tick += (o, e) =>
+                    timer.Subscribe( += (o, e) =>
                         {
                             int pos = (int)e.TotalTicks;
                             if(pos >= buffer.Length)

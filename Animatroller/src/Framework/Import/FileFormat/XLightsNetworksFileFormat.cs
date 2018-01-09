@@ -37,5 +37,8 @@ namespace Animatroller.Framework.Import.FileFormat
 
         [XmlAttribute("MaxChannels")]
         public ushort MaxChannels { get; set; }
+
+        [XmlAttribute("NumUniverses")]
+        public string NumUniverses { get; set; }
     }
 }

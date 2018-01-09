@@ -167,10 +167,10 @@ namespace Animatroller.Framework.Effect2
         private object lockObject = new object();
         protected ILogger log;
         private List<TimerJob> timerJobs = new List<TimerJob>();
-        private Animatroller.Framework.Controller.HighPrecisionTimer2 timer;
+        private Controller.IMasterTimer timer;
         private Timer monitorTimer;
 
-        public TimerJobRunner(Animatroller.Framework.Controller.HighPrecisionTimer2 timer)
+        public TimerJobRunner(Controller.IMasterTimer timer)
         {
             this.log = Log.Logger;
             this.timer = timer;

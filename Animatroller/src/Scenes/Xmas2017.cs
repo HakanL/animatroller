@@ -256,9 +256,11 @@ namespace Animatroller.Scenes
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            var fileReaderStarWars = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Star Wars 1.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
-            var fileReaderXmas = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "MerryChristmas.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
-            var fileReaderHappyNewYear = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Happy New Year.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
+            //var fileReaderStarWars = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Star Wars 1.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
+            //var fileReaderXmas = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "MerryChristmas.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
+            //var fileReaderHappyNewYear = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Happy New Year.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
+
+            var fileReaderCarol = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Carol of Bells 2017.fseq"));
 
             var pixelMapping2D = Framework.Utility.PixelMapping.GeneratePixelMapping(
                 48,
@@ -317,7 +319,7 @@ namespace Animatroller.Scenes
                     //Exec.SetGlobalChannel(1);
 
                     //dmxPlayback.Load(fileReaderXmas);
-                    dmxPlayback.Load(fileReaderHappyNewYear);
+                    dmxPlayback.Load(fileReaderCarol);
                     dmxPlayback.Run(true);
                     ins.WaitUntilCancel();
                 }).
@@ -348,7 +350,7 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     //    //pixelsMatrix.Inject(Color.FromArgb(random.Next(255), random.Next(255), 128));
-                    dmxPlayback.Load(fileReaderStarWars);
+                    //FIXME dmxPlayback.Load(fileReaderStarWars);
                     dmxPlayback.Run(false);
                 }
                 //else
@@ -518,7 +520,7 @@ namespace Animatroller.Scenes
                     subCandyCane.Run();
 
                     //dmxPlayback.Load(fileReaderXmas);
-                    dmxPlayback.Load(fileReaderHappyNewYear);
+                    //FIXME dmxPlayback.Load(fileReaderHappyNewYear);
                     dmxPlayback.Run(true);
 
                     i.WaitUntilCancel();
@@ -747,7 +749,7 @@ namespace Animatroller.Scenes
                     subStarWarsCane.Run();
                     lightR2D2.SetBrightness(1.0, token: instance.Token);
 
-                    dmxPlayback.Load(fileReaderStarWars);
+                    //FIXME dmxPlayback.Load(fileReaderStarWars);
 
                     audioHiFi.PlayTrack("01. Star Wars - Main Title.wav");
                     dmxPlayback.Run(true);

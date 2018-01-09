@@ -14,15 +14,17 @@ namespace Animatroller.Scenes
     {
         private static ILogger log;
         private const string FileTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
-        private const string TraceTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
+        private const string ConsoleTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
+        //private const string DebugTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
+        private const string DebugTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{Exception}";
 
         public static void Main(string[] args)
         {
             var logConfig = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .MinimumLevel.Verbose()
-                .WriteTo.ColoredConsole(outputTemplate: TraceTemplate)
-                .WriteTo.Trace(outputTemplate: TraceTemplate)
+                .WriteTo.ColoredConsole(outputTemplate: ConsoleTemplate)
+                .WriteTo.Debug(outputTemplate: DebugTemplate)
                 .WriteTo.RollingFile(
                     pathFormat: Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),
                     outputTemplate: FileTemplate);
@@ -40,6 +42,7 @@ namespace Animatroller.Scenes
             Executor.Current.SetLogger(log);
 
             Console.SetWindowSize(Math.Min(Console.LargestWindowWidth, 180), Math.Min(Console.LargestWindowHeight, 70));
+            // Why doesn't this work?
             //Console.SetWindowPosition(0, 0);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

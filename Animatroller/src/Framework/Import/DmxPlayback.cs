@@ -19,6 +19,7 @@ namespace Animatroller.Framework.Import
         private string name;
         private Subroutine sub;
         private IFileReader reader;
+        private IFileReader3 reader3;
         private IPixel2 device;
         private Stopwatch masterClock;
         private long nextStop;
@@ -114,7 +115,7 @@ namespace Animatroller.Framework.Import
                 }
 
                 System.Runtime.InteropServices.Marshal.Copy(this.rgbValues, 0, bitmapData.Scan0, this.rgbValues.Length);
-                bitmap.UnlockBits(bitmapData);
+                this.bitmap.UnlockBits(bitmapData);
             }
 
             if (this.dmxFrame.Universe == this.triggerSyncOnUniverse)
@@ -257,6 +258,17 @@ namespace Animatroller.Framework.Import
             this.triggerSyncOnUniverse = reader.TriggerUniverseId;
             this.reader = reader;
             this.reader.Rewind();
+
+            this.bitmap = null;
+        }
+
+        public void Load(IFileReader3 reader)
+        {
+            Stop();
+
+            this.triggerSyncOnUniverse = reader.TriggerUniverseId;
+            this.reader3 = reader;
+            this.reader3.Rewind();
 
             this.bitmap = null;
         }

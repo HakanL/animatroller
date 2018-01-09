@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace Animatroller.Framework.Import
 {
-    public class FseqFileReader : BaseFileReader, IFileReader2
+    public class FseqFileReader : BaseFileReader, IFileReader3
     {
         public class Header
         {
@@ -43,6 +43,8 @@ namespace Animatroller.Framework.Import
         {
             public int MaxChannels { get; set; }
 
+            public int NumUniverses { get; set; }
+
             public int UniverseId { get; set; }
 
             public bool Skip { get; set; }
@@ -59,13 +61,23 @@ namespace Animatroller.Framework.Import
         private int triggerUniverseId;
         private int maxNetwork;
 
-        public int TriggerUniverseId { get { return this.triggerUniverseId; } }
+        public int TriggerUniverseId => this.triggerUniverseId;
 
-        public FseqFileReader(string fileName, string configFileName)
+        public int FrameSize => this.header.StepSize;
+
+        public FseqFileReader(string fileName, string configFileName = null)
             : base(fileName)
         {
             this.binRead = new System.IO.BinaryReader(this.fileStream);
             this.header = null;
+
+            if (string.IsNullOrEmpty(configFileName))
+                configFileName = Path.Combine(Path.GetDirectoryName(fileName), "xlights_networks.xml");
+            else
+            {
+                if (!Path.IsPathRooted(configFileName))
+                    configFileName = Path.Combine(Path.GetDirectoryName(fileName), configFileName);
+            }
 
             var serializer = new XmlSerializer(typeof(FileFormat.Networks));
             using (var fs = File.OpenRead(configFileName))
@@ -88,7 +100,8 @@ namespace Animatroller.Framework.Import
                 {
                     MaxChannels = fseqNetwork.MaxChannels,
                     UniverseId = int.Parse(fseqNetwork.BaudRate),
-                    Skip = fseqNetwork.NetworkType != "E131"
+                    Skip = fseqNetwork.NetworkType != "E131",
+                    NumUniverses = string.IsNullOrEmpty(fseqNetwork.NumUniverses) ? 1 : int.Parse(fseqNetwork.NumUniverses)
                 };
                 this.networks[i] = networkData;
 
@@ -101,7 +114,7 @@ namespace Animatroller.Framework.Import
 
         public override void Dispose()
         {
-            this.binRead.Dispose();
+            this.binRead?.Dispose();
             base.Dispose();
         }
 
@@ -173,11 +186,40 @@ namespace Animatroller.Framework.Import
             this.currentNetwork = 0;
         }
 
-        private void ReadFullFrame()
+        public byte[] ReadFullFrame(out long timestampMS)
         {
-            this.frameBuffer = this.binRead.ReadBytes(this.header.StepSize);
+            int readBytes = this.binRead.Read(this.frameBuffer, 0, this.header.StepSize);
+
+            if (readBytes == 0)
+            {
+                timestampMS = -1;
+                return null;
+            }
 
             this.currentFrame++;
+
+            timestampMS = this.currentFrame * this.header.StepTimeMS;
+
+            return this.frameBuffer;
+        }
+
+        public (int UniverseId, int Channel)[] GetFrameLayout()
+        {
+            var layout = new(int, int)[this.header.StepSize];
+
+            int writePos = -1;
+            foreach (var network in this.networks.Values)
+            {
+                for (int u = 0; u < network.NumUniverses; u++)
+                {
+                    for (int i = 0; i < network.MaxChannels; i++)
+                    {
+                        layout[++writePos] = (network.Skip ? -1 : network.UniverseId + u, i);
+                    }
+                }
+            }
+
+            return layout;
         }
 
         public override DmxData ReadFrame()
@@ -185,10 +227,12 @@ namespace Animatroller.Framework.Import
             if (this.currentNetwork == 0)
             {
                 // Read a full frame
-                ReadFullFrame();
+                int readBytes = this.binRead.Read(this.frameBuffer, 0, this.header.StepSize);
 
-                if (this.frameBuffer.Length == 0)
+                if (readBytes == 0)
                     return null;
+
+                this.currentFrame++;
 
                 this.currentReadPosition = 0;
             }

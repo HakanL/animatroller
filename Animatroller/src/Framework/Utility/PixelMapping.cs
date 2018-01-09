@@ -217,6 +217,7 @@ namespace Animatroller.Framework.Utility
 
         public static Dictionary<int, PixelMap[]> GeneratePixelMapping(
             int pixels,
+            int startPixel = 0,
             int startUniverse = 0,
             RgbOrder rgbOrder = RgbOrder.RGB,
             int channelShift = 0)
@@ -228,7 +229,7 @@ namespace Animatroller.Framework.Utility
             var pixelMapping = new Dictionary<int, PixelMap[]>();
 
             for (int x = 0; x < pixels; x++)
-                MapPixelRGB(pixelMapping, x, 0, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, null);
+                MapPixelRGB(pixelMapping, x + startPixel, 0, ref universe, ref mappingPos, rgbOrder, channelShift, ref pixelCounter, null);
 
             return pixelMapping;
         }

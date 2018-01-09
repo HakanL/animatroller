@@ -17,4 +17,13 @@ namespace Animatroller.Framework.Import
     {
         int TriggerUniverseId { get; }
     }
+
+    public interface IFileReader3 : IFileReader2
+    {
+        byte[] ReadFullFrame(out long timestampMS);
+
+        int FrameSize { get; }
+
+        (int UniverseId, int Channel)[] GetFrameLayout();
+    }
 }

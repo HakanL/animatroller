@@ -24,8 +24,6 @@ namespace Animatroller.Framework
             }
         }
 
-        internal const int MasterTimerIntervalMs = 25;
-
         protected ILogger log;
 
         public class ExecuteInstance
@@ -36,7 +34,9 @@ namespace Animatroller.Framework
         }
 
         private object lockObject = new object();
-        public static readonly Executor Current = new Executor();
+        private static readonly Lazy<Executor> lazyInitializer = new Lazy<Executor>();
+        public static Executor Current => lazyInitializer.Value;
+        //public static readonly Executor Current = new Executor();
         private Dictionary<ICanExecute, Task> singleInstanceTasks;
         private List<IRunningDevice> devices;
         private List<IRunnable> runnable;
@@ -45,8 +45,7 @@ namespace Animatroller.Framework
         private List<ExecuteInstance> executingTasks;
         private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
         private Dictionary<Task, CancellationTokenSource> cancelSourceForManagedTask;
-        private Controller.HighPrecisionTimer masterTimer;
-        private Controller.HighPrecisionTimer2 masterTimer2;
+        private Controller.HighPrecisionTimer3 masterTimer25ms;
         private Effect2.TimerJobRunner timerJobRunner;
         private Effect2.MasterEffect masterEffect;
         private Effect.MasterSweeper masterSweeper;
@@ -58,7 +57,7 @@ namespace Animatroller.Framework
         private ControlSubject<double> masterVolume;
         private Subject<(string Name, object Value)> masterStatus;
 
-        private Executor()
+        public Executor()
         {
             this.log = Log.Logger;
             this.singleInstanceTasks = new Dictionary<ICanExecute, Task>();
@@ -70,14 +69,13 @@ namespace Animatroller.Framework
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
             this.cancelSourceForManagedTask = new Dictionary<Task, CancellationTokenSource>();
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
-            this.masterTimer = new Controller.HighPrecisionTimer(MasterTimerIntervalMs);
-            this.masterTimer2 = new Controller.HighPrecisionTimer2(MasterTimerIntervalMs);
-            this.timerJobRunner = new Effect2.TimerJobRunner(this.masterTimer2);
+            this.masterTimer25ms = new Controller.HighPrecisionTimer3(this.log, 25);
+            this.timerJobRunner = new Effect2.TimerJobRunner(this.masterTimer25ms);
             this.controlTokens = new Dictionary<IOwnedDevice, IControlToken>();
 
             this.masterEffect = new Effect2.MasterEffect(this.timerJobRunner);
 
-            this.masterSweeper = new Effect.MasterSweeper(this.masterTimer);
+            this.masterSweeper = new Effect.MasterSweeper(this.masterTimer25ms);
             this.keyStoragePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Animatroller");
             if (!System.IO.Directory.Exists(this.keyStoragePath))
                 System.IO.Directory.CreateDirectory(this.keyStoragePath);
@@ -93,6 +91,8 @@ namespace Animatroller.Framework
                 this.log.Debug("Master status for {Name} is {Status}", x.Name, x.Value);
             });
         }
+
+        public Controller.IMasterTimer MasterTimer25ms => this.masterTimer25ms;
 
         public string ExpanderSharedFiles { get; set; }
 
