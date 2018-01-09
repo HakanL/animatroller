@@ -13,7 +13,8 @@ namespace Animatroller.Framework.Utility
         None = 0,
         R,
         G,
-        B
+        B,
+        Brightness
     }
 
     public struct PixelMap

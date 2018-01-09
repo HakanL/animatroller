@@ -1,11 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SceneRunner", "SceneRunner\SceneRunner.csproj", "{B456587A-C3B4-4654-A1D1-3029E9BFDBCA}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5CA4EE12-DD7F-49D0-9079-41EE3B067FCE} = {5CA4EE12-DD7F-49D0-9079-41EE3B067FCE}
+		{60DBA58A-2233-4386-ABDE-C5766CBAC8DE} = {60DBA58A-2233-4386-ABDE-C5766CBAC8DE}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simulator", "Simulator\Simulator.csproj", "{5CA4EE12-DD7F-49D0-9079-41EE3B067FCE}"
@@ -13,9 +14,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Framework", "Framework\Framework.csproj", "{97C48505-A92A-4FBD-B39C-BBB014AEF34B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scenes", "Scenes\Scenes.csproj", "{60DBA58A-2233-4386-ABDE-C5766CBAC8DE}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B456587A-C3B4-4654-A1D1-3029E9BFDBCA} = {B456587A-C3B4-4654-A1D1-3029E9BFDBCA}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FCEA493-3A1C-4328-B8BA-775E771FBACC}"
 EndProject

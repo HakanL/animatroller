@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Animatroller.Framework.Controller;
 using Animatroller.Framework.Import.FileFormat;
 using Animatroller.Framework.LogicalDevice;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Framework.Import
 {
@@ -184,7 +185,7 @@ namespace Animatroller.Framework.Import
                         bitmap.UnlockBits(bitmapData);
                     };
                 }
-                else
+                else if (deviceData.Device is IReceivesColor)
                 {
                     deviceData.BufferSize = 3;
 
@@ -197,6 +198,19 @@ namespace Animatroller.Framework.Import
                         pusher.Data[DataElements.Color] = color;
                     };
                 }
+                else if (deviceData.Device is IReceivesBrightness)
+                {
+                    deviceData.BufferSize = 1;
+
+                    var pusher = deviceData.Device.GetDataObserver(this.channel, this.sub.Token);
+
+                    deviceData.Writer = buf =>
+                    {
+                        pusher.Data[DataElements.Brightness] = buf[0].GetDouble();
+                    };
+                }
+                else
+                    throw new ArgumentException("Unknown device type");
             }
 
             this.masterClock.Reset();
@@ -220,7 +234,30 @@ namespace Animatroller.Framework.Import
 
         public void SetOutput(IReceivesColor device, int startUniverseInFile, int startChannelInFile)
         {
-            this.rawDeviceMapping.Add((device, startUniverseInFile, startChannelInFile, null, 1, 1));
+            var mapping = new Dictionary<int, Utility.PixelMap[]>
+                        {
+                            {0, new Utility.PixelMap[] {
+                                new Utility.PixelMap { ColorComponent = Utility.ColorComponent.B },
+                                new Utility.PixelMap { ColorComponent = Utility.ColorComponent.G },
+                                new Utility.PixelMap { ColorComponent = Utility.ColorComponent.R }
+                            } }
+                        };
+
+            this.rawDeviceMapping.Add((device, startUniverseInFile, startChannelInFile, mapping, 1, 1));
+
+            this.sub.LockWhenRunning(device);
+        }
+
+        public void SetOutput(IReceivesBrightness device, int startUniverseInFile, int startChannelInFile)
+        {
+            var mapping = new Dictionary<int, Utility.PixelMap[]>
+                        {
+                            {0, new Utility.PixelMap[] {
+                                new Utility.PixelMap { ColorComponent = Utility.ColorComponent.Brightness }
+                            } }
+                        };
+
+            this.rawDeviceMapping.Add((device, startUniverseInFile, startChannelInFile, mapping, 1, 1));
 
             this.sub.LockWhenRunning(device);
         }
@@ -260,6 +297,10 @@ namespace Animatroller.Framework.Import
                             break;
 
                         case Utility.ColorComponent.B:
+                            rgbOffset = 0;
+                            break;
+
+                        case Utility.ColorComponent.Brightness:
                             rgbOffset = 0;
                             break;
 
@@ -312,17 +353,7 @@ namespace Animatroller.Framework.Import
 
                 foreach (var rawDeviceData in group)
                 {
-                    var rawMapping = rawDeviceData.RawMapping;
-                    if (rawMapping == null)
-                        rawMapping = new Dictionary<int, Utility.PixelMap[]>
-                        {
-                            {0, new Utility.PixelMap[] {
-                                new Utility.PixelMap { ColorComponent = Utility.ColorComponent.B },
-                                new Utility.PixelMap { ColorComponent = Utility.ColorComponent.G },
-                                new Utility.PixelMap { ColorComponent = Utility.ColorComponent.R }
-                            } }
-                        };
-                    UpdatePixelMapping(rawMapping, rawDeviceData.StartUniverseInFile, rawDeviceData.StartChannelInFile, rawDeviceData.Width, rawDeviceData.Height, pixelMapping);
+                    UpdatePixelMapping(rawDeviceData.RawMapping, rawDeviceData.StartUniverseInFile, rawDeviceData.StartChannelInFile, rawDeviceData.Width, rawDeviceData.Height, pixelMapping);
                 }
 
                 var mappingList = new List<(int Address, int OutputPos)>();

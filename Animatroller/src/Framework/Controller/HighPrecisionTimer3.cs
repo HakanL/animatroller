@@ -1,4 +1,4 @@
-﻿#define PROFILE
+﻿//#define PROFILE
 using Serilog;
 using System;
 using System.Linq;

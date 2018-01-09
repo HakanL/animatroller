@@ -97,7 +97,7 @@ namespace Animatroller.Scenes
         DigitalInput2 controlButtonRed = new DigitalInput2(holdTimeout: S(10));
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        DigitalInput2 inShowMachine = new DigitalInput2();
+        DigitalInput2 inSnowMachine = new DigitalInput2();
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 inSetupMode = new DigitalInput2(persistState: true);
 
@@ -919,7 +919,7 @@ namespace Animatroller.Scenes
                 }
             };
 
-            inShowMachine.Output.Subscribe(x =>
+            inSnowMachine.Output.Subscribe(x =>
             {
                 snowMachine.SetValue(x);
             });
