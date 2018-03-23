@@ -148,7 +148,7 @@ namespace Animatroller.Framework.Effect2
 
             protected override void ObserverNext(long elapsedMs)
             {
-                if (++this.skipCounter == this.skips)
+                if (this.skips == 0 || ++this.skipCounter == this.skips)
                 {
                     this.skipCounter = 0;
 

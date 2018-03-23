@@ -9,7 +9,7 @@
       <Value Profile="(Default)">10009</Value>
     </Setting>
     <Setting Name="SeqServerURL" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">http://office.lindestaf.com:5341/</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="SeqApiKey" Type="System.String" Scope="Application">
       <Value Profile="(Default)">0ocY3mYMSDRPrUFgq4z</Value>

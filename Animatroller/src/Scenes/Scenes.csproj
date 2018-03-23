@@ -64,7 +64,7 @@
     <None Include="Old\ReallyOld\PanTiltDemo.cs" />
     <None Include="Old\ReallyOld\PixelScene1.cs" />
     <None Include="Old\ReallyOld\SimpleTest1.cs" />
-    <None Include="Old\ReallyOld\TestMidi1.cs" />
+    <None Include="TestMidi1.cs" />
     <None Include="Old\ReallyOld\TestPiFace.cs" />
     <None Include="Old\ReallyOld\TestRenard1.cs" />
     <None Include="Old\ReallyOld\TestScene1.cs" />

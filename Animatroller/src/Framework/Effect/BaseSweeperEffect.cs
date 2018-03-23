@@ -149,10 +149,20 @@ namespace Animatroller.Framework.Effect
 
         public IEffect Start(int channel = 0, int priority = 1, IControlToken token = null)
         {
+            return Start(channel, priority, token, false);
+        }
+
+        public IEffect StartWithTakeControl(int channel = 0, int priority = 1)
+        {
+            return Start(channel, priority, token: null, takeControl: true);
+        }
+
+        private IEffect Start(int channel, int priority, IControlToken token, bool takeControl)
+        {
             if (this.token == null)
             {
                 IControlToken controlToken = token;
-                if (controlToken == null)
+                if (controlToken == null && takeControl)
                 {
                     this.token = new GroupControlToken(this.devices.Select(x => x.Device), null, Name, channel, priority);
                     controlToken = this.token;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define VERBOSE_LOGGING
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,6 +23,7 @@ namespace Animatroller.Framework.Expander
         private Dictionary<Tuple<int, ChannelCommand, int>, Action<ChannelMessage>> messageMapper;
         private ISubject<ChannelMessage> midiMessages;
         private string name;
+        private (ChannelCommand Command, int Channel, int Data1) lastLoggedValue;
 
         public MidiInput2(string deviceName = null, bool ignoreMissingDevice = false, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -75,12 +78,25 @@ namespace Animatroller.Framework.Expander
 
         private void inputDevice_ChannelMessageReceived(object sender, ChannelMessageEventArgs e)
         {
-            this.log.Verbose("Recv {4} cmd {0}, chn: {1}  data1: {2}  data2: {3}",
-                e.Message.Command,
-                e.Message.MidiChannel,
-                e.Message.Data1,
-                e.Message.Data2,
-                Name);
+#if !VERBOSE_LOGGING
+            if (e.Message.Command != lastLoggedValue.Command ||
+                e.Message.MidiChannel != lastLoggedValue.Channel ||
+                e.Message.Data1 != lastLoggedValue.Data1)
+            {
+#endif
+                this.log.Verbose("Recv {4} cmd {0}, chn: {1}  data1: {2}  data2: {3}",
+                    e.Message.Command,
+                    e.Message.MidiChannel,
+                    e.Message.Data1,
+                    e.Message.Data2,
+                    Name);
+#if !VERBOSE_LOGGING
+            }
+#endif
+
+            lastLoggedValue.Command = e.Message.Command;
+            lastLoggedValue.Channel = e.Message.MidiChannel;
+            lastLoggedValue.Data1 = e.Message.Data1;
 
             this.midiMessages.OnNext(e.Message);
 

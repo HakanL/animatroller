@@ -59,7 +59,7 @@ namespace Animatroller.Framework.LogicalDevice
 
                     SetNewData(dataList, channel: x.Channel);
 
-                    if(x.Channel == this.currentChannel)
+                    if (x.Channel == this.currentChannel)
                         this.outputChanged.OnNext(CurrentData);
                 }
 
@@ -109,10 +109,13 @@ namespace Animatroller.Framework.LogicalDevice
 
         public IPushDataController GetDataObserver(int channel, IControlToken token)
         {
+            IData data;
             if (token == null)
-                throw new ArgumentNullException("token");
+                data = GetOwnerlessData(channel);
+            else
+                data = token.GetDataForDevice(this, channel);
 
-            return new ControlledObserverData(token, this.outputData, token.GetDataForDevice(this, channel));
+            return new ControlledObserverData(token, this.outputData, data);
         }
 
         public IData GetFrameBuffer(int channel, IControlToken token, IReceivesData device)

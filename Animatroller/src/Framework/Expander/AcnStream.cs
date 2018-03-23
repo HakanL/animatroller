@@ -13,6 +13,7 @@ using Serilog;
 using kadmium_sacn_core;
 using System.Threading;
 using System.Diagnostics;
+using System.Reactive;
 
 namespace Animatroller.Framework.Expander
 {
@@ -153,6 +154,14 @@ namespace Animatroller.Framework.Expander
 
                 this.currentData = new byte[512];
                 this.lastSendWatch = new Stopwatch();
+
+                var observer = Observer.Create<int>(
+                    onNext: pos =>
+                    {
+                        ActuallySendCurrentData();
+                    });
+
+                Executor.Current.TimerJobRunner.AddTimerJobCounter(observer);
             }
 
             public bool IsDueForKeepAlive
@@ -173,6 +182,11 @@ namespace Animatroller.Framework.Expander
             }
 
             private void SendCurrentData()
+            {
+                // Do nothing
+            }
+
+            private void ActuallySendCurrentData()
             {
                 lock (this.lockObject)
                 {

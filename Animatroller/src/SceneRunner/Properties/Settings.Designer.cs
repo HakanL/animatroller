@@ -43,7 +43,7 @@ namespace Animatroller.SceneRunner.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://office.lindestaf.com:5341/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string SeqServerURL {
             get {
                 return ((string)(this["SeqServerURL"]));
