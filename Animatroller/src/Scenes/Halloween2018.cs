@@ -25,6 +25,8 @@ namespace Animatroller.Scenes
         const int SacnUniverseFrankGhost = 3;
         const int SacnUniverseFire = 99;
 
+        // 6804 12V - 192.168.240.247
+
         public enum States
         {
             BackgroundSmall,
@@ -220,7 +222,7 @@ namespace Animatroller.Scenes
         Controller.Timeline<string> timelineThunder7 = new Controller.Timeline<string>(1);
         Controller.Timeline<string> timelineThunder8 = new Controller.Timeline<string>(1);
 
-        IControlToken manualFaderToken;
+        GroupControlToken manualFaderToken;
         int soundBoardOutputIndex = 0;
 
         // Modules
@@ -897,7 +899,10 @@ namespace Animatroller.Scenes
             manualFader.WhenOutputChanges(v =>
             {
                 if (v)
-                    this.manualFaderToken = pixelsRoofEdge.TakeControl(priority: 200);
+                {
+                    this.manualFaderToken = new GroupControlToken(priority: 200);
+                    this.manualFaderToken.AddRange(channel: Channel.Main, pixelsRoofEdge, wall4Light, wall6Light);
+                }
                 else
                 {
                     this.manualFaderToken?.Dispose();
@@ -923,7 +928,8 @@ namespace Animatroller.Scenes
             if (manualFaderToken != null)
             {
                 pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
-                wall3Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
+                wall4Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
+                wall6Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
             }
         }
 

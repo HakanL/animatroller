@@ -58,11 +58,11 @@ namespace Animatroller.Framework.LogicalDevice
 
                     SetNewData(dataList, channel: x.Channel);
 
-                    if (this.currentChannel.Equals(x.Channel))
+                    if ((this.currentChannel ?? Channel.Main).Equals(x.Channel ?? Channel.Main))
                         this.outputChanged.OnNext(CurrentData);
                 }
 
-                if (this.currentChannel.Equals(x.Channel))
+                if ((this.currentChannel ?? Channel.Main).Equals(x.Channel ?? Channel.Main))
                     this.currentOutputData.OnNext(x.Data);
             });
         }

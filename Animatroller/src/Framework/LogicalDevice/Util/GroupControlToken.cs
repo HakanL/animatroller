@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Animatroller.Framework.LogicalDevice
 {
     public class GroupControlToken : IControlToken
     {
-        internal Dictionary<IOwnedDevice, IControlToken> MemberTokens { get; private set; }
-        private Action<IControlToken> disposeAction;
-        private bool ownsTokens;
+        private readonly Dictionary<IOwnedDevice, IControlToken> memberTokens;
+        private readonly Action<IControlToken> disposeAction;
+        private readonly List<IControlToken> ownedTokens = new List<IControlToken>();
 
         public GroupControlToken(
             Dictionary<IOwnedDevice, IControlToken> memberTokens,
@@ -19,9 +17,10 @@ namespace Animatroller.Framework.LogicalDevice
             int priority = 1,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            MemberTokens = memberTokens;
+            this.memberTokens = memberTokens;
             this.disposeAction = disposeAction;
-            this.ownsTokens = disposeLocks;
+            if (disposeLocks)
+                this.ownedTokens.AddRange(memberTokens.Select(x => x.Value));
             Priority = priority;
             Name = name;
         }
@@ -32,13 +31,25 @@ namespace Animatroller.Framework.LogicalDevice
             IChannel channel = null,
             int priority = 1)
         {
-            MemberTokens = new Dictionary<IOwnedDevice, IControlToken>();
+            this.memberTokens = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var device in devices)
             {
-                MemberTokens.Add(device, device.TakeControl(channel, priority, name));
+                var token = device.TakeControl(channel, priority, name);
+                this.memberTokens.Add(device, token);
+                this.ownedTokens.Add(token);
             }
             this.disposeAction = disposeAction;
-            this.ownsTokens = true;
+            Priority = priority;
+            Name = name;
+        }
+
+        public GroupControlToken(
+            Action<IControlToken> disposeAction = null,
+            int priority = 1,
+            [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            this.memberTokens = new Dictionary<IOwnedDevice, IControlToken>();
+            this.disposeAction = disposeAction;
             Priority = priority;
             Name = name;
         }
@@ -53,7 +64,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             IControlToken token;
 
-            if (MemberTokens.TryGetValue(device, out token))
+            if (this.memberTokens.TryGetValue(device, out token))
             {
                 return token.GetDataForDevice(device, channel);
             }
@@ -75,30 +86,37 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void Dispose()
         {
-            if (this.ownsTokens)
-            {
-                foreach (var memberToken in MemberTokens.Values.ToList())
-                    memberToken.Dispose();
-            }
+            foreach (var token in this.ownedTokens.ToList())
+                token.Dispose();
 
-            if (this.disposeAction != null)
-                this.disposeAction(this);
+            this.disposeAction?.Invoke(this);
         }
-
-        //public void PushData(DataElements dataElement, object value)
-        //{
-        //    foreach (var memberToken in MemberTokens.Values)
-        //        memberToken.PushData(dataElement, value);
-        //}
 
         public bool IsOwner(IControlToken checkToken)
         {
-            return MemberTokens.ContainsValue(checkToken);
+            return this.memberTokens.ContainsValue(checkToken);
         }
 
         public void Add(IOwnedDevice device, IControlToken token)
         {
-            MemberTokens.Add(device, token);
+            this.memberTokens.Add(device, token);
+        }
+
+        public void Add(IOwnedDevice device, IChannel channel = null)
+        {
+            var token = device.TakeControl(channel: null, priority: Priority, name: Name);
+            this.ownedTokens.Add(token);
+            this.memberTokens.Add(device, token);
+        }
+
+        public void AddRange(IChannel channel = null, params IOwnedDevice[] devices)
+        {
+            foreach (var device in devices)
+            {
+                var token = device.TakeControl(channel: null, priority: Priority, name: Name);
+                this.ownedTokens.Add(token);
+                this.memberTokens.Add(device, token);
+            }
         }
 
         /// <summary>
@@ -108,14 +126,14 @@ namespace Animatroller.Framework.LogicalDevice
         /// <returns>True if device is controlled by this group token</returns>
         public bool LockAndGetDataFromDevice(IOwnedDevice device, IChannel channel)
         {
-            if (MemberTokens.ContainsKey(device))
+            if (this.memberTokens.ContainsKey(device))
                 return true;
 
             if (!AutoAddDevices)
                 return false;
 
             // Add
-            MemberTokens.Add(device, device.TakeControl(channel, Priority, Name));
+            this.memberTokens.Add(device, device.TakeControl(channel, Priority, Name));
 
             return true;
         }

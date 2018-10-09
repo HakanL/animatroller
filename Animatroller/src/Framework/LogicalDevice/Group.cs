@@ -127,7 +127,8 @@ namespace Animatroller.Framework.LogicalDevice
                             Executor.Current.SetControlToken(this, nextOwner);
                         }
                     },
-                    priority);
+                    priority: priority,
+                    name: name);
 
                 // Insert new owner
                 lock (this)
