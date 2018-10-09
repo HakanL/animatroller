@@ -1,14 +1,12 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Reactive.Subjects;
-using Serilog;
 using System.IO;
-using System.Reactive;
+using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Animatroller.Framework
 {
@@ -33,29 +31,29 @@ namespace Animatroller.Framework
             public CancellationTokenSource CancelSource;
         }
 
-        private object lockObject = new object();
+        private readonly object lockObject = new object();
         private static readonly Lazy<Executor> lazyInitializer = new Lazy<Executor>();
         public static Executor Current => lazyInitializer.Value;
         //public static readonly Executor Current = new Executor();
         private Dictionary<ICanExecute, Task> singleInstanceTasks;
-        private List<IRunningDevice> devices;
-        private List<IRunnable> runnable;
-        private List<IScene> scenes;
-        private List<Animatroller.Framework.Effect.IEffect> effects;
+        private readonly List<IRunningDevice> devices;
+        private readonly List<IRunnable> runnable;
+        private readonly List<IScene> scenes;
+        private readonly List<Animatroller.Framework.Effect.IEffect> effects;
         private List<ExecuteInstance> executingTasks;
-        private Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
-        private Dictionary<Task, CancellationTokenSource> cancelSourceForManagedTask;
-        private Controller.HighPrecisionTimer3 masterTimer25ms;
-        private Effect2.TimerJobRunner timerJobRunner;
-        private Effect2.MasterEffect masterEffect;
-        private Effect.MasterSweeper masterSweeper;
-        private string keyStoragePath;
+        private readonly Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
+        private readonly Dictionary<Task, CancellationTokenSource> cancelSourceForManagedTask;
+        private readonly Controller.HighPrecisionTimer3 masterTimer25ms;
+        private readonly Effect2.TimerJobRunner timerJobRunner;
+        private readonly Effect2.MasterEffect masterEffect;
+        private readonly Effect.MasterSweeper masterSweeper;
+        private readonly string keyStoragePath;
         private static ThreadLocal<ThreadLocalStorage> threadStorage;
-        private Dictionary<IOwnedDevice, IControlToken> controlTokens;
-        private ControlSubject<double> blackout;
-        private ControlSubject<double> whiteout;
-        private ControlSubject<double> masterVolume;
-        private Subject<(string Name, object Value)> masterStatus;
+        private readonly Dictionary<IOwnedDevice, IControlToken> controlTokens;
+        private readonly ControlSubject<double> blackout;
+        private readonly ControlSubject<double> whiteout;
+        private readonly ControlSubject<double> masterVolume;
+        private readonly Subject<(string Name, object Value)> masterStatus;
 
         public Executor()
         {
@@ -225,17 +223,32 @@ namespace Animatroller.Framework
         public Effect2.MasterEffect MasterEffect { get { return this.masterEffect; } }
 
         public string KeyStoragePrefix { get; set; }
+        private readonly Dictionary<string, string> storageCache = new Dictionary<string, string>();
 
         public void SetKey(string key, string value)
         {
-            BinaryRage.DB.Insert<string>(KeyStoragePrefix + "." + key, value, this.keyStoragePath);
+            string storageKey = $"{KeyStoragePrefix}.{key}";
+
+            if (this.storageCache.TryGetValue(storageKey, out string currentValue) && currentValue == value)
+                // No need to try to store it again if it's the same value
+                return;
+
+            BinaryRage.DB.Insert<string>(storageKey, value, this.keyStoragePath);
+
+            this.storageCache[storageKey] = value;
         }
 
         public string GetKey(string key, string defaultValue, bool storeDefaultIfMissing = false)
         {
+            string storageKey = $"{KeyStoragePrefix}.{key}";
+
             try
             {
-                return BinaryRage.DB.Get<string>(KeyStoragePrefix + "." + key, this.keyStoragePath);
+                string value = BinaryRage.DB.Get<string>(storageKey, this.keyStoragePath);
+
+                this.storageCache[storageKey] = value;
+
+                return value;
             }
             catch (System.Runtime.Serialization.SerializationException)
             {

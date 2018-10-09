@@ -25,7 +25,7 @@ namespace Animatroller.Scenes
         const int SacnUniverseFrankGhost = 3;
         const int SacnUniverseFire = 99;
 
-        // 6804 12V - 192.168.240.247
+        // E6804 12V - 192.168.240.247
 
         public enum States
         {

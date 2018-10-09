@@ -180,6 +180,9 @@ namespace Animatroller.Framework.Expander
 
             private void ActuallySendCurrentData()
             {
+                if (Executor.Current.IsOffline)
+                    return;
+
                 lock (this.lockObject)
                 {
                     this.parent.acnSender.Send(this.universe, this.currentData, this.priority);
