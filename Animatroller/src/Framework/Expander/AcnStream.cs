@@ -131,16 +131,16 @@ namespace Animatroller.Framework.Expander
         {
             public const long KeepAliveMilliseconds = 2000;
 
-            private readonly short universe;
+            private readonly UInt16 universe;
             private readonly byte priority;
             private readonly object lockObject = new object();
             private readonly AcnStream parent;
             private readonly byte[] currentData;
             private readonly Stopwatch lastSendWatch;
 
-            public AcnUniverse(AcnStream parent, int universe, byte priority)
+            public AcnUniverse(AcnStream parent, UInt16 universe, byte priority)
             {
-                this.universe = (short)universe;
+                this.universe = universe;
                 this.parent = parent;
                 this.priority = priority;
 
@@ -226,9 +226,9 @@ namespace Animatroller.Framework.Expander
         private readonly Dictionary<int, AcnUniverse> sendingUniverses;
         private readonly int defaultPriority;
 
-        public AcnStream(int priority = 100)
+        public AcnStream(int defaultPriority = 100)
         {
-            this.defaultPriority = priority;
+            this.defaultPriority = defaultPriority;
             this.log = Log.Logger;
             this.acnSender = new SACNSender(animatrollerAcnId, "Animatroller");
 
@@ -272,7 +272,7 @@ namespace Animatroller.Framework.Expander
             {
                 if (!this.sendingUniverses.TryGetValue(universe, out acnUniverse))
                 {
-                    acnUniverse = new AcnUniverse(this, universe, (byte)(priority ?? this.defaultPriority));
+                    acnUniverse = new AcnUniverse(this, (UInt16)universe, (byte)(priority ?? this.defaultPriority));
 
                     this.sendingUniverses.Add(universe, acnUniverse);
                 }

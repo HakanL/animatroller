@@ -76,7 +76,7 @@ namespace Animatroller.Scenes
         AnalogInput3 faderB = new AnalogInput3(persistState: true);
         AnalogInput3 faderBright = new AnalogInput3(persistState: true);
 
-        Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
+        Expander.AcnStream acnOutput = new Expander.AcnStream(defaultPriority: 150);
         Effect.Pulsating pulsatingEffectGeneral = new Effect.Pulsating(S(3), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffectTree = new Effect.Pulsating(S(3), 0.0, 1.0, false);
         Effect.Pulsating pulsatingPinSpot = new Effect.Pulsating(S(2), 0.2, 1.0, false);

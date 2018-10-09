@@ -52,7 +52,7 @@ namespace Animatroller.Scenes
         AudioPlayer audioDarthVader = new AudioPlayer();
         VideoPlayer video3 = new VideoPlayer();
 
-        Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
+        Expander.AcnStream acnOutput = new Expander.AcnStream(defaultPriority: 150);
         Effect.Pulsating pulsatingEffect1 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffect2 = new Effect.Pulsating(S(2), 0.1, 1.0, false);
         Effect.Pulsating pulsatingEffect3 = new Effect.Pulsating(S(2), 0.1, 1.0, false);

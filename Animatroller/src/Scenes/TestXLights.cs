@@ -39,7 +39,7 @@ namespace Animatroller.Scenes
 
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
 
-        Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
+        Expander.AcnStream acnOutput = new Expander.AcnStream(defaultPriority: 150);
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 inSetupMode = new DigitalInput2(persistState: true);

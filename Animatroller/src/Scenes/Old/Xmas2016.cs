@@ -81,7 +81,7 @@ namespace Animatroller.Scenes
         AnalogInput3 faderTilt = new AnalogInput3(persistState: true);
 
 
-        Expander.AcnStream acnOutput = new Expander.AcnStream(priority: 150);
+        Expander.AcnStream acnOutput = new Expander.AcnStream(defaultPriority: 150);
         Effect.Pulsating pulsatingEffectOlaf = new Effect.Pulsating(S(1), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffectPoppy = new Effect.Pulsating(S(1), 0.5, 1.0, false);
         Effect.Pulsating pulsatingEffectR2D2 = new Effect.Pulsating(S(1), 0.5, 1.0, false);
