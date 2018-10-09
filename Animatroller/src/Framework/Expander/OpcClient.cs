@@ -31,13 +31,16 @@ namespace Animatroller.Framework.Expander
                 this.opcChannel = (byte)opcChannel;
             }
 
-            public SendStatus SendPixelValue(int channel, PhysicalDevice.PixelRGBByte rgb)
+            public void SendPixelValue(int address, PhysicalDevice.PixelRGBByte rgb)
             {
                 throw new NotImplementedException();
             }
 
-            public SendStatus SendPixelsValue(int channel, PhysicalDevice.PixelRGBByte[] rgb)
+            public void SendPixelsValue(int startPixelPos, PhysicalDevice.PixelRGBByte[] rgb)
             {
+                if (startPixelPos != 0)
+                    throw new NotImplementedException();
+
                 byte[] rgbArray = new byte[rgb.Length * 3];
 
                 int bytePos = 0;
@@ -49,16 +52,14 @@ namespace Animatroller.Framework.Expander
                 }
 
                 this.opcClient.Send(this.opcChannel, (byte)0, rgbArray);
-
-                return SendStatus.NotSet;
             }
 
-            public void SendPixelsValue(int channel, byte[] rgb, int length)
+            public void SendPixelDmxData(int startPixelPos, byte[] rgb, int length)
             {
                 throw new NotImplementedException();
             }
 
-            public void SendPixelsValue(int channel, byte[][] dmxData)
+            public void SendMultiUniverseDmxData(byte[][] dmxData)
             {
                 throw new NotImplementedException();
             }
@@ -150,11 +151,11 @@ namespace Animatroller.Framework.Expander
             this.cancelSource.Cancel();
         }
 
-        internal void Send(byte channel, byte command, byte[] data)
+        internal void Send(byte address, byte command, byte[] data)
         {
             byte[] fullData = new byte[4 + data.Length];
 
-            fullData[0] = channel;
+            fullData[0] = address;
             fullData[1] = command;
             fullData[2] = (byte)(data.Length >> 8);
             fullData[3] = (byte)data.Length;

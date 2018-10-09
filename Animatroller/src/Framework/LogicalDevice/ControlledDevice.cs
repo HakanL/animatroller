@@ -9,7 +9,7 @@ namespace Animatroller.Framework.LogicalDevice
     public class ControlledDevice : IControlToken
     {
         private Action<IControlToken> disposeAction;
-        private Dictionary<int, IData> dataPerChannel;
+        private Dictionary<IChannel, IData> dataPerChannel;
         private Action<IData> populateData;
         private object lockObject = new object();
 
@@ -19,7 +19,7 @@ namespace Animatroller.Framework.LogicalDevice
             this.Priority = priority;
             this.disposeAction = dispose;
             this.populateData = populateData;
-            this.dataPerChannel = new Dictionary<int, IData>();
+            this.dataPerChannel = new Dictionary<IChannel, IData>();
         }
 
         public void Dispose()
@@ -32,15 +32,15 @@ namespace Animatroller.Framework.LogicalDevice
             return this == checkToken;
         }
 
-        public IData GetDataForDevice(IOwnedDevice device, int channel)
+        public IData GetDataForDevice(IOwnedDevice device, IChannel channel)
         {
             lock (this.lockObject)
             {
-                if (!this.dataPerChannel.TryGetValue(channel, out IData data))
+                if (!this.dataPerChannel.TryGetValue(channel ?? Channel.Main, out IData data))
                 {
                     data = new Data();
                     this.populateData(data);
-                    this.dataPerChannel[channel] = data;
+                    this.dataPerChannel[channel ?? Channel.Main] = data;
                 }
 
                 return data;

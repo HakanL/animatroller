@@ -353,7 +353,7 @@ namespace Animatroller.Scenes
                 if (data != 0)
                 {
                     allLights.TakeAndHoldControl(priority: 100);
-                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
+                    allLights.SetData(Channel.Main, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();

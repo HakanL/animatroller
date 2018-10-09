@@ -27,7 +27,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
             var rgbw = RgbConverter.GetRGBW(color);
 
-            DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] { rgbw.R, rgbw.G, rgbw.B, rgbw.W, 255, strobe });
+            DmxOutputPort.SendDmxData(this.baseDmxChannel, new byte[] { rgbw.R, rgbw.G, rgbw.B, rgbw.W, 255, strobe });
         }
     }
 }

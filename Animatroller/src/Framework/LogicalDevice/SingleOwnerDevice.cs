@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Disposables;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -13,20 +12,20 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected List<IControlToken> owners;
         protected IControlToken currentOwner;
-        protected ControlSubject<(int Channel, IData Data), IControlToken> outputData;
+        protected ControlSubject<(IChannel Channel, IData Data), IControlToken> outputData;
         protected ControlSubject<IData, IControlToken> currentOutputData;
         protected Subject<IData> outputChanged;
-        private Dictionary<int, IData> ownerlessData;
+        private readonly Dictionary<IChannel, IData> ownerlessData;
 
         public SingleOwnerDevice(string name)
             : base(name)
         {
             base.newDataFunc = GetDefaultData;
             this.owners = new List<IControlToken>();
-            this.outputData = new ControlSubject<(int, IData), IControlToken>((0, null), HasControl);
+            this.outputData = new ControlSubject<(IChannel, IData), IControlToken>((Channel.Main, null), HasControl);
             this.currentOutputData = new ControlSubject<IData, IControlToken>(null, HasControl);
             this.outputChanged = new Subject<IData>();
-            this.ownerlessData = new Dictionary<int, IData>();
+            this.ownerlessData = new Dictionary<IChannel, IData>();
 
             this.outputData.Subscribe(x =>
             {
@@ -59,16 +58,16 @@ namespace Animatroller.Framework.LogicalDevice
 
                     SetNewData(dataList, channel: x.Channel);
 
-                    if (x.Channel == this.currentChannel)
+                    if (this.currentChannel.Equals(x.Channel))
                         this.outputChanged.OnNext(CurrentData);
                 }
 
-                if (x.Channel == this.currentChannel)
+                if (this.currentChannel.Equals(x.Channel))
                     this.currentOutputData.OnNext(x.Data);
             });
         }
 
-        public void SetCurrentChannel(int channel)
+        public void SetCurrentChannel(IChannel channel)
         {
             this.currentChannel = channel;
 
@@ -88,14 +87,14 @@ namespace Animatroller.Framework.LogicalDevice
             this.outputChanged.OnNext(CurrentData);
         }
 
-        internal IData GetOwnerlessData(int channel)
+        internal IData GetOwnerlessData(IChannel channel)
         {
             lock (this.lockObject)
             {
-                if (!this.ownerlessData.TryGetValue(channel, out IData data))
+                if (!this.ownerlessData.TryGetValue(channel ?? Channel.Main, out IData data))
                 {
                     data = GetDefaultData();
-                    this.ownerlessData[channel] = data;
+                    this.ownerlessData[channel ?? Channel.Main] = data;
                 }
 
                 return data;
@@ -107,7 +106,7 @@ namespace Animatroller.Framework.LogicalDevice
             return data;
         }
 
-        public IPushDataController GetDataObserver(int channel, IControlToken token)
+        public IPushDataController GetDataObserver(IChannel channel, IControlToken token)
         {
             IData data;
             if (token == null)
@@ -118,7 +117,7 @@ namespace Animatroller.Framework.LogicalDevice
             return new ControlledObserverData(token, this.outputData, data);
         }
 
-        public IData GetFrameBuffer(int channel, IControlToken token, IReceivesData device)
+        public IData GetFrameBuffer(IChannel channel, IControlToken token, IReceivesData device)
         {
             if (token == null)
             {
@@ -138,7 +137,7 @@ namespace Animatroller.Framework.LogicalDevice
             return token.GetDataForDevice(device, channel);
         }
 
-        public void PushOutput(int channel, IControlToken token)
+        public void PushOutput(IChannel channel, IControlToken token)
         {
             if (token == null)
             {
@@ -163,7 +162,7 @@ namespace Animatroller.Framework.LogicalDevice
                 this.outputData.OnNext((channel, data), token);
         }
 
-        public void SetData(int channel, IControlToken token, IData data)
+        public void SetData(IChannel channel, IControlToken token, IData data)
         {
             lock (this.lockObject)
             {
@@ -176,7 +175,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(channel, token);
         }
 
-        public virtual IControlToken TakeControl(int channel = 0, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public virtual IControlToken TakeControl(IChannel channel = null, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this.lockObject)
             {

@@ -24,6 +24,6 @@ namespace Animatroller.Framework.Import
 
         int FrameSize { get; }
 
-        (int UniverseId, int Channel)[] GetFrameLayout();
+        (int UniverseId, int FSeqChannel)[] GetFrameLayout();
     }
 }

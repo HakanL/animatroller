@@ -26,7 +26,7 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             double brightness = GetMonochromeBrightnessFromColorBrightness();
 
-            DmxOutputPort.SendDimmerValue(baseDmxChannel, brightness.GetByteScale());
+            DmxOutputPort.SendDmxData(baseDmxChannel, brightness.GetByteScale());
         }
     }
 }

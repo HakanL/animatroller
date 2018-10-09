@@ -66,7 +66,7 @@ namespace Animatroller.Framework.Import
 
         public void ListUnmappedChannels()
         {
-            foreach (var kvp in this.channelData)
+            foreach (var kvp in this.channelIdData)
             {
                 if (!kvp.Value.Mapped && kvp.Value.HasEffects)
                 {
@@ -77,7 +77,7 @@ namespace Animatroller.Framework.Import
             }
         }
 
-        protected void PopulateTimeline(int channel = 0)
+        protected void PopulateTimeline(IChannel channel = null)
         {
             foreach (var kvp in this.mappedDevices)
             {
@@ -232,12 +232,12 @@ namespace Animatroller.Framework.Import
 #endif
 
             int count = 0;
-            foreach (var kvp in this.channelData.Where(x => x.Value.HasEffects).OrderBy(x => x.Key))
+            foreach (var kvp in this.channelIdData.Where(x => x.Value.HasEffects).OrderBy(x => x.Key))
             {
                 count++;
 
 #if LOG_CHANNELS
-                this.log.Information("Channel {0} - {1}", kvp.Key, kvp.Value.Name);
+                this.log.Information("ChannelId {0} - {1}", kvp.Key, kvp.Value.Name);
 #endif
             }
 

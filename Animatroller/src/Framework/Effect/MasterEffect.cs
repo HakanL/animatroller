@@ -37,7 +37,7 @@ namespace Animatroller.Framework.Effect2
             double end,
             int durationMs,
             int priority = 1,
-            int channel = 0,
+            IChannel channel = null,
             ITransformer transformer = null,
             IControlToken token = null,
             params Tuple<DataElements, object>[] additionalData)
@@ -85,7 +85,7 @@ namespace Animatroller.Framework.Effect2
                     double brightness = start + (pos * brightnessRange);
 
                     deviceObserver.Data[DataElements.Brightness] = brightness;
-                    deviceObserver.PushData(channel: 0);
+                    deviceObserver.PushData(channel: Channel.Main);
                 },
                 onCompleted: () =>
                 {
@@ -99,7 +99,7 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Custom(double[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int channel = 0, int priority = 1)
+        public Task Custom(double[] customList, IReceivesBrightness device, int durationMs, int? loop = null, IChannel channel = null, int priority = 1)
         {
             var controlToken = device.TakeControl(channel, priority);
 
@@ -129,7 +129,7 @@ namespace Animatroller.Framework.Effect2
                         if (loopCounter >= loop.Value)
                         {
                             deviceObserver.Data[DataElements.Brightness] = customList[customList.Length - 1];
-                            deviceObserver.PushData(channel: 0);
+                            deviceObserver.PushData(channel: Channel.Main);
 
                             log.Debug("Cancel 8");
                             cancelSource.Cancel();
@@ -142,7 +142,7 @@ namespace Animatroller.Framework.Effect2
                     int pos = (int)(customList.Length * instanceMs / durationMs);
 
                     deviceObserver.Data[DataElements.Brightness] = customList[pos];
-                    deviceObserver.PushData(channel: 0);
+                    deviceObserver.PushData(channel: Channel.Main);
                 },
                 onCompleted: () =>
                 {
@@ -156,7 +156,7 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Custom(IData[] customList, IReceivesBrightness device, int durationMs, int? loop = null, int channel = 0, int priority = 1)
+        public Task Custom(IData[] customList, IReceivesBrightness device, int durationMs, int? loop = null, IChannel channel = null, int priority = 1)
         {
             var controlToken = device.TakeControl(channel, priority);
 
@@ -187,7 +187,7 @@ namespace Animatroller.Framework.Effect2
                         {
                             foreach (var kvp in customList[customList.Length - 1])
                                 deviceObserver.Data[kvp.Key] = kvp.Value;
-                            deviceObserver.PushData(channel: 0);
+                            deviceObserver.PushData(channel: Channel.Main);
 
                             log.Debug("Cancel 9");
                             cancelSource.Cancel();
@@ -201,7 +201,7 @@ namespace Animatroller.Framework.Effect2
 
                     foreach (var kvp in customList[pos])
                         deviceObserver.Data[kvp.Key] = kvp.Value;
-                    deviceObserver.PushData(channel: 0);
+                    deviceObserver.PushData(channel: Channel.Main);
                 },
                 onCompleted: () =>
                 {
@@ -293,7 +293,7 @@ namespace Animatroller.Framework.Effect2
             return taskSource.Task;
         }
 
-        public Task Shimmer(IReceivesBrightness device, double minBrightness, double maxBrightness, int durationMs, int channel = 0, int priority = 1, IControlToken token = null)
+        public Task Shimmer(IReceivesBrightness device, double minBrightness, double maxBrightness, int durationMs, IChannel channel = null, int priority = 1, IControlToken token = null)
         {
             if (token != null)
                 return Shimmer(device.GetDataObserver(channel, token), minBrightness, maxBrightness, durationMs);
@@ -319,7 +319,7 @@ namespace Animatroller.Framework.Effect2
                     state = !state;
 
                     deviceObserver.Data[DataElements.Brightness] = state ? maxBrightness : minBrightness;
-                    deviceObserver.PushData(channel: 0);
+                    deviceObserver.PushData(channel: Channel.Main);
                 },
                 onCompleted: () =>
                 {

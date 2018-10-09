@@ -37,7 +37,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void PushOutput(int channel, IControlToken token)
+        public void PushOutput(IChannel channel, IControlToken token)
         {
             foreach (var member in AllMembers)
             {
@@ -45,7 +45,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public IData GetFrameBuffer(int channel, IControlToken token, IReceivesData device)
+        public IData GetFrameBuffer(IChannel channel, IControlToken token, IReceivesData device)
         {
             return device.GetFrameBuffer(channel, token, device);
         }
@@ -55,7 +55,7 @@ namespace Animatroller.Framework.LogicalDevice
             // No need to do anything here, each individual member should be started on its own
         }
 
-        public IPushDataController GetDataObserver(int channel, IControlToken token)
+        public IPushDataController GetDataObserver(IChannel channel, IControlToken token)
         {
             if (token == null)
                 throw new ArgumentNullException("token");
@@ -82,7 +82,7 @@ namespace Animatroller.Framework.LogicalDevice
             return new ControlledGroupData(token, groupObserver);
         }
 
-        public void TakeAndHoldControl(int channel = 0, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public void TakeAndHoldControl(IChannel channel = null, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             if (this.internalLock != null)
             {
@@ -101,7 +101,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public IControlToken TakeControl(int channel = 0, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public IControlToken TakeControl(IChannel channel = null, int priority = 1, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             lock (this.members)
             {

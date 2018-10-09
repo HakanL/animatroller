@@ -20,20 +20,20 @@ namespace Animatroller.Framework
 
     public interface IDmxOutput : IPort
     {
-        SendStatus SendDimmerValue(int channel, byte value);
-        SendStatus SendDimmerValues(int firstChannel, byte[] values);
-        SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length);
+        void SendDmxData(int address, byte value);
+        void SendDmxData(int startAddress, byte[] values);
+        void SendDmxData(int startAddress, byte[] values, int offset, int length);
     }
 
     public interface IPixelOutput : IPort
     {
-        SendStatus SendPixelValue(int channel, PhysicalDevice.PixelRGBByte rgb);
+        void SendPixelValue(int pixelPos, PhysicalDevice.PixelRGBByte rgb);
 
-        SendStatus SendPixelsValue(int channel, PhysicalDevice.PixelRGBByte[] rgb);
+        void SendPixelsValue(int startPixelPos, PhysicalDevice.PixelRGBByte[] rgb);
 
-        void SendPixelsValue(int channel, byte[][] dmxData);
+        void SendPixelDmxData(int startPixelPos, byte[] dmxData, int length);
 
-        void SendPixelsValue(int channel, byte[] rgb, int length);
+        void SendMultiUniverseDmxData(byte[][] dmxData);
     }
 
     public interface IDigitalInput : IPort
@@ -43,6 +43,6 @@ namespace Animatroller.Framework
 
     public interface IMotorOutput : IPort
     {
-        SendStatus SendMotorSpeed(int channel, double speed);
+        void SendMotorSpeed(IChannel channel, double speed);
     }
 }

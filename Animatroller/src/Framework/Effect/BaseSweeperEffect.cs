@@ -128,7 +128,7 @@ namespace Animatroller.Framework.Effect
                     continue;
 
                 deviceOwner.Data[DataElements.Brightness] = value;
-                deviceOwner.PushData(channel: 0);
+                deviceOwner.PushData(channel: Channel.Main);
 
                 watches[i].Stop();
             }
@@ -147,17 +147,17 @@ namespace Animatroller.Framework.Effect
             }
         }
 
-        public IEffect Start(int channel = 0, int priority = 1, IControlToken token = null)
+        public IEffect Start(IChannel channel = null, int priority = 1, IControlToken token = null)
         {
             return Start(channel, priority, token, false);
         }
 
-        public IEffect StartWithTakeControl(int channel = 0, int priority = 1)
+        public IEffect StartWithTakeControl(IChannel channel = null, int priority = 1)
         {
             return Start(channel, priority, token: null, takeControl: true);
         }
 
-        private IEffect Start(int channel, int priority, IControlToken token, bool takeControl)
+        private IEffect Start(IChannel channel, int priority, IControlToken token, bool takeControl)
         {
             if (this.token == null)
             {

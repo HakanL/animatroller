@@ -69,7 +69,7 @@ namespace Animatroller.Framework.Import
                 }
         */
         protected ILogger log;
-        protected Dictionary<IChannelIdentity, ChannelData> channelData;
+        protected Dictionary<IChannelIdentity, ChannelData> channelIdData;
         //        private List<IChannelIdentity> channels;
         protected Dictionary<IChannelIdentity, HashSet<DeviceController>> mappedDevices;
         protected Dictionary<RGBChannelIdentity, HashSet<DeviceController>> mappedRgbDevices;
@@ -83,7 +83,7 @@ namespace Animatroller.Framework.Import
             this.name = name;
             this.priority = priority;
 
-            this.channelData = new Dictionary<IChannelIdentity, ChannelData>();
+            this.channelIdData = new Dictionary<IChannelIdentity, ChannelData>();
             //            this.channels = new List<IChannelIdentity>();
             this.mappedDevices = new Dictionary<IChannelIdentity, HashSet<DeviceController>>();
             this.mappedRgbDevices = new Dictionary<RGBChannelIdentity, HashSet<DeviceController>>();
@@ -104,25 +104,25 @@ namespace Animatroller.Framework.Import
 
         public string GetChannelName(IChannelIdentity channelIdentity)
         {
-            var channel = this.channelData[channelIdentity];
+            var channelId = this.channelIdData[channelIdentity];
 
-            return channel.Name;
+            return channelId.Name;
         }
 
         public IChannelIdentity ChannelIdentityFromName(string name)
         {
-            foreach (var kvp in this.channelData)
+            foreach (var kvp in this.channelIdData)
             {
                 if (kvp.Value.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return kvp.Key;
             }
 
-            throw new KeyNotFoundException(string.Format("Channel {0} not found", name));
+            throw new KeyNotFoundException(string.Format("ChannelId {0} not found", name));
         }
 
         private bool ChannelNameExists(string channelName)
         {
-            foreach (var kvp in this.channelData)
+            foreach (var kvp in this.channelIdData)
             {
                 if (kvp.Value.Name.Equals(channelName, StringComparison.OrdinalIgnoreCase))
                     return true;
@@ -142,10 +142,10 @@ namespace Animatroller.Framework.Import
                 data.ChangeName(string.Format("{0} ({1})", originalName, suffixNumber));
             }
 
-            if (this.channelData.ContainsKey(channelIdentity))
-                this.log.Warning("Channel id {0} already exists", channelIdentity);
+            if (this.channelIdData.ContainsKey(channelIdentity))
+                this.log.Warning("ChannelId {0} already exists", channelIdentity);
 
-            this.channelData[channelIdentity] = data;
+            this.channelIdData[channelIdentity] = data;
             //            this.channels.Add(channelIdentity);
         }
 
@@ -164,11 +164,11 @@ namespace Animatroller.Framework.Import
             if (device is LogicalDevice.IHasControlledDevice)
                 this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device).ControlledDevice);
 
-            var channelData = this.channelData[channelIdentity];
+            var channelData = this.channelIdData[channelIdentity];
             channelData.Mapped = true;
 
             if (!channelData.HasEffects)
-                this.log.Warning("Channel {0}/{1} is mapped, but has no effects", channelIdentity, channelData.Name);
+                this.log.Warning("ChannelId {0}/{1} is mapped, but has no effects", channelIdentity, channelData.Name);
         }
 
         protected void InternalMapDevice(RGBChannelIdentity channelIdentity, DeviceController device)
@@ -186,15 +186,15 @@ namespace Animatroller.Framework.Import
             if (device is LogicalDevice.IHasControlledDevice)
                 this.controlledDevices.Add(((LogicalDevice.IHasControlledDevice)device).ControlledDevice);
 
-            var channelDataR = this.channelData[channelIdentity.R];
-            var channelDataG = this.channelData[channelIdentity.G];
-            var channelDataB = this.channelData[channelIdentity.B];
+            var channelDataR = this.channelIdData[channelIdentity.R];
+            var channelDataG = this.channelIdData[channelIdentity.G];
+            var channelDataB = this.channelIdData[channelIdentity.B];
             channelDataR.Mapped = true;
             channelDataG.Mapped = true;
             channelDataB.Mapped = true;
 
             if (!channelDataR.HasEffects && !channelDataG.HasEffects && !channelDataB.HasEffects)
-                this.log.Warning("Channel {0} is mapped, but has no effects", channelIdentity);
+                this.log.Warning("ChannelId {0} is mapped, but has no effects", channelIdentity);
         }
 
         //public void MapDevice(IChannelIdentity channelIdentity, IReceivesBrightness device)

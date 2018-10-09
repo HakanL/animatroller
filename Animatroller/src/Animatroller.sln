@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Framework", "Framework\Fram
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scenes", "Scenes\Scenes.csproj", "{60DBA58A-2233-4386-ABDE-C5766CBAC8DE}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FCEA493-3A1C-4328-B8BA-775E771FBACC}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpanderCommunication.DotNetty", "ExpanderCommunication.DotNetty\ExpanderCommunication.DotNetty.csproj", "{2A936449-FD15-4947-B56C-25E4CC9CD6A4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpanderCommunication", "ExpanderCommunication\ExpanderCommunication.csproj", "{E3AF9731-FC7D-4A49-BEB7-6E99BBABEB52}"

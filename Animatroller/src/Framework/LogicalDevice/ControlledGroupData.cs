@@ -24,7 +24,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return this.sharedData; }
         }
 
-        public void PushData(int channel)
+        public void PushData(IChannel channel)
         {
             this.observer.OnNext(this.sharedData);
         }

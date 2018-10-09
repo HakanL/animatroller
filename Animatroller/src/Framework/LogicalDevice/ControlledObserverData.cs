@@ -5,10 +5,10 @@ namespace Animatroller.Framework.LogicalDevice
     public class ControlledObserverData : IPushDataController
     {
         private IControlToken controlToken;
-        private ControlSubject<(int Channel, IData Data), IControlToken> control;
+        private ControlSubject<(IChannel Channel, IData Data), IControlToken> control;
         private IData data;
 
-        public ControlledObserverData(IControlToken controlToken, ControlSubject<(int Channel, IData Data), IControlToken> control, IData data)
+        public ControlledObserverData(IControlToken controlToken, ControlSubject<(IChannel Channel, IData Data), IControlToken> control, IData data)
         {
             this.controlToken = controlToken;
             this.control = control;
@@ -41,7 +41,7 @@ namespace Animatroller.Framework.LogicalDevice
         //    this.control.OnNext(this.data, this.controlToken);
         //}
 
-        public void PushData(int channel)
+        public void PushData(IChannel channel)
         {
             this.control.OnNext((channel, this.data), this.controlToken);
         }

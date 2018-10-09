@@ -39,7 +39,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return GetCurrentData<double>(DataElements.Tilt); }
         }
 
-        public void SetPanTilt(double pan, double tilt, int channel = 0, IControlToken token = null)
+        public void SetPanTilt(double pan, double tilt, IChannel channel = null, IControlToken token = null)
         {
             this.SetData(channel, token,
                 Tuple.Create(DataElements.Pan, (object)pan),
@@ -47,12 +47,12 @@ namespace Animatroller.Framework.LogicalDevice
                 );
         }
 
-        public void SetPan(double pan, int channel = 0, IControlToken token = null)
+        public void SetPan(double pan, IChannel channel = null, IControlToken token = null)
         {
             this.SetData(channel, token, Tuple.Create(DataElements.Pan, (object)pan));
         }
 
-        public void SetTilt(double tilt, int channel = 0, IControlToken token = null)
+        public void SetTilt(double tilt, IChannel channel = null, IControlToken token = null)
         {
             this.SetData(channel, token, Tuple.Create(DataElements.Tilt, (object)tilt));
         }

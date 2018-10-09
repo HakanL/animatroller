@@ -26,7 +26,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
             byte autoRun = 0;
 
-            DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] { function, rgbw.R, rgbw.G, rgbw.B, rgbw.W, autoRun });
+            DmxOutputPort.SendDmxData(this.baseDmxChannel, new byte[] { function, rgbw.R, rgbw.G, rgbw.B, rgbw.W, autoRun });
         }
     }
 }

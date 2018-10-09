@@ -131,7 +131,7 @@ namespace Animatroller.Framework.LogicalDevice
                 throw new ArgumentOutOfRangeException("position");
         }
 
-        private Color[] GetColorArray(IData data, int channel = 0)
+        private Color[] GetColorArray(IData data, IChannel channel = null)
         {
             if (data == null)
                 data = GetOwnerlessData(channel);
@@ -139,7 +139,7 @@ namespace Animatroller.Framework.LogicalDevice
             return (Color[])data[DataElements.PixelColor];
         }
 
-        private double[] GetBrightnessArray(IData data, int channel = 0)
+        private double[] GetBrightnessArray(IData data, IChannel channel = null)
         {
             if (data == null)
                 data = GetOwnerlessData(channel);
@@ -356,7 +356,7 @@ namespace Animatroller.Framework.LogicalDevice
             return newData;
         }
 
-        public void SetBrightness(double brightness, int channel = 0, IControlToken token = null)
+        public void SetBrightness(double brightness, IChannel channel = null, IControlToken token = null)
         {
             var pixelBrightness = new double[this.pixelCount];
             for (int i = 0; i < pixelBrightness.Length; i++)
@@ -421,7 +421,7 @@ namespace Animatroller.Framework.LogicalDevice
         //    //    RaiseMultiPixelChanged(pixelOffset, pixel - pixelOffset);
         //}
 
-        public void SetColor(Color color, double? brightness = 1.0, int channel = 0, IControlToken token = null)
+        public void SetColor(Color color, double? brightness = 1.0, IChannel channel = null, IControlToken token = null)
         {
             SetColorRange(color, brightness, 0, null, channel, token);
         }
@@ -431,7 +431,7 @@ namespace Animatroller.Framework.LogicalDevice
             double? brightness = 1.0,
             int startPosition = 0,
             int? length = null,
-            int channel = 0,
+            IChannel channel = null,
             IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
@@ -464,7 +464,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(channel, token);
         }
 
-        public void Inject(Color color, double brightness, int channel = 0, IControlToken token = null)
+        public void Inject(Color color, double brightness, IChannel channel = null, IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
             //if (token == null)
@@ -487,7 +487,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(channel, token);
         }
 
-        public void InjectRev(Color color, double brightness, int channel = 0, IControlToken token = null)
+        public void InjectRev(Color color, double brightness, IChannel channel = null, IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
             //if (token == null)

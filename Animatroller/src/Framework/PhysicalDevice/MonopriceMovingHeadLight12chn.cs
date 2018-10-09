@@ -40,7 +40,7 @@ namespace Animatroller.Framework.PhysicalDevice
             uint panValue = (uint)this.pan.LimitAndScale(0, 540).ScaleToMinMax(0, 65535);
             uint tiltValue = (uint)this.tilt.LimitAndScale(0, 270).ScaleToMinMax(0, 65535);
 
-            DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] {
+            DmxOutputPort.SendDmxData(this.baseDmxChannel, new byte[] {
                 (byte)(panValue >> 8),      // Pan
                 (byte)panValue,      // Pan fine
                 (byte)(tiltValue >> 8),      // Tilt

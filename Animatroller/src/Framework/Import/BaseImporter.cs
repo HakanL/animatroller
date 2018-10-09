@@ -85,9 +85,9 @@ namespace Animatroller.Framework.Import
 
         public string GetChannelName(IChannelIdentity channelIdentity)
         {
-            var channel = this.channelData[channelIdentity];
+            var channelId = this.channelData[channelIdentity];
 
-            return channel.Name;
+            return channelId.Name;
         }
 
         protected void AddChannelData(IChannelIdentity channelIdentity, ChannelData data)

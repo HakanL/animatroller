@@ -110,13 +110,13 @@ namespace Animatroller.Framework.Expander
             SendRaw(fullData);
         }
 
-        protected void SendSerialCommand(byte cmd, byte channel, byte[] data)
+        protected void SendSerialCommand(byte cmd, byte address, byte[] data)
         {
             byte[] fullData = new byte[data.Length + 4];
             Buffer.BlockCopy(data, 0, fullData, 3, data.Length);
             fullData[0] = 33;
             fullData[1] = cmd;
-            fullData[2] = channel;
+            fullData[2] = address;
             fullData[fullData.Length - 1] = 13;
 
             SendRaw(fullData);

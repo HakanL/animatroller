@@ -128,11 +128,11 @@ namespace Animatroller.Framework.PhysicalDevice
             if (!positions.HasValue)
                 positions = logicalDevice.Pixels;
 
-            logicalDevice.AddPixelDevice(startVirtualPosition, positions.Value, reverse, pixels =>
+            logicalDevice.AddPixelDevice(startVirtualPosition, positions.Value, reverse, dmxData =>
             {
                 lock (this.lockObject)
                 {
-                    PixelOutputPort.SendPixelsValue(0, pixels, pixels.Length);
+                    PixelOutputPort.SendPixelDmxData(startPixelPos: 0, dmxData, dmxData.Length);
                 }
             });
         }

@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Animatroller.Framework.Effect;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Animatroller.Framework.Effect;
-using Serilog;
 using System.Threading;
 
 namespace Animatroller.Framework.Controller
@@ -16,13 +14,13 @@ namespace Animatroller.Framework.Controller
         public class SequenceJob : IRunnableState, ISequenceInstance
         {
             protected ILogger log;
-            private object lockObject = new object();
-            private string id;
+            private readonly object lockObject = new object();
+            private readonly string id;
             protected string name;
             protected Action<ISequenceInstance> setUpAction;
             protected Action<ISequenceInstance> tearDownAction;
             protected List<Action<ISequenceInstance>> actions;
-            protected List<Tuple<int, Effect.IEffect>> effects;
+            protected List<(int Priority, IEffect Effect)> effects;
             protected System.Threading.CancellationToken cancelToken;
             protected bool cancelRequested;
 
@@ -31,7 +29,7 @@ namespace Animatroller.Framework.Controller
                 this.log = logger;
                 this.name = name;
                 this.actions = new List<Action<ISequenceInstance>>();
-                this.effects = new List<Tuple<int, IEffect>>();
+                this.effects = new List<(int Priority, IEffect Effect)>();
                 this.id = Guid.NewGuid().GetHashCode().ToString();
             }
 
@@ -105,7 +103,7 @@ namespace Animatroller.Framework.Controller
                         this.setUpAction.Invoke(this);
 
                     foreach (var effect in this.effects)
-                        effect.Item2.Start(effect.Item1);
+                        effect.Effect.Start(priority: effect.Priority);
 
                     do
                     {
@@ -126,7 +124,7 @@ namespace Animatroller.Framework.Controller
                     } while (loop && !cancelToken.IsCancellationRequested && !this.cancelRequested);
 
                     foreach (var effect in this.effects)
-                        effect.Item2.Stop();
+                        effect.Effect.Stop();
 
                     if (this.tearDownAction != null)
                         this.tearDownAction.Invoke(this);
@@ -141,7 +139,7 @@ namespace Animatroller.Framework.Controller
             public IRunnableState Controls(int priority = 1, params IEffect[] effects)
             {
                 foreach (var effect in effects)
-                    this.effects.Add(Tuple.Create(priority, effect));
+                    this.effects.Add((priority, effect));
 
                 return this;
             }
@@ -182,7 +180,7 @@ namespace Animatroller.Framework.Controller
             }
         }
 
-        private string name;
+        private readonly string name;
         private SequenceJob sequenceJob;
 
         public bool IsMultiInstance { get; private set; }

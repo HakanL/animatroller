@@ -10,7 +10,7 @@ using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes
 {
-    internal partial class Halloween2016
+    internal partial class Halloween2018
     {
         public void ConfigureOSC()
         {
@@ -46,7 +46,7 @@ namespace Animatroller.Scenes
                 bigSpiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
 
                 if (data[6])
-                    audio2.PlayEffect("sixthsense-deadpeople.wav");
+                    audioHifi.PlayEffect("sixthsense-deadpeople.wav");
 
                 //                flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
 
@@ -56,8 +56,8 @@ namespace Animatroller.Scenes
                 if (data[8])
                     audioFlying.PlayEffect("162 Blood Curdling Scream of Terror.wav");
 
-                if (data[9])
-                    sub3dfxRandom.Run();
+                //if (data[9])
+                //    sub3dfxRandom.Run();
 
                 //wall8Light.SetBrightness(data[10] ? 1 : 0);
                 //wall9Light.SetBrightness(data[11] ? 1 : 0);
@@ -68,11 +68,11 @@ namespace Animatroller.Scenes
                 if (data[13])
                     sub3dfxLady.Run();
 
-                if (data[14])
-                    sub3dfxMan.Run();
+                //if (data[14])
+                //    sub3dfxMan.Run();
 
-                if (data[15])
-                    sub3dfxKids.Run();
+                //if (data[15])
+                //    sub3dfxKids.Run();
             }, 25);
 
             oscServer.RegisterAction<bool>("/SoundBoard/x", (msg, data) =>
@@ -152,7 +152,7 @@ namespace Animatroller.Scenes
                     fileName = "violin screech.wav";
 
                 if (data[24])
-                    fileName = "WarmHugs.wav";
+                    fileName = "Tornado Siren Single.wav";
 
                 if (string.IsNullOrEmpty(fileName))
                     // Ignore
@@ -165,23 +165,31 @@ namespace Animatroller.Scenes
                         break;
 
                     case 1:
-                        audio2.PlayNewEffect(fileName);
-                        break;
-
-                    case 2:
                         audioFlying.PlayNewEffect(fileName);
                         break;
 
-                    case 3:
-                        audioPop.PlayNewEffect(fileName);
+                    case 2:
+                        audioPopper.PlayNewEffect(fileName);
                         break;
 
-                    case 4:
+                    case 3:
                         audioCat.PlayNewEffect(fileName);
                         break;
 
-                    case 5:
+                    case 4:
                         audioPumpkin.PlayNewEffect(fileName);
+                        break;
+
+                    case 5:
+                        audioFrankGhost.PlayNewEffect(fileName);
+                        break;
+
+                    case 6:
+                        audioSpider.PlayNewEffect(fileName);
+                        break;
+
+                    case 7:
+                        audioRocking.PlayNewEffect(fileName);
                         break;
                 }
             }, 25);
@@ -189,20 +197,23 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<bool>("/Blocks/x", (msg, data) =>
             {
                 blockMaster.Value = data[0];
-                blockCat.Value = data[1];
-                blockFirst.Value = data[2];
-                blockPicture.Value = data[3];
-                blockGhost.Value = data[4];
+                blockFirst.Value = data[1];
+                blockPicture.Value = data[2];
+                blockSpiderDrop.Value = data[3];
+                blockRocking.Value = data[4];
                 blockLast.Value = data[5];
-                blockPumpkin.Value = data[6];
-            }, 7);
+                blockCat.Value = data[6];
+                blockFrankGhost.Value = data[7];
+                blockPumpkin.Value = data[8];
+            }, 9);
 
             oscServer.RegisterActionSimple<int>("/AudioOutput/selection", (msg, data) =>
             {
                 soundBoardOutputIndex = data;
+                Exec.SetKey("AudioOutput-Selection", data.ToString());
             });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
+/*            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
             {
                 audio2.PlayEffect("sixthsense-deadpeople.wav");
             });
@@ -280,7 +291,7 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<int>("/3/multipush1/3/1", d => d.First() != 0, (msg, data) =>
             {
                 audio2.PlayEffect("180 Babbling Lunatic.wav");
-            });
+            });*/
 
             oscServer.RegisterAction<int>("/1/eStop", (msg, data) =>
             {
@@ -295,6 +306,16 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<int>("/1/push3", d => d.First() != 0, (msg, data) =>
             {
                 audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
+            });
+
+            oscServer.RegisterAction<int>("/ShortBurst/x", d => d.First() != 0, (msg, data) =>
+            {
+                fireProjector.InputTriggerShort.OnNext(true);
+            });
+
+            oscServer.RegisterAction<int>("/LongBurn/x", d => d.First() != 0, (msg, data) =>
+            {
+                fireProjector.InputTriggerLong.OnNext(true);
             });
 
             oscServer.RegisterActionSimple<bool>("/ManualFader/x", (msg, data) =>
@@ -370,13 +391,13 @@ namespace Animatroller.Scenes
                 //                pinSpot.SetBrightness(data.First());
             });
 
-            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
+/*            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
             {
                 if (data.First() != 0)
                     audio2.PlayBackground();
                 else
                     audio2.PauseBackground();
-            });
+            });*/
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
             {
@@ -442,6 +463,8 @@ namespace Animatroller.Scenes
 
                 SetManualColor();
             });
+
+            soundBoardOutputIndex = int.Parse(Exec.GetKey("AudioOutput-Selection", "0", true));
         }
     }
 }

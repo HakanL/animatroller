@@ -7,7 +7,7 @@ namespace Animatroller.Framework
     public interface IControlToken : IDisposable
     {
         //TODO: Change to IReceivesData?
-        IData GetDataForDevice(IOwnedDevice device, int channel);
+        IData GetDataForDevice(IOwnedDevice device, IChannel channel);
 
         int Priority { get; }
 

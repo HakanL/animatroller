@@ -178,7 +178,7 @@ namespace Animatroller.Framework.Controller
             return this;
         }
 
-        private void Lock(int channel = 0)
+        private void Lock(IChannel channel = null)
         {
             var heldLocks = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var handleLock in this.handleLocks)

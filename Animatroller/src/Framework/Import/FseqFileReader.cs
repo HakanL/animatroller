@@ -203,7 +203,7 @@ namespace Animatroller.Framework.Import
             return this.frameBuffer;
         }
 
-        public (int UniverseId, int Channel)[] GetFrameLayout()
+        public (int UniverseId, int FSeqChannel)[] GetFrameLayout()
         {
             var layout = new(int, int)[this.header.StepSize];
 

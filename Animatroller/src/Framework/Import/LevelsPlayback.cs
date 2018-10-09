@@ -82,7 +82,7 @@ namespace Animatroller.Framework.Import
             IControlToken controlToken = token;
             if (controlToken == null)
             {
-//                localToken = controlToken = this.device.TakeControl(priority);
+//                localToken = controlToken = this.device.TakeControl(priority: priority);
             }
 
             var observer = Observer.Create<double>(pos =>

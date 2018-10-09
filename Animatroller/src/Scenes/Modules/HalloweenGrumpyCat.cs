@@ -85,7 +85,7 @@ namespace Animatroller.Scenes.Modules
             PowerOff
                 .RunAction(ins =>
                 {
-                    audioPlayer.PlayEffect("How you doing.wav", 0.15);
+                    audioPlayer.PlayEffect("How you doing.wav", 0.1);
                     ins.WaitFor(S(5));
                 });
         }

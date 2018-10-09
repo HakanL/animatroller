@@ -74,7 +74,7 @@ namespace Animatroller.Framework.PhysicalDevice
             // 7 = Speed (0 = off)
             // 8 = Color mixing and run automatically (0 = off)
 
-            DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] {
+            DmxOutputPort.SendDmxData(this.baseDmxChannel, new byte[] {
                 componentMaster,
                 componentRed,
                 componentGreen,

@@ -14,7 +14,7 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             var color = GetColorFromColorBrightness();
 
-            DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] {
+            DmxOutputPort.SendDmxData(this.baseDmxChannel, new byte[] {
                 color.R,
                 color.G,
                 color.B,

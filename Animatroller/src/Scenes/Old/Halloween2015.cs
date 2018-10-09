@@ -529,7 +529,7 @@ namespace Animatroller.Scenes
                 if (data.First() != 0)
                 {
                     allLights.TakeAndHoldControl();
-                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
+                    allLights.SetData(Channel.Main, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();
@@ -819,7 +819,7 @@ namespace Animatroller.Scenes
                 if (x)
                 {
                     allLights.TakeAndHoldControl();
-                    allLights.SetData(0, null, Utils.Data(Color.White, 1.0));
+                    allLights.SetData(Channel.Main, null, Utils.Data(Color.White, 1.0));
                 }
                 else
                     allLights.ReleaseControl();

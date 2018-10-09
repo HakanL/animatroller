@@ -291,27 +291,29 @@ namespace Animatroller.Scenes
             stateMachine.ForFromSubroutine(States.DarthVader, subStarWars);
 
             // Setup
+            var channel1 = Channel.FromId(1);
+
             //airReindeerBig.SetValue(true, 1);
             //airR2D2Olaf.SetValue(true, 1);
             //airSantaPoppy1.SetValue(true, 1);
             //airSantaPopup.SetValue(true, 1);
             //airSnowmanSanta.SetValue(true, 1);
             //airTree.SetValue(true, 1);
-            lightPoppy.SetBrightness(1, 1);
-            lightR2D2.SetBrightness(1, 1);
-            lightOlaf.SetBrightness(1, 1);
-            lightReindeerBig.SetBrightness(1, 1);
-            lightHangingStar.SetBrightness(1, 1);
-            lightHangingStar2.SetBrightness(1, 1);
-            lightHangingStar3.SetBrightness(1, 1);
-            lightInflatableTree.SetBrightness(1, 1);
-            lightHat1.SetBrightness(1, 1);
+            lightPoppy.SetBrightness(1, channel1);
+            lightR2D2.SetBrightness(1, channel1);
+            lightOlaf.SetBrightness(1, channel1);
+            lightReindeerBig.SetBrightness(1, channel1);
+            lightHangingStar.SetBrightness(1, channel1);
+            lightHangingStar2.SetBrightness(1, channel1);
+            lightHangingStar3.SetBrightness(1, channel1);
+            lightInflatableTree.SetBrightness(1, channel1);
+            lightHat1.SetBrightness(1, channel1);
             //lightHat2.SetBrightness(1, 1);
             //lightHat3.SetBrightness(1, 1);
             //lightHat4.SetBrightness(1, 1);
-            lightPackages.SetValue(true, 1);
-            lightSanta.SetBrightness(1, 1);
-            lightSantaPopup.SetBrightness(1, 1);
+            lightPackages.SetValue(true, channel1);
+            lightSanta.SetBrightness(1, channel1);
+            lightSantaPopup.SetBrightness(1, channel1);
 
             stateMachine.For(States.Setup)
                 .Execute(ins =>
@@ -326,7 +328,7 @@ namespace Animatroller.Scenes
                 TearDown(ins =>
                 {
                     dmxPlayback.Stop();
-                    Exec.SetGlobalChannel(0);
+                    Exec.SetGlobalChannel(Channel.Main);
                 });
 
             stateMachine.StateOutput.Subscribe(x =>
@@ -510,12 +512,12 @@ namespace Animatroller.Scenes
                     lightHat2.SetBrightness(1);
                     lightHat3.SetBrightness(1);
                     lightHat4.SetBrightness(1);
-                    lightFlood1.SetColor(Color.Red, 1, 0);
-                    lightFlood2.SetColor(Color.Red, 1, 0);
-                    lightFlood3.SetColor(Color.Red, 1, 0);
-                    lightFlood4.SetColor(Color.Red, 1, 0);
+                    lightFlood1.SetColor(Color.Red, 1, Channel.Main);
+                    lightFlood2.SetColor(Color.Red, 1, Channel.Main);
+                    lightFlood3.SetColor(Color.Red, 1, Channel.Main);
+                    lightFlood4.SetColor(Color.Red, 1, Channel.Main);
 
-                    saberPixels.SetColor(Color.Red, 0.4, 0, token: i.Token);
+                    saberPixels.SetColor(Color.Red, 0.4, Channel.Main, token: i.Token);
 
                     subCandyCane.Run();
 
@@ -780,7 +782,7 @@ namespace Animatroller.Scenes
                     instance.WaitFor(S(1));
                     audioHiFi.PauseTrack();
 
-                    lightVader.SetColor(Color.Red, 1.0, 0, token: instance.Token);
+                    lightVader.SetColor(Color.Red, 1.0, Channel.Main, token: instance.Token);
                     audioDarthVader.PlayEffect("father.wav");
                     instance.WaitFor(S(5));
 
@@ -956,13 +958,13 @@ namespace Animatroller.Scenes
             bool airOn = (stateMachine.CurrentState != null) && stateMachine.CurrentState != States.Setup &&
                 mainSchedule.IsOpen && airActivated.Value;
 
-            airReindeerBig.SetValue(airOn, 0);
-            airR2D2Olaf.SetValue(airOn, 0);
-            airSantaPoppy1.SetValue(airOn, 0);
-            airSantaPopup.SetValue(airOn, 0);
-            airSnowmanSanta.SetValue(airOn, 0);
-            airTree.SetValue(airOn, 0);
-            lightPackages.SetValue(airOn, 0);
+            airReindeerBig.SetValue(airOn, Channel.Main);
+            airR2D2Olaf.SetValue(airOn, Channel.Main);
+            airSantaPoppy1.SetValue(airOn, Channel.Main);
+            airSantaPopup.SetValue(airOn, Channel.Main);
+            airSnowmanSanta.SetValue(airOn, Channel.Main);
+            airTree.SetValue(airOn, Channel.Main);
+            lightPackages.SetValue(airOn, Channel.Main);
         }
 
         private Color GetFaderColor()

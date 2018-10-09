@@ -83,7 +83,7 @@ namespace Animatroller.Framework.PhysicalDevice
             // 7 = UV
             // 8 = Strobe (0-15 = off, 16-255 = slow to fast)
 
-            DmxOutputPort.SendDimmerValues(this.baseDmxChannel, new byte[] {
+            DmxOutputPort.SendDmxData(this.baseDmxChannel, new byte[] {
                 componentMaster,
                 componentRed,
                 componentGreen,

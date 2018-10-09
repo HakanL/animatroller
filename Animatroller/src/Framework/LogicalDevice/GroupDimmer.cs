@@ -40,15 +40,15 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void SetData(IData data)
         {
-            SetData(channel: 0, token: null, data: data);
+            SetData(channel: Channel.Main, token: null, data: data);
         }
 
         public void SetData(IControlToken token, IData data)
         {
-            SetData(channel: 0, token: token, data: data);
+            SetData(channel: Channel.Main, token: token, data: data);
         }
 
-        public void SetData(int channel, IControlToken token, IData data)
+        public void SetData(IChannel channel, IControlToken token, IData data)
         {
             if (token == null)
                 token = this.internalLock;

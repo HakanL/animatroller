@@ -42,7 +42,7 @@ namespace Animatroller.Scenes
                     // Test priority/control
                     //lightA.Brightness = 0.25;
 
-                    //using (var control1 = lightA.TakeControl(1))
+                    //using (var control1 = lightA.TakeControl(priority: 1))
                     //{
                     //    lightA.Brightness = 0.33;
 
@@ -50,7 +50,7 @@ namespace Animatroller.Scenes
 
                     //    observer1.OnNext(1.0);
 
-                    //    using (var control2 = lightA.TakeControl(1))
+                    //    using (var control2 = lightA.TakeControl(priority: 1))
                     //    {
                     //        var observer2 = lightA.GetBrightnessObserver(control2);
 
@@ -62,7 +62,7 @@ namespace Animatroller.Scenes
 
                     lightA.Brightness = 0.2;
 
-                    var control1 = lightA.TakeControl(1);
+                    var control1 = lightA.TakeControl(priority: 1);
                     lightA.Brightness = 0.33;
 
                     var observer1 = lightA.GetBrightnessObserver();

@@ -19,7 +19,7 @@ namespace Animatroller.Framework.PhysicalDevice
             {
                 lock (this.lockObject)
                 {
-                    PixelOutputPort.SendPixelsValue(0, dmxData);
+                    PixelOutputPort.SendMultiUniverseDmxData(dmxData);
                 }
             });
         }

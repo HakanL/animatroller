@@ -60,11 +60,11 @@ namespace Animatroller.Framework.Expander
 
                             if (this.changedPixels.Count <= 2)
                             {
-                                foreach (var channel in this.changedPixels)
+                                foreach (var pixelPos in this.changedPixels)
                                 {
-                                    int dataOffset = 1 + channel * 4;
+                                    int dataOffset = 1 + pixelPos * 4;
 
-                                    var shortSend = new byte[] { (byte)channel,
+                                    var shortSend = new byte[] { (byte)pixelPos,
                                         this.pixelData[dataOffset + 0],
                                         this.pixelData[dataOffset + 1],
                                         this.pixelData[dataOffset + 2]};
@@ -201,26 +201,22 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        public SendStatus SendDimmerValue(int channel, byte value)
+        public void SendDmxData(int address, byte value)
         {
-            SendSerialCommand(string.Format("L,{0},{1}", channel, value));
-
-            return SendStatus.NotSet;
+            SendSerialCommand(string.Format("L,{0},{1}", address, value));
         }
 
-        public SendStatus SendDimmerValues(int firstChannel, byte[] values)
+        public void SendDmxData(int startAddress, byte[] values)
         {
-            return SendDimmerValues(firstChannel, values, 0, values.Length);
+            SendDmxData(startAddress, values, 0, values.Length);
         }
 
-        public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
+        public void SendDmxData(int startAddress, byte[] values, int offset, int length)
         {
             for (int i = 0; i < length; i++)
             {
-                SendSerialCommand(string.Format("L,{0},{1}", firstChannel + i, values[offset + i]));
+                SendSerialCommand(string.Format("L,{0},{1}", startAddress + i, values[offset + i]));
             }
-
-            return SendStatus.NotSet;
         }
 
         public IOExpander Connect(PhysicalDevice.INeedsDmxOutput device)
@@ -237,9 +233,9 @@ namespace Animatroller.Framework.Expander
             return this;
         }
 
-        public SendStatus SendPixelValue(int channel, PhysicalDevice.PixelRGBByte rgb)
+        public void SendPixelValue(int address, PhysicalDevice.PixelRGBByte rgb)
         {
-            int dataOffset = 1 + channel * 4;
+            int dataOffset = 1 + address * 4;
             lock (lockObject)
             {
                 if (!this.changedPixels.Any())
@@ -249,14 +245,12 @@ namespace Animatroller.Framework.Expander
                 this.pixelData[dataOffset + 1] = rgb.G;
                 this.pixelData[dataOffset + 2] = rgb.B;
 
-                this.changedPixels.Add((byte)channel);
+                this.changedPixels.Add((byte)address);
                 receivedUpdates++;
             }
-
-            return SendStatus.NotSet;
         }
 
-        public SendStatus SendPixelsValue(int startChannel, PhysicalDevice.PixelRGBByte[] rgb)
+        public void SendPixelsValue(int startPixelPos, PhysicalDevice.PixelRGBByte[] rgb)
         {
             lock (lockObject)
             {
@@ -266,27 +260,25 @@ namespace Animatroller.Framework.Expander
                 int readOffset = 0;
                 for (int i = 0; i < rgb.Length; i++)
                 {
-                    int dataOffset = 1 + (startChannel + i) * 4;
+                    int dataOffset = 1 + (startPixelPos + i) * 4;
 
                     this.pixelData[dataOffset + 0] = rgb[readOffset].R;
                     this.pixelData[dataOffset + 1] = rgb[readOffset].G;
                     this.pixelData[dataOffset + 2] = rgb[readOffset].B;
                     readOffset++;
 
-                    this.changedPixels.Add((byte)(startChannel + i));
+                    this.changedPixels.Add((byte)(startPixelPos + i));
                 }
                 receivedUpdates++;
             }
-
-            return SendStatus.NotSet;
         }
 
-        public void SendPixelsValue(int channel, byte[] rgb, int length)
+        public void SendPixelDmxData(int startPixelPos, byte[] rgb, int length)
         {
             throw new NotImplementedException();
         }
 
-        public void SendPixelsValue(int channel, byte[][] dmxData)
+        public void SendMultiUniverseDmxData(byte[][] dmxData)
         {
             throw new NotImplementedException();
         }

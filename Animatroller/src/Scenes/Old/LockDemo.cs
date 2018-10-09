@@ -51,8 +51,8 @@ namespace Animatroller.Scenes
             testLightA.ConnectTo(x => pixelsRoofEdge.SetBrightness(x));
             testLightB.ConnectTo(x => lightB.SetBrightness(x));
 
-            lightA.SetColor(Color.Red, null);
-            lightB.SetColor(Color.Blue, null);
+            lightA.SetColor(Color.Red);
+            lightB.SetColor(Color.Blue);
 
             pixelsRoofEdge.SetColor(Color.Green, 0.6);
 
@@ -73,7 +73,7 @@ namespace Animatroller.Scenes
 
                     i.WaitFor(S(1));
 
-                    using (var takeOver = lightGroup.TakeControl(5))
+                    using (var takeOver = lightGroup.TakeControl(priority: 5))
                     {
                         lightGroup.SetBrightness(1, token: takeOver);
                         i.WaitFor(S(1));

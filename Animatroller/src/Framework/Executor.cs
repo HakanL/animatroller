@@ -708,7 +708,7 @@ namespace Animatroller.Framework
             return cancelSource;
         }
 
-        public void SetGlobalChannel(int channel)
+        public void SetGlobalChannel(IChannel channel)
         {
             foreach (var device in this.devices.OfType<LogicalDevice.SingleOwnerDevice>())
                 device.SetCurrentChannel(channel);

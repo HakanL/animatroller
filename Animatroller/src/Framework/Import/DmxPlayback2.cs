@@ -37,16 +37,16 @@ namespace Animatroller.Framework.Import
         private IFileReader3 reader;
         private Stopwatch masterClock;
         private bool loop;
-        private int channel;
+        private IChannel channel;
         private List<DeviceData> devices;
-        private (int UniverseId, int Channel)[] layout;
+        private (int UniverseId, int FSeqChannel)[] layout;
         private List<(IReceivesData Device, int StartUniverseInFile, int StartChannelInFile, Dictionary<int, Utility.PixelMap[]> RawMapping, int Width, int Height)> rawDeviceMapping;
         private bool initializeCalled;
         private ConcurrentQueue<(long, Dictionary<DeviceData, byte[]>)> frameQueue;
         private ManualResetEvent frameConsumed;
         private ArrayPool<byte> arrayPool;
 
-        public DmxPlayback2(int channel = 0, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public DmxPlayback2(IChannel channel = null, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
             this.channel = channel;
@@ -363,7 +363,7 @@ namespace Animatroller.Framework.Import
                     if (!pixelMapping.TryGetValue(item.UniverseId, out int[] channelMapping))
                         continue;
 
-                    int outputPos = channelMapping[item.Channel];
+                    int outputPos = channelMapping[item.FSeqChannel];
                     if (outputPos >= 0)
                         mappingList.Add((i, outputPos));
                 }

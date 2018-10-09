@@ -186,7 +186,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return GetCurrentData<double>(DataElements.Brightness); }
         }
 
-        public void SetBrightness(double brightness, int channel = 0, IControlToken token = null)
+        public void SetBrightness(double brightness, IChannel channel = null, IControlToken token = null)
         {
             this.SetData(channel, token, Utils.Data(DataElements.Brightness, brightness));
         }
@@ -304,7 +304,7 @@ namespace Animatroller.Framework.LogicalDevice
             int startY = 0,
             int? width = null,
             int? height = null,
-            int channel = 0,
+            IChannel channel = null,
             IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
@@ -334,7 +334,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(channel, token);
         }
 
-        public void InjectRow(Color color, double brightness = 1.0, int channel = 0, IControlToken token = null)
+        public void InjectRow(Color color, double brightness = 1.0, IChannel channel = null, IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
             var bitmap = (Bitmap)data[DataElements.PixelBitmap];
@@ -355,7 +355,7 @@ namespace Animatroller.Framework.LogicalDevice
         }
 
         [Obsolete("Just for testing, not a very useful function")]
-        public void Inject(Color color, double brightness = 1.0, int channel = 0, IControlToken token = null)
+        public void Inject(Color color, double brightness = 1.0, IChannel channel = null, IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
             var bitmap = (Bitmap)data[DataElements.PixelBitmap];

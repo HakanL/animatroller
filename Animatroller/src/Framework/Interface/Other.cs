@@ -6,7 +6,7 @@ namespace Animatroller.Framework
 {
     public interface IPushDataController
     {
-        void PushData(int channel);
+        void PushData(IChannel channel);
 
         IData Data { get; }
 
@@ -15,13 +15,13 @@ namespace Animatroller.Framework
 
     public interface IReceivesData : IOwnedDevice
     {
-        IPushDataController GetDataObserver(int channel, IControlToken token);
+        IPushDataController GetDataObserver(IChannel channel, IControlToken token);
 
-        void PushOutput(int channel, IControlToken token);
+        void PushOutput(IChannel channel, IControlToken token);
 
         void BuildDefaultData(IData data);
 
-        void SetData(int channel, IControlToken token, IData data);
+        void SetData(IChannel channel, IControlToken token, IData data);
 
         object GetCurrentData(DataElements dataElement);
 

@@ -41,7 +41,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
             lock (this)
             {
-                DmxOutputPort.SendDimmerValue(this.startDmxChannel, this.autoResetCommand);
+                DmxOutputPort.SendDmxData(this.startDmxChannel, this.autoResetCommand);
             }
         }
 
@@ -57,7 +57,7 @@ namespace Animatroller.Framework.PhysicalDevice
                     {
                         foreach (byte b in arr)
                         {
-                            DmxOutputPort.SendDimmerValue(this.startDmxChannel, b);
+                            DmxOutputPort.SendDmxData(this.startDmxChannel, b);
 
                             lastByte = b;
                         }

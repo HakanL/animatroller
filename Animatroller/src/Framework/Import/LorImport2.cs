@@ -176,7 +176,7 @@ namespace Animatroller.Framework.Import
 
             public override void Execute(IReceivesBrightness device, IControlToken token)
             {
-                device.SetBrightness(Brightness, channel: 0, token: token);
+                device.SetBrightness(Brightness, channel: Channel.Main, token: token);
             }
 
             public override void Execute(IReceivesColor device, ChannelEffectInstance.DeviceType deviceType, IControlToken token)
@@ -185,15 +185,15 @@ namespace Animatroller.Framework.Import
                 switch (deviceType)
                 {
                     case ChannelEffectInstance.DeviceType.ColorR:
-                        device.SetColor(Color.FromArgb((int)(Brightness * 255), currentColor.G, currentColor.B), 1, token);
+                        device.SetColor(Color.FromArgb((int)(Brightness * 255), currentColor.G, currentColor.B), brightness: 1, token: token);
                         break;
 
                     case ChannelEffectInstance.DeviceType.ColorG:
-                        device.SetColor(Color.FromArgb(currentColor.R, (int)(Brightness * 255), currentColor.B), 1, token);
+                        device.SetColor(Color.FromArgb(currentColor.R, (int)(Brightness * 255), currentColor.B), brightness: 1, token: token);
                         break;
 
                     case ChannelEffectInstance.DeviceType.ColorB:
-                        device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(Brightness * 255)), 1, token);
+                        device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(Brightness * 255)), brightness: 1, token: token);
                         break;
                 }
             }
@@ -218,15 +218,15 @@ namespace Animatroller.Framework.Import
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
-                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, token);
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), brightness: 1, token: token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorG:
-                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, token);
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), brightness: 1, token: token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorB:
-                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, token);
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), brightness: 1, token: token);
                             break;
                     }
                 }), StartBrightness, EndBrightness, DurationMs, token: token);
@@ -248,15 +248,15 @@ namespace Animatroller.Framework.Import
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
-                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, token);
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), brightness: 1, token: token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorG:
-                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, token);
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), brightness: 1, token: token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorB:
-                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, token);
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), brightness: 1, token: token);
                             break;
                     }
                 }), 0, 1, DurationMs, token: token);
@@ -282,15 +282,15 @@ namespace Animatroller.Framework.Import
                     switch (deviceType)
                     {
                         case ChannelEffectInstance.DeviceType.ColorR:
-                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), 1, token);
+                            device.SetColor(Color.FromArgb((int)(b * 255), currentColor.G, currentColor.B), brightness: 1, token: token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorG:
-                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), 1, token);
+                            device.SetColor(Color.FromArgb(currentColor.R, (int)(b * 255), currentColor.B), brightness: 1, token: token);
                             break;
 
                         case ChannelEffectInstance.DeviceType.ColorB:
-                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), 1, token);
+                            device.SetColor(Color.FromArgb(currentColor.R, currentColor.G, (int)(b * 255)), brightness: 1, token: token);
                             break;
                     }
                 }), StartBrightness, EndBrightness, DurationMs, token: token);

@@ -808,7 +808,7 @@ namespace Animatroller.Scenes
             subPoppy
                 .RunAction(i =>
                 {
-                    pulsatingEffectPoppy.Start(100);
+                    pulsatingEffectPoppy.Start(priority: 100);
                     audioVideo1.PlayNewEffect("Trolls Sounds of Silence.wav");
                     i.WaitFor(S(46));
                     pulsatingEffectPoppy.Stop();
@@ -817,7 +817,7 @@ namespace Animatroller.Scenes
             subOlaf
                 .RunAction(i =>
                 {
-                    pulsatingEffectOlaf.Start(100);
+                    pulsatingEffectOlaf.Start(priority: 100);
                     audioLedmx.PlayNewEffect("WarmHugs.wav", 0.0, 1.0);
                     i.WaitFor(S(10));
                     pulsatingEffectOlaf.Stop();
@@ -826,7 +826,7 @@ namespace Animatroller.Scenes
             subR2D2
                 .RunAction(i =>
                 {
-                    pulsatingEffectR2D2.Start(100);
+                    pulsatingEffectR2D2.Start(priority: 100);
                     audioLedmx.PlayNewEffect("Im C3PO.wav", 1.0, 0.0);
                     i.WaitFor(S(4));
                     audioLedmx.PlayNewEffect("Processing R2D2.wav", 0.5, 0.0);

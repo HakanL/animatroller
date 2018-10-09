@@ -30,11 +30,11 @@ namespace Animatroller.Framework.Import
         private int pixelWidth;
         private int pixelHeight;
         private bool loop;
-        private int channel;
+        private IChannel channel;
         private Bitmap bitmap;
         private Rectangle bitmapRect;
 
-        public DmxPlayback(int channel = 0, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public DmxPlayback(IChannel channel = null, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
             this.channel = channel;

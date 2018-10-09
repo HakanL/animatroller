@@ -41,33 +41,33 @@ namespace Animatroller.Framework.Import
 
         public class VixenChannel : IChannelIdentity
         {
-            public int Channel { get; set; }
+            public int ChannelId { get; set; }
 
             public VixenChannel(int channel)
             {
-                this.Channel = channel;
+                this.ChannelId = channel;
             }
 
             public override bool Equals(object obj)
             {
                 var b = (obj as VixenChannel);
 
-                return this.Channel == b.Channel;
+                return this.ChannelId == b.ChannelId;
             }
 
             public override int GetHashCode()
             {
-                return this.Channel.GetHashCode();
+                return this.ChannelId.GetHashCode();
             }
 
             public override string ToString()
             {
-                return string.Format("{0}", this.Channel);
+                return string.Format("{0}", this.ChannelId);
             }
 
             public int CompareTo(object other)
             {
-                return this.Channel.CompareTo(((VixenChannel)other).Channel);
+                return this.ChannelId.CompareTo(((VixenChannel)other).ChannelId);
             }
         }
     }

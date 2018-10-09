@@ -1,20 +1,17 @@
-﻿using System;
-using System.IO;
+﻿using Animatroller.Framework.Controller;
+using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
+using System.IO;
 using System.Linq;
-using System.Drawing;
-using Serilog;
+using System.Xml.Serialization;
 using LMS = Animatroller.Framework.Import.FileFormat.LightORama.LMS;
-using Animatroller.Framework.Extensions;
-using Animatroller.Framework.Controller;
 
 namespace Animatroller.Framework.Import
 {
     // Light-O-Rama Musical Sequence
     public class LorImport : BufferImporter
     {
-        private Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
+        private readonly Effect2.Shimmer shimmerEffect = new Effect2.Shimmer(0.5, 1.0);
 
         public LorImport(string filename)
         {
@@ -31,7 +28,7 @@ namespace Animatroller.Framework.Import
 
             foreach (var channel in sequence.channels)
             {
-                if (channel.deviceType != null &&channel.deviceType != "LOR")
+                if (channel.deviceType != null && channel.deviceType != "LOR")
                 {
                     this.log.Warning("Not supporting device type {0} yet", channel.deviceType);
                     continue;
@@ -102,7 +99,7 @@ namespace Animatroller.Framework.Import
 
     public class LOREvent : LMS.channelsChannelEffect, BaseImporter.ISimpleInvokeEvent
     {
-        private IEnumerable<BaseImporter.MappedDeviceDimmer> devices;
+        private readonly IEnumerable<BaseImporter.MappedDeviceDimmer> devices;
 
         public LOREvent(IEnumerable<BaseImporter.MappedDeviceDimmer> devices, LMS.channelsChannelEffect effect)
         {

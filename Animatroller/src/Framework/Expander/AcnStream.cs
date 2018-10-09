@@ -1,19 +1,13 @@
-﻿using System;
+﻿using Animatroller.Framework.PhysicalDevice;
+using kadmium_sacn_core;
+using Serilog;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.IO.Ports;
-using System.Threading.Tasks;
-using Animatroller.Framework.PhysicalDevice;
+using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
-using System.Collections.ObjectModel;
-using Serilog;
-using kadmium_sacn_core;
-using System.Threading;
-using System.Diagnostics;
 using System.Reactive;
+using System.Threading;
 
 namespace Animatroller.Framework.Expander
 {
@@ -21,21 +15,21 @@ namespace Animatroller.Framework.Expander
     {
         public readonly Guid animatrollerAcnId = new Guid("{53A974B9-8286-4DC1-BFAB-00FEC91FD7A9}");
         protected ILogger log;
-        private Timer keepAliveTimer;
+        private readonly Timer keepAliveTimer;
 
         protected class AcnPixelUniverse : IPixelOutput
         {
-            private object lockObject = new object();
-            private AcnStream acnStream;
-            private Dictionary<int, AcnUniverse> acnUniverses;
-            private int startUniverse;
-            private int startDmxChannel;
+            private readonly object lockObject = new object();
+            private readonly AcnStream acnStream;
+            private readonly Dictionary<int, AcnUniverse> acnUniverses;
+            private readonly int startUniverse;
+            private readonly int startDmxAddress;
 
-            public AcnPixelUniverse(AcnStream acnStream, int startUniverse, int startDmxChannel)
+            public AcnPixelUniverse(AcnStream acnStream, int startUniverse, int startDmxAddress)
             {
                 this.acnStream = acnStream;
                 this.startUniverse = startUniverse;
-                this.startDmxChannel = startDmxChannel;
+                this.startDmxAddress = startDmxAddress;
 
                 this.acnUniverses = new Dictionary<int, AcnUniverse>();
             }
@@ -55,7 +49,7 @@ namespace Animatroller.Framework.Expander
                 return acnUniverse;
             }
 
-            public SendStatus SendPixelValue(int channel, PixelRGBByte rgb)
+            public void SendPixelValue(int pixelPos, PixelRGBByte rgb)
             {
                 var values = new byte[3];
                 values[0] = rgb.R;
@@ -63,19 +57,19 @@ namespace Animatroller.Framework.Expander
                 values[2] = rgb.B;
 
                 // Max 510 RGB values per universe
-                int universe = (this.startDmxChannel + (channel * 3)) / 510;
-                int localStart = (this.startDmxChannel + (channel * 3)) % 510;
+                int universe = (this.startDmxAddress + (pixelPos * 3)) / 510;
+                int localStart = (this.startDmxAddress + (pixelPos * 3)) % 510;
 
                 var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
 
-                return acnUniverse.SendDimmerValues(localStart, values, 0, 3);
+                acnUniverse.SendDmxData(localStart, values, 0, 3);
             }
 
-            public SendStatus SendPixelsValue(int channel, PixelRGBByte[] rgb)
+            public void SendPixelsValue(int startPixelPos, PixelRGBByte[] rgb)
             {
                 // Max 510 RGB values per universe
-                int universe = (this.startDmxChannel + (channel * 3)) / 510;
-                int localStart = (this.startDmxChannel + (channel * 3)) % 510;
+                int universe = (this.startDmxAddress + (startPixelPos * 3)) / 510;
+                int localStart = (this.startDmxAddress + (startPixelPos * 3)) % 510;
 
                 var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
 
@@ -89,7 +83,7 @@ namespace Animatroller.Framework.Expander
 
                     if (chn + localStart > 510)
                     {
-                        acnUniverse.SendDimmerValues(localStart, values, 0, chn);
+                        acnUniverse.SendDmxData(localStart, values, 0, chn);
 
                         // Get next universe
                         chn = 0;
@@ -100,16 +94,14 @@ namespace Animatroller.Framework.Expander
                 }
 
                 if (chn > 0)
-                    acnUniverse.SendDimmerValues(localStart, values, 0, chn);
-
-                return SendStatus.NotSet;
+                    acnUniverse.SendDmxData(localStart, values, 0, chn);
             }
 
-            public void SendPixelsValue(int channel, byte[] rgb, int length)
+            public void SendPixelDmxData(int startPixelPos, byte[] dmxData, int length)
             {
                 // Max 510 RGB values per universe
-                int universe = (this.startDmxChannel + (channel * 3)) / 510;
-                int localStart = (this.startDmxChannel + (channel * 3)) % 510;
+                int universe = (this.startDmxAddress + (startPixelPos * 3)) / 510;
+                int localStart = (this.startDmxAddress + (startPixelPos * 3)) % 510;
 
                 int startOffset = 0;
                 while (startOffset < length)
@@ -117,7 +109,7 @@ namespace Animatroller.Framework.Expander
                     var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
 
                     int maxChannels = Math.Min(511 - localStart, length - startOffset);
-                    acnUniverse.SendDimmerValues(localStart, rgb, startOffset, maxChannels);
+                    acnUniverse.SendDmxData(localStart, dmxData, startOffset, maxChannels);
 
                     startOffset += maxChannels;
                     universe++;
@@ -125,12 +117,12 @@ namespace Animatroller.Framework.Expander
                 }
             }
 
-            public void SendPixelsValue(int channel, byte[][] dmxData)
+            public void SendMultiUniverseDmxData(byte[][] dmxData)
             {
                 for (int universe = 0; universe < dmxData.Length; universe++)
                 {
                     var acnUniverse = GetAcnUniverse(this.startUniverse + universe);
-                    acnUniverse.SendDimmerValues(1, dmxData[universe], 0, dmxData[universe].Length);
+                    acnUniverse.SendDmxData(1, dmxData[universe], 0, dmxData[universe].Length);
                 }
             }
         }
@@ -139,12 +131,12 @@ namespace Animatroller.Framework.Expander
         {
             public const long KeepAliveMilliseconds = 2000;
 
-            private short universe;
-            private byte priority;
-            private object lockObject = new object();
-            private AcnStream parent;
-            private byte[] currentData;
-            private Stopwatch lastSendWatch;
+            private readonly short universe;
+            private readonly byte priority;
+            private readonly object lockObject = new object();
+            private readonly AcnStream parent;
+            private readonly byte[] currentData;
+            private readonly Stopwatch lastSendWatch;
 
             public AcnUniverse(AcnStream parent, int universe, byte priority)
             {
@@ -196,31 +188,29 @@ namespace Animatroller.Framework.Expander
                 this.lastSendWatch.Restart();
             }
 
-            public SendStatus SendDimmerValue(int channel, byte value)
+            public void SendDmxData(int address, byte value)
             {
                 lock (this.lockObject)
                 {
-                    this.currentData[channel - 1] = value;
+                    this.currentData[address - 1] = value;
                 }
 
                 if (!Executor.Current.IsOffline)
                     SendCurrentData();
-
-                return SendStatus.NotSet;
             }
 
-            public SendStatus SendDimmerValues(int firstChannel, byte[] values)
+            public void SendDmxData(int startAddress, byte[] values)
             {
-                return SendDimmerValues(firstChannel, values, 0, values.Length);
+                SendDmxData(startAddress, values, 0, values.Length);
             }
 
-            public SendStatus SendDimmerValues(int firstChannel, byte[] values, int offset, int length)
+            public void SendDmxData(int startAddress, byte[] values, int offset, int length)
             {
                 lock (this.lockObject)
                 {
                     for (int i = 0; i < length; i++)
                     {
-                        int chn = firstChannel + i;
+                        int chn = startAddress + i;
                         if (chn >= 1 && chn <= 512)
                             this.currentData[chn - 1] = values[offset + i];
                     }
@@ -228,15 +218,13 @@ namespace Animatroller.Framework.Expander
 
                 if (!Executor.Current.IsOffline)
                     SendCurrentData();
-
-                return SendStatus.NotSet;
             }
         }
 
-        private object lockObject = new object();
+        private readonly object lockObject = new object();
         private kadmium_sacn_core.SACNSender acnSender;
-        private Dictionary<int, AcnUniverse> sendingUniverses;
-        private int defaultPriority;
+        private readonly Dictionary<int, AcnUniverse> sendingUniverses;
+        private readonly int defaultPriority;
 
         public AcnStream(int priority = 100)
         {
@@ -293,9 +281,9 @@ namespace Animatroller.Framework.Expander
             return acnUniverse;
         }
 
-        protected AcnPixelUniverse GetPixelSendingUniverse(int startUniverse, int startDmxChannel)
+        protected AcnPixelUniverse GetPixelSendingUniverse(int startUniverse, int startDmxAddress)
         {
-            return new AcnPixelUniverse(this, startUniverse, startDmxChannel);
+            return new AcnPixelUniverse(this, startUniverse, startDmxAddress);
         }
 
         private IPAddress GetAddressFromInterfaceType(NetworkInterfaceType interfaceType)
@@ -325,9 +313,9 @@ namespace Animatroller.Framework.Expander
             return this;
         }
 
-        public AcnStream Connect(PhysicalDevice.INeedsPixelOutput device, int startUniverse, int startDmxChannel)
+        public AcnStream Connect(PhysicalDevice.INeedsPixelOutput device, int startUniverse, int startDmxAddress)
         {
-            device.PixelOutputPort = GetPixelSendingUniverse(startUniverse, startDmxChannel);
+            device.PixelOutputPort = GetPixelSendingUniverse(startUniverse, startDmxAddress);
 
             return this;
         }

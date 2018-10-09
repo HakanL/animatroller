@@ -21,7 +21,7 @@ namespace Animatroller.Framework.PhysicalDevice
             else
                 strobe = (byte)(11 + this.strobeSpeed.GetByteScale(244));
 
-            DmxOutputPort.SendDimmerValues(baseDmxChannel, new byte[] {
+            DmxOutputPort.SendDmxData(baseDmxChannel, new byte[] {
                 brightness,
                 strobe,
                 0,  // Sound strobing

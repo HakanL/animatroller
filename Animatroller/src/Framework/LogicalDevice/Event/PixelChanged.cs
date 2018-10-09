@@ -8,11 +8,11 @@ namespace Animatroller.Framework.LogicalDevice.Event
 {
     public class PixelChangedEventArgs : EventArgs
     {
-        public int Channel { get; private set; }
+        public IChannel Channel { get; private set; }
         public double NewBrightness { get; private set; }
         public Color NewColor { get; private set; }
 
-        public PixelChangedEventArgs(int channel, Color newColor, double newBrightness)
+        public PixelChangedEventArgs(IChannel channel, Color newColor, double newBrightness)
         {
             this.Channel = channel;
             this.NewBrightness = newBrightness;

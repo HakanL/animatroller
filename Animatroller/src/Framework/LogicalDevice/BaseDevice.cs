@@ -9,17 +9,17 @@ namespace Animatroller.Framework.LogicalDevice
     {
         protected string name;
         protected bool persistState;
-        protected Dictionary<int, IData> currentData;
+        protected Dictionary<IChannel, IData> currentData;
         protected object lockObject = new object();
-        protected int currentChannel;
+        protected IChannel currentChannel;
         protected Func<IData> newDataFunc;
 
         public BaseDevice(string name, bool persistState = false)
         {
             this.name = name;
             this.persistState = persistState;
-            this.currentData = new Dictionary<int, IData>();
-            this.currentChannel = 0;
+            this.currentData = new Dictionary<IChannel, IData>();
+            this.currentChannel = Channel.Main;
 
             Executor.Current.Register(this);
         }
@@ -52,11 +52,11 @@ namespace Animatroller.Framework.LogicalDevice
             return newDataFunc == null ? new Data() : newDataFunc();
         }
 
-        protected void SetNewData(IData newData, int channel)
+        protected void SetNewData(IData newData, IChannel channel)
         {
             lock (this.lockObject)
             {
-                this.currentData[channel] = newData;
+                this.currentData[channel ?? Channel.Main] = newData;
             }
         }
 
@@ -66,11 +66,11 @@ namespace Animatroller.Framework.LogicalDevice
             {
                 lock (this.lockObject)
                 {
-                    int channel = this.currentChannel;
+                    IChannel channel = this.currentChannel;
 
-                    if (!this.currentData.TryGetValue(channel, out IData data))
+                    if (!this.currentData.TryGetValue(channel ?? Channel.Main, out IData data))
                     {
-                        this.currentData[channel] = data = GetNewData();
+                        this.currentData[channel ?? Channel.Main] = data = GetNewData();
                     }
 
                     return data;

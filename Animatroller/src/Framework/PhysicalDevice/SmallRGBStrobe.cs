@@ -22,7 +22,7 @@ namespace Animatroller.Framework.PhysicalDevice
 
             byte strobe = (byte)(this.strobeSpeed == 0 ? 127 : this.strobeSpeed.GetByteScale(121) + 128);
 
-            DmxOutputPort.SendDimmerValues(baseDmxChannel, new byte[] { strobe, color.R, color.B, color.G });
+            DmxOutputPort.SendDmxData(baseDmxChannel, new byte[] { strobe, color.R, color.B, color.G });
         }
     }
 }

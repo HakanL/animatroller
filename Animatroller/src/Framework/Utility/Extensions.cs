@@ -151,37 +151,37 @@ namespace Animatroller.Framework.Extensions
             return data;
         }
 
-        public static void SetData(this IReceivesData device, int channel, IControlToken token, params Tuple<DataElements, object>[] data)
+        public static void SetData(this IReceivesData device, IChannel channel, IControlToken token, params Tuple<DataElements, object>[] data)
         {
             device.SetData(channel, token, new LogicalDevice.Data(data));
         }
 
-        public static void SetBrightness(this IReceivesBrightness device, double brightness, int channel = 0, IControlToken token = null)
+        public static void SetBrightness(this IReceivesBrightness device, double brightness, IChannel channel = null, IControlToken token = null)
         {
             device.SetData(channel, token, Utils.Data(DataElements.Brightness, brightness));
         }
 
-        public static void SetBrightness(this IReceivesBrightness device, bool value, int channel = 0, IControlToken token = null)
+        public static void SetBrightness(this IReceivesBrightness device, bool value, IChannel channel = null, IControlToken token = null)
         {
             device.SetData(channel, token, Utils.Data(DataElements.Brightness, value ? 1.0 : 0.0));
         }
 
-        public static void SetThroughput(this IReceivesThroughput device, double throughput, int channel = 0, IControlToken token = null)
+        public static void SetThroughput(this IReceivesThroughput device, double throughput, IChannel channel = null, IControlToken token = null)
         {
             device.SetData(channel, token, Utils.Data(DataElements.Throughput, throughput));
         }
 
-        public static void SetStrobeSpeed(this IReceivesStrobeSpeed device, double strobeSpeed, int channel = 0, IControlToken token = null)
+        public static void SetStrobeSpeed(this IReceivesStrobeSpeed device, double strobeSpeed, IChannel channel = null, IControlToken token = null)
         {
             device.SetData(channel, token, Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
         }
 
-        public static void SetBrightnessStrobeSpeed(this IReceivesStrobeSpeed device, double brightness, double strobeSpeed, int channel = 0, IControlToken token = null)
+        public static void SetBrightnessStrobeSpeed(this IReceivesStrobeSpeed device, double brightness, double strobeSpeed, IChannel channel = null, IControlToken token = null)
         {
             device.SetData(channel, token, Utils.Data(DataElements.Brightness, brightness), Utils.Data(DataElements.StrobeSpeed, strobeSpeed));
         }
 
-        public static void SetColor(this IReceivesColor device, Color color, double? brightness, int channel = 0, IControlToken token = null)
+        public static void SetColor(this IReceivesColor device, Color color, double? brightness, IChannel channel = null, IControlToken token = null)
         {
             if (brightness.HasValue)
                 device.SetData(channel, token, Utils.Data(color, brightness.Value));
@@ -189,12 +189,12 @@ namespace Animatroller.Framework.Extensions
                 device.SetData(channel, token, Utils.Data(color));
         }
 
-        public static void SetColor(this IReceivesColor device, Color color, int channel = 0, IControlToken token = null)
+        public static void SetColor(this IReceivesColor device, Color color, IChannel channel = null, IControlToken token = null)
         {
             device.SetColor(color, null, channel, token);
         }
 
-        public static void SetPanTilt(this IReceivesStrobeSpeed device, double pan, double tilt, int channel = 0, IControlToken token = null)
+        public static void SetPanTilt(this IReceivesStrobeSpeed device, double pan, double tilt, IChannel channel = null, IControlToken token = null)
         {
             device.SetData(channel, token, Utils.Data(DataElements.Pan, pan), Utils.Data(DataElements.Tilt, tilt));
         }

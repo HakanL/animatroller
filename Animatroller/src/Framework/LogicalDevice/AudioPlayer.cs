@@ -311,7 +311,7 @@ namespace Animatroller.Framework.LogicalDevice
             private readonly int _sampleRate;
             private readonly List<object> _contexts = new List<object>();
 
-            public BasicSpectrumProvider(int channels, int sampleRate, FftSize fftSize)
+            public BasicSpectrumProvider(IChannel channels, int sampleRate, FftSize fftSize)
                 : base(channels, fftSize)
             {
                 if (sampleRate <= 0)

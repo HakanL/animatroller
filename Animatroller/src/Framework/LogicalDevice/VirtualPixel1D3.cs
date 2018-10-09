@@ -179,7 +179,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return GetCurrentData<double>(DataElements.Brightness); }
         }
 
-        public void SetBrightness(double brightness, int channel = 0, IControlToken token = null)
+        public void SetBrightness(double brightness, IChannel channel = null, IControlToken token = null)
         {
             this.SetData(channel, token, Utils.Data(DataElements.Brightness, brightness));
         }
@@ -272,7 +272,7 @@ namespace Animatroller.Framework.LogicalDevice
             }
         }
 
-        public void SetColor(Color color, double? brightness = 1.0, int channel = 0, IControlToken token = null)
+        public void SetColor(Color color, double? brightness = 1.0, IChannel channel = null, IControlToken token = null)
         {
             SetColorRange(color, brightness, 0, null, channel, token);
         }
@@ -282,7 +282,7 @@ namespace Animatroller.Framework.LogicalDevice
             double? brightness = 1.0,
             int startPosition = 0,
             int? length = null,
-            int channel = 0,
+            IChannel channel = null,
             IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
@@ -315,7 +315,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(channel, token);
         }
 
-        public void Inject(Color color, double brightness = 1.0, int channel = 0, IControlToken token = null)
+        public void Inject(Color color, double brightness = 1.0, IChannel channel = null, IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
             var bitmap = (Bitmap)data[DataElements.PixelBitmap];
@@ -335,7 +335,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(channel, token);
         }
 
-        public void InjectRev(Color color, double brightness, int channel = 0, IControlToken token = null)
+        public void InjectRev(Color color, double brightness, IChannel channel = null, IControlToken token = null)
         {
             IData data = GetFrameBuffer(channel, token, this);
             var bitmap = (Bitmap)data[DataElements.PixelBitmap];
@@ -355,7 +355,7 @@ namespace Animatroller.Framework.LogicalDevice
             PushOutput(channel, token);
         }
 
-        public Task Chaser(IData[] data, int speed, int channel = 0, IControlToken token = null)
+        public Task Chaser(IData[] data, int speed, IChannel channel = null, IControlToken token = null)
         {
             return Executor.Current.MasterEffect.CustomJob(
                 jobAction: pos =>

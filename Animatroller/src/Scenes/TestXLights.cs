@@ -127,17 +127,18 @@ namespace Animatroller.Scenes
             stateMachine.ForFromSubroutine(States.Background, subBackground);
 
             // Setup
-            lightPoppy.SetBrightness(1, 1);
-            lightR2D2.SetBrightness(1, 1);
-            lightOlaf.SetBrightness(1, 1);
-            lightReindeerBig.SetBrightness(1, 1);
-            lightHangingStar.SetBrightness(1, 1);
-            lightHangingStar2.SetBrightness(1, 1);
-            lightHangingStar3.SetBrightness(1, 1);
-            lightInflatableTree.SetBrightness(1, 1);
-            lightHat1.SetBrightness(1, 1);
-            lightSanta.SetBrightness(1, 1);
-            lightSantaPopup.SetBrightness(1, 1);
+            var channel1 = Channel.FromId(1);
+            lightPoppy.SetBrightness(1, channel1);
+            lightR2D2.SetBrightness(1, channel1);
+            lightOlaf.SetBrightness(1, channel1);
+            lightReindeerBig.SetBrightness(1, channel1);
+            lightHangingStar.SetBrightness(1, channel1);
+            lightHangingStar2.SetBrightness(1, channel1);
+            lightHangingStar3.SetBrightness(1, channel1);
+            lightInflatableTree.SetBrightness(1, channel1);
+            lightHat1.SetBrightness(1, channel1);
+            lightSanta.SetBrightness(1, channel1);
+            lightSantaPopup.SetBrightness(1, channel1);
 
             stateMachine.For(States.Setup)
                 .Execute(ins =>
@@ -151,7 +152,7 @@ namespace Animatroller.Scenes
                 TearDown(ins =>
                 {
                     dmxPlayback.Stop();
-                    Exec.SetGlobalChannel(0);
+                    Exec.SetGlobalChannel(Channel.Main);
                 });
 
             acnOutput.Connect(new Physical.Pixel1D(pixelsRoofEdge, 0, 50, reverse: true), SacnUniverseLED50, 1);

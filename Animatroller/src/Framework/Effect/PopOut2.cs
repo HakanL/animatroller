@@ -24,7 +24,7 @@ namespace Animatroller.Framework.Effect
             this.defaultSweepDuration = defaultSweepDuration;
         }
 
-        public Task Pop(double? startBrightness = null, Color? color = null, int priority = 1, int channel = 0, TimeSpan? sweepDuration = null)
+        public Task Pop(double? startBrightness = null, Color? color = null, int priority = 1, IChannel channel = null, TimeSpan? sweepDuration = null)
         {
             var token = TakeControl(channel: currentChannel, priority: priority, name: Name);
 

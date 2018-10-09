@@ -70,7 +70,7 @@ namespace Animatroller.Framework.LogicalDevice
             get { return GetCurrentData<bool>(DataElements.Power); }
         }
 
-        public void SetValue(bool value, int channel = 0, IControlToken token = null)
+        public void SetValue(bool value, IChannel channel = null, IControlToken token = null)
         {
             this.SetData(channel, token, Utils.Data(DataElements.Power, value));
         }

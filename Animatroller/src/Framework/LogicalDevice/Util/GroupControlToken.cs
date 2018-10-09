@@ -29,7 +29,7 @@ namespace Animatroller.Framework.LogicalDevice
         public GroupControlToken(
             IEnumerable<IOwnedDevice> devices, Action<IControlToken> disposeAction,
             string name,
-            int channel = 0,
+            IChannel channel = null,
             int priority = 1)
         {
             MemberTokens = new Dictionary<IOwnedDevice, IControlToken>();
@@ -49,7 +49,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public bool AutoAddDevices { get; set; }
 
-        public IData GetDataForDevice(IOwnedDevice device, int channel)
+        public IData GetDataForDevice(IOwnedDevice device, IChannel channel)
         {
             IControlToken token;
 
@@ -106,7 +106,7 @@ namespace Animatroller.Framework.LogicalDevice
         /// </summary>
         /// <param name="device"></param>
         /// <returns>True if device is controlled by this group token</returns>
-        public bool LockAndGetDataFromDevice(IOwnedDevice device, int channel)
+        public bool LockAndGetDataFromDevice(IOwnedDevice device, IChannel channel)
         {
             if (MemberTokens.ContainsKey(device))
                 return true;
