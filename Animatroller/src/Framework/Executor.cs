@@ -43,7 +43,7 @@ namespace Animatroller.Framework
         private List<ExecuteInstance> executingTasks;
         private readonly Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>> cancellable;
         private readonly Dictionary<Task, CancellationTokenSource> cancelSourceForManagedTask;
-        private readonly Controller.HighPrecisionTimer3 masterTimer25ms;
+        private readonly Controller.HighPrecisionTimer4 masterTimer25ms;
         private readonly Effect2.TimerJobRunner timerJobRunner;
         private readonly Effect2.MasterEffect masterEffect;
         private readonly Effect.MasterSweeper masterSweeper;
@@ -67,7 +67,7 @@ namespace Animatroller.Framework
             this.cancellable = new Dictionary<Guid, Tuple<CancellationTokenSource, Task, string>>();
             this.cancelSourceForManagedTask = new Dictionary<Task, CancellationTokenSource>();
             // Create timer for 25 ms interval (40 hz) for fades, effects, etc
-            this.masterTimer25ms = new Controller.HighPrecisionTimer3(this.log, 25);
+            this.masterTimer25ms = new Controller.HighPrecisionTimer4(this.log, 25, startRunning: true);
             this.timerJobRunner = new Effect2.TimerJobRunner(this.masterTimer25ms);
             this.controlTokens = new Dictionary<IOwnedDevice, IControlToken>();
 
@@ -475,6 +475,8 @@ namespace Animatroller.Framework
 
         public Executor Stop()
         {
+            this.masterTimer25ms.Dispose();
+
             foreach (var effect in this.effects)
                 effect.Stop();
 

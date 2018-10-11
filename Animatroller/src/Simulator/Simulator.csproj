@@ -137,6 +137,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AdminMessage\AdminMessage.csproj">
+      <Project>{3719baa6-fe36-4602-b0b4-339ba65bfa12}</Project>
+      <Name>AdminMessage</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Framework\Framework.csproj">
       <Project>{97c48505-a92a-4fbd-b39c-bbb014aef34b}</Project>
       <Name>Framework</Name>
@@ -150,7 +154,7 @@
       <Version>2.7.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reactive.Windows.Forms">
-      <Version>4.1.1</Version>
+      <Version>4.1.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

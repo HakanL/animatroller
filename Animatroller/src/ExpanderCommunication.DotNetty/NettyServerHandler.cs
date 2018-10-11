@@ -31,7 +31,7 @@ namespace Animatroller.ExpanderCommunication
 
         public override void ChannelActive(IChannelHandlerContext context)
         {
-            this.log.Verbose("Channel {ChannelId} connected", context.Channel.Id.AsShortText());
+            this.log.Verbose("Channel {ChannelId} connected from {RemoteAddress}", context.Channel.Id.AsShortText(), context.Channel.RemoteAddress);
 
             this.clientConnectedInvoked = false;
 
@@ -40,6 +40,8 @@ namespace Animatroller.ExpanderCommunication
 
         public override void ChannelRead(IChannelHandlerContext context, object message)
         {
+            string channelId = context.Channel.Id.AsShortText();
+
             var buffer = message as IByteBuffer;
             if (buffer != null)
             {
@@ -57,15 +59,16 @@ namespace Animatroller.ExpanderCommunication
 
                 if (!this.clientConnectedInvoked)
                 {
-                    this.clientConnectedAction?.Invoke(instanceId, context.Channel.Id.AsShortText(), context.Channel.RemoteAddress);
+                    this.clientConnectedAction?.Invoke(instanceId, channelId, context.Channel.RemoteAddress);
                     this.clientConnectedInvoked = true;
                 }
 
+                var data = new byte[buffer.ReadableBytes];
+                buffer.GetBytes(buffer.ReaderIndex, data);
+
                 Task.Run(() =>
                 {
-                    var data = new byte[buffer.ReadableBytes];
-                    buffer.GetBytes(buffer.ReaderIndex, data);
-                    this.dataReceivedAction(instanceId, context.Channel.Id.AsShortText(), messageType, data);
+                    this.dataReceivedAction(instanceId, channelId, messageType, data);
                 });
             }
         }

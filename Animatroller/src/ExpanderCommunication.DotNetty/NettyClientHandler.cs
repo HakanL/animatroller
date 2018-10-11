@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotNetty.Buffers;
+﻿using DotNetty.Buffers;
 using DotNetty.Transport.Channels;
 using Serilog;
+using System;
+using System.Text;
 
 namespace Animatroller.ExpanderCommunication
 {
     internal class NettyClientHandler : ChannelHandlerAdapter
     {
         protected ILogger log;
-        private NettyClient parent;
+        private readonly NettyClient parent;
 
         public NettyClientHandler(ILogger logger, NettyClient parent)
         {

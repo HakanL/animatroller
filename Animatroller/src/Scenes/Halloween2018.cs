@@ -171,7 +171,7 @@ namespace Animatroller.Scenes
         ThroughputDevice fogStairsPump2 = new ThroughputDevice();
         CommandDevice pictureFrame1 = new CommandDevice();
         CommandDevice lady3dfx = new CommandDevice();
-        Dimmer3 catLights = new Dimmer3();
+        Dimmer3 catLights = new Dimmer3("Lights in Grumpy Cat");
         Dimmer3 pumpkinLights = new Dimmer3();
         Dimmer3 spiderWebLights = new Dimmer3();
         Dimmer3 spiderEyes = new Dimmer3();

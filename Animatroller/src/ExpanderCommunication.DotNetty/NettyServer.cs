@@ -60,20 +60,20 @@ namespace Animatroller.ExpanderCommunication
 
         public async Task StartAsync()
         {
-            this.boundChannel = await this.bootstrap.BindAsync(this.listenPort);
+            this.boundChannel = await this.bootstrap.BindAsync(this.listenPort).ConfigureAwait(false);
         }
 
         public async Task StopAsync()
         {
             if (this.boundChannel != null)
             {
-                await this.boundChannel.CloseAsync();
+                await this.boundChannel.CloseAsync().ConfigureAwait(false);
                 this.boundChannel = null;
             }
 
             await Task.WhenAll(
                 this.bossGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)),
-                this.workerGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1)));
+                this.workerGroup.ShutdownGracefullyAsync(TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(1))).ConfigureAwait(false);
         }
 
         internal void SetInstanceIdChannel(string instanceId, IChannel channel)

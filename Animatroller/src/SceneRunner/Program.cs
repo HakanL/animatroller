@@ -1,24 +1,30 @@
-﻿using System;
+﻿using Animatroller.Framework;
+using Serilog;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Animatroller.Framework;
-using Serilog;
 
-namespace Animatroller.Scenes
+namespace Animatroller.SceneRunner
 {
     public class Program
     {
-        private static ILogger log;
         private const string FileTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
         private const string ConsoleTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
         //private const string DebugTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
-        private const string DebugTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{Exception}";
+        private const string DebugTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{Exception}\r\n";
 
-        public static void Main(string[] args)
+        private static ILogger log;
+        private static readonly Dictionary<string, Type> typeCache = new Dictionary<string, Type>();
+        private static System.Threading.Timer remoteUpdateTimer;
+        private static AdminMessage.SceneDefinition sceneDefinition;
+        private static List<SendObject> sendControls;
+        private static ExpanderCommunication.IServerCommunication adminServer;
+        private static readonly Dictionary<string, DateTime> clients = new Dictionary<string, DateTime>();
+
+        public static async Task Main(string[] args)
         {
             var logConfig = new LoggerConfiguration()
                 .Enrich.FromLogContext()
@@ -97,7 +103,7 @@ namespace Animatroller.Scenes
 
             Executor.Current.KeyStoragePrefix = sceneType.Name;
 
-            IScene scene = (IScene)Activator.CreateInstance(sceneType, sceneArgs);
+            var scene = (IScene)Activator.CreateInstance(sceneType, sceneArgs);
 
 
             // Register the scene (so it can be properly stopped)
@@ -108,6 +114,24 @@ namespace Animatroller.Scenes
             {
                 simForm.AutoWireUsingReflection(scene);
             }
+
+            remoteUpdateTimer = new System.Threading.Timer(RemoteUpdateTimerCallback, null, 100, 100);
+
+            var sceneBuilder = new SceneDefinitionBuilder();
+            var sceneData = sceneBuilder.AutoWireUsingReflection(scene);
+            sceneDefinition = sceneData.SceneDefinition;
+            sendControls = sceneData.SendControls.Select(x => new SendObject
+            {
+                SendControl = x
+            }).ToList();
+
+            adminServer = new ExpanderCommunication.NettyServer(
+                        logger: Log.Logger,
+                        listenPort: 54345,
+                        dataReceivedAction: DataReceived,
+                        clientConnectedAction: ClientConnected);
+
+            Task.Run(async () => await adminServer.StartAsync()).Wait();
 
             // Run
             Executor.Current.Run();
@@ -143,6 +167,137 @@ namespace Animatroller.Scenes
                 Console.ReadLine();
                 Executor.Current.Stop();
                 Executor.Current.WaitToStop(5000);
+            }
+
+            remoteUpdateTimer.Dispose();
+            await adminServer.StopAsync();
+        }
+
+        private static void RemoteUpdateTimerCallback(object state)
+        {
+            remoteUpdateTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
+
+            try
+            {
+                if (!clients.Any())
+                    return;
+
+                var list = new List<AdminMessage.ComponentUpdate>();
+
+                var hash = System.Security.Cryptography.MD5.Create();
+
+                foreach (var kvp in sendControls)
+                {
+                    var msg = kvp.SendControl.GetMessageToSend();
+
+                    if (msg != null)
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            AdminMessage.Serializer.Serialize(msg, ms);
+
+                            ms.Position = 0;
+
+                            byte[] currentHash = hash.ComputeHash(ms);
+
+                            if (kvp.LastHash == null ||
+                                !kvp.LastHash.SequenceEqual(currentHash) ||
+                                (DateTime.UtcNow - kvp.LastSend).TotalMinutes > 10)
+                            {
+                                // Different or due for a refresh
+                                kvp.LastHash = currentHash;
+                                kvp.LastSend = DateTime.UtcNow;
+
+                                list.Add(new AdminMessage.ComponentUpdate
+                                {
+                                    ComponentId = kvp.SendControl.ComponentId,
+                                    MessageType = msg.GetType().FullName,
+                                    Object = ms.ToArray()
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (list.Any())
+                {
+                    var controlUpdateMessage = new AdminMessage.ControlUpdate
+                    {
+                        Updates = list.ToArray()
+                    };
+                    string messageType = controlUpdateMessage.GetType().FullName;
+
+                    using (var ms = new MemoryStream())
+                    {
+                        AdminMessage.Serializer.Serialize(controlUpdateMessage, ms);
+
+                        var data = ms.ToArray();
+
+                        // Broadcast
+                        foreach (var client in clients.ToList())
+                        {
+                            if ((DateTime.UtcNow - client.Value).TotalHours > 4)
+                            {
+                                clients.Remove(client.Key);
+                                continue;
+                            }
+
+                            adminServer.SendToClientAsync(client.Key, messageType, data);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex, "Error in " + nameof(RemoteUpdateTimerCallback));
+            }
+            finally
+            {
+                remoteUpdateTimer.Change(100, System.Threading.Timeout.Infinite);
+            }
+        }
+
+        private static void DataReceived(string instanceId, string connectionId, string messageType, byte[] data)
+        {
+            clients[instanceId] = DateTime.UtcNow;
+
+            object messageObject;
+            Type type;
+
+            using (var ms = new MemoryStream(data))
+            {
+                lock (typeCache)
+                {
+                    if (!typeCache.TryGetValue(messageType, out type))
+                    {
+                        type = typeof(AdminMessage.Ping).Assembly.GetType(messageType, true);
+                        typeCache.Add(messageType, type);
+                    }
+                }
+
+                messageObject = AdminMessage.Serializer.DeserializeFromStream(ms, type);
+            }
+
+            if (messageObject != null)
+            {
+
+            }
+        }
+
+        private static void ClientConnected(string instanceId, string connectionId, System.Net.EndPoint endPoint)
+        {
+            clients[instanceId] = DateTime.UtcNow;
+
+            var newDef = new AdminMessage.NewSceneDefinition
+            {
+                Definition = sceneDefinition
+            };
+
+            using (var ms = new MemoryStream())
+            {
+                AdminMessage.Serializer.Serialize(newDef, ms);
+
+                adminServer.SendToClientAsync(instanceId, newDef.GetType().FullName, ms.ToArray());
             }
         }
     }
