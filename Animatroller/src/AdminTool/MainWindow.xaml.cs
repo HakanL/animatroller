@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace Animatroller.AdminTool
 {
@@ -18,6 +19,7 @@ namespace Animatroller.AdminTool
         private ExpanderCommunication.IClientCommunication communication;
         private readonly Dictionary<string, Type> typeCache = new Dictionary<string, Type>();
         private System.Threading.Timer pingTimer;
+        private readonly Dictionary<string, Label> componentLookup = new Dictionary<string, Label>();
 
         public MainWindow()
         {
@@ -70,12 +72,41 @@ namespace Animatroller.AdminTool
                 messageObject = AdminMessage.Serializer.DeserializeFromStream(ms, type);
             }
 
-            if (messageObject != null)
+            switch (messageObject)
             {
-                if (messageObject is AdminMessage.ControlUpdate controlUpdate)
-                {
+                case AdminMessage.Ping ping:
+                    break;
+
+                case AdminMessage.ControlUpdate controlUpdate:
                     ProcessControlUpdate(controlUpdate);
-                }
+                    break;
+
+                case AdminMessage.NewSceneDefinition newSceneDefinition:
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        LoadNewScene(newSceneDefinition);
+                    });
+                    break;
+
+                default:
+                    this.log.Warning("Unknown/unhandled message type {MessageType}", messageType);
+                    break;
+            }
+        }
+
+        private void LoadNewScene(AdminMessage.NewSceneDefinition sceneDefinition)
+        {
+            foreach (var control in sceneDefinition.Definition.Components)
+            {
+                var newControl = new Label
+                {
+                    Content = control.Name,
+                    Name = control.Id,
+                    Width = 100
+                };
+                controlPanel.Children.Add(newControl);
+
+                componentLookup[control.Id] = newControl;
             }
         }
 
@@ -104,13 +135,30 @@ namespace Animatroller.AdminTool
                     {
                         object updateObject = AdminMessage.Serializer.DeserializeFromStream(ms, messageType);
 
-                        // TODO
+                        if (this.componentLookup.TryGetValue(update.ComponentId, out var component))
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                UpdateControl(component, updateObject);
+                            });
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     this.log.Warning(ex, "Error in " + nameof(ProcessControlUpdate));
                 }
+            }
+        }
+
+        private void UpdateControl(Label control, object updateObject)
+        {
+            switch (updateObject)
+            {
+                case AdminMessage.StrobeColorDimmer strobeColorDimmer:
+                    control.FontWeight = FontWeights.ExtraBold;
+                    control.Content = strobeColorDimmer.Brightness.ToString("P0");
+                    break;
             }
         }
 
