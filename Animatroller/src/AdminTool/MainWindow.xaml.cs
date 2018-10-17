@@ -37,6 +37,9 @@ namespace Animatroller.AdminTool
 
             string instanceId = Guid.NewGuid().ToString("n");
 
+            DotNetty.Common.Internal.Logging.InternalLoggerFactory.DefaultFactory.AddProvider(new Microsoft.Extensions.Logging.Debug.DebugLoggerProvider());
+            //DotNetty.Common.ResourceLeakDetector.Level = DotNetty.Common.ResourceLeakDetector.DetectionLevel.Advanced;
+
             this.communication = new ExpanderCommunication.NettyClient(
                 logger: this.log,
                 host: "127.0.0.1",
@@ -47,7 +50,7 @@ namespace Animatroller.AdminTool
 
             Task.Run(async () => await this.communication.StartAsync()).Wait();
 
-            this.pingTimer = new System.Threading.Timer(PingTimerCallback, null, 10 * 60_000, 10 * 60_000);
+            this.pingTimer = new System.Threading.Timer(PingTimerCallback, null, 1 * 60_000, 1 * 60_000);
         }
 
         private void PingTimerCallback(object state)
@@ -78,13 +81,17 @@ namespace Animatroller.AdminTool
                     break;
 
                 case AdminMessage.ControlUpdate controlUpdate:
-                    ProcessControlUpdate(controlUpdate);
+                    Application.Current?.Dispatcher.Invoke(() =>
+                    {
+                        ProcessControlUpdate(controlUpdate.Updates);
+                    });
                     break;
 
                 case AdminMessage.NewSceneDefinition newSceneDefinition:
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         LoadNewScene(newSceneDefinition);
+                        ProcessControlUpdate(newSceneDefinition.InitialStatus);
                     });
                     break;
 
@@ -124,9 +131,9 @@ namespace Animatroller.AdminTool
             }
         }
 
-        private void ProcessControlUpdate(AdminMessage.ControlUpdate message)
+        private void ProcessControlUpdate(AdminMessage.ComponentUpdate[] updates)
         {
-            foreach (var update in message.Updates)
+            foreach (var update in updates)
             {
                 try
                 {
@@ -137,10 +144,7 @@ namespace Animatroller.AdminTool
 
                         if (this.componentLookup.TryGetValue(update.ComponentId, out var component))
                         {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                UpdateControl(component, updateObject);
-                            });
+                            UpdateControl(component, updateObject);
                         }
                     }
                 }
@@ -170,6 +174,11 @@ namespace Animatroller.AdminTool
 
                 await this.communication.SendData(message.GetType().FullName, ms.ToArray());
             }
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Task.Run(async () => await this.communication.StopAsync()).Wait();
         }
     }
 }

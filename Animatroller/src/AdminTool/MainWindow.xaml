@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Animatroller.AdminTool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1000">
+        Title="MainWindow" Height="600" Width="1000" Closed="Window_Closed">
     <Grid>
         <StackPanel x:Name="controlPanel"></StackPanel>
     </Grid>

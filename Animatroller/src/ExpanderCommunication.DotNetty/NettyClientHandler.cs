@@ -36,6 +36,9 @@ namespace Animatroller.ExpanderCommunication
 
                 var data = new byte[buffer.ReadableBytes];
                 buffer.GetBytes(buffer.ReaderIndex, data);
+
+                buffer.Release();
+
                 this.parent.DataReceived(messageType, data);
             }
         }

@@ -66,6 +66,8 @@ namespace Animatroller.ExpanderCommunication
                 var data = new byte[buffer.ReadableBytes];
                 buffer.GetBytes(buffer.ReaderIndex, data);
 
+                buffer.Release();
+
                 Task.Run(() =>
                 {
                     this.dataReceivedAction(instanceId, channelId, messageType, data);

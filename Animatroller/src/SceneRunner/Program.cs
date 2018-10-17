@@ -173,6 +173,48 @@ namespace Animatroller.SceneRunner
             await adminServer.StopAsync();
         }
 
+        private static IList<AdminMessage.ComponentUpdate> GetComponentUpdates(bool force)
+        {
+            var list = new List<AdminMessage.ComponentUpdate>();
+
+            var hash = System.Security.Cryptography.MD5.Create();
+
+            foreach (var kvp in sendControls)
+            {
+                var msg = kvp.SendControl.GetMessageToSend();
+
+                if (msg != null)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        AdminMessage.Serializer.Serialize(msg, ms);
+
+                        ms.Position = 0;
+
+                        byte[] currentHash = hash.ComputeHash(ms);
+
+                        if (force || (kvp.LastHash == null ||
+                            !kvp.LastHash.SequenceEqual(currentHash) ||
+                            (DateTime.UtcNow - kvp.LastSend).TotalMinutes > 10))
+                        {
+                            // Different or due for a refresh
+                            kvp.LastHash = currentHash;
+                            kvp.LastSend = DateTime.UtcNow;
+
+                            list.Add(new AdminMessage.ComponentUpdate
+                            {
+                                ComponentId = kvp.SendControl.ComponentId,
+                                MessageType = msg.GetType().FullName,
+                                Object = ms.ToArray()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return list;
+        }
+
         private static void RemoteUpdateTimerCallback(object state)
         {
             remoteUpdateTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
@@ -182,42 +224,7 @@ namespace Animatroller.SceneRunner
                 if (!clients.Any())
                     return;
 
-                var list = new List<AdminMessage.ComponentUpdate>();
-
-                var hash = System.Security.Cryptography.MD5.Create();
-
-                foreach (var kvp in sendControls)
-                {
-                    var msg = kvp.SendControl.GetMessageToSend();
-
-                    if (msg != null)
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            AdminMessage.Serializer.Serialize(msg, ms);
-
-                            ms.Position = 0;
-
-                            byte[] currentHash = hash.ComputeHash(ms);
-
-                            if (kvp.LastHash == null ||
-                                !kvp.LastHash.SequenceEqual(currentHash) ||
-                                (DateTime.UtcNow - kvp.LastSend).TotalMinutes > 10)
-                            {
-                                // Different or due for a refresh
-                                kvp.LastHash = currentHash;
-                                kvp.LastSend = DateTime.UtcNow;
-
-                                list.Add(new AdminMessage.ComponentUpdate
-                                {
-                                    ComponentId = kvp.SendControl.ComponentId,
-                                    MessageType = msg.GetType().FullName,
-                                    Object = ms.ToArray()
-                                });
-                            }
-                        }
-                    }
-                }
+                var list = GetComponentUpdates(false);
 
                 if (list.Any())
                 {
@@ -288,9 +295,12 @@ namespace Animatroller.SceneRunner
         {
             clients[instanceId] = DateTime.UtcNow;
 
+            var componentStatus = GetComponentUpdates(true);
+
             var newDef = new AdminMessage.NewSceneDefinition
             {
-                Definition = sceneDefinition
+                Definition = sceneDefinition,
+                InitialStatus = componentStatus.ToArray()
             };
 
             using (var ms = new MemoryStream())
