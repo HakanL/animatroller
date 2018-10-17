@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="LedControl.Led"
+﻿<UserControl x:Class="Animatroller.AdminTool.Controls.Led"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:conveters="clr-namespace:LedControl.Converters"
+             xmlns:conveters="clr-namespace:Animatroller.AdminTool.Controls.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
@@ -17,7 +17,7 @@
             <Border.Background>
                 <RadialGradientBrush GradientOrigin="0.332,0.222">
                     <GradientStop Color="White"/>
-                    <GradientStop x:Name="backgroundColor" Color="Red" Offset="0.835"/>
+                    <GradientStop x:Name="backgroundColor" Color="Red" Offset="0.6"/>
                 </RadialGradientBrush>
             </Border.Background>
             <Border.BorderBrush>

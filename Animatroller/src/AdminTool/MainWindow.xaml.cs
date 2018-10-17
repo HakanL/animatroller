@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Serilog;
 
 namespace Animatroller.AdminTool
@@ -105,10 +106,8 @@ namespace Animatroller.AdminTool
         {
             foreach (var control in sceneDefinition.Definition.Components)
             {
-                var childControl = new LedControl.SimpleLed
+                var childControl = new Controls.ColorDimmer
                 {
-                    Width = 50,
-                    Height = 50
                 };
 
                 var parentControl = new Controls.LabelControl
@@ -174,11 +173,11 @@ namespace Animatroller.AdminTool
         {
             switch (updateObject)
             {
-                case AdminMessage.StrobeColorDimmer strobeColorDimmer:
-                    //control.FontWeight = FontWeights.ExtraBold;
-                    //                    control.Content = strobeColorDimmer.Brightness.ToString("P0");
-                    var xyz = (control as Controls.LabelControl).Content as LedControl.SimpleLed;
-                    xyz.LedColor = Controls.Utility.GetColorFromColorBrightness(strobeColorDimmer.Brightness, strobeColorDimmer.Red, strobeColorDimmer.Green, strobeColorDimmer.Blue);
+                case AdminMessage.StrobeColorDimmer update:
+                    var xyz = (control as Controls.LabelControl).Content as Controls.ColorDimmer;
+                    xyz.FooterText = (update.Owned ? "* " : "") + update.Brightness.ToString("0%");
+                    xyz.GelColor = Color.FromRgb(update.Red, update.Green, update.Blue);
+                    xyz.LedColor = Controls.Utility.GetColorFromColorBrightness(update.Brightness, update.Red, update.Green, update.Blue);
                     break;
             }
         }

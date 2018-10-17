@@ -16,7 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace LedControl
+namespace Animatroller.AdminTool.Controls
 {
     /// <summary>
     /// Logica di interazione per UserControl1.xaml
@@ -28,32 +28,32 @@ namespace LedControl
         /// <summary>Dependency property to Get/Set the current IsActive (True/False)</summary>
         public static readonly DependencyProperty IsActiveProperty =
             DependencyProperty.Register("IsActive", typeof(bool?), typeof(Led),
-                new PropertyMetadata(null, new PropertyChangedCallback(Led.IsActivePropertyChanged)));
+                new PropertyMetadata(null, new PropertyChangedCallback(IsActivePropertyChanged)));
 
         /// <summary>Dependency property to Get/Set Color when IsActive is true</summary>
         public static readonly DependencyProperty ColorOnProperty =
             DependencyProperty.Register("ColorOn", typeof(Color), typeof(Led),
-                new PropertyMetadata(Colors.Green,new PropertyChangedCallback(Led.OnColorOnPropertyChanged)));
+                new PropertyMetadata(Colors.Green, new PropertyChangedCallback(OnColorOnPropertyChanged)));
 
         /// <summary>Dependency property to Get/Set Color when IsActive is false</summary>
         public static readonly DependencyProperty ColorOffProperty =
             DependencyProperty.Register("ColorOff", typeof(Color), typeof(Led),
-                new PropertyMetadata(Colors.Red,new PropertyChangedCallback(Led.OnColorOffPropertyChanged)));
+                new PropertyMetadata(Colors.Red, new PropertyChangedCallback(OnColorOffPropertyChanged)));
 
         /// <summary>Dependency property to Get/Set Color when IsActive is false</summary>
         public static readonly DependencyProperty ColorNullProperty =
             DependencyProperty.Register("ColorNull", typeof(Color), typeof(Led),
-                new PropertyMetadata(Colors.Gray, new PropertyChangedCallback(Led.OnColorNullPropertyChanged)));
+                new PropertyMetadata(Colors.Gray, new PropertyChangedCallback(OnColorNullPropertyChanged)));
 
         /// <summary>Dependency property to Get/Set if led will flash</summary>
         public static readonly DependencyProperty FlashingProperty =
             DependencyProperty.Register("Flashing", typeof(bool), typeof(Led),
-            new PropertyMetadata(false,new PropertyChangedCallback(Led.OnFlashingPropertyChanged)));
+            new PropertyMetadata(false, new PropertyChangedCallback(OnFlashingPropertyChanged)));
 
         /// <summary>Dependency property to Get/Set period of flash in milliseconds</summary>
         public static readonly DependencyProperty FlashingPeriodProperty =
             DependencyProperty.Register("FlashingPeriod", typeof(int), typeof(Led),
-                new PropertyMetadata(500,new PropertyChangedCallback(Led.OnFlashingPeriodPropertyChanged)));
+                new PropertyMetadata(500, new PropertyChangedCallback(OnFlashingPeriodPropertyChanged)));
 
         #endregion 
 
@@ -63,7 +63,7 @@ namespace LedControl
         public bool? IsActive
         {
             get { return (bool?)GetValue(IsActiveProperty); }
-            set 
+            set
             {
                 SetValue(IsActiveProperty, value);
             }
@@ -138,9 +138,9 @@ namespace LedControl
 
         #region Private fields
 
-        DispatcherTimer timer = new DispatcherTimer();        
+        DispatcherTimer timer = new DispatcherTimer();
 
-        #endregion 
+        #endregion
 
         #region Constructor
 
@@ -152,13 +152,13 @@ namespace LedControl
             if (this.IsActive == true)
                 this.backgroundColor.Color = this.ColorOn;
             else if (this.IsActive == false)
-                this.backgroundColor.Color = this.ColorOff;  
+                this.backgroundColor.Color = this.ColorOff;
             else
-                this.backgroundColor.Color = this.ColorNull; 
+                this.backgroundColor.Color = this.ColorNull;
         }
 
         #endregion
-        
+
         #region Callbacks
 
         /// <summary> tick of flashing timer </summary>
@@ -168,7 +168,7 @@ namespace LedControl
             {
                 if (this.backgroundColor.Color == this.ColorOn)
                     this.backgroundColor.Color = this.ColorNull;
-                else 
+                else
                     this.backgroundColor.Color = this.ColorOn;
             }
 
@@ -184,28 +184,28 @@ namespace LedControl
                 timer.Stop();
         }
 
-        private static void OnFlashingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) 
+        private static void OnFlashingPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Led led = (Led)d;
+            var led = (Led)d;
             if (led.timer.IsEnabled)
-            { 
+            {
                 led.timer.Stop();
                 if (led.backgroundColor.Color == led.ColorNull)
                     led.timer_Tick(null, new EventArgs());
-            }                
+            }
             else
                 led.timer.Start();
         }
 
         private static void OnFlashingPeriodPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Led led = (Led)d;
-            led.timer.Interval = TimeSpan.FromMilliseconds((int)e.NewValue);                
+            var led = (Led)d;
+            led.timer.Interval = TimeSpan.FromMilliseconds((int)e.NewValue);
         }
 
-        private static void IsActivePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) 
+        private static void IsActivePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Led led = (Led)d;
+            var led = (Led)d;
             if (led.IsActive == null)
                 led.backgroundColor.Color = led.ColorNull;
             else if (led.IsActive == true)
@@ -217,7 +217,7 @@ namespace LedControl
 
         private static void OnColorOnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Led led = (Led)d;
+            var led = (Led)d;
             led.ColorOn = (Color)e.NewValue;
             if (led.IsActive == true)
                 led.backgroundColor.Color = led.ColorOn;
@@ -225,15 +225,15 @@ namespace LedControl
 
         private static void OnColorOffPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Led led = (Led)d;
+            var led = (Led)d;
             led.ColorOff = (Color)e.NewValue;
             if (led.IsActive == false)
-                led.backgroundColor.Color = led.ColorOff; 
+                led.backgroundColor.Color = led.ColorOff;
         }
 
         private static void OnColorNullPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Led led = (Led)d;
+            var led = (Led)d;
             led.ColorOff = (Color)e.NewValue;
             if (led.IsActive == null)
                 led.backgroundColor.Color = led.ColorNull;

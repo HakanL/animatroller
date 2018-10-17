@@ -8,12 +8,12 @@ namespace Animatroller.SceneRunner.SendControls
     {
         private bool performUpdate;
         private readonly Action updateAvailable;
-        private readonly string componentId;
+        private bool isOwned;
 
         public LightSendControl(IApiVersion3 logicalDevice, string componentId, Action updateAvailable)
             : base(logicalDevice)
         {
-            this.componentId = componentId;
+            this.ComponentId = componentId;
             this.updateAvailable = updateAvailable;
             /*            if (logicalDevice is ISendsData sendsData)
                         {
@@ -49,7 +49,7 @@ namespace Animatroller.SceneRunner.SendControls
             });*/
         }
 
-        public string ComponentId => this.componentId;
+        public string ComponentId { get; }
 
         public ComponentType ComponentType => ComponentType.StrobeColorDimmer;
 
@@ -63,7 +63,8 @@ namespace Animatroller.SceneRunner.SendControls
                 Brightness = this.colorBrightness.Brightness,
                 Red = this.colorBrightness.Color.R,
                 Green = this.colorBrightness.Color.G,
-                Blue = this.colorBrightness.Color.B
+                Blue = this.colorBrightness.Color.B,
+                Owned = this.isOwned
             };
 
             return msg;
@@ -71,6 +72,17 @@ namespace Animatroller.SceneRunner.SendControls
 
         protected override void Output()
         {
+            this.isOwned = false;
+
+            foreach (ILogicalDevice device in this.logicalDevices)
+            {
+                if (device is IOwnedDevice && ((IOwnedDevice)device).IsOwned)
+                {
+                    this.isOwned = true;
+                    break;
+                }
+            }
+
             this.performUpdate = true;
             this.updateAvailable();
         }

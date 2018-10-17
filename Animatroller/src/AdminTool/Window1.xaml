@@ -4,15 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Animatroller.AdminTool"
-        xmlns:Controls="clr-namespace:Animatroller.AdminTool.Controls" xmlns:LedControl="clr-namespace:LedControl" x:Class="Animatroller.AdminTool.Window1"
+        xmlns:Controls="clr-namespace:Animatroller.AdminTool.Controls" x:Class="Animatroller.AdminTool.Window1"
         mc:Ignorable="d"
         Title="Window1" Height="450" Width="800">
     <Grid>
 
         <Controls:LabelControl HorizontalAlignment="Left" Height="158" Margin="202,91,0,0" VerticalAlignment="Top" Width="258" Title="En liten test">
 
-            <LedControl:Led Height="100" Width="100" IsActive="False"/>
+            <Controls:Led Height="100" Width="100" IsActive="False" ColorOn="#FF19AC19" ColorOff="#FF8012A0"/>
         </Controls:LabelControl>
+        <Controls:ColorDimmer x:Name="colorDimmer" HorizontalAlignment="Left" Height="100" Margin="531,149,0,0" VerticalAlignment="Top" Width="100" FooterText="Hej hopp 2" GelColor="LightCoral" LedColor="#FF5F127C"/>
 
     </Grid>
 </Window>

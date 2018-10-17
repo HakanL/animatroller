@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace LedControl
+namespace Animatroller.AdminTool.Controls
 {
     /// <summary>
     /// Simple LED
@@ -17,14 +17,8 @@ namespace LedControl
         /// <summary>Gets/Sets Color when led is True</summary>
         public Color LedColor
         {
-            get
-            {
-                return (Color)GetValue(LedColorProperty);
-            }
-            set
-            {
-                SetValue(LedColorProperty, value);
-            }
+            get { return (Color)GetValue(LedColorProperty); }
+            set { SetValue(LedColorProperty, value); }
         }
 
         public SimpleLed()
@@ -33,7 +27,6 @@ namespace LedControl
 
             this.backgroundColor.Color = this.LedColor;
         }
-
 
         private static void OnLedColorPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
