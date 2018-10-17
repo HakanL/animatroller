@@ -1,16 +1,19 @@
 ﻿using Animatroller.Framework;
+using System;
 
 namespace Animatroller.SceneRunner
 {
     public class SendControl : Framework.PhysicalDevice.BaseStrobeLight
     {
         private bool performUpdate;
+        private readonly Action updateAvailable;
         private readonly string componentId;
 
-        public SendControl(IApiVersion3 logicalDevice, string componentId)
+        public SendControl(IApiVersion3 logicalDevice, string componentId, Action updateAvailable)
             : base(logicalDevice)
         {
             this.componentId = componentId;
+            this.updateAvailable = updateAvailable;
             /*            if (logicalDevice is ISendsData sendsData)
                         {
                             sendsData.OutputChanged.Subscribe(data =>
@@ -63,6 +66,7 @@ namespace Animatroller.SceneRunner
         protected override void Output()
         {
             this.performUpdate = true;
+            this.updateAvailable();
         }
     }
 }

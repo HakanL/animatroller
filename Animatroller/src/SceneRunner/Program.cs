@@ -2,6 +2,7 @@
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace Animatroller.SceneRunner
         private const string ConsoleTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
         //private const string DebugTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{NewLine}{Exception}";
         private const string DebugTemplate = "{Timestamp:HH:mm:ss.fff} {Logger} [{Level}] {Message}{Exception}\r\n";
+        private const int RemoteUpdateThrottleMilliseconds = 100;
 
         private static ILogger log;
         private static readonly Dictionary<string, Type> typeCache = new Dictionary<string, Type>();
@@ -23,6 +25,8 @@ namespace Animatroller.SceneRunner
         private static List<SendObject> sendControls;
         private static ExpanderCommunication.IServerCommunication adminServer;
         private static readonly Dictionary<string, DateTime> clients = new Dictionary<string, DateTime>();
+        private static readonly Stopwatch lastSentUpdate = Stopwatch.StartNew();
+        private static bool updatesAvailable;
 
         public static async Task Main(string[] args)
         {
@@ -115,10 +119,18 @@ namespace Animatroller.SceneRunner
                 simForm.AutoWireUsingReflection(scene);
             }
 
-            remoteUpdateTimer = new System.Threading.Timer(RemoteUpdateTimerCallback, null, 100, 100);
+            remoteUpdateTimer = new System.Threading.Timer(RemoteUpdateTimerCallback, null, RemoteUpdateThrottleMilliseconds, RemoteUpdateThrottleMilliseconds);
 
             var sceneBuilder = new SceneDefinitionBuilder();
-            var sceneData = sceneBuilder.AutoWireUsingReflection(scene);
+            var updateAvailable = new Action(() =>
+            {
+                updatesAvailable = true;
+
+                if (lastSentUpdate.ElapsedMilliseconds >= RemoteUpdateThrottleMilliseconds)
+                    // Send right away, otherwise wait for next timer callback
+                    remoteUpdateTimer.Change(0, RemoteUpdateThrottleMilliseconds);
+            });
+            var sceneData = sceneBuilder.AutoWireUsingReflection(scene, updateAvailable);
             sceneDefinition = sceneData.SceneDefinition;
             sendControls = sceneData.SendControls.Select(x => new SendObject
             {
@@ -170,6 +182,7 @@ namespace Animatroller.SceneRunner
             }
 
             remoteUpdateTimer.Dispose();
+            remoteUpdateTimer = null;
             await adminServer.StopAsync();
         }
 
@@ -217,12 +230,21 @@ namespace Animatroller.SceneRunner
 
         private static void RemoteUpdateTimerCallback(object state)
         {
+            if (!updatesAvailable)
+                // No updates available, don't do anything, wait for next timer callback
+                return;
+
+            // Stop timer
             remoteUpdateTimer.Change(System.Threading.Timeout.Infinite, System.Threading.Timeout.Infinite);
 
             try
             {
                 if (!clients.Any())
                     return;
+
+                // Reset
+                updatesAvailable = false;
+                lastSentUpdate.Restart();
 
                 var list = GetComponentUpdates(false);
 
@@ -260,7 +282,7 @@ namespace Animatroller.SceneRunner
             }
             finally
             {
-                remoteUpdateTimer.Change(100, System.Threading.Timeout.Infinite);
+                remoteUpdateTimer?.Change(RemoteUpdateThrottleMilliseconds, RemoteUpdateThrottleMilliseconds);
             }
         }
 

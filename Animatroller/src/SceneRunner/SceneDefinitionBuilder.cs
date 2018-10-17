@@ -1,5 +1,6 @@
 ﻿using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,7 +8,10 @@ namespace Animatroller.SceneRunner
 {
     public class SceneDefinitionBuilder
     {
-        public (AdminMessage.SceneDefinition SceneDefinition, IList<SendControl> SendControls) AutoWireUsingReflection(IScene scene, params IRunningDevice[] excludeDevices)
+        public (AdminMessage.SceneDefinition SceneDefinition, IList<SendControl> SendControls) AutoWireUsingReflection(
+            IScene scene,
+            Action updateAvailable,
+            params IRunningDevice[] excludeDevices)
         {
             var definition = new AdminMessage.SceneDefinition
             {
@@ -54,7 +58,7 @@ namespace Animatroller.SceneRunner
                         Type = AdminMessage.ComponentType.StrobeColorDimmer
                     });
 
-                    var sendControl = new SendControl((Dimmer3)fieldValue, field.Name);
+                    var sendControl = new SendControl((Dimmer3)fieldValue, field.Name, updateAvailable);
                     sendControls.Add(sendControl);
                 }
                 //                    Connect(new Animatroller.Simulator.TestLight(this, (Dimmer3)fieldValue));
