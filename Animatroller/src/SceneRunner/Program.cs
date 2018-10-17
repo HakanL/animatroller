@@ -127,13 +127,14 @@ namespace Animatroller.SceneRunner
                 updatesAvailable = true;
 
                 if (lastSentUpdate.ElapsedMilliseconds >= RemoteUpdateThrottleMilliseconds)
-                    // Send right away, otherwise wait for next timer callback
-                    remoteUpdateTimer.Change(0, RemoteUpdateThrottleMilliseconds);
+                    // Send within 10 ms, otherwise wait for next timer callback
+                    remoteUpdateTimer.Change(10, RemoteUpdateThrottleMilliseconds);
             });
             var sceneData = sceneBuilder.AutoWireUsingReflection(scene, updateAvailable);
             sceneDefinition = sceneData.SceneDefinition;
             sendControls = sceneData.SendControls.Select(x => new SendObject
             {
+                ComponentId = x.ComponentId,
                 SendControl = x
             }).ToList();
 
@@ -216,7 +217,7 @@ namespace Animatroller.SceneRunner
 
                             list.Add(new AdminMessage.ComponentUpdate
                             {
-                                ComponentId = kvp.SendControl.ComponentId,
+                                ComponentId = kvp.ComponentId,
                                 MessageType = msg.GetType().FullName,
                                 Object = ms.ToArray()
                             });

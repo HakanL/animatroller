@@ -1,15 +1,16 @@
-﻿using Animatroller.Framework;
-using System;
+﻿using System;
+using Animatroller.AdminMessage;
+using Animatroller.Framework;
 
-namespace Animatroller.SceneRunner
+namespace Animatroller.SceneRunner.SendControls
 {
-    public class SendControl : Framework.PhysicalDevice.BaseStrobeLight
+    public class LightSendControl : Framework.PhysicalDevice.BaseStrobeLight, ISendControl
     {
         private bool performUpdate;
         private readonly Action updateAvailable;
         private readonly string componentId;
 
-        public SendControl(IApiVersion3 logicalDevice, string componentId, Action updateAvailable)
+        public LightSendControl(IApiVersion3 logicalDevice, string componentId, Action updateAvailable)
             : base(logicalDevice)
         {
             this.componentId = componentId;
@@ -50,6 +51,8 @@ namespace Animatroller.SceneRunner
 
         public string ComponentId => this.componentId;
 
+        public ComponentType ComponentType => ComponentType.StrobeColorDimmer;
+
         public object GetMessageToSend()
         {
             if (!this.performUpdate)
@@ -57,7 +60,10 @@ namespace Animatroller.SceneRunner
 
             var msg = new AdminMessage.StrobeColorDimmer
             {
-                Brightness = this.colorBrightness.Brightness
+                Brightness = this.colorBrightness.Brightness,
+                Red = this.colorBrightness.Color.R,
+                Green = this.colorBrightness.Color.G,
+                Blue = this.colorBrightness.Color.B
             };
 
             return msg;

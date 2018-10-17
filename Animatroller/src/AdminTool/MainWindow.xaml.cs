@@ -1,9 +1,9 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using Serilog;
 
 namespace Animatroller.AdminTool
 {
@@ -19,7 +19,7 @@ namespace Animatroller.AdminTool
         private ExpanderCommunication.IClientCommunication communication;
         private readonly Dictionary<string, Type> typeCache = new Dictionary<string, Type>();
         private System.Threading.Timer pingTimer;
-        private readonly Dictionary<string, Label> componentLookup = new Dictionary<string, Label>();
+        private readonly Dictionary<string, Control> componentLookup = new Dictionary<string, Control>();
 
         public MainWindow()
         {
@@ -105,15 +105,30 @@ namespace Animatroller.AdminTool
         {
             foreach (var control in sceneDefinition.Definition.Components)
             {
-                var newControl = new Label
+                var childControl = new LedControl.SimpleLed
                 {
-                    Content = control.Name,
-                    Name = control.Id,
-                    Width = 100
+                    Width = 50,
+                    Height = 50
                 };
-                controlPanel.Children.Add(newControl);
 
-                componentLookup[control.Id] = newControl;
+                var parentControl = new Controls.LabelControl
+                {
+                    Name = control.Id,
+                    Width = 100,
+                    Height = 100,
+                    Title = control.Name,
+                    Content = childControl
+                };
+
+                /*                var newControl = new Label
+                                {
+                                    Content = control.Name,
+                                    Name = control.Id,
+                                    Width = 100
+                                };*/
+                controlPanel.Children.Add(parentControl);
+
+                componentLookup[control.Id] = parentControl;
             }
         }
 
@@ -155,13 +170,15 @@ namespace Animatroller.AdminTool
             }
         }
 
-        private void UpdateControl(Label control, object updateObject)
+        private void UpdateControl(Control control, object updateObject)
         {
             switch (updateObject)
             {
                 case AdminMessage.StrobeColorDimmer strobeColorDimmer:
-                    control.FontWeight = FontWeights.ExtraBold;
-                    control.Content = strobeColorDimmer.Brightness.ToString("P0");
+                    //control.FontWeight = FontWeights.ExtraBold;
+                    //                    control.Content = strobeColorDimmer.Brightness.ToString("P0");
+                    var xyz = (control as Controls.LabelControl).Content as LedControl.SimpleLed;
+                    xyz.LedColor = Controls.Utility.GetColorFromColorBrightness(strobeColorDimmer.Brightness, strobeColorDimmer.Red, strobeColorDimmer.Green, strobeColorDimmer.Blue);
                     break;
             }
         }

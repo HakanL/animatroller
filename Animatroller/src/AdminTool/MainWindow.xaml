@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:Animatroller.AdminTool"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="1000" Closed="Window_Closed">
-    <Grid>
-        <StackPanel x:Name="controlPanel"></StackPanel>
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <WrapPanel x:Name="controlPanel">
+        </WrapPanel>
+    </ScrollViewer>
 </Window>

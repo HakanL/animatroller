@@ -1,0 +1,18 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Animatroller.AdminTool"
+        xmlns:Controls="clr-namespace:Animatroller.AdminTool.Controls" xmlns:LedControl="clr-namespace:LedControl" x:Class="Animatroller.AdminTool.Window1"
+        mc:Ignorable="d"
+        Title="Window1" Height="450" Width="800">
+    <Grid>
+
+        <Controls:LabelControl HorizontalAlignment="Left" Height="158" Margin="202,91,0,0" VerticalAlignment="Top" Width="258" Title="En liten test">
+
+            <LedControl:Led Height="100" Width="100" IsActive="False"/>
+        </Controls:LabelControl>
+
+    </Grid>
+</Window>

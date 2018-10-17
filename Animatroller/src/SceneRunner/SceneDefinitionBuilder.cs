@@ -1,14 +1,14 @@
-﻿using Animatroller.Framework;
-using Animatroller.Framework.LogicalDevice;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Animatroller.Framework;
+using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.SceneRunner
 {
     public class SceneDefinitionBuilder
     {
-        public (AdminMessage.SceneDefinition SceneDefinition, IList<SendControl> SendControls) AutoWireUsingReflection(
+        public (AdminMessage.SceneDefinition SceneDefinition, IList<SendControls.ISendControl> SendControls) AutoWireUsingReflection(
             IScene scene,
             Action updateAvailable,
             params IRunningDevice[] excludeDevices)
@@ -19,7 +19,7 @@ namespace Animatroller.SceneRunner
                 Components = new List<AdminMessage.SceneComponent>()
             };
 
-            var sendControls = new List<SendControl>();
+            var sendControls = new List<SendControls.ISendControl>();
 
             AutoWireUsingReflection_Simple(scene, excludeDevices);
 
@@ -49,18 +49,51 @@ namespace Animatroller.SceneRunner
                 if (fieldValue is IDevice device)
                     componentName = device.Name;
 
-                if (field.FieldType == typeof(Dimmer3))
+                void addComponent(string id, string name, SendControls.ISendControl sendControl)
                 {
                     definition.Components.Add(new AdminMessage.SceneComponent
                     {
-                        Id = field.Name,
-                        Name = componentName,
-                        Type = AdminMessage.ComponentType.StrobeColorDimmer
+                        Id = id,
+                        Name = name,
+                        Type = sendControl.ComponentType
                     });
 
-                    var sendControl = new SendControl((Dimmer3)fieldValue, field.Name, updateAvailable);
                     sendControls.Add(sendControl);
+                };
+
+                switch (fieldValue)
+                {
+                    case StrobeColorDimmer3 instance:
+                        addComponent(field.Name, componentName, new SendControls.LightSendControl(instance, field.Name, updateAvailable));
+                        break;
+
+                    case StrobeDimmer3 instance:
+                        addComponent(field.Name, componentName, new SendControls.LightSendControl(instance, field.Name, updateAvailable));
+                        break;
+
+                    case ColorDimmer3 instance:
+                        addComponent(field.Name, componentName, new SendControls.LightSendControl(instance, field.Name, updateAvailable));
+                        break;
+
+                    case Dimmer3 instance:
+                        addComponent(field.Name, componentName, new SendControls.LightSendControl(instance, field.Name, updateAvailable));
+                        break;
                 }
+
+                //if (field.FieldType == typeof(Dimmer3))
+                //{
+                //    definition.Components.Add(new AdminMessage.SceneComponent
+                //    {
+                //        Id = field.Name,
+                //        Name = componentName,
+                //        Type = AdminMessage.ComponentType.StrobeColorDimmer
+                //    });
+
+                //    var sendControl = new SendControls.LightSendControl((Dimmer3)fieldValue, field.Name, updateAvailable);
+                //    sendControls.Add(sendControl);
+                //}
+
+
                 //                    Connect(new Animatroller.Simulator.TestLight(this, (Dimmer3)fieldValue));
                 /*                else if (field.FieldType == typeof(ColorDimmer3))
                                     this.Connect(new Animatroller.Simulator.TestLight(this, (ColorDimmer3)fieldValue));
