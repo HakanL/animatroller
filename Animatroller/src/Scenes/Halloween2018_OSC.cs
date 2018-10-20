@@ -1,19 +1,46 @@
-﻿using Animatroller.Framework;
-using Animatroller.Framework.LogicalDevice;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reactive.Linq;
+using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes
 {
     internal partial class Halloween2018
     {
+        private readonly Dictionary<string, List<int>> portDiagStatus = new Dictionary<string, List<int>>();
+
         public void ConfigureOSC()
         {
+            Exec.Diagnostics.Subscribe(x =>
+            {
+                switch (x)
+                {
+                    case DiagDataPortStatus portStatus:
+                        List<int> status;
+                        lock (portDiagStatus)
+                        {
+                            if (!portDiagStatus.TryGetValue(x.Name, out status))
+                            {
+                                status = new List<int>();
+                                portDiagStatus.Add(x.Name, status);
+                            }
+                            while (portStatus.Port + 1 > status.Count)
+                                status.Add(0);
+                            status[portStatus.Port] = portStatus.Value ? 1 : 0;
+                        }
+
+                        oscServer.SendAllClients($"/{x.Name}/x", status.OfType<object>().ToArray());
+                        break;
+
+                    case DiagDataAudioPlayback audioPlayback:
+                        oscServer.SendAllClients($"/{x.Name}-{audioPlayback.Type}/Text", audioPlayback.Value);
+                        break;
+                }
+            });
+
             oscServer.RegisterActionSimple<double>("/HazerFan/x", (msg, data) =>
             {
                 hazerFanSpeed.SetBrightness(data);
@@ -213,85 +240,85 @@ namespace Animatroller.Scenes
                 Exec.SetKey("AudioOutput-Selection", data.ToString());
             });
 
-/*            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("sixthsense-deadpeople.wav");
-            });
+            /*            oscServer.RegisterAction<int>("/3/multipush1/6/1", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("sixthsense-deadpeople.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/2", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("162 Blood Curdling Scream of Terror.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/6/2", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/3", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("424 Coyote Howling.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/6/3", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("424 Coyote Howling.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/4", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/6/4", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/6/5", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("242004__junkfood2121__fart-01.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/6/5", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("242004__junkfood2121__fart-01.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/5/1", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("death-scream.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/5/1", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("death-scream.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/5/2", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("scream.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/5/2", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("scream.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/5/3", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("door-creak.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/5/3", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("door-creak.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/5/4", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("violin screech.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/5/4", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("violin screech.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/5/5", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("gollum_precious1.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/5/5", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("gollum_precious1.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/4/1", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayNewEffect("640 The Demon Exorcised.wav");
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/4/1", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayNewEffect("640 The Demon Exorcised.wav");
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/4/2", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/4/2", d => d.First() != 0, (msg, data) =>
+                        {
+                            audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/4/3", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/4/3", d => d.First() != 0, (msg, data) =>
+                        {
+                            audioCat.PlayEffect("285 Monster Snarl 2.wav", 1.0, 1.0);
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/4/4", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/4/4", d => d.First() != 0, (msg, data) =>
+                        {
+                            audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/4/5", d => d.First() != 0, (msg, data) =>
-            {
-                audioCat.PlayEffect("287 Monster Snarl 4.wav", 1.0, 1.0);
-            });
+                        oscServer.RegisterAction<int>("/3/multipush1/4/5", d => d.First() != 0, (msg, data) =>
+                        {
+                            audioCat.PlayEffect("287 Monster Snarl 4.wav", 1.0, 1.0);
+                        });
 
-            oscServer.RegisterAction<int>("/3/multipush1/3/1", d => d.First() != 0, (msg, data) =>
-            {
-                audio2.PlayEffect("180 Babbling Lunatic.wav");
-            });*/
+                        oscServer.RegisterAction<int>("/3/multipush1/3/1", d => d.First() != 0, (msg, data) =>
+                        {
+                            audio2.PlayEffect("180 Babbling Lunatic.wav");
+                        });*/
 
             oscServer.RegisterAction<int>("/1/eStop", (msg, data) =>
             {
@@ -391,13 +418,13 @@ namespace Animatroller.Scenes
                 //                pinSpot.SetBrightness(data.First());
             });
 
-/*            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
-            {
-                if (data.First() != 0)
-                    audio2.PlayBackground();
-                else
-                    audio2.PauseBackground();
-            });*/
+            /*            oscServer.RegisterAction<int>("/1/toggle3", (msg, data) =>
+                        {
+                            if (data.First() != 0)
+                                audio2.PlayBackground();
+                            else
+                                audio2.PauseBackground();
+                        });*/
 
             oscServer.RegisterAction<int>("/1/toggle4", (msg, data) =>
             {

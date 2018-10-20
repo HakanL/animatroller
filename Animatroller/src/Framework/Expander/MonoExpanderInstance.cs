@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Animatroller.Framework.MonoExpanderMessages;
-using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
@@ -11,7 +9,8 @@ namespace Animatroller.Framework.Expander
     {
         private event EventHandler<EventArgs> AudioTrackDone;
         private event EventHandler<EventArgs> VideoTrackDone;
-        private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
+        private readonly ISubject<Tuple<AudioTypes, string>> audioTrackStart;
+        private readonly ISubject<DiagData> diagnostics;
 
         public MonoExpanderInstance(int inputs = 8, int outputs = 8, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
@@ -35,13 +34,7 @@ namespace Animatroller.Framework.Expander
             Executor.Current.Register(this);
         }
 
-        public IObservable<Tuple<AudioTypes, string>> AudioTrackStart
-        {
-            get
-            {
-                return this.audioTrackStart;
-            }
-        }
+        public IObservable<Tuple<AudioTypes, string>> AudioTrackStart => this.audioTrackStart.AsObservable();
 
         public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }
 
@@ -61,6 +54,37 @@ namespace Animatroller.Framework.Expander
 
         public void Start()
         {
+            // Send initial
+            for (int index = 0; index < DigitalInputs.Length; index++)
+            {
+                Executor.Current.Diagnostics.OnNext(new DiagDataPortStatus
+                {
+                    Name = this.name,
+                    Port = index,
+                    Value = false
+                });
+            }
+
+            Executor.Current.Diagnostics.OnNext(new DiagDataAudioPlayback
+            {
+                Type = AudioTypes.Effect.ToString(),
+                Name = this.name,
+                Value = "-"
+            });
+
+            Executor.Current.Diagnostics.OnNext(new DiagDataAudioPlayback
+            {
+                Type = AudioTypes.Track.ToString(),
+                Name = this.name,
+                Value = "-"
+            });
+
+            Executor.Current.Diagnostics.OnNext(new DiagDataAudioPlayback
+            {
+                Type = AudioTypes.Background.ToString(),
+                Name = this.name,
+                Value = "-"
+            });
         }
 
         public void Stop()
@@ -228,7 +252,15 @@ namespace Animatroller.Framework.Expander
                 if (int.TryParse(message.Input.Substring(1), out inputId))
                 {
                     if (inputId >= 0 && inputId <= 7)
+                    {
                         this.DigitalInputs[inputId].Trigger(message.Value != 0.0);
+                        Executor.Current.Diagnostics.OnNext(new DiagDataPortStatus
+                        {
+                            Name = this.name,
+                            Port = inputId,
+                            Value = message.Value != 0.0
+                        });
+                    }
                 }
             }
         }
@@ -253,9 +285,22 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(AudioStarted message)
         {
-            log.Debug("Playing {0} track {1} on {2}", message.Type, message.Id, this.name);
+            switch (message.Type)
+            {
+                case AudioTypes.Track:
+                case AudioTypes.Background:
+                    log.Debug("Playing {0} track {1} on {2}", message.Type, message.Id, this.name);
 
-            this.audioTrackStart.OnNext(Tuple.Create(message.Type, message.Id));
+                    this.audioTrackStart.OnNext(Tuple.Create(message.Type, message.Id));
+                    break;
+            }
+
+            Executor.Current.Diagnostics.OnNext(new DiagDataAudioPlayback
+            {
+                Type = message.Type == AudioTypes.Effect ? message.Type.ToString() : AudioTypes.Track.ToString(),
+                Name = this.name,
+                Value = message.Id
+            });
         }
 
         public void Handle(AudioFinished message)
@@ -267,6 +312,13 @@ namespace Animatroller.Framework.Expander
                     RaiseAudioTrackDone();
                     break;
             }
+
+            Executor.Current.Diagnostics.OnNext(new DiagDataAudioPlayback
+            {
+                Type = message.Type == AudioTypes.Effect ? message.Type.ToString() : AudioTypes.Track.ToString(),
+                Name = this.name,
+                Value = "-"
+            });
         }
 
         public void SendSerial(int port, byte[] data)

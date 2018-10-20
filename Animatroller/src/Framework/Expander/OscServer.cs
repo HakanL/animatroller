@@ -1,17 +1,14 @@
-﻿#define DEBUG_OSC
+﻿//#define DEBUG_OSC
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO.Ports;
-using Serilog;
 using System.Net;
-using Newtonsoft.Json;
-using System.Reactive.Concurrency;
-using System.Reactive.Subjects;
 using System.Reactive;
+using System.Reactive.Concurrency;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
@@ -63,15 +60,16 @@ namespace Animatroller.Framework.Expander
 
         protected ILogger log;
         private Rug.Osc.OscReceiver receiver;
-        private Task receiverTask;
+        private readonly Task receiverTask;
         private System.Threading.CancellationTokenSource cancelSource;
-        private Dictionary<string, Action<Message>> dispatch;
-        private Dictionary<string, Action<Message>> dispatchPartial;
+        private readonly Dictionary<string, Action<Message>> dispatch;
+        private readonly Dictionary<string, Action<Message>> dispatchPartial;
         private Dictionary<IPEndPoint, ConnectedClient> clients;
-        private int forcedClientPort;
+        private readonly int forcedClientPort;
         private EventLoopScheduler scheduler;
-        private bool registerAutoHandlers;
-        private IObserver<(string, object[])> sender;
+        private readonly bool registerAutoHandlers;
+        private readonly IObserver<(string, object[])> sender;
+        private readonly Dictionary<string, object[]> queuedData;
 
         public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : this(Executor.Current.GetSetKey<int>(name, 8000))
@@ -89,6 +87,7 @@ namespace Animatroller.Framework.Expander
             this.dispatchPartial = new Dictionary<string, Action<Message>>();
             this.clients = new Dictionary<IPEndPoint, ConnectedClient>();
             this.scheduler = new EventLoopScheduler();
+            this.queuedData = new Dictionary<string, object[]>();
 
             this.receiverTask = new Task(x =>
             {
@@ -112,6 +111,9 @@ namespace Animatroller.Framework.Expander
                                         connectedClient = new ConnectedClient(ipe);
 
                                         this.clients.Add(ipe, connectedClient);
+
+                                        // Send all current data
+                                        SendQueuedData();
                                     }
 
                                     connectedClient.Touch();
@@ -162,6 +164,8 @@ namespace Animatroller.Framework.Expander
             {
                 lock (this.clients)
                 {
+                    this.queuedData[x.Address] = x.Data;
+
                     foreach (var kvp in this.clients.ToList())
                     {
                         if (kvp.Value.Expired)
@@ -178,9 +182,24 @@ namespace Animatroller.Framework.Expander
             Executor.Current.Register(this);
         }
 
+        private void SendQueuedData()
+        {
+            foreach (var kvp in this.queuedData.ToList())
+            {
+                this.sender.OnNext((kvp.Key, kvp.Value));
+            }
+        }
+
         public void SendAllClients(string address, params object[] data)
         {
-            this.sender.OnNext((address, data));
+            try
+            {
+                this.sender.OnNext((address, data));
+            }
+            catch
+            {
+                // Ignore
+            }
         }
 
         private void Invoke(Rug.Osc.OscMessage oscMessage)
@@ -358,6 +377,8 @@ namespace Animatroller.Framework.Expander
                     this.clients[ipe] = new ConnectedClient(ipe);
                 }
             }
+
+            SendQueuedData();
         }
 
         public void SaveValueToPersistence(Action<string, string> setKeyFunc)

@@ -40,7 +40,7 @@ namespace Animatroller.Scenes
 
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
-        Expander.OscServer oscServer = new Expander.OscServer(8000, 9000, registerAutoHandlers: true);
+        Expander.OscServer oscServer = new Expander.OscServer(8000, forcedClientPort: 8000, registerAutoHandlers: true);
         AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioFrankGhost = new AudioPlayer();
         AudioPlayer audioSpider = new AudioPlayer();
@@ -258,7 +258,7 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("d6fc4e752af04022bf3c1a1166a557bb", expanderHifi);       // rpi-eb428ef1
             expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderGhost);      // rpi-eb6a047c
-            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderFrankGhost);  // rpi-ebd43a38
+            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderFrankGhost); // rpi-ebd43a38
             expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderSpider);     // rpi-eb9b3145
             expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderRocking);    // rpi-eb32e5f9
             expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderFlying);     // rpi-eb35666e
@@ -755,7 +755,7 @@ namespace Animatroller.Scenes
             expanderCat.DigitalInputs[4].Connect(catMotion);
             //expanderCat.DigitalInputs[6].Connect(secondBeam);
             //expanderCat.DigitalInputs[5].Connect(spiderDropTrigger, inverted: true);
-            //expanderCat.DigitalInputs[4].Connect(firstBeam);
+            expanderFrankGhost.DigitalInputs[0].Connect(firstBeam);
             //expanderLedmx.DigitalInputs[7].Connect(lastBeam);
             ////expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
             //expanderLedmx.DigitalOutputs[2].Connect(lastFog, inverted: true);
@@ -935,8 +935,7 @@ namespace Animatroller.Scenes
 
         void UpdateOSC()
         {
-            return;
-            oscServer.SendAllClients("/Beams/x",
+/*            oscServer.SendAllClients("/Beams/x",
                 firstBeam.Value ? 1 : 0,
                 secondBeam.Value ? 1 : 0,
                 spiderDropTrigger.Value ? 1 : 0,
@@ -949,7 +948,7 @@ namespace Animatroller.Scenes
                 blockPicture.Value ? 1 : 0,
                 blockGhost.Value ? 1 : 0,
                 blockLast.Value ? 1 : 0,
-                blockPumpkin.Value ? 1 : 0);
+                blockPumpkin.Value ? 1 : 0);*/
         }
 
         void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)

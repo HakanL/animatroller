@@ -1,5 +1,4 @@
-﻿using Serilog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Animatroller.Framework
 {
@@ -54,6 +54,7 @@ namespace Animatroller.Framework
         private readonly ControlSubject<double> whiteout;
         private readonly ControlSubject<double> masterVolume;
         private readonly Subject<(string Name, object Value)> masterStatus;
+        private readonly ISubject<DiagData> diagnostics;
 
         public Executor()
         {
@@ -88,9 +89,15 @@ namespace Animatroller.Framework
             {
                 this.log.Debug("Master status for {Name} is {Status}", x.Name, x.Value);
             });
+            this.diagnostics = new Subject<DiagData>();
+            this.diagnostics.Subscribe(x =>
+            {
+                this.log.Debug("{Name}: {DiagData}", x.Name, x.Display);
+            });
         }
 
         public Controller.IMasterTimer MasterTimer25ms => this.masterTimer25ms;
+        public ISubject<DiagData> Diagnostics => this.diagnostics;
 
         public string ExpanderSharedFiles { get; set; }
 

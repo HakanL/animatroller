@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define DEBUG_OSC
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -61,8 +63,9 @@ namespace Animatroller.Framework.Expander
         {
             //            this.sender.WaitForAllMessagesToComplete();
 
-            this.log.Information("Sending to {0}", address);
-
+#if DEBUG_OSC
+            this.log.Verbose("Sending to {0}", address);
+#endif
             if (data == null || data.Length == 0)
             {
                 // Send empty message
@@ -75,7 +78,9 @@ namespace Animatroller.Framework.Expander
             }
             else
             {
-                this.log.Information("   Data {0}", string.Join(" ", data));
+#if DEBUG_OSC
+                this.log.Verbose("   Data {0}", string.Join(" ", data));
+#endif
 
                 var sendData = new object[data.Length];
                 for (int i = 0; i < data.Length; i++)
