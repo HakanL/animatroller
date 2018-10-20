@@ -501,7 +501,6 @@ namespace Animatroller.MonoExpander
                 Id = bgName,
                 Type = AudioTypes.Background
             });
-
         }
 
         private Sound LoadSound(string fileName)
@@ -570,6 +569,12 @@ namespace Animatroller.MonoExpander
 
             if (!playOnNewChannel)
                 this.currentFxChannel = channel;
+
+            SendMessage(new AudioStarted
+            {
+                Id = fileName,
+                Type = AudioTypes.Effect
+            });
         }
 
         public void Dispose()
