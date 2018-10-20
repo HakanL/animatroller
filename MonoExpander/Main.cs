@@ -2,20 +2,19 @@
 //#define DEBUG_VERBOSE
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.IO;
-using System.Text;
+using System.IO.Ports;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Raspberry.IO.Components.Devices.PiFaceDigital;
-using SupersonicSound.LowLevel;
-using Serilog;
-using SupersonicSound.Exceptions;
-using System.Diagnostics;
+using Animatroller.ExpanderCommunication;
 using Animatroller.Framework.MonoExpanderMessages;
 using Newtonsoft.Json;
-using Animatroller.ExpanderCommunication;
-using System.IO.Ports;
+using Raspberry.IO.Components.Devices.PiFaceDigital;
+using Serilog;
+using SupersonicSound.Exceptions;
+using SupersonicSound.LowLevel;
 
 namespace Animatroller.MonoExpander
 {
@@ -546,6 +545,20 @@ namespace Animatroller.MonoExpander
             }
 
             var channel = this.fmodSystem.PlaySound(sound, this.fxGroup, true);
+
+            channel.SetCallback((type, data1, data2) =>
+            {
+                if (type == ChannelControlCallbackType.End)
+                {
+                    this.log.Debug("FX {0} ended", fileName);
+
+                    SendMessage(new AudioFinished
+                    {
+                        Id = fileName,
+                        Type = AudioTypes.Effect
+                    });
+                }
+            });
 
             if (!rightVol.HasValue)
                 rightVol = leftVol;
