@@ -41,6 +41,12 @@ namespace Animatroller.Scenes
                 }
             });
 
+            oscServer.RegisterActionSimple<bool>("/ExpanderFrankGhostAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioFrankGhost.PauseFX();
+            });
+
             oscServer.RegisterActionSimple<double>("/HazerFan/x", (msg, data) =>
             {
                 hazerFanSpeed.SetBrightness(data);

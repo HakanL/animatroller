@@ -1,18 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Raspberry.IO.Components.Devices.PiFaceDigital;
-using SupersonicSound.LowLevel;
-using Serilog;
-using SupersonicSound.Exceptions;
-using System.Diagnostics;
-using Animatroller.Framework.MonoExpanderMessages;
-using Newtonsoft.Json.Linq;
+﻿using System.IO;
 using System.IO.Ports;
+using System.Linq;
+using Animatroller.Framework.MonoExpanderMessages;
 
 namespace Animatroller.MonoExpander
 {
@@ -74,22 +63,14 @@ namespace Animatroller.MonoExpander
         {
             this.log.Information("Pause audio FX");
 
-            if (this.currentFxChannel.HasValue)
-            {
-                var chn = this.currentBgChannel.Value;
-                chn.Pause = true;
-            }
+            this.fxGroup.Pause = true;
         }
 
         public void Handle(AudioEffectResume message)
         {
             this.log.Information("Resume audio FX");
 
-            if (this.currentFxChannel.HasValue)
-            {
-                var chn = this.currentFxChannel.Value;
-                chn.Pause = false;
-            }
+            this.fxGroup.Pause = false;
         }
 
         public void Handle(AudioEffectSetVolume message)
