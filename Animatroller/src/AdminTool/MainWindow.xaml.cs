@@ -108,15 +108,18 @@ namespace Animatroller.AdminTool
             {
                 var childControl = new Controls.ColorDimmer
                 {
+                    HeaderText = null
                 };
 
-                var parentControl = new Controls.LabelControl
+                var parentControl = new GroupBox
                 {
                     Name = control.Id,
                     Width = 100,
                     Height = 100,
-                    Title = control.Name,
-                    Content = childControl
+                    Header = control.Name,
+                    Content = childControl,
+                    FontSize = 8,
+                    Margin = new Thickness(4)
                 };
 
                 /*                var newControl = new Label
@@ -174,7 +177,7 @@ namespace Animatroller.AdminTool
             switch (updateObject)
             {
                 case AdminMessage.StrobeColorDimmer update:
-                    var xyz = (control as Controls.LabelControl).Content as Controls.ColorDimmer;
+                    var xyz = (control as GroupBox).Content as Controls.ColorDimmer;
                     xyz.FooterText = (update.Owned ? "* " : "") + update.Brightness.ToString("0%");
                     xyz.GelColor = Color.FromRgb(update.Red, update.Green, update.Blue);
                     xyz.LedColor = Controls.Utility.GetColorFromColorBrightness(update.Brightness, update.Red, update.Green, update.Blue);

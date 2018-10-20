@@ -6,8 +6,13 @@
              xmlns:local="clr-namespace:Animatroller.AdminTool.Controls"
              x:Class="Animatroller.AdminTool.Controls.ColorDimmer"
              mc:Ignorable="d" 
-             d:DesignHeight="100" d:DesignWidth="100" x:Name="Control">
-    <UserControl.Resources>
+             d:DesignHeight="100" d:DesignWidth="100" x:Name="ThisControl">
+    <d:DesignerProperties.DesignStyle>
+        <Style TargetType="UserControl">
+            <Setter Property="Background" Value="White" />
+        </Style>
+    </d:DesignerProperties.DesignStyle>
+<!--    <UserControl.Resources>
         <Style TargetType="{x:Type local:ColorDimmer}">
             <Setter Property="Template">
                 <Setter.Value>
@@ -16,7 +21,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </UserControl.Resources>
+    </UserControl.Resources>-->
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="16"/>
@@ -29,12 +34,13 @@
             <ColumnDefinition Width="16"/>
         </Grid.ColumnDefinitions>
 
-        <local:SimpleLed Grid.Column="1" Grid.Row="1" LedColor="{Binding LedColor, ElementName=Control}" x:Name="ledControl"/>
+        <TextBlock Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Text="{Binding HeaderText, ElementName=ThisControl}" FontSize="10" FontWeight="Normal" HorizontalAlignment="Center" />
+        <local:SimpleLed Grid.Column="1" Grid.Row="1" x:Name="ledControl"/>
         <Rectangle Grid.Column="2" Stroke="Black" Grid.Row="2">
             <Rectangle.Fill>
-                <SolidColorBrush Color="{Binding GelColor, ElementName=Control}" />
+                <SolidColorBrush Color="{Binding GelColor, ElementName=ThisControl}" />
             </Rectangle.Fill>
         </Rectangle>
-        <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding FooterText, ElementName=Control, Mode=OneWay}" FontSize="10" FontWeight="Normal" HorizontalAlignment="Center" />
+        <TextBlock Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding FooterText, ElementName=ThisControl}" FontSize="10" FontWeight="Normal" HorizontalAlignment="Center" />
     </Grid>
 </UserControl>

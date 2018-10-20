@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="1000" Closed="Window_Closed">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <WrapPanel x:Name="controlPanel">
+        <WrapPanel x:Name="controlPanel" Margin="8">
         </WrapPanel>
     </ScrollViewer>
 </Window>

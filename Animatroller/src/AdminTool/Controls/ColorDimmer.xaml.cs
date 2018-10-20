@@ -15,6 +15,12 @@ namespace Animatroller.AdminTool.Controls
             //            ledControl2.LedColor = Colors.Aqua;
         }
 
+        public string HeaderText
+        {
+            get { return (string)GetValue(HeaderTextProperty); }
+            set { SetValue(HeaderTextProperty, value); }
+        }
+
         public string FooterText
         {
             get { return (string)GetValue(FooterTextProperty); }
@@ -32,6 +38,10 @@ namespace Animatroller.AdminTool.Controls
             get { return (Color)GetValue(LedColorProperty); }
             set { SetValue(LedColorProperty, value); }
         }
+
+        /// <summary>Dependency property to Get/Set the current HeaderText</summary>
+        public static readonly DependencyProperty HeaderTextProperty =
+            DependencyProperty.Register("HeaderText", typeof(string), typeof(ColorDimmer), new PropertyMetadata("(HeaderText)"));
 
         /// <summary>Dependency property to Get/Set the current FooterText</summary>
         public static readonly DependencyProperty FooterTextProperty =
