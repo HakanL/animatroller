@@ -44,7 +44,7 @@ namespace Animatroller.Scenes
             oscServer.RegisterActionSimple<bool>("/ExpanderFrankGhostAudioStop/x", (msg, data) =>
             {
                 if (data)
-                    audioFrankGhost.PauseFX();
+                    audioLocal.StopFX();
             });
 
             oscServer.RegisterActionSimple<double>("/HazerFan/x", (msg, data) =>
@@ -223,6 +223,10 @@ namespace Animatroller.Scenes
 
                     case 7:
                         audioRocking.PlayNewEffect(fileName);
+                        break;
+
+                    case 8:
+                        audioLocal.PlayEffect(fileName);
                         break;
                 }
             }, 25);

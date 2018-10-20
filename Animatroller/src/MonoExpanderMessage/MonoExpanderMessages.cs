@@ -112,6 +112,10 @@ namespace Animatroller.Framework.MonoExpanderMessages
     {
     }
 
+    public class AudioEffectStop
+    {
+    }
+
     public class AudioEffectResume
     {
     }
@@ -158,6 +162,10 @@ namespace Animatroller.Framework.MonoExpanderMessages
     }
 
     public class AudioTrackPause
+    {
+    }
+
+    public class AudioTrackStop
     {
     }
 

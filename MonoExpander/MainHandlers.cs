@@ -66,6 +66,13 @@ namespace Animatroller.MonoExpander
             this.fxGroup.Pause = true;
         }
 
+        public void Handle(AudioEffectStop message)
+        {
+            this.log.Information("Stop audio FX");
+
+            this.fxGroup.Stop();
+        }
+
         public void Handle(AudioEffectResume message)
         {
             this.log.Information("Resume audio FX");
@@ -175,6 +182,17 @@ namespace Animatroller.MonoExpander
             {
                 var chn = this.currentTrkChannel.Value;
                 chn.Pause = true;
+            }
+        }
+
+        public void Handle(AudioTrackStop message)
+        {
+            this.log.Information("Stop audio track");
+
+            if (this.currentTrkChannel.HasValue)
+            {
+                var chn = this.currentTrkChannel.Value;
+                chn.Stop();
             }
         }
 

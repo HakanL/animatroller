@@ -57,6 +57,7 @@ namespace Animatroller.MonoExpander
         private string fileStoragePath;
         private List<Tuple<IClientCommunication, MonoExpanderClient>> connections;
         private Dictionary<int, SerialPort> serialPorts;
+        private Dictionary<Guid, Channel> currentChannels = new Dictionary<Guid, Channel>();
 
         public Main(Arguments args)
         {
@@ -388,6 +389,7 @@ namespace Animatroller.MonoExpander
                     // Make sure we reset this first so we can ignore the callback
                     this.currentTrkChannel = null;
                     chn?.Stop();
+                    chn?.RemoveCallback();
                 }
             }
             catch (FmodInvalidHandleException)
@@ -459,6 +461,7 @@ namespace Animatroller.MonoExpander
                     // Make sure we reset this first so we can ignore the callback
                     this.currentBgChannel = null;
                     chn?.Stop();
+                    chn?.RemoveCallback();
                 }
             }
             catch (FmodInvalidHandleException)
@@ -536,6 +539,7 @@ namespace Animatroller.MonoExpander
                 try
                 {
                     this.currentFxChannel?.Stop();
+                    this.currentFxChannel?.RemoveCallback();
                 }
                 catch (FmodInvalidHandleException)
                 {
@@ -544,6 +548,8 @@ namespace Animatroller.MonoExpander
             }
 
             var channel = this.fmodSystem.PlaySound(sound, this.fxGroup, true);
+
+            Guid channelId = Guid.NewGuid();
 
             channel.SetCallback((type, data1, data2) =>
             {
@@ -556,8 +562,16 @@ namespace Animatroller.MonoExpander
                         Id = fileName,
                         Type = AudioTypes.Effect
                     });
+
+                    if (this.currentChannels.TryGetValue(channelId, out Channel chn))
+                    {
+                        this.currentChannels.Remove(channelId);
+                    }
+
+                    this.currentFxChannel = null;
                 }
             });
+            this.currentChannels.Add(channelId, channel);
 
             if (!rightVol.HasValue)
                 rightVol = leftVol;
@@ -565,6 +579,7 @@ namespace Animatroller.MonoExpander
             channel.FmodChannel.setMixLevelsOutput((float)leftVol, (float)rightVol.Value, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 
             // Play
+            this.fxGroup.Pause = false;
             channel.Pause = false;
 
             if (!playOnNewChannel)

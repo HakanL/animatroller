@@ -62,7 +62,7 @@ namespace Animatroller.Scenes.Modules
                 })
                 .TearDown(ins =>
                 {
-                    audioPlayer.PauseFX();
+                    audioPlayer.StopFX();
                     ladyEyes.SetValue(false, token: this.controlToken);
                     rockingMotor.SetValue(false, token: this.controlToken);
                 });

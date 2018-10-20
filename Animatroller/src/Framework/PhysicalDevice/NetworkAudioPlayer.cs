@@ -86,6 +86,13 @@ namespace Animatroller.Framework.PhysicalDevice
             return this;
         }
 
+        public NetworkAudioPlayer StopTrack()
+        {
+            //??? SendCommand(string.Format("T,0"));
+
+            return this;
+        }
+
         public void SetInitialState()
         {
         }

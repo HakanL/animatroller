@@ -291,6 +291,9 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseFX:
                             this.oscClient.Send("/audio/fx/pause");
                             break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.StopFX:
+                            this.oscClient.Send("/audio/fx/stop");
+                            break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.NextBackground:
                             this.oscClient.Send("/audio/bg/next");
                             break;
@@ -302,6 +305,9 @@ namespace Animatroller.Framework.Expander
                             break;
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseTrack:
                             this.oscClient.Send("/audio/trk/pause");
+                            break;
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.StopTrack:
+                            this.oscClient.Send("/audio/trk/stop");
                             break;
                     }
                 };

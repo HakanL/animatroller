@@ -181,6 +181,10 @@ namespace Animatroller.Framework.Expander
                             SendMessage(new AudioEffectPause());
                             break;
 
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.StopFX:
+                            SendMessage(new AudioEffectStop());
+                            break;
+
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.NextBackground:
                             SendMessage(new AudioBackgroundNext());
                             break;
@@ -198,6 +202,10 @@ namespace Animatroller.Framework.Expander
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseTrack:
                             SendMessage(new AudioTrackPause());
+                            break;
+
+                        case LogicalDevice.Event.AudioCommandEventArgs.Commands.StopTrack:
+                            SendMessage(new AudioTrackStop());
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.EffectVolume:

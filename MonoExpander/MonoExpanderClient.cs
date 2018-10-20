@@ -231,6 +231,11 @@ namespace Animatroller.MonoExpander
             this.main.Handle(message);
         }
 
+        public void Handle(AudioEffectStop message)
+        {
+            this.main.Handle(message);
+        }
+
         public void Handle(AudioEffectResume message)
         {
             this.main.Handle(message);
@@ -284,6 +289,11 @@ namespace Animatroller.MonoExpander
         }
 
         public void Handle(AudioTrackPause message)
+        {
+            this.main.Handle(message);
+        }
+
+        public void Handle(AudioTrackStop message)
         {
             this.main.Handle(message);
         }

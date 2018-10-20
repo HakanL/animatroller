@@ -46,7 +46,9 @@ namespace Animatroller.Framework.LogicalDevice.Event
             ResumeTrack,
             PauseTrack,
             EffectVolume,
-            TrackVolume
+            TrackVolume,
+            StopFX,
+            StopTrack
         };
 
         public Commands Command { get; private set; }

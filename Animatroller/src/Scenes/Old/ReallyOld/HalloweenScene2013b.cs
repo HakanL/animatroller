@@ -283,7 +283,7 @@ namespace Animatroller.Scenes
                 .TearDown(() =>
                     {
                         switchFog.SetPower(false);
-                        audioGeorge.PauseFX();
+                        audioGeorge.StopFX();
                     });
 
             var georgeReturnSeq = new Controller.Sequence("George Return Seq");

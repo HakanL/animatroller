@@ -185,6 +185,13 @@ namespace Animatroller.Framework.LogicalDevice
             return this;
         }
 
+        public AudioPlayer StopFX()
+        {
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.StopFX);
+
+            return this;
+        }
+
         public AudioPlayer SetSilent(bool silent)
         {
             this.silent = silent;
@@ -221,6 +228,13 @@ namespace Animatroller.Framework.LogicalDevice
         public AudioPlayer PauseTrack()
         {
             RaiseExecuteCommand(AudioCommandEventArgs.Commands.PauseTrack);
+
+            return this;
+        }
+
+        public AudioPlayer StopTrack()
+        {
+            RaiseExecuteCommand(AudioCommandEventArgs.Commands.StopTrack);
 
             return this;
         }

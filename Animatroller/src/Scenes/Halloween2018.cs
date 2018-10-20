@@ -41,6 +41,7 @@ namespace Animatroller.Scenes
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         Expander.OscServer oscServer = new Expander.OscServer(8000, forcedClientPort: 8000, registerAutoHandlers: true);
+        AudioPlayer audioLocal = new AudioPlayer();
         AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioFrankGhost = new AudioPlayer();
         AudioPlayer audioSpider = new AudioPlayer();
@@ -50,6 +51,7 @@ namespace Animatroller.Scenes
         AudioPlayer audioPopper = new AudioPlayer();
         AudioPlayer audioFlying = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
+        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
@@ -251,6 +253,7 @@ namespace Animatroller.Scenes
                     Exec.ExpanderSharedFiles = parts[1];
                 }
             }
+            expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
 
             //expanderServer.AddInstance("4ea781ef257442edb524493da8f52220", expanderAudio2);     // rpi-eba6cbc7
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);      // rpi-eb0092ca
@@ -768,6 +771,7 @@ namespace Animatroller.Scenes
             //expanderLedmx.Connect(audioFrankGhost);
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
+            expanderLocal.Connect(audioLocal);
             expanderFrankGhost.Connect(audioFrankGhost);
             //expanderAudio2.Connect(audio2);
             expanderFlying.Connect(audioFlying);
