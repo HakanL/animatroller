@@ -70,6 +70,8 @@ namespace Animatroller.Framework.Expander
         private readonly bool registerAutoHandlers;
         private readonly IObserver<(string, object[])> sender;
         private readonly Dictionary<string, object[]> queuedData;
+        private readonly Dictionary<string, List<int>> portDiagStatus = new Dictionary<string, List<int>>();
+        private readonly Dictionary<string, List<bool>> portCommandStatus = new Dictionary<string, List<bool>>();
 
         public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : this(Executor.Current.GetSetKey<int>(name, 8000))
@@ -242,6 +244,98 @@ namespace Animatroller.Framework.Expander
 
             if (this.registerAutoHandlers)
                 RegisterAutoHandlers();
+
+            Executor.Current.Diagnostics.Subscribe(x =>
+            {
+                switch (x)
+                {
+                    case DiagDataPortStatus portStatus:
+                        string id = $"{x.Name}-{portStatus.Direction}";
+                        List<int> status;
+                        lock (portDiagStatus)
+                        {
+                            if (!portDiagStatus.TryGetValue(id, out status))
+                            {
+                                status = new List<int>();
+                                portDiagStatus.Add(id, status);
+                            }
+                            while (portStatus.Port + 1 > status.Count)
+                                status.Add(0);
+                            status[portStatus.Port] = portStatus.Value ? 1 : 0;
+                        }
+
+                        SendAllClients($"/{id}/x", status.OfType<object>().ToArray());
+                        break;
+
+                    case DiagDataAudioPlayback audioPlayback:
+                        SendAllClients($"/{x.Name}-{audioPlayback.Type}/Text", audioPlayback.Value);
+                        break;
+                }
+            });
+
+            foreach (string autoName in Executor.Current.AutoNames)
+            {
+                // Register OSC links for the auto names (expanders, etc)
+                RegisterAction<bool>($"/{autoName}-Input/x", (msg, data) =>
+                {
+                    string id = $"{autoName}-Input";
+                    List<bool> status;
+                    lock (portCommandStatus)
+                    {
+                        if (!portCommandStatus.TryGetValue(id, out status))
+                        {
+                            status = new List<bool>();
+                            portCommandStatus.Add(id, status);
+                        }
+                        while (data.Count > status.Count)
+                            status.Add(false);
+                    }
+                    for (int index = 0; index < data.Count; index++)
+                    {
+                        if (status[index] != data[index])
+                        {
+                            Executor.Current.SetupCommands.OnNext(new SetupDataPort
+                            {
+                                Name = autoName,
+                                Direction = Direction.Input,
+                                Port = index,
+                                Value = data[index]
+                            });
+                            status[index] = data[index];
+                        }
+                    }
+                });
+
+                RegisterAction<bool>($"/{autoName}-Output/x", (msg, data) =>
+                {
+                    string id = $"{autoName}-Output";
+                    List<bool> status;
+                    lock (portCommandStatus)
+                    {
+                        if (!portCommandStatus.TryGetValue(id, out status))
+                        {
+                            status = new List<bool>();
+                            portCommandStatus.Add(id, status);
+                        }
+                        while (data.Count > status.Count)
+                            status.Add(false);
+                    }
+                    for (int index = 0; index < data.Count; index++)
+                    {
+                        if (status[index] != data[index])
+                        {
+                            Executor.Current.SetupCommands.OnNext(new SetupDataPort
+                            {
+                                Name = autoName,
+                                Direction = Direction.Output,
+                                Port = index,
+                                Value = data[index]
+                            });
+                            status[index] = data[index];
+                        }
+                    }
+                });
+            }
         }
 
         public void Stop()

@@ -55,6 +55,8 @@ namespace Animatroller.Framework
         private readonly ControlSubject<double> masterVolume;
         private readonly Subject<(string Name, object Value)> masterStatus;
         private readonly ISubject<DiagData> diagnostics;
+        private readonly ISubject<SetupData> setupCommands;
+        private readonly HashSet<string> autoNames;
 
         public Executor()
         {
@@ -71,6 +73,7 @@ namespace Animatroller.Framework
             this.masterTimer25ms = new Controller.HighPrecisionTimer4(this.log, 25, startRunning: true);
             this.timerJobRunner = new Effect2.TimerJobRunner(this.masterTimer25ms);
             this.controlTokens = new Dictionary<IOwnedDevice, IControlToken>();
+            this.autoNames = new HashSet<string>();
 
             this.masterEffect = new Effect2.MasterEffect(this.timerJobRunner);
 
@@ -90,14 +93,26 @@ namespace Animatroller.Framework
                 this.log.Debug("Master status for {Name} is {Status}", x.Name, x.Value);
             });
             this.diagnostics = new Subject<DiagData>();
-            this.diagnostics.Subscribe(x =>
+            //this.diagnostics.Subscribe(x =>
+            //{
+            //    this.log.Debug("{Name}: {DiagData}", x.Name, x.Display);
+            //});
+            this.setupCommands = new Subject<SetupData>();
+            this.setupCommands.Subscribe(x =>
             {
-                this.log.Debug("{Name}: {DiagData}", x.Name, x.Display);
+                this.log.Debug("{Name} sending setup command {Type}", x.Name, x.GetType().Name);
             });
         }
 
         public Controller.IMasterTimer MasterTimer25ms => this.masterTimer25ms;
         public ISubject<DiagData> Diagnostics => this.diagnostics;
+        public ISubject<SetupData> SetupCommands => this.setupCommands;
+        public IEnumerable<string> AutoNames => this.autoNames;
+
+        public void RegisterAutoName(string name)
+        {
+            this.autoNames.Add(name);
+        }
 
         public string ExpanderSharedFiles { get; set; }
 

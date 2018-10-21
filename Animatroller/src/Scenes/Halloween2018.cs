@@ -1,11 +1,11 @@
-﻿using Animatroller.Framework;
-using Animatroller.Framework.Extensions;
-using Animatroller.Framework.LogicalDevice;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
+using Animatroller.Framework;
+using Animatroller.Framework.Extensions;
+using Animatroller.Framework.LogicalDevice;
 using Controller = Animatroller.Framework.Controller;
 using Effect = Animatroller.Framework.Effect;
 using Expander = Animatroller.Framework.Expander;
@@ -47,6 +47,7 @@ namespace Animatroller.Scenes
         AudioPlayer audioSpider = new AudioPlayer();
         AudioPlayer audioRocking = new AudioPlayer();
         AudioPlayer audioCat = new AudioPlayer();
+        AudioPlayer audioLedmx = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
         AudioPlayer audioPopper = new AudioPlayer();
         AudioPlayer audioFlying = new AudioPlayer();
@@ -159,6 +160,7 @@ namespace Animatroller.Scenes
         DigitalInput2 lastBeam = new DigitalInput2();
         DigitalOutput2 catAir = new DigitalOutput2();
         DigitalOutput2 fire = new DigitalOutput2();
+        DigitalOutput2 waterMist = new DigitalOutput2();
         DigitalOutput2 mrPumpkinAir = new DigitalOutput2();
         DigitalOutput2 frankGhostAir = new DigitalOutput2();
         DigitalOutput2 lastFog = new DigitalOutput2();
@@ -352,6 +354,11 @@ namespace Animatroller.Scenes
                 }
                 else
                     allLights.ReleaseControl();
+            });
+
+            firstBeam.Output.Subscribe(x =>
+            {
+                waterMist.SetValue(x);
             });
 
             testButton1.Output.Subscribe(x =>
@@ -759,6 +766,7 @@ namespace Animatroller.Scenes
             //expanderCat.DigitalInputs[6].Connect(secondBeam);
             //expanderCat.DigitalInputs[5].Connect(spiderDropTrigger, inverted: true);
             expanderFrankGhost.DigitalInputs[0].Connect(firstBeam);
+            expanderFrankGhost.DigitalOutputs[0].Connect(waterMist);
             //expanderLedmx.DigitalInputs[7].Connect(lastBeam);
             ////expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
             //expanderLedmx.DigitalOutputs[2].Connect(lastFog, inverted: true);
@@ -768,7 +776,7 @@ namespace Animatroller.Scenes
             //expanderLedmx.DigitalOutputs[1].Connect(spiderVenom);
             //expanderCat.DigitalOutputs[6].Connect(spiderJump2);
 
-            //expanderLedmx.Connect(audioFrankGhost);
+            expanderLedmx.Connect(audioLedmx);
             expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
             expanderLocal.Connect(audioLocal);
@@ -939,20 +947,15 @@ namespace Animatroller.Scenes
 
         void UpdateOSC()
         {
-/*            oscServer.SendAllClients("/Beams/x",
-                firstBeam.Value ? 1 : 0,
-                secondBeam.Value ? 1 : 0,
-                spiderDropTrigger.Value ? 1 : 0,
-                lastBeam.Value ? 1 : 0);
-
-            oscServer.SendAllClients("/Blocks/x",
-                blockMaster.Value ? 1 : 0,
-                blockCat.Value ? 1 : 0,
-                blockFirst.Value ? 1 : 0,
-                blockPicture.Value ? 1 : 0,
-                blockGhost.Value ? 1 : 0,
-                blockLast.Value ? 1 : 0,
-                blockPumpkin.Value ? 1 : 0);*/
+            /*
+                        oscServer.SendAllClients("/Blocks/x",
+                            blockMaster.Value ? 1 : 0,
+                            blockCat.Value ? 1 : 0,
+                            blockFirst.Value ? 1 : 0,
+                            blockPicture.Value ? 1 : 0,
+                            blockGhost.Value ? 1 : 0,
+                            blockLast.Value ? 1 : 0,
+                            blockPumpkin.Value ? 1 : 0);*/
         }
 
         void TriggerThunderTimeline(object sender, Animatroller.Framework.Controller.Timeline<string>.TimelineEventArgs e)

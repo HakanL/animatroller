@@ -10,41 +10,66 @@ namespace Animatroller.Scenes
 {
     internal partial class Halloween2018
     {
-        private readonly Dictionary<string, List<int>> portDiagStatus = new Dictionary<string, List<int>>();
-
         public void ConfigureOSC()
         {
-            Exec.Diagnostics.Subscribe(x =>
-            {
-                switch (x)
-                {
-                    case DiagDataPortStatus portStatus:
-                        List<int> status;
-                        lock (portDiagStatus)
-                        {
-                            if (!portDiagStatus.TryGetValue(x.Name, out status))
-                            {
-                                status = new List<int>();
-                                portDiagStatus.Add(x.Name, status);
-                            }
-                            while (portStatus.Port + 1 > status.Count)
-                                status.Add(0);
-                            status[portStatus.Port] = portStatus.Value ? 1 : 0;
-                        }
-
-                        oscServer.SendAllClients($"/{x.Name}/x", status.OfType<object>().ToArray());
-                        break;
-
-                    case DiagDataAudioPlayback audioPlayback:
-                        oscServer.SendAllClients($"/{x.Name}-{audioPlayback.Type}/Text", audioPlayback.Value);
-                        break;
-                }
-            });
-
             oscServer.RegisterActionSimple<bool>("/ExpanderFrankGhostAudioStop/x", (msg, data) =>
             {
                 if (data)
-                    audioLocal.StopFX();
+                    audioFrankGhost.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderCatAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioCat.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderLedmxAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioLedmx.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderPictureAudioStop/x", (msg, data) =>
+            {
+                //if (data)
+                //    audioPicture.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderGhostAudioStop/x", (msg, data) =>
+            {
+                //if (data)
+                //    audioGhost.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderSpiderAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioSpider.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderRockingAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioRocking.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderFlyingAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioFlying.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderPopperAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioPopper.StopFX();
+            });
+
+            oscServer.RegisterActionSimple<bool>("/ExpanderHifiAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioHifi.StopFX();
             });
 
             oscServer.RegisterActionSimple<double>("/HazerFan/x", (msg, data) =>
@@ -226,7 +251,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 8:
-                        audioLocal.PlayEffect(fileName);
+                        audioLocal.PlayNewEffect(fileName);
                         break;
                 }
             }, 25);

@@ -31,6 +31,30 @@ namespace Animatroller.Framework.Expander
                 //                this.oscClient.Send("/motor/exec", 1, target, (int)(speed * 100), timeout.TotalSeconds.ToString("F0"));
             });
 
+            Executor.Current.RegisterAutoName(this.name);
+
+            Executor.Current.SetupCommands.Subscribe(x =>
+            {
+                if (x.Name != this.name)
+                    return;
+
+                switch (x)
+                {
+                    case SetupDataPort portStatus:
+                        if (portStatus.Direction == Direction.Input)
+                        {
+                            if (portStatus.Port >= 0 && portStatus.Port < DigitalOutputs.Length)
+                                this.DigitalInputs[portStatus.Port].Trigger(portStatus.Value);
+                        }
+                        else if (portStatus.Direction == Direction.Output)
+                        {
+                            if (portStatus.Port >= 0 && portStatus.Port < DigitalOutputs.Length)
+                                SendDigitalOutputMessage(portStatus.Port, portStatus.Value);
+                        }
+                        break;
+                }
+            });
+
             Executor.Current.Register(this);
         }
 
@@ -60,6 +84,15 @@ namespace Animatroller.Framework.Expander
                 Executor.Current.Diagnostics.OnNext(new DiagDataPortStatus
                 {
                     Name = this.name,
+                    Direction = Direction.Input,
+                    Port = index,
+                    Value = false
+                });
+
+                Executor.Current.Diagnostics.OnNext(new DiagDataPortStatus
+                {
+                    Name = this.name,
+                    Direction = Direction.Output,
                     Port = index,
                     Value = false
                 });
@@ -95,12 +128,25 @@ namespace Animatroller.Framework.Expander
         {
             this.DigitalOutputs[index] = new PhysicalDevice.DigitalOutput(x =>
             {
-                SendMessage(new SetOutputRequest
+                SendDigitalOutputMessage(index, x);
+
+                Executor.Current.Diagnostics.OnNext(new DiagDataPortStatus
                 {
-                    Output = string.Format("d{0}", index),
-                    Value = x ? 1.0 : 0.0
-                }, $"d-out{index}");
+                    Name = this.name,
+                    Direction = Direction.Output,
+                    Port = index,
+                    Value = x
+                });
             });
+        }
+
+        private void SendDigitalOutputMessage(int output, bool value)
+        {
+            SendMessage(new SetOutputRequest
+            {
+                Output = string.Format("d{0}", output),
+                Value = value ? 1.0 : 0.0
+            }, $"d-out{output}");
         }
 
         public MonoExpanderInstance Connect(LogicalDevice.AudioPlayer logicalDevice)
@@ -261,12 +307,16 @@ namespace Animatroller.Framework.Expander
                 {
                     if (inputId >= 0 && inputId <= 7)
                     {
-                        this.DigitalInputs[inputId].Trigger(message.Value != 0.0);
+                        bool value = message.Value != 0;
+
+                        this.DigitalInputs[inputId].Trigger(value);
+
                         Executor.Current.Diagnostics.OnNext(new DiagDataPortStatus
                         {
                             Name = this.name,
+                            Direction = Direction.Input,
                             Port = inputId,
-                            Value = message.Value != 0.0
+                            Value = value
                         });
                     }
                 }
