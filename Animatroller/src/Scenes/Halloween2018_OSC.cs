@@ -85,10 +85,10 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<bool>("/Triggers/x", (msg, data) =>
             {
                 if (data[0])
-                    expanderPicture.SendSerial(0, new byte[] { 0x01 });
+                    pictureFrame1.SendCommand(null, 1);
 
                 if (data[1])
-                    expanderPicture.SendSerial(0, new byte[] { 0x02 });
+                    pictureFrame1.SendCommand(null, 99);
 
                 if (data[2])
                     expanderGhost.SendSerial(0, new byte[] { 0x01 });
@@ -101,7 +101,7 @@ namespace Animatroller.Scenes
                     floodLights.Value = !floodLights.Value;
                 }
 
-                bigSpiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
+                //bigSpiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
 
                 if (data[6])
                     audioHifi.PlayEffect("sixthsense-deadpeople.wav");
@@ -243,7 +243,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 6:
-                        audioSpider.PlayNewEffect(fileName);
+                        audioLedmx.PlayNewEffect(fileName);
                         break;
 
                     case 7:
@@ -261,7 +261,7 @@ namespace Animatroller.Scenes
                 blockMaster.Value = data[0];
                 blockFirst.Value = data[1];
                 blockPicture.Value = data[2];
-                blockSpiderDrop.Value = data[3];
+                blockSpiderSquirt.Value = data[3];
                 blockRocking.Value = data[4];
                 blockLast.Value = data[5];
                 blockCat.Value = data[6];

@@ -23,8 +23,9 @@ namespace Animatroller.Scenes
 
             midiInput.Note(midiChannel, 36).Subscribe(x =>
             {
-                if (x)
-                    audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
+                bigEye.Send("/eyecontrol", x ? 1 : 0);
+//                if (x)
+//                    audioCat.PlayEffect("266 Monster Growl 7.wav", 1.0, 1.0);
             });
 
             midiInput.Note(midiChannel, 37).Subscribe(x =>

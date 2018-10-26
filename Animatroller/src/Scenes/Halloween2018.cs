@@ -64,6 +64,7 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderFlying = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderInstance expanderPopper = new Expander.MonoExpanderInstance();
         Expander.AcnStream acnOutput = new Expander.AcnStream();
+        Expander.OscClient bigEye = new Expander.OscClient("192.168.240.155", 8000);
 
         VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);
         VirtualPixel1D3 pixelsFrankGhost = new VirtualPixel1D3(5);
@@ -122,7 +123,7 @@ namespace Animatroller.Scenes
         DigitalInput2 blockFrankGhost = new DigitalInput2(persistState: true);
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
-        DigitalInput2 blockSpiderDrop = new DigitalInput2(persistState: true);
+        DigitalInput2 blockSpiderSquirt = new DigitalInput2(persistState: true);
 
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 floodLights = new DigitalInput2();
@@ -154,20 +155,18 @@ namespace Animatroller.Scenes
         DigitalInput2 mrPumpkinMotion = new DigitalInput2();
         DigitalInput2 rockingMotion = new DigitalInput2();
         DigitalInput2 catMotion = new DigitalInput2();
-        DigitalInput2 spiderDropTrigger = new DigitalInput2();
+        DigitalInput2 spiderSquirtTrigger = new DigitalInput2();
         DigitalInput2 firstBeam = new DigitalInput2();
-        DigitalInput2 secondBeam = new DigitalInput2();
+        DigitalInput2 pictureBeam = new DigitalInput2();
         DigitalInput2 lastBeam = new DigitalInput2();
         DigitalOutput2 catAir = new DigitalOutput2();
+        DigitalOutput2 blackLights = new DigitalOutput2();
         DigitalOutput2 fire = new DigitalOutput2();
         DigitalOutput2 waterMist = new DigitalOutput2();
         DigitalOutput2 mrPumpkinAir = new DigitalOutput2();
         DigitalOutput2 frankGhostAir = new DigitalOutput2();
         DigitalOutput2 lastFog = new DigitalOutput2();
         DigitalOutput2 popper = new DigitalOutput2();
-        DigitalOutput2 spiderDropRelease = new DigitalOutput2();
-        DigitalOutput2 spiderVenom = new DigitalOutput2();
-        DigitalOutput2 spiderJump2 = new DigitalOutput2();
         DigitalOutput2 ladyMovingEyes = new DigitalOutput2();
         DigitalOutput2 rockingChairMotor = new DigitalOutput2();
         DateTime? lastFogRun = DateTime.Now;
@@ -179,8 +178,9 @@ namespace Animatroller.Scenes
         Dimmer3 pumpkinLights = new Dimmer3();
         Dimmer3 spiderWebLights = new Dimmer3();
         Dimmer3 spiderEyes = new Dimmer3();
-        Dimmer3 streetNumberEyes = new Dimmer3();
-        Dimmer3 bigSpiderEyes = new Dimmer3();
+        Dimmer3 catSkeletonEyes = new Dimmer3();
+        //Dimmer3 streetNumberEyes = new Dimmer3();
+        //Dimmer3 bigSpiderEyes = new Dimmer3();
         Dimmer3 gargoyleLightsCrystal = new Dimmer3();
         Dimmer3 gargoyleLightsEyes = new Dimmer3();
         Dimmer3 flyingSkeletonEyes = new Dimmer3();
@@ -210,8 +210,8 @@ namespace Animatroller.Scenes
         StrobeColorDimmer3 rockingChairLight = new StrobeColorDimmer3("Rocking chair");
         //StrobeColorDimmer3 wall8Light = new StrobeColorDimmer3("Wall 8");
         //StrobeColorDimmer3 wall9Light = new StrobeColorDimmer3("Wall 9");
-        StrobeDimmer3 flashTree = new StrobeDimmer3("ADJ Flash");
-        StrobeDimmer3 flashUnderSpider = new StrobeDimmer3("Eliminator Flash");
+        StrobeDimmer3 flashTreeXXX = new StrobeDimmer3("Eliminator Flash");
+        StrobeDimmer3 flashUnderSpider = new StrobeDimmer3("ADJ Flash");
         //        StrobeColorDimmer3 pinSpot = new StrobeColorDimmer3("Pin Spot");
 
         Controller.Sequence welcomeSeq = new Controller.Sequence();
@@ -233,7 +233,7 @@ namespace Animatroller.Scenes
         Modules.HalloweenGrumpyCat grumpyCat;
         Modules.HalloweenMrPumpkin mrPumpkin;
         Modules.HalloweenFrankGhost frankGhost;
-        Modules.HalloweenSpiderDrop spiderDrop;
+        Modules.HalloweenSpiderSquirt spiderSquirt;
         Modules.FireProjector fireProjector;
         Modules.HalloweenPictureFrame pictureFrame;
         Modules.HalloweenFlying flyingSkeleton;
@@ -301,7 +301,7 @@ namespace Animatroller.Scenes
                 ladyEyes: ladyMovingEyes,
                 strobeLight: rockingChairLight,
                 audioPlayer: audioRocking,
-                name: nameof(pictureFrame));
+                name: nameof(rockingChair));
             stateMachine.WhenStates(States.BackgroundFull).Controls(rockingChair.InputPower);
 
             rockingMotion.Output.Controls(rockingChair.InputTrigger);
@@ -320,15 +320,13 @@ namespace Animatroller.Scenes
                 name: nameof(frankGhost));
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(frankGhost.InputPower);
 
-            spiderDrop = new Modules.HalloweenSpiderDrop(
-                smallSpiderEyes: smallSpiderEyes,
+            spiderSquirt = new Modules.HalloweenSpiderSquirt(
                 eyesLight: spiderEyes,
-                drop: spiderDropRelease,
-                venom: spiderVenom,
+                venom: waterMist,
                 strobeLight: flashUnderSpider,
-                audioPlayer: audioSpider,
-                name: nameof(spiderDrop));
-            stateMachine.WhenStates(States.BackgroundFull).Controls(spiderDrop.InputPower);
+                audioPlayer: audioLedmx,
+                name: nameof(spiderSquirt));
+            stateMachine.WhenStates(States.BackgroundFull).Controls(spiderSquirt.InputPower);
 
             fireProjector = new Modules.FireProjector(
                 fire: fire,
@@ -354,11 +352,6 @@ namespace Animatroller.Scenes
                 }
                 else
                     allLights.ReleaseControl();
-            });
-
-            firstBeam.Output.Subscribe(x =>
-            {
-                waterMist.SetValue(x);
             });
 
             testButton1.Output.Subscribe(x =>
@@ -438,7 +431,7 @@ namespace Animatroller.Scenes
             popOut1.ConnectTo(wall1Light);
             popOut1.ConnectTo(wall4Light);
             popOut1.ConnectTo(wall6Light);
-            popOut1.ConnectTo(flashTree);
+            popOut1.ConnectTo(flashTreeXXX);
             popOut2.ConnectTo(wall2Light);
             //popOut2.ConnectTo(wall7Light);
             //popOut2.ConnectTo(flashUnderSpider);
@@ -451,7 +444,7 @@ namespace Animatroller.Scenes
             //popOutAll.ConnectTo(wall7Light);
             //popOutAll.ConnectTo(wall8Light);
             //popOutAll.ConnectTo(wall9Light);
-            popOutAll.ConnectTo(flashTree);
+            popOutAll.ConnectTo(flashTreeXXX);
             //popOutAll.ConnectTo(flashUnderSpider);
             popOutAll.ConnectTo(pixelsRoofEdge);
             popOutAll.ConnectTo(pixelsFrankGhost);
@@ -468,7 +461,7 @@ namespace Animatroller.Scenes
                 //wall7Light,
                 //wall8Light,
                 //wall9Light,
-                flashTree,
+                flashTreeXXX,
                 flashUnderSpider,
                 pixelsRoofEdge,
                 pixelsFrankGhost,
@@ -495,29 +488,31 @@ namespace Animatroller.Scenes
             flickerEffect.ConnectTo(stairs2Light);
             flickerEffect.ConnectTo(gargoyleLightsEyes);
             //flickerEffect.ConnectTo(flyingSkeletonEyes);
-            flickerEffect.ConnectTo(streetNumberEyes);
-            flickerEffect.ConnectTo(bigSpiderEyes);
+            //flickerEffect.ConnectTo(streetNumberEyes);
+            //flickerEffect.ConnectTo(bigSpiderEyes);
             pulsatingGargoyle.ConnectTo(gargoyleLightsCrystal);
-            pulsatingGargoyle.ConnectTo(treeSkulls);
-            //pulsatingGargoyle.ConnectTo(spiderEyes);
+            pulsatingEffect1.ConnectTo(treeSkulls);
+            pulsatingEffect1.ConnectTo(spiderEyes);
+            pulsatingEffect1.ConnectTo(catSkeletonEyes);
             //pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
             //pulsatingEffect2.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 0)));
 
             pulsatingGargoyle.ConnectTo(spiderWebLights);
 
             stateMachine.For(States.Setup)
-                .Controls(1, flickerEffect, pulsatingGargoyle)
+                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingEffect1)
                 .Execute(ins =>
                 {
                     ins.WaitUntilCancel();
                 });
 
             stateMachine.For(States.BackgroundSmall)
-                .Controls(1, flickerEffect, pulsatingGargoyle)
+                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingEffect1)
                 .Execute(i =>
                     {
                         treeGhosts.SetBrightness(1.0);
                         treeSkulls.SetBrightness(1.0);
+                        blackLights.SetValue(true);
                         //                        audioHifi.SetBackgroundVolume(0.5);
                         //                        audioHifi.PlayBackground();
                         //                        ladyMovingEyes.SetValue(true);
@@ -540,14 +535,16 @@ namespace Animatroller.Scenes
                         purpleLights.SetBrightness(0.0);
                         treeGhosts.SetBrightness(0.0);
                         treeSkulls.SetBrightness(0.0);
+                        blackLights.SetValue(false);
                     });
 
             stateMachine.For(States.BackgroundFull)
-                .Controls(1, flickerEffect, pulsatingGargoyle)
+                .Controls(1, flickerEffect, pulsatingGargoyle, pulsatingEffect1)
                 .Execute(i =>
                 {
                     treeGhosts.SetBrightness(1.0);
                     treeSkulls.SetBrightness(1.0);
+                    blackLights.SetValue(true);
                     audioHifi.PlayBackground();
                     audioHifi.SetBackgroundVolume(0.7);
                     //Exec.Execute(sub3dfxLady);
@@ -589,6 +586,7 @@ namespace Animatroller.Scenes
 
                     treeGhosts.SetBrightness(0.0);
                     treeSkulls.SetBrightness(0.0);
+                    blackLights.SetValue(false);
                 });
 
             stateMachine.For(States.EmergencyStop)
@@ -721,7 +719,7 @@ namespace Animatroller.Scenes
             ////acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.RGBStrobe(rockingChairLight, 40), SacnUniverseEdmx4A);
             ////acnOutput.Connect(new Physical.RGBStrobe(wall7Light, 80), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.DMXCommandOutput(pictureFrame1, 1, TimeSpan.FromMilliseconds(500), 0), SacnUniverseEdmx4B);
+            acnOutput.Connect(new Physical.DMXCommandOutput(pictureFrame1, 1, TimeSpan.FromMilliseconds(500), 0), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.DMXCommandOutput(lady3dfx, 1, TimeSpan.FromMilliseconds(500), 0), SacnUniverseEdmx4A);
             //acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 340, 8), SacnUniverseEdmx4A);
             //acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 80), SacnUniverseEdmx4A);
@@ -733,11 +731,13 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 202), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 67), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(treeSkulls, 128), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(spiderEyes, 128), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(spiderEyes, 256), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(catSkeletonEyes, 257), SacnUniverseDMXLedmx);
+            //acnOutput.Connect(new Physical.GenericDimmer(spiderEyes, 257), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 132), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(popper, 133), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.AmericanDJStrobe(flashTree, 100), SacnUniverseEdmx4A);
-            //acnOutput.Connect(new Physical.EliminatorFlash192(flashUnderSpider, 110), SacnUniverseDMXFogA);
+            acnOutput.Connect(new Physical.AmericanDJStrobe(flashUnderSpider, 100), SacnUniverseDMXLedmx);
+            //acnOutput.Connect(new Physical.EliminatorFlash192(flashTreeXXX, 110), SacnUniverseDMXFogA);
             //            acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(pinSpot, 20), 1);
 
             //acnOutput.Connect(new Physical.GenericDimmer(fire, 1), SacnUniverseFire);
@@ -746,6 +746,7 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.GenericDimmer(mrPumpkinAir, 11), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(spiderWebLights, 99), SacnUniverseDMXCat);
             acnOutput.Connect(new Physical.GenericDimmer(catAir, 10), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(blackLights, 11), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(catLights, 64), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(pumpkinLights, 50), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(gargoyleLightsCrystal, 128), SacnUniverseDMXCat);
@@ -759,14 +760,18 @@ namespace Animatroller.Scenes
             //            acnOutput.Connect(new Physical.RGBIS(testLight1, 260), 1);
 
 
-            expanderCat.DigitalInputs[5].Connect(frankGhostMotion, false);
+            expanderLedmx.InvertedInputs[4] = true;
+            //            expanderFrankGhost.InvertedInputs[0] = true;
+            //            expanderFrankGhost.InvertedInputs[5] = true;
+
+            expanderCat.DigitalInputs[5].Connect(frankGhostMotion);
             //expanderLedmx.DigitalInputs[5].Connect(mrPumpkinMotion, false);
             //expanderLedmx.DigitalInputs[6].Connect(rockingMotion, false);
             expanderCat.DigitalInputs[4].Connect(catMotion);
-            //expanderCat.DigitalInputs[6].Connect(secondBeam);
-            //expanderCat.DigitalInputs[5].Connect(spiderDropTrigger, inverted: true);
-            expanderFrankGhost.DigitalInputs[0].Connect(firstBeam);
-            expanderFrankGhost.DigitalOutputs[0].Connect(waterMist);
+            expanderFrankGhost.DigitalInputs[4].Connect(firstBeam);
+            expanderFrankGhost.DigitalInputs[5].Connect(pictureBeam);
+            expanderLedmx.DigitalInputs[4].Connect(spiderSquirtTrigger);
+            expanderCat.DigitalOutputs[7].Connect(waterMist);
             //expanderLedmx.DigitalInputs[7].Connect(lastBeam);
             ////expanderMrPumpkin.DigitalOutputs[7].Connect(popper);
             //expanderLedmx.DigitalOutputs[2].Connect(lastFog, inverted: true);
@@ -814,22 +819,22 @@ namespace Animatroller.Scenes
             Utils.ReactiveOr(blockCat, blockMaster).Controls(grumpyCat.InputTriggerBlock);
             //Utils.ReactiveOr(blockPumpkin, blockMaster).Controls(mrPumpkin.InputTriggerBlock);
             Utils.ReactiveOr(blockFrankGhost, blockMaster).Controls(frankGhost.InputTriggerBlock);
-            Utils.ReactiveOr(blockSpiderDrop, blockMaster).Controls(spiderDrop.InputTriggerBlock);
+            Utils.ReactiveOr(blockSpiderSquirt, blockMaster).Controls(spiderSquirt.InputTriggerBlock);
             Utils.ReactiveOr(blockFire, blockMaster).Controls(fireProjector.InputTriggerBlock);
             Utils.ReactiveOr(blockPicture, blockMaster).Controls(pictureFrame.InputTriggerBlock);
             Utils.ReactiveOr(blockRocking, blockMaster).Controls(rockingChair.InputTriggerBlock);
             Utils.ReactiveOr(blockFirst, blockMaster).Controls(flyingSkeleton.InputTriggerBlock);
 
             catMotion.Controls(grumpyCat.InputTrigger);
-            secondBeam.Controls(pictureFrame.InputTrigger);
+            pictureBeam.Controls(pictureFrame.InputTrigger);
             //mrPumpkinMotion.Controls(mrPumpkin.InputTrigger);
             frankGhostMotion.Controls(frankGhost.InputTrigger);
-            spiderDropTrigger.Controls(spiderDrop.InputTrigger);
+            spiderSquirtTrigger.Controls(spiderSquirt.InputTrigger);
 
-            spiderDropTrigger.Output.Subscribe(x =>
+            spiderSquirtTrigger.Output.Subscribe(x =>
             {
-                if (x)
-                    Exec.Execute(sub3dfxLady);
+                //if (x)
+                //    Exec.Execute(sub3dfxLady);
             });
 
             lastBeam.Output.Subscribe(x =>
@@ -942,6 +947,7 @@ namespace Animatroller.Scenes
                 pixelsRoofEdge.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
                 wall4Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
                 wall6Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
+                //flashUnderSpider.SetBrightness(faderBright.Value, token: manualFaderToken);
             }
         }
 

@@ -11,12 +11,14 @@ namespace Animatroller.Framework.Expander
         private event EventHandler<EventArgs> VideoTrackDone;
         private readonly ISubject<Tuple<AudioTypes, string>> audioTrackStart;
         private readonly ISubject<DiagData> diagnostics;
+        private readonly bool[] invertedInputs;
 
         public MonoExpanderInstance(int inputs = 8, int outputs = 8, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             this.name = name;
 
             this.DigitalInputs = new PhysicalDevice.DigitalInput[inputs];
+            this.invertedInputs = new bool[inputs];
             for (int index = 0; index < this.DigitalInputs.Length; index++)
                 this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
 
@@ -65,6 +67,8 @@ namespace Animatroller.Framework.Expander
         public PhysicalDevice.DigitalOutput[] DigitalOutputs { get; private set; }
 
         public PhysicalDevice.MotorWithFeedback Motor { get; private set; }
+
+        public bool[] InvertedInputs => this.invertedInputs;
 
         protected virtual void RaiseAudioTrackDone()
         {
@@ -308,6 +312,8 @@ namespace Animatroller.Framework.Expander
                     if (inputId >= 0 && inputId <= 7)
                     {
                         bool value = message.Value != 0;
+                        if (this.invertedInputs[inputId])
+                            value = !value;
 
                         this.DigitalInputs[inputId].Trigger(value);
 
