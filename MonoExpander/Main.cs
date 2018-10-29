@@ -186,10 +186,9 @@ namespace Animatroller.MonoExpander
                         {
                             SendInputMessage(e.pin.Id, e.pin.State);
                         };
-
-                        // Send current state
-                        SendInputMessage(ip.Id, ip.State);
                     }
+
+                    SendInputStatus();
                 }
                 catch (Exception ex)
                 {
@@ -229,11 +228,22 @@ namespace Animatroller.MonoExpander
                     port: server.Port,
                     instanceId: InstanceId,
                     dataReceivedAction: (t, d) => DataReceived(client, t, d),
-                    connectedAction: () => SendMessage(new Ping()));
+                    connectedAction: () => SendInputStatus());
 #endif
                 this.connections.Add(Tuple.Create((IClientCommunication)communication, client));
 
                 Task.Run(async () => await communication.StartAsync()).Wait();
+            }
+        }
+
+        private void SendInputStatus()
+        {
+            if (this.piFace != null)
+            {
+                foreach (var ip in this.piFace.InputPins)
+                {
+                    SendInputMessage(ip.Id, ip.State);
+                }
             }
         }
 
