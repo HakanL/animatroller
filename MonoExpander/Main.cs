@@ -58,11 +58,13 @@ namespace Animatroller.MonoExpander
         private List<Tuple<IClientCommunication, MonoExpanderClient>> connections;
         private Dictionary<int, SerialPort> serialPorts;
         private Dictionary<Guid, Channel> currentChannels = new Dictionary<Guid, Channel>();
+        private string version;
 
         public Main(Arguments args)
         {
             this.log = Log.Logger;
             this.fileStoragePath = args.FileStoragePath;
+            this.version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
             // Clean up temp folder
             string tempFolder = Path.Combine(this.fileStoragePath, "tmp");
@@ -228,7 +230,11 @@ namespace Animatroller.MonoExpander
                     port: server.Port,
                     instanceId: InstanceId,
                     dataReceivedAction: (t, d) => DataReceived(client, t, d),
-                    connectedAction: () => SendInputStatus());
+                    connectedAction: () =>
+                    {
+                        SendPing();
+                        SendInputStatus();
+                    });
 #endif
                 this.connections.Add(Tuple.Create((IClientCommunication)communication, client));
 
@@ -648,13 +654,24 @@ namespace Animatroller.MonoExpander
             return false;
         }
 
+        private void SendPing()
+        {
+            SendMessage(new Ping
+            {
+                HostName = Environment.MachineName,
+                Version = version,
+                Inputs = this.piFace?.InputPins.Length ?? 0,
+                Outputs = this.piFace?.OutputPins.Length ?? 0
+            });
+        }
+
         public void Execute(CancellationToken cancel)
         {
             try
             {
                 this.log.Information("Starting up listeners, etc");
 
-                this.log.Information("Running");
+                this.log.Information("Running version {Version} on {HostName}", this.version, Environment.MachineName);
 
                 if (this.autoStartBackgroundTrack)
                     PlayNextBackground();
@@ -691,7 +708,7 @@ namespace Animatroller.MonoExpander
                         // Send ping
                         this.log.Verbose("Send ping");
 
-                        SendMessage(new Ping());
+                        SendPing();
 
                         watch.Restart();
                     }
