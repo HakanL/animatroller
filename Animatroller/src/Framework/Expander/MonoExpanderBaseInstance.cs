@@ -1,10 +1,10 @@
 ﻿//#define VERBOSE_LOGGING
-using Animatroller.Framework.MonoExpanderMessages;
-using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Animatroller.Framework.MonoExpanderMessages;
+using Serilog;
 
 namespace Animatroller.Framework.Expander
 {
@@ -13,11 +13,12 @@ namespace Animatroller.Framework.Expander
         protected ILogger log;
         private string expanderSharedFiles;
         protected Action<object> sendAction;
-        private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
+        private readonly Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
         protected string connectionId;
         protected string name;
         protected string instanceId;
-        private Dictionary<string, object> lastState;
+        private readonly Dictionary<string, object> lastState;
+        private bool hasReported;
 
         public MonoExpanderBaseInstance()
         {
@@ -51,6 +52,7 @@ namespace Animatroller.Framework.Expander
 
         public void ClientConnected(string connectionId, System.Net.EndPoint endPoint)
         {
+            this.hasReported = false;
             this.connectionId = connectionId;
 
             this.log.Information("Client {0} connected to instance {1} ({2}) at {EndPoint}",
@@ -112,6 +114,13 @@ namespace Animatroller.Framework.Expander
             this.log.Verbose($"Response from instance {this.name} at {this.connectionId}");
 #endif
 
+            if (!this.hasReported)
+            {
+                this.log.Information("Instance {InstanceName} is running version {Version} on {HostName} with {Inputs}/{Outputs} I/O pins",
+                    this.name, message.Version, message.HostName, message.Inputs, message.Outputs);
+
+                this.hasReported = true;
+            }
         }
 
         public void Handle(FileRequest message)

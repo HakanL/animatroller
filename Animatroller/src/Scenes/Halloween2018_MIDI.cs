@@ -63,9 +63,9 @@ namespace Animatroller.Scenes
 
             midiInput.Note(midiChannel, 41).Subscribe(x =>
             {
-                if (x)
-                    //                    audioHifi.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
-                    expanderPicture.SendSerial(0, new byte[] { 0x01 });
+                //if (x)
+                //    //                    audioHifi.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+                //    expanderPicture.SendSerial(0, new byte[] { 0x01 });
             });
 
             midiInput.Note(midiChannel, 42).Subscribe(x =>

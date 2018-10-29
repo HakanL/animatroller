@@ -60,8 +60,8 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterActionSimple<bool>("/ExpanderPopperAudioStop/x", (msg, data) =>
             {
-                if (data)
-                    audioPopper.StopFX();
+                //if (data)
+                //    audioPopper.StopFX();
             });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderHifiAudioStop/x", (msg, data) =>
@@ -88,8 +88,8 @@ namespace Animatroller.Scenes
                 if (data[1])
                     pictureFrame1.SendCommand(null, 99);
 
-                if (data[2])
-                    expanderGhost.SendSerial(0, new byte[] { 0x01 });
+                //if (data[2])
+                //    expanderGhost.SendSerial(0, new byte[] { 0x01 });
 
                 if (data[3])
                     subFog.Run();
@@ -235,7 +235,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 4:
-                        audioPumpkin.PlayNewEffect(fileName);
+                        //audioPumpkin.PlayNewEffect(fileName);
                         break;
 
                     case 5:

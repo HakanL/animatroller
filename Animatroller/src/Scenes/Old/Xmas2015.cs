@@ -41,11 +41,11 @@ namespace Animatroller.Scenes
         OperatingHours2 hours = new OperatingHours2();
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>(States.Background);
 
-        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expander3 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expander3 = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expander4 = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         AudioPlayer audio1 = new AudioPlayer();
         AudioPlayer audioMain = new AudioPlayer();

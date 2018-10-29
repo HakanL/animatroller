@@ -11,7 +11,7 @@ namespace Animatroller.Scenes
 {
     internal class ExpanderDemo2 : BaseScene
     {
-        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         //        Expander.MonoExpanderInstance expander1 = new Expander.MonoExpanderInstance();
         //        Expander.MonoExpanderInstance expander2 = new Expander.MonoExpanderInstance();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(8899);

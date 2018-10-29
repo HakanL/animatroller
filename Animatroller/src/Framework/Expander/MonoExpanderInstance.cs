@@ -7,18 +7,52 @@ namespace Animatroller.Framework.Expander
 {
     public class MonoExpanderInstance : MonoExpanderBaseInstance, IPort, IRunnable, IOutputHardware
     {
+        public enum HardwareType
+        {
+            None,
+            PiFace
+        }
+
         private event EventHandler<EventArgs> AudioTrackDone;
         private event EventHandler<EventArgs> VideoTrackDone;
-        private readonly ISubject<Tuple<AudioTypes, string>> audioTrackStart;
-        private readonly ISubject<DiagData> diagnostics;
-        private readonly bool[] invertedInputs;
+        private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
+        private bool[] invertedInputs;
 
-        public MonoExpanderInstance(int inputs = 8, int outputs = 8, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        public MonoExpanderInstance(HardwareType hardware, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            switch(hardware)
+            {
+                case HardwareType.None:
+                    Init(name, 0, 0);
+                    break;
+
+                case HardwareType.PiFace:
+                    Init(name, 8, 8);
+
+                    // Default for the PiFace
+                    this.invertedInputs[0] = true;
+                    this.invertedInputs[1] = true;
+                    this.invertedInputs[2] = true;
+                    this.invertedInputs[3] = true;
+                    break;
+
+                default:
+                    throw new ArgumentException("Unknown type");
+            }
+        }
+
+        public MonoExpanderInstance(int inputs, int outputs, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            Init(name, inputs, outputs);
+        }
+
+        private void Init(string name, int inputs, int outputs)
         {
             this.name = name;
 
             this.DigitalInputs = new PhysicalDevice.DigitalInput[inputs];
             this.invertedInputs = new bool[inputs];
+
             for (int index = 0; index < this.DigitalInputs.Length; index++)
                 this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
 
@@ -302,14 +336,14 @@ namespace Animatroller.Framework.Expander
 
         public void Handle(InputChanged message)
         {
-            this.log.Information("Input {0} on {1} set to {2}", message.Input, this.name, message.Value);
+            this.log.Debug("Input {0} on {1} set to {2}", message.Input, this.name, message.Value);
 
             if (message.Input.StartsWith("d"))
             {
                 int inputId;
                 if (int.TryParse(message.Input.Substring(1), out inputId))
                 {
-                    if (inputId >= 0 && inputId <= 7)
+                    if (inputId >= 0 && inputId < this.DigitalInputs.Length)
                     {
                         bool value = message.Value != 0;
                         if (this.invertedInputs[inputId])

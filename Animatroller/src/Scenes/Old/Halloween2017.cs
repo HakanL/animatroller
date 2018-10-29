@@ -53,16 +53,16 @@ namespace Animatroller.Scenes
         AudioPlayer audioPopper = new AudioPlayer();
         AudioPlayer audioFlying = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
-        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderMrPumpkin = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderSpider = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderRocking = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderFlying = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderPopper = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderMrPumpkin = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderSpider = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderRocking = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderFlying = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderPopper = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.AcnStream acnOutput = new Expander.AcnStream();
 
         VirtualPixel1D3 pixelsRoofEdge = new VirtualPixel1D3(150);

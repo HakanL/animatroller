@@ -61,12 +61,12 @@ namespace Animatroller.Scenes
         OperatingHours2 hours = new OperatingHours2();
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
 
-        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderHiFi = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderVideo1 = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderSnow = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderControlPanel = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderHiFi = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderVideo1 = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderSnow = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderControlPanel = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         AudioPlayer audioLedmx = new AudioPlayer();
         AudioPlayer audioHiFi = new AudioPlayer();

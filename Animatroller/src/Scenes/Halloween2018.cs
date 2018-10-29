@@ -43,26 +43,26 @@ namespace Animatroller.Scenes
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         Expander.OscServer oscServer = new Expander.OscServer(8000, forcedClientPort: 8000, registerAutoHandlers: true);
         AudioPlayer audioLocal = new AudioPlayer();
-        AudioPlayer audioPumpkin = new AudioPlayer();
+        //AudioPlayer audioPumpkin = new AudioPlayer();
         AudioPlayer audioFrankGhost = new AudioPlayer();
         AudioPlayer audioFlying = new AudioPlayer();
         AudioPlayer audioRocking = new AudioPlayer();
         AudioPlayer audioSpider = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
-        AudioPlayer audioPopper = new AudioPlayer();
+        //AudioPlayer audioPopper = new AudioPlayer();
         AudioPlayer audioBigEye = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
-        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderFrankGhost = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderFlying = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderRocking = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderBigEye = new Expander.MonoExpanderInstance();
-        Expander.MonoExpanderInstance expanderPopper = new Expander.MonoExpanderInstance();
+        Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        //Expander.MonoExpanderInstance expanderPicture = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        //Expander.MonoExpanderInstance expanderGhost = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderFrankGhost = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderFlying = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        Expander.MonoExpanderInstance expanderRocking = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderBigEye = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        //Expander.MonoExpanderInstance expanderPopper = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.AcnStream acnOutput = new Expander.AcnStream();
         Expander.OscClient bigEye = new Expander.OscClient("192.168.240.155", 8000);
 
@@ -265,13 +265,13 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);      // rpi-eb0092ca
             expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderCat);        // rpi-eb81c94e
             expanderServer.AddInstance("d6fc4e752af04022bf3c1a1166a557bb", expanderHifi);       // rpi-eb428ef1
-            expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
+            //expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderRocking);    // rpi-eb6a047c
             expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderFrankGhost); // rpi-ebd43a38
             expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderFlying);     // rpi-eb9b3145
-            expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderGhost);      // rpi-eb32e5f9
+            //expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderGhost);      // rpi-eb32e5f9
             expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderBigEye);     // rpi-eb35666e
-            expanderServer.AddInstance("2e105175a66549d4a0ab7f8d446c2e29", expanderPopper);     // rpi-eb997095
+            //expanderServer.AddInstance("2e105175a66549d4a0ab7f8d446c2e29", expanderPopper);     // rpi-eb997095
 
             masterVolume.ConnectTo(Exec.MasterVolume);
 
@@ -800,7 +800,7 @@ namespace Animatroller.Scenes
             expanderBigEye.Connect(audioBigEye);
             expanderFlying.Connect(audioFlying);
             expanderRocking.Connect(audioRocking);
-            expanderPopper.Connect(audioPopper);
+            //expanderPopper.Connect(audioPopper);
 
             expanderHifi.BackgroundAudioFiles = new string[]
             {
