@@ -14,7 +14,7 @@
             <Controls:Led Height="100" Width="100" IsActive="False" ColorOn="#FF19AC19" ColorOff="#FF8012A0" RenderTransformOrigin="-1.69,-0.32"/>
         </Controls:LabelControl>
         <Controls:ColorDimmer x:Name="colorDimmer" HorizontalAlignment="Left" Height="100" Margin="537,130,0,0" VerticalAlignment="Top" Width="100" FooterText="Hej hopp 2" HeaderText="The Header" GelColor="#FFD3CB26" LedColor="#FFF3FF00"/>
-        <GroupBox Header="GroupBox" HorizontalAlignment="Left" Height="128" Margin="64,222,0,0" VerticalAlignment="Top" Width="158" FontSize="10"/>
+        <GroupBox Header="GroupBox" HorizontalAlignment="Left" Height="128" Margin="64,222,0,0" VerticalAlignment="Top" Width="158" FontSize="10" Style="{DynamicResource ComponentGroupBoxStyle}"/>
 
     </Grid>
 </Window>

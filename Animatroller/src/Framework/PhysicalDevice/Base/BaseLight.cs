@@ -14,8 +14,7 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             this.colorBrightness = new ColorBrightness(Color.White, 0.0);
 
-            var sendsData = logicalDevice as ISendsData;
-            if (sendsData != null)
+            if (logicalDevice is ISendsData sendsData)
             {
                 sendsData.OutputChanged.Subscribe(x =>
                 {
@@ -33,8 +32,7 @@ namespace Animatroller.Framework.PhysicalDevice
         {
             this.colorBrightness = new ColorBrightness(Color.White, 0.0);
 
-            var sendsData = logicalDevice as ISendsData;
-            if (sendsData != null)
+            if (logicalDevice is ISendsData sendsData)
             {
                 sendsData.OutputChanged.Subscribe(x =>
                 {

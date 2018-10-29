@@ -68,6 +68,13 @@ namespace Animatroller.Scenes.Modules
                 {
                     pulsatingLow.Start(token: this.controlToken);
                 });
+
+            PowerOff
+                .RunAction(ins =>
+                {
+                    audioPlayer.PlayEffect("Short Laugh.wav", 0.2);
+                    ins.WaitFor(S(5));
+                });
         }
     }
 }

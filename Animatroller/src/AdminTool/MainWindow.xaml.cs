@@ -104,6 +104,8 @@ namespace Animatroller.AdminTool
 
         private void LoadNewScene(AdminMessage.NewSceneDefinition sceneDefinition)
         {
+            var groups = new Dictionary<string, GroupBox>();
+
             foreach (var control in sceneDefinition.Definition.Components)
             {
                 var childControl = new Controls.ColorDimmer
@@ -122,15 +124,34 @@ namespace Animatroller.AdminTool
                     Margin = new Thickness(4)
                 };
 
-                /*                var newControl = new Label
-                                {
-                                    Content = control.Name,
-                                    Name = control.Id,
-                                    Width = 100
-                                };*/
-                controlPanel.Children.Add(parentControl);
-
                 componentLookup[control.Id] = parentControl;
+
+                if (!string.IsNullOrEmpty(control.Group))
+                {
+                    if (!groups.TryGetValue(control.Group, out var componentGroup))
+                    {
+                        componentGroup = new GroupBox
+                        {
+                            Name = control.Group.Replace(" ", ""),
+                            Header = control.Group,
+                            Content = new WrapPanel
+                            {
+                                Margin = new Thickness(8)
+                            },
+                            FontSize = 10,
+                            Margin = new Thickness(4)
+                        };
+
+                        //componentGroup.SetResourceReference(Control.StyleProperty, "ComponentGroupBoxStyle");
+
+                        controlPanel.Children.Add(componentGroup);
+                        groups.Add(control.Group, componentGroup);
+                    }
+
+                    (componentGroup.Content as WrapPanel).Children.Add(parentControl);
+                }
+                else
+                    controlPanel.Children.Add(parentControl);
             }
         }
 
@@ -181,6 +202,9 @@ namespace Animatroller.AdminTool
                     xyz.FooterText = (update.Owned ? "* " : "") + update.Brightness.ToString("0%");
                     xyz.GelColor = Color.FromRgb(update.Red, update.Green, update.Blue);
                     xyz.LedColor = Controls.Utility.GetColorFromColorBrightness(update.Brightness, update.Red, update.Green, update.Blue);
+                    break;
+
+                case AdminMessage.Binary update:
                     break;
             }
         }

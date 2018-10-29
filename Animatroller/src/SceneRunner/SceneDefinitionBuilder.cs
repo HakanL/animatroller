@@ -24,6 +24,7 @@ namespace Animatroller.SceneRunner
             AutoWireUsingReflection_Simple(scene, excludeDevices);
 
             var fields = scene.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            string currentGroupName = string.Empty;
 
             foreach (var field in fields)
             {
@@ -55,7 +56,8 @@ namespace Animatroller.SceneRunner
                     {
                         Id = id,
                         Name = name,
-                        Type = sendControl.ComponentType
+                        Type = sendControl.ComponentType,
+                        Group = currentGroupName
                     });
 
                     sendControls.Add(sendControl);
@@ -77,6 +79,14 @@ namespace Animatroller.SceneRunner
 
                     case Dimmer3 instance:
                         addComponent(field.Name, componentName, new SendControls.LightSendControl(instance, field.Name, updateAvailable));
+                        break;
+
+                    case Framework.Simulator.NewGroup instance:
+                        currentGroupName = instance.Name;
+                        break;
+
+                    case DigitalOutput2 instance:
+                        addComponent(field.Name, componentName, new SendControls.BinarySendControl(instance, field.Name, updateAvailable));
                         break;
                 }
 

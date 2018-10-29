@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using Effect = Animatroller.Framework.Effect;
+using System.Drawing;
 using Animatroller.Framework;
 using Animatroller.Framework.LogicalDevice;
-using System.Drawing;
-using Animatroller.Framework.Extensions;
 using Controller = Animatroller.Framework.Controller;
+using Effect = Animatroller.Framework.Effect;
 
 namespace Animatroller.Scenes.Modules
 {
@@ -53,11 +51,21 @@ namespace Animatroller.Scenes.Modules
                     while (!ins.IsCancellationRequested)
                     {
                         isRockingLadyTalking = true;
-                        audioPlayer.PlayEffect("A conversation with Mother.wav");
-                        ins.WaitFor(S(42), true);
+                        switch (random.Next(2))
+                        {
+                            case 0:
+                                audioPlayer.PlayEffect("Disgusting Things.wav");
+                                ins.WaitFor(S(6), true);
+                                break;
+
+                            case 1:
+                                audioPlayer.PlayEffect("Guts Boy.wav");
+                                ins.WaitFor(S(4), true);
+                                break;
+                        }
                         isRockingLadyTalking = false;
 
-                        ins.WaitFor(S(15.0));
+                        ins.WaitFor(S(20.0));
                     }
                 })
                 .TearDown(ins =>
@@ -67,7 +75,9 @@ namespace Animatroller.Scenes.Modules
                     rockingMotor.SetValue(false, token: this.controlToken);
                 });
 
-            PowerOn.RunAction(ins =>
+            PowerOn
+                .SetLoop(true)
+                .RunAction(ins =>
                 {
                     pulsatingRocking.Start(token: this.controlToken);
                     if (!isRockingLadyTalking)

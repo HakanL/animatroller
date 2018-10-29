@@ -32,15 +32,18 @@ namespace Animatroller.Scenes.Modules
 
             PowerOn.RunAction(ins =>
                 {
+                    ins.WaitFor(S(1.0));
+                    venom.SetValue(true);
+                    ins.WaitFor(S(0.5));
                     audioPlayer.PlayNewEffect("348 Spider Hiss.wav");
                     eyesLight.SetBrightness(1);
                     ins.WaitFor(S(0.2));
                     strobeLight.SetBrightnessStrobeSpeed(1, 1);
-                    venom.SetValue(true);
                     ins.WaitFor(S(2.0));
                     venom.SetValue(false);
+                    ins.WaitFor(S(1.0));
                     strobeLight.SetBrightnessStrobeSpeed(0, 0);
-                    ins.WaitFor(S(2.0));
+                    ins.WaitFor(S(1.0));
                 })
                 .TearDown(ins =>
                 {

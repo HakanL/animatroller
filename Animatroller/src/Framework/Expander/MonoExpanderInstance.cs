@@ -357,6 +357,10 @@ namespace Animatroller.Framework.Expander
 
                     this.audioTrackStart.OnNext(Tuple.Create(message.Type, message.Id));
                     break;
+
+                case AudioTypes.Effect:
+                    log.Debug("Playing effect {0} on {1}", message.Id, this.name);
+                    break;
             }
 
             Executor.Current.Diagnostics.OnNext(new DiagDataAudioPlayback

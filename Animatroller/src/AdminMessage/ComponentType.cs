@@ -6,6 +6,7 @@ namespace Animatroller.AdminMessage
 {
     public enum ComponentType
     {
-        StrobeColorDimmer
+        StrobeColorDimmer,
+        Binary
     }
 }

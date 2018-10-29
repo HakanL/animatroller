@@ -9,6 +9,8 @@ namespace Animatroller.AdminMessage
 
         public string Name { get; set; }
 
+        public string Group { get; set; }
+
         [JsonConverter(typeof(StringEnumConverter))]
         public ComponentType Type { get; set; }
     }

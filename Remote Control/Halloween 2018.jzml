@@ -422,6 +422,23 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderLedmxOutput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
+<WINDOW class="Pads" text="ExpanderRockingOutput" x="17" y="348" width="706" height="98" id="218" state="1" group="0" font="tahoma,10,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderRocking-Output/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingOutput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingOutput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="sustain=1" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingOutput/sustain" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="release=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingOutput/release" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="hold=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingOutput/hold" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingOutput/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<SCRIPT name="onstart()" script="setattribute(getobject(), 'labels', {'o0', 'o1', 'o2', 'o3', 'o4', 'o5', 'o6', 'o7'});
+" trigger_script="" trigger_type="5" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderRockingOutput/onstart" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
+<SCRIPT name="set(OSC_ARGS)" script="decl offset = OSC_ARGS[0];
+decl value = OSC_ARGS[1];
+
+decl new_x = getexpression(getobject(),'x');
+new_x[offset] = value;
+setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderRockingOutput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
+</WINDOW>
 </WINDOW>
 <WINDOW class="JAZZINTERFACE" text="Sound Board" x="0" y="0" width="1280" height="756" id="2" state="0" group="0" font="tahoma,11,0" >
 <WINDOW class="Pads" text="SoundBoard" x="24" y="107" width="1234" height="620" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="5" label="0" multicolor="0" multilabel="1" row="5">
@@ -448,7 +465,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 		'Short Laugh',
 		'Evil Laugh',
 		'Who is that knocking',
-		'Little Teapot',
+		'I can see You',
 		'Scream of Terror',
 		'Babbling Lunatic',
 		'Creature Growls',
@@ -460,7 +477,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 		'Tornado Siren'
 });" trigger_script="" trigger_type="5" trigger="1" clock="0" clock_div="4" osc_message="/SoundBoard/onstart" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="LemurMenu" text="AudioOutput" x="32" y="9" width="228" height="74" id="1" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" color="8326402" scale="0" content="Hifi,Flying,Popper,Cat,Pumpkin,Frank,Spider,Rocking,Local">
+<WINDOW class="LemurMenu" text="AudioOutput" x="32" y="9" width="228" height="74" id="1" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" color="8326402" scale="0" content="Hifi,Flying,Big Eye,Cat,Pumpkin,Frank,Spider,Rocking,Local">
 <PARAM name="selection=" value="0.000000" send="1" osc_target="0" osc_trigger="1" osc_message="/AudioOutput/selection" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>

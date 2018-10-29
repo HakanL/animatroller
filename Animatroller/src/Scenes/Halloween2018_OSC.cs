@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using Animatroller.Framework;
@@ -27,7 +25,7 @@ namespace Animatroller.Scenes
             oscServer.RegisterActionSimple<bool>("/ExpanderLedmxAudioStop/x", (msg, data) =>
             {
                 if (data)
-                    audioLedmx.StopFX();
+                    audioSpider.StopFX();
             });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderPictureAudioStop/x", (msg, data) =>
@@ -45,7 +43,7 @@ namespace Animatroller.Scenes
             oscServer.RegisterActionSimple<bool>("/ExpanderSpiderAudioStop/x", (msg, data) =>
             {
                 if (data)
-                    audioSpider.StopFX();
+                    audioFlying.StopFX();
             });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderRockingAudioStop/x", (msg, data) =>
@@ -57,7 +55,7 @@ namespace Animatroller.Scenes
             oscServer.RegisterActionSimple<bool>("/ExpanderFlyingAudioStop/x", (msg, data) =>
             {
                 if (data)
-                    audioFlying.StopFX();
+                    audioBigEye.StopFX();
             });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderPopperAudioStop/x", (msg, data) =>
@@ -96,10 +94,11 @@ namespace Animatroller.Scenes
                 if (data[3])
                     subFog.Run();
 
-                if (data[4])
-                {
-                    floodLights.Value = !floodLights.Value;
-                }
+                //                if (data[4])
+                //                {
+                //bigEye.Send("/eyecontrol", data[4] ? 1 : 0);
+                //floodLights.Value = !floodLights.Value;
+                //                }
 
                 //bigSpiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
 
@@ -108,11 +107,12 @@ namespace Animatroller.Scenes
 
                 //                flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
 
-                if (data[7])
-                    subSpiderJump.Run();
+                //flyingSkeletonEyes.SetBrightness(data[7] ? 1 : 0);
+                //if (data[7])
+                //    subSpiderJump.Run();
 
                 if (data[8])
-                    audioFlying.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                    audioBigEye.PlayEffect("162 Blood Curdling Scream of Terror.wav");
 
                 //if (data[9])
                 //    sub3dfxRandom.Run();
@@ -183,7 +183,7 @@ namespace Animatroller.Scenes
                     fileName = "Who is that knocking.wav";
 
                 if (data[15])
-                    fileName = "05 I'm a Little Teapot.wav";
+                    fileName = "I can see You.wav";
 
                 if (data[16])
                     fileName = "162 Blood Curdling Scream of Terror.wav";
@@ -227,7 +227,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 2:
-                        audioPopper.PlayNewEffect(fileName);
+                        audioBigEye.PlayNewEffect(fileName);
                         break;
 
                     case 3:
@@ -243,7 +243,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 6:
-                        audioLedmx.PlayNewEffect(fileName);
+                        audioSpider.PlayNewEffect(fileName);
                         break;
 
                     case 7:
