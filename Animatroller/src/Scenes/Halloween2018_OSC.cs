@@ -28,10 +28,10 @@ namespace Animatroller.Scenes
                     audioSpider.StopFX();
             });
 
-            oscServer.RegisterActionSimple<bool>("/ExpanderPictureAudioStop/x", (msg, data) =>
+            oscServer.RegisterActionSimple<bool>("/ExpanderBigEyeAudioStop/x", (msg, data) =>
             {
-                //if (data)
-                //    audioPicture.StopFX();
+                if (data)
+                    audioBigEye.StopFX();
             });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderGhostAudioStop/x", (msg, data) =>
@@ -120,11 +120,11 @@ namespace Animatroller.Scenes
                 //wall8Light.SetBrightness(data[10] ? 1 : 0);
                 //wall9Light.SetBrightness(data[11] ? 1 : 0);
 
-                if (data[12])
-                    subLast.Run();
+                //if (data[12])
+                //    subLast.Run();
 
-                if (data[13])
-                    sub3dfxLady.Run();
+                //if (data[13])
+                //    sub3dfxLady.Run();
 
                 //if (data[14])
                 //    sub3dfxMan.Run();
@@ -159,7 +159,7 @@ namespace Animatroller.Scenes
                     fileName = "348 Spider Hiss.wav";
 
                 if (data[7])
-                    fileName = "Thriller2.wav";
+                    fileName = "Monster Growl.wav";
 
                 if (data[8])
                     fileName = "266 Monster Growl 7.wav";
@@ -212,6 +212,21 @@ namespace Animatroller.Scenes
                 if (data[24])
                     fileName = "Tornado Siren Single.wav";
 
+                if (data[25])
+                    fileName = "I Will Kill You.wav";
+
+                if (data[26])
+                    fileName = "No Mercy.wav";
+
+                if (data[27])
+                    fileName = "Scary.wav";
+
+                if (data[28])
+                    fileName = "Leave Now Before Master Finds You.wav";
+
+                if (data[29])
+                    fileName = "How you doing.wav";
+
                 if (string.IsNullOrEmpty(fileName))
                     // Ignore
                     return;
@@ -254,7 +269,7 @@ namespace Animatroller.Scenes
                         audioLocal.PlayNewEffect(fileName);
                         break;
                 }
-            }, 25);
+            }, 30);
 
             oscServer.RegisterAction<bool>("/Blocks/x", (msg, data) =>
             {
@@ -263,10 +278,10 @@ namespace Animatroller.Scenes
                 blockPicture.Value = data[2];
                 blockSpiderSquirt.Value = data[3];
                 blockRocking.Value = data[4];
-                blockLast.Value = data[5];
+                blockBigEye.Value = data[5];
                 blockCat.Value = data[6];
                 blockFrankGhost.Value = data[7];
-                blockPumpkin.Value = data[8];
+                //blockPumpkin.Value = data[8];
             }, 9);
 
             oscServer.RegisterActionSimple<int>("/AudioOutput/selection", (msg, data) =>
@@ -368,16 +383,6 @@ namespace Animatroller.Scenes
             oscServer.RegisterAction<int>("/1/push3", d => d.First() != 0, (msg, data) =>
             {
                 audioCat.PlayEffect("286 Monster Snarl 3.wav", 1.0, 1.0);
-            });
-
-            oscServer.RegisterAction<int>("/ShortBurst/x", d => d.First() != 0, (msg, data) =>
-            {
-                fireProjector.InputTriggerShort.OnNext(true);
-            });
-
-            oscServer.RegisterAction<int>("/LongBurn/x", d => d.First() != 0, (msg, data) =>
-            {
-                fireProjector.InputTriggerLong.OnNext(true);
             });
 
             oscServer.RegisterActionSimple<bool>("/ManualFader/x", (msg, data) =>

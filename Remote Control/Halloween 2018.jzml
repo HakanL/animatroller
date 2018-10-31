@@ -33,8 +33,8 @@
 <VARIABLE name="speed=1" send="0" osc_target="0" osc_trigger="1" osc_message="/HazerHaze/speed" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>
-<WINDOW class="JAZZINTERFACE" text="Setup A" x="0" y="0" width="1280" height="756" id="3" state="0" group="0" font="tahoma,11,0" >
-<WINDOW class="Pads" text="ExpanderFrankGhostInput" x="0" y="0" width="624" height="68" id="203" state="1" group="1" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="JAZZINTERFACE" text="Setup A" x="0" y="0" width="1280" height="756" id="3" state="1" group="0" font="tahoma,11,0" >
+<WINDOW class="Pads" text="ExpanderFrankGhostInput" x="0" y="0" width="624" height="68" id="203" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderFrankGhost-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFrankGhostInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFrankGhostInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -51,7 +51,7 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderFrankGhostInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderCatInput" x="0" y="76" width="624" height="68" id="204" state="1" group="2" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderCatInput" x="0" y="76" width="624" height="68" id="204" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderCat-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderCatInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderCatInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -68,7 +68,7 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderCatInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderLedmxInput" x="0" y="152" width="624" height="68" id="205" state="1" group="3" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderLedmxInput" x="0" y="152" width="624" height="68" id="205" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderLedmx-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderLedmxInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderLedmxInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -85,39 +85,39 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderLedmxInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderFrankAudioEffect" x="637" y="20" width="278" height="24" id="206" state="241" group="1" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderFrankAudioEffect" x="637" y="20" width="278" height="24" id="206" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFrankAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderFrankGhost-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
 <WINDOW class="Text" text="AudioHeader" x="637" y="0" width="278" height="20" id="207" state="241" group="0" font="tahoma,12,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" color="1114214" content="--= Latest Audio Playback =--">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/AudioHeader/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderCatAudioEffect" x="637" y="92" width="278" height="24" id="208" state="241" group="2" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderCatAudioEffect" x="637" y="92" width="278" height="24" id="208" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderCatAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderCat-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderLedmxAudioEffect" x="637" y="170" width="278" height="24" id="209" state="241" group="3" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderLedmxAudioEffect" x="637" y="170" width="278" height="24" id="209" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderLedmxAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderLedmx-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderPictureInput" x="0" y="228" width="624" height="68" id="210" state="1" group="4" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
-<PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderPicture-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<VARIABLE name="sustain=1" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureInput/sustain" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<VARIABLE name="release=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureInput/release" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<VARIABLE name="hold=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureInput/hold" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureInput/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<WINDOW class="Pads" text="ExpanderBigEyeInput" x="0" y="228" width="624" height="68" id="210" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="3538944,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderBigEye-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="sustain=1" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInput/sustain" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="release=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInput/release" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="hold=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInput/hold" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInput/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="onstart()" script="setattribute(getobject(), 'labels', {'i0', 'i1', 'i2', 'i3', 'i4', 'i5', 'i6', 'i7'});
-" trigger_script="" trigger_type="5" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderPictureInput/onstart" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
+" trigger_script="" trigger_type="5" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderBigEyeInput/onstart" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 <SCRIPT name="set(OSC_ARGS)" script="decl offset = OSC_ARGS[0];
 decl value = OSC_ARGS[1];
 
 decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
-setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderPictureInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
+setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderBigEyeInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderGhostInput" x="0" y="304" width="624" height="68" id="211" state="1" group="5" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderGhostInput" x="0" y="304" width="624" height="68" id="211" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="3538944,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderGhost-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderGhostInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderGhostInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -134,7 +134,7 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderGhostInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderSpiderInput" x="0" y="380" width="624" height="68" id="212" state="1" group="6" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderSpiderInput" x="0" y="380" width="624" height="68" id="212" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="3538944,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderSpider-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderSpiderInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderSpiderInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -151,19 +151,19 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderSpiderInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderPictureAudioEffect" x="637" y="244" width="278" height="24" id="213" state="241" group="4" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
-<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderPicture-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
+<WINDOW class="Text" text="ExpanderBigEyeInputEffect" x="637" y="244" width="278" height="24" id="213" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInputEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderBigEye-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderGhostAudioEffect" x="637" y="320" width="278" height="24" id="214" state="241" group="5" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderGhostAudioEffect" x="637" y="320" width="278" height="24" id="214" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="3538944" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderGhostAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderGhost-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderSpiderAudioEffect" x="637" y="396" width="278" height="24" id="215" state="241" group="6" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderSpiderAudioEffect" x="637" y="396" width="278" height="24" id="215" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="3538944" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderSpiderAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderSpider-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderRockingInput" x="0" y="456" width="624" height="68" id="216" state="1" group="7" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderRockingInput" x="0" y="456" width="624" height="68" id="216" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderRocking-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -180,7 +180,7 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderRockingInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderFlyingInput" x="0" y="532" width="624" height="68" id="217" state="1" group="8" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderFlyingInput" x="0" y="532" width="624" height="68" id="217" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="3538944,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderFlying-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFlyingInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFlyingInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -197,7 +197,7 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderFlyingInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderPopperInput" x="0" y="608" width="624" height="68" id="218" state="1" group="9" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderPopperInput" x="0" y="608" width="624" height="68" id="218" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="3538944,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderPopper-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPopperInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPopperInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -214,55 +214,55 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderPopperInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderFrankAudioTrack" x="637" y="44" width="278" height="24" id="222" state="241" group="1" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderFrankAudioTrack" x="637" y="44" width="278" height="24" id="222" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFrankAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderFrankGhost-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderCatAudioTrack" x="637" y="116" width="278" height="24" id="223" state="241" group="2" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderCatAudioTrack" x="637" y="116" width="278" height="24" id="223" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderCatAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderCat-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderLedmxAudioTrack" x="637" y="194" width="278" height="24" id="224" state="241" group="3" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderLedmxAudioTrack" x="637" y="194" width="278" height="24" id="224" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderLedmxAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderLedmx-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderPictureAudioTrack" x="637" y="268" width="278" height="24" id="225" state="241" group="4" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
-<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderPicture-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
+<WINDOW class="Text" text="ExpanderBigEyeInputTrack" x="637" y="268" width="278" height="24" id="225" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeInputTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderBigEye-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderGhostAudioTrack" x="637" y="344" width="278" height="24" id="226" state="241" group="5" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderGhostAudioTrack" x="637" y="344" width="278" height="24" id="226" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="3538944" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderGhostAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderGhost-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderSpiderAudioTrack" x="637" y="420" width="278" height="24" id="227" state="241" group="6" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderSpiderAudioTrack" x="637" y="420" width="278" height="24" id="227" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="3538944" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderSpiderAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderSpider-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderRockingAudioEffect" x="637" y="472" width="278" height="24" id="228" state="241" group="7" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderRockingAudioEffect" x="637" y="472" width="278" height="24" id="228" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderRocking-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderFlyingAudioEffect" x="637" y="548" width="278" height="24" id="229" state="241" group="8" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderFlyingAudioEffect" x="637" y="548" width="278" height="24" id="229" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFlyingAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderFlying-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderPopperAudioEffect" x="637" y="622" width="278" height="24" id="230" state="241" group="9" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderPopperAudioEffect" x="637" y="622" width="278" height="24" id="230" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="3538944" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPopperAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderLedmx-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
+<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderPopper-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderRockingAudioTrack" x="637" y="496" width="278" height="24" id="231" state="241" group="7" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderRockingAudioTrack" x="637" y="496" width="278" height="24" id="231" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderRockingAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderRocking-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderFlyingAudioTrack" x="637" y="572" width="278" height="24" id="232" state="241" group="8" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderFlyingAudioTrack" x="637" y="572" width="278" height="24" id="232" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFlyingAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderFlying-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderPopperAudioTrack" x="637" y="646" width="278" height="24" id="233" state="241" group="9" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderPopperAudioTrack" x="637" y="646" width="278" height="24" id="233" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="3538944" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPopperAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderLedmx-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
+<SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderPopper-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Pads" text="ExpanderHifiInput" x="0" y="684" width="624" height="68" id="234" state="1" group="10" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
+<WINDOW class="Pads" text="ExpanderHifiInput" x="0" y="684" width="624" height="68" id="234" state="1" group="0" font="tahoma,10,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" capture="1" color="3538944,1596013" column="8" label="1" multicolor="0" multilabel="1" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="25" osc_target="0" osc_trigger="1" osc_message="/expanderHifi-Input/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderHifiInput/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderHifiInput/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -279,15 +279,15 @@ decl new_x = getexpression(getobject(),'x');
 new_x[offset] = value;
 setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigger="1" clock="0" clock_div="4" osc_message="/ExpanderHifiInput/set" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderHifiAudioEffect" x="637" y="700" width="278" height="24" id="235" state="241" group="10" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderHifiAudioEffect" x="637" y="700" width="278" height="24" id="235" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderHifiAudioEffect/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderHifi-Effect/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="Text" text="ExpanderHifiAudioTrack" x="637" y="724" width="278" height="24" id="236" state="241" group="10" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
+<WINDOW class="Text" text="ExpanderHifiAudioTrack" x="637" y="724" width="278" height="24" id="236" state="241" group="0" font="tahoma,14,0" send="1" osc_target="0" midi_target="-2" kbmouse_target="-2" color="1596013" content="-">
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderHifiAudioTrack/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <SCRIPT name="Text(OSC_ARGS)" script="setattribute(getobject(), 'content', OSC_ARGS[0]);" trigger_script="" trigger_type="2" trigger="1" clock="0" clock_div="4" osc_message="/expanderHifi-Track/Text" midi_message="0x90,0x90,0,0" midi_target="-1" flag="9"/>
 </WINDOW>
-<WINDOW class="CustomButton" text="ExpanderFrankGhostAudioStop" x="924" y="20" width="71" height="52" id="237" state="241" group="1" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="865343,1596013" label_off="" label_on="" outline="1">
+<WINDOW class="CustomButton" text="ExpanderFrankGhostAudioStop" x="924" y="20" width="71" height="52" id="237" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="865343,1596013" label_off="" label_on="" outline="1">
 <PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderFrankGhostAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFrankGhostAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
@@ -299,15 +299,15 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 <PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderLedmxAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderLedmxAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
-<WINDOW class="CustomButton" text="ExpanderPictureAudioStop" x="924" y="244" width="71" height="52" id="240" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="865343,1596013" label_off="" label_on="" outline="1">
-<PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
-<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPictureAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<WINDOW class="CustomButton" text="ExpanderBigEyeAudioStop" x="924" y="244" width="71" height="52" id="240" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="865343,1596013" label_off="" label_on="" outline="1">
+<PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderBigEyeAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
-<WINDOW class="CustomButton" text="ExpanderGhostAudioStop" x="924" y="320" width="71" height="52" id="241" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="865343,1596013" label_off="" label_on="" outline="1">
+<WINDOW class="CustomButton" text="ExpanderGhostAudioStop" x="924" y="320" width="71" height="52" id="241" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="3538944,1596013" label_off="" label_on="" outline="1">
 <PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderGhostAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderGhostAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
-<WINDOW class="CustomButton" text="ExpanderSpiderAudioStop" x="924" y="396" width="71" height="52" id="242" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="865343,1596013" label_off="" label_on="" outline="1">
+<WINDOW class="CustomButton" text="ExpanderSpiderAudioStop" x="924" y="396" width="71" height="52" id="242" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="3538944,1596013" label_off="" label_on="" outline="1">
 <PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderSpiderAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderSpiderAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
@@ -319,7 +319,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 <PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderFlyingAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderFlyingAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
-<WINDOW class="CustomButton" text="ExpanderPopperAudioStop" x="924" y="620" width="71" height="52" id="245" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="865343,1596013" label_off="" label_on="" outline="1">
+<WINDOW class="CustomButton" text="ExpanderPopperAudioStop" x="924" y="620" width="71" height="52" id="245" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" behavior="1" bitmap="1,1" capture="1" color="3538944,1596013" label_off="" label_on="" outline="1">
 <PARAM name="x=" value="0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/ExpanderPopperAudioStop/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderPopperAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
@@ -328,7 +328,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/ExpanderHifiAudioStop/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>
-<WINDOW class="JAZZINTERFACE" text="Setup B" x="0" y="0" width="1280" height="756" state="1" group="0" font="tahoma,11,0" >
+<WINDOW class="JAZZINTERFACE" text="Setup B" x="0" y="0" width="1280" height="756" state="0" group="0" font="tahoma,11,0" >
 <WINDOW class="Switches" text="Blocks" x="377" y="651" width="753" height="93" id="1" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="4194304,6684672" column="9" label="1" multicolor="0" multilabel="1" paint="0" radio="0" row="1">
 <PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/Blocks/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="light=0" send="0" osc_target="0" osc_trigger="1" osc_message="/Blocks/light" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -441,8 +441,8 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 </WINDOW>
 </WINDOW>
 <WINDOW class="JAZZINTERFACE" text="Sound Board" x="0" y="0" width="1280" height="756" id="2" state="0" group="0" font="tahoma,11,0" >
-<WINDOW class="Pads" text="SoundBoard" x="24" y="107" width="1234" height="620" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="5" label="0" multicolor="0" multilabel="1" row="5">
-<PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
+<WINDOW class="Pads" text="SoundBoard" x="24" y="107" width="1234" height="620" state="1" group="0" font="tahoma,16,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" capture="1" color="865343,1596013" column="6" label="0" multicolor="0" multilabel="1" row="5">
+<PARAM name="x=" value="0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000" send="17" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/x" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="attack=0" send="0" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/attack" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="decay=0" send="0" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/decay" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 <VARIABLE name="sustain=1" send="0" osc_target="0" osc_trigger="1" osc_message="/SoundBoard/sustain" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
@@ -457,7 +457,7 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 		'Coyote Howling',
 		'What are you doing here',
 		'Spider Hiss',
-		'Thriller',
+		'Monster Growl',
 		'Growl 1',
 		'Growl 2',
 		'Growl 3',
@@ -474,10 +474,15 @@ setexpression(getobject(),'x',new_x);" trigger_script="" trigger_type="4" trigge
 		'My Precious',
 		'Laugh',
 		'Violin Screech',
-		'Tornado Siren'
+		'Tornado Siren',
+		'I Will Kill You',
+		'No Mercy',
+		'Scary',
+		'Leave Now Master',
+		'How you doing'
 });" trigger_script="" trigger_type="5" trigger="1" clock="0" clock_div="4" osc_message="/SoundBoard/onstart" midi_message="0x90,0x90,0,0" midi_target="-1" flag="1"/>
 </WINDOW>
-<WINDOW class="LemurMenu" text="AudioOutput" x="32" y="9" width="228" height="74" id="1" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" color="8326402" scale="0" content="Hifi,Flying,Big Eye,Cat,Pumpkin,Frank,Spider,Rocking,Local">
+<WINDOW class="LemurMenu" text="AudioOutput" x="32" y="9" width="228" height="74" id="1" state="241" group="0" font="tahoma,20,0" send="1" osc_target="-2" midi_target="-2" kbmouse_target="-2" color="8326402" scale="0" content="Hifi,Flying,Big Eye,Cat,---,Frank,Spider,Rocking,---">
 <PARAM name="selection=" value="0.000000" send="1" osc_target="0" osc_trigger="1" osc_message="/AudioOutput/selection" midi_target="-1" midi_trigger="1" midi_message="0x90,0x90,0,0" midi_scale="0,16383" osc_scale="0.000000,1.000000" kbmouse_target="-1" kbmouse_trigger="1" kbmouse_message="0,0,0" kbmouse_scale="0,1,0,1"/>
 </WINDOW>
 </WINDOW>

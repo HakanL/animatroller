@@ -396,8 +396,11 @@ namespace Animatroller.Framework.Expander
                     var list = msg.Data.ToList().ConvertAll<T>(y => (T)Convert.ChangeType(y, typeof(T)));
 
                     if (expectedArraySize.HasValue && expectedArraySize.Value != list.Count)
+                    {
                         // Ignore so we don't have to check in the action method
+                        this.log.Warning("Unexpected array size {Size} for OSC message {Address}", list.Count, address);
                         return;
+                    }
 
                     action(msg, list);
                 }

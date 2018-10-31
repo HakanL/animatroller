@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Reactive;
 using System.Reactive.Subjects;
-using Serilog;
-using Animatroller.Framework.LogicalDevice;
+using System.Threading;
 using Animatroller.Framework.Extensions;
+using Animatroller.Framework.LogicalDevice;
+using Serilog;
 
 namespace Animatroller.Framework.Effect
 {
@@ -234,6 +232,16 @@ namespace Animatroller.Framework.Effect
             lock (this.lockObject)
             {
                 this.devices.Add(new DeviceController(device, data));
+            }
+
+            return this;
+        }
+
+        public BaseSweeperEffect Disconnect(IReceivesBrightness device)
+        {
+            lock (this.lockObject)
+            {
+                this.devices.RemoveAll(x => x.Device == device);
             }
 
             return this;
