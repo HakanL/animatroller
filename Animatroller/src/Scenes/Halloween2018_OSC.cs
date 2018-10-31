@@ -34,10 +34,10 @@ namespace Animatroller.Scenes
                     audioBigEye.StopFX();
             });
 
-            oscServer.RegisterActionSimple<bool>("/ExpanderGhostAudioStop/x", (msg, data) =>
+            oscServer.RegisterActionSimple<bool>("/ExpanderHeadAudioStop/x", (msg, data) =>
             {
-                //if (data)
-                //    audioGhost.StopFX();
+                if (data)
+                    audioHead.StopFX();
             });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderSpiderAudioStop/x", (msg, data) =>
@@ -250,7 +250,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 4:
-                        //audioPumpkin.PlayNewEffect(fileName);
+                        audioHead.PlayNewEffect(fileName);
                         break;
 
                     case 5:

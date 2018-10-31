@@ -44,6 +44,7 @@ namespace Animatroller.Scenes
         Expander.OscServer oscServer = new Expander.OscServer(8000, forcedClientPort: 8000, registerAutoHandlers: true);
         AudioPlayer audioLocal = new AudioPlayer();
         AudioPlayer audioFrankGhost = new AudioPlayer();
+        AudioPlayer audioHead = new AudioPlayer();
         AudioPlayer audioFlying = new AudioPlayer();
         AudioPlayer audioRocking = new AudioPlayer();
         AudioPlayer audioSpider = new AudioPlayer();
@@ -55,6 +56,7 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.MonoExpanderInstance expanderCat = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderInstance expanderFrankGhost = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
+        Expander.MonoExpanderInstance expanderHead = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.MonoExpanderInstance expanderFlying = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.MonoExpanderInstance expanderRocking = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderInstance expanderBigEye = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
@@ -160,6 +162,8 @@ namespace Animatroller.Scenes
         CommandDevice pictureFrame1 = new CommandDevice();
         Dimmer3 hangingSpiderEyes = new Dimmer3();
         Dimmer3 underFlagSkulls = new Dimmer3();
+        Dimmer3 headEyes = new Dimmer3();
+        Dimmer3 popSkullEyes = new Dimmer3();
         Dimmer3 mrPumpkinLights = new Dimmer3();
         Dimmer3 catSkeletonEyes = new Dimmer3();
         Dimmer3 gargoyleLightsCrystal = new Dimmer3();
@@ -238,7 +242,7 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderRocking);    // rpi-eb6a047c
             expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderFrankGhost); // rpi-ebd43a38
             expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderFlying);     // rpi-eb9b3145
-            //expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderGhost);      // rpi-eb32e5f9
+            expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderHead);      // rpi-eb32e5f9
             expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderBigEye);     // rpi-eb35666e
             //expanderServer.AddInstance("2e105175a66549d4a0ab7f8d446c2e29", expanderPopper);     // rpi-eb997095
 
@@ -455,6 +459,8 @@ namespace Animatroller.Scenes
             pulsatingGargoyle.ConnectTo(gargoyleLightsCrystal);
             pulsatingGargoyle.ConnectTo(gargoyleSpotLight, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 255)));
             pulsatingEffect1.ConnectTo(underFlagSkulls);
+            pulsatingEffect1.ConnectTo(headEyes);
+            pulsatingEffect1.ConnectTo(popSkullEyes);
             pulsatingEffect1.ConnectTo(hangingSpiderEyes);
             pulsatingEffect1.ConnectTo(catSkeletonEyes);
             pulsatingEffect1.ConnectTo(flyingSkeletonEyes);
@@ -672,9 +678,11 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 65), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 202), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(treeGhosts, 67), SacnUniverseDMXCat);
+            acnOutput.Connect(new Physical.GenericDimmer(headEyes, 180), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(underFlagSkulls, 128), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(hangingSpiderEyes, 256), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(catSkeletonEyes, 257), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(popSkullEyes, 261), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(spiderEyes, 257), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 132), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(popper, 133), SacnUniverseDMXLedmx);
@@ -722,7 +730,7 @@ namespace Animatroller.Scenes
             expanderHifi.Connect(audioHifi);
             expanderLocal.Connect(audioLocal);
             expanderFrankGhost.Connect(audioFrankGhost);
-            //expanderAudio2.Connect(audio2);
+            expanderHead.Connect(audioHead);
             expanderBigEye.Connect(audioBigEye);
             expanderFlying.Connect(audioFlying);
             expanderRocking.Connect(audioRocking);
@@ -782,7 +790,7 @@ namespace Animatroller.Scenes
                 if (v)
                 {
                     this.manualFaderToken = new GroupControlToken(priority: 200);
-                    this.manualFaderToken.AddRange(channel: Channel.Main, pixelsRoofEdge, wall4Light, wall6Light, rockingChairLight);
+                    this.manualFaderToken.AddRange(channel: Channel.Main, pixelsRoofEdge, wall4Light, wall6Light, rockingChairLight, popSkullEyes);
                 }
                 else
                 {
@@ -812,6 +820,7 @@ namespace Animatroller.Scenes
                 wall4Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
                 wall6Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
                 rockingChairLight.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
+                popSkullEyes.SetBrightness(faderBright.Value, token: manualFaderToken);
             }
         }
 
