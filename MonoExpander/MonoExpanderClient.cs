@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
-using Serilog;
 using Animatroller.Framework.MonoExpanderMessages;
+using Serilog;
 
 namespace Animatroller.MonoExpander
 {
@@ -84,13 +83,13 @@ namespace Animatroller.MonoExpander
         }
 
         protected ILogger log;
-        private Main main;
-        private Dictionary<string, DownloadInfo> downloadInfos;
+        private readonly Main main;
+        private readonly Dictionary<string, DownloadInfo> downloadInfos;
         private const int ChunkSize = 16384;
         private const int BufferedChunks = 5;
-        private Dictionary<string, Type> typeCache;
-        private Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
-        private HashSet<string> downloadQueue;
+        private readonly Dictionary<string, Type> typeCache;
+        private readonly Dictionary<Type, System.Reflection.MethodInfo> handleMethodCache;
+        private readonly HashSet<string> downloadQueue;
 
         public MonoExpanderClient(Main main)
         {
@@ -330,6 +329,11 @@ namespace Animatroller.MonoExpander
             Directory.CreateDirectory(fileTypeFolder);
 
             string filePath = Path.Combine(fileTypeFolder, fileName);
+
+            // Delete empty files
+            if (File.Exists(filePath) && new FileInfo(filePath).Length == 0)
+                File.Delete(filePath);
+
             if (File.Exists(filePath))
                 return true;
 

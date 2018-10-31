@@ -296,9 +296,11 @@ namespace Animatroller.Scenes
 
             rockingChair = new Modules.HalloweenRocker(
                 rockingMotor: rockingChairMotor,
+                eyesPopSkull: null,
                 ladyEyes: ladyMovingEyes,
                 strobeLight: rockingChairLight,
-                audioPlayer: audioRocking,
+                audioPlayerRocker: audioRocking,
+                audioPlayerExit: null,
                 name: nameof(pictureFrame));
             stateMachine.WhenStates(States.BackgroundFull).Controls(rockingChair.InputPower);
 

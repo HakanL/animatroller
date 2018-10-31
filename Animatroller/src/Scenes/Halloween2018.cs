@@ -50,6 +50,7 @@ namespace Animatroller.Scenes
         AudioPlayer audioSpider = new AudioPlayer();
         AudioPlayer audioHifi = new AudioPlayer();
         AudioPlayer audioBigEye = new AudioPlayer();
+        AudioPlayer audioPopSkull = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         Expander.MonoExpanderInstance expanderLocal = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
@@ -60,6 +61,7 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderFlying = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.MonoExpanderInstance expanderRocking = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderInstance expanderBigEye = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        Expander.MonoExpanderInstance expanderEeebox = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.AcnStream acnOutput = new Expander.AcnStream();
         Expander.OscClient bigEyeSender = new Expander.OscClient("192.168.240.155", 8000);
 
@@ -159,7 +161,7 @@ namespace Animatroller.Scenes
         DateTime? lastFogRun = DateTime.Now;
         ThroughputDevice fogStairsPump1 = new ThroughputDevice();
         ThroughputDevice fogStairsPump2 = new ThroughputDevice();
-        CommandDevice pictureFrame1 = new CommandDevice();
+        CommandDevice pictureFrameSender = new CommandDevice();
         Dimmer3 hangingSpiderEyes = new Dimmer3();
         Dimmer3 underFlagSkulls = new Dimmer3();
         Dimmer3 headEyes = new Dimmer3();
@@ -183,8 +185,8 @@ namespace Animatroller.Scenes
         StrobeColorDimmer3 fogStairsLight2 = new StrobeColorDimmer3();
         StrobeColorDimmer3 gargoyleSpotLight = new StrobeColorDimmer3();
         StrobeColorDimmer3 wall1Light = new StrobeColorDimmer3("Wall 1 (cat)");
-        StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2 (flag)");
-        StrobeColorDimmer3 wall3Light = new StrobeColorDimmer3("Wall 3");
+        //StrobeColorDimmer3 wall2Light = new StrobeColorDimmer3("Wall 2 (flag)");
+        //StrobeColorDimmer3 wall3Light = new StrobeColorDimmer3("Wall 3");
         StrobeColorDimmer3 wall4Light = new StrobeColorDimmer3("Wall 4");
         StrobeColorDimmer3 wall5Light = new StrobeColorDimmer3("Wall 5");
         StrobeColorDimmer3 wall6Light = new StrobeColorDimmer3("Wall 6");
@@ -245,6 +247,7 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderHead);      // rpi-eb32e5f9
             expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderBigEye);     // rpi-eb35666e
             //expanderServer.AddInstance("2e105175a66549d4a0ab7f8d446c2e29", expanderPopper);     // rpi-eb997095
+            expanderServer.AddInstance("4fabc4931566424c870ccb83984b3ffb", expanderEeebox);     // videoplayer1
 
             masterVolume.ConnectTo(Exec.MasterVolume);
 
@@ -257,7 +260,7 @@ namespace Animatroller.Scenes
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(grumpyCat.InputPower);
 
             pictureFrame = new Modules.HalloweenPictureFrame(
-                medeaWizPlayer: pictureFrame1,
+                medeaWizPlayer: pictureFrameSender,
                 name: nameof(pictureFrame));
             stateMachine.WhenStates(States.BackgroundFull).Controls(pictureFrame.InputPower);
 
@@ -275,8 +278,10 @@ namespace Animatroller.Scenes
             rockingChair = new Modules.HalloweenRocker(
                 rockingMotor: rockingChairMotor,
                 ladyEyes: rockingChairEyes,
+                eyesPopSkull: popSkullEyes,
                 strobeLight: rockingChairLight,
-                audioPlayer: audioRocking,
+                audioPlayerRocker: audioRocking,
+                audioPlayerExit: audioPopSkull,
                 name: nameof(rockingChair));
             stateMachine.WhenStates(States.BackgroundFull).Controls(rockingChair.InputPower);
             rockingMotion.Output.Controls(rockingChair.InputTrigger);
@@ -296,10 +301,12 @@ namespace Animatroller.Scenes
             stateMachine.WhenStates(States.BackgroundFull, States.BackgroundSmall).Controls(frankGhost.InputPower);
 
             spiderSquirt = new Modules.HalloweenSpiderSquirt(
-                eyesLight: hangingSpiderEyes,
+                spiderEyesLight: hangingSpiderEyes,
+                headEyesLight: headEyes,
                 venom: waterMist,
                 strobeLight: flashUnderSpider,
-                audioPlayer: audioSpider,
+                audioPlayerSpider: audioSpider,
+                audioPlayerHead: audioHead,
                 name: nameof(spiderSquirt));
             stateMachine.WhenStates(States.BackgroundFull).Controls(spiderSquirt.InputPower);
 
@@ -402,12 +409,12 @@ namespace Animatroller.Scenes
             popOut1.ConnectTo(wall4Light);
             popOut1.ConnectTo(wall6Light);
             popOut1.ConnectTo(flashFlag);
-            popOut2.ConnectTo(wall2Light);
+            popOut2.ConnectTo(wall5Light);
             //popOut2.ConnectTo(wall7Light);
             //popOut2.ConnectTo(flashUnderSpider);
             popOutAll.ConnectTo(wall1Light);
-            popOutAll.ConnectTo(wall2Light);
-            popOutAll.ConnectTo(wall3Light);
+            //popOutAll.ConnectTo(wall2Light);
+            //popOutAll.ConnectTo(wall3Light);
             popOutAll.ConnectTo(wall4Light);
             popOutAll.ConnectTo(wall5Light);
             popOutAll.ConnectTo(wall6Light);
@@ -422,15 +429,10 @@ namespace Animatroller.Scenes
 
             allLights.Add(
                 wall1Light,
-                wall2Light,
-                wall3Light,
                 wall4Light,
                 wall5Light,
                 wall6Light,
                 rockingChairLight,
-                //wall7Light,
-                //wall8Light,
-                //wall9Light,
                 flashFlag,
                 flashUnderSpider,
                 pixelsRoofEdge,
@@ -442,14 +444,9 @@ namespace Animatroller.Scenes
 
             purpleLights.Add(
                 wall1Light,
-                wall2Light,
-                wall3Light,
                 wall4Light,
                 wall5Light,
                 wall6Light,
-                //wall7Light,
-                //wall8Light,
-                //wall9Light,
                 pixelsRoofEdge);
 
             flickerEffect.ConnectTo(stairs1Light);
@@ -592,12 +589,12 @@ namespace Animatroller.Scenes
 
                     case "Thunder5.wav":
                         timelineThunder5.Start();
-                        audioHifi.PlayEffect("Raven.wav");
+                        audioHifi.PlayEffect("Raven.wav", 0.5);
                         break;
 
                     case "Thunder6.wav":
                         timelineThunder6.Start();
-                        audioHifi.PlayEffect("Tolling Bell.wav");
+                        audioHifi.PlayEffect("Tolling Bell.wav", 0.5);
                         break;
 
                     case "Thunder7.wav":
@@ -667,13 +664,13 @@ namespace Animatroller.Scenes
             ////acnOutput.Connect(new Physical.RGBStrobe(wall9Light, 70), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.MFL7x10WPar(rockingChairLight, 320), SacnUniverseDMXLedmx);
             ////acnOutput.Connect(new Physical.RGBStrobe(wall7Light, 80), SacnUniverseDMXLedmx);
-            acnOutput.Connect(new Physical.DMXCommandOutput(pictureFrame1, 1, TimeSpan.FromMilliseconds(500), 0), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.DMXCommandOutput(pictureFrameSender, 1, TimeSpan.FromMilliseconds(500), 0), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.DMXCommandOutput(lady3dfx, 1, TimeSpan.FromMilliseconds(500), 0), SacnUniverseEdmx4A);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 340, 8), SacnUniverseEdmx4A);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall1Light, 340, 8), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.RGBStrobe(wall2Light, 80), SacnUniverseEdmx4A);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall4Light, 330, 8), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 300, 8), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.MarcGamutParH7(wall6Light, 310, 8), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(wall5Light, 300, 8), SacnUniverseEdmx4A);
             //            acnOutput.Connect(new Physical.MarcGamutParH7(wall6Light, 350, 8), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(stairs1Light, 65), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(stairs2Light, 202), SacnUniverseDMXLedmx);
@@ -732,6 +729,7 @@ namespace Animatroller.Scenes
             expanderFrankGhost.Connect(audioFrankGhost);
             expanderHead.Connect(audioHead);
             expanderBigEye.Connect(audioBigEye);
+            expanderEeebox.Connect(audioPopSkull);
             expanderFlying.Connect(audioFlying);
             expanderRocking.Connect(audioRocking);
             //expanderPopper.Connect(audioPopper);
@@ -790,7 +788,7 @@ namespace Animatroller.Scenes
                 if (v)
                 {
                     this.manualFaderToken = new GroupControlToken(priority: 200);
-                    this.manualFaderToken.AddRange(channel: Channel.Main, pixelsRoofEdge, wall4Light, wall6Light, rockingChairLight, popSkullEyes);
+                    this.manualFaderToken.AddRange(channel: Channel.Main, pixelsRoofEdge, wall4Light, wall6Light, rockingChairLight);
                 }
                 else
                 {
@@ -820,7 +818,7 @@ namespace Animatroller.Scenes
                 wall4Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
                 wall6Light.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
                 rockingChairLight.SetColor(GetFaderColor(), faderBright.Value, token: manualFaderToken);
-                popSkullEyes.SetBrightness(faderBright.Value, token: manualFaderToken);
+                //popSkullEyes.SetBrightness(faderBright.Value, token: manualFaderToken);
             }
         }
 

@@ -10,31 +10,37 @@ namespace Animatroller.Scenes.Modules
     public class HalloweenRocker : TriggeredSubBaseModule
     {
         Effect.Pulsating pulsatingRocking = new Effect.Pulsating(S(4), 0.1, 0.5, false);
+        Effect.Pulsating pulsatingExit = new Effect.Pulsating(S(2), 0.1, 0.5, false);
         bool isRockingLadyTalking;
         Controller.Subroutine sub = new Controller.Subroutine();
 
         public HalloweenRocker(
             DigitalOutput2 rockingMotor,
             DigitalOutput2 ladyEyes,
+            IReceivesBrightness eyesPopSkull,
             StrobeColorDimmer3 strobeLight,
-            AudioPlayer audioPlayer,
+            AudioPlayer audioPlayerRocker,
+            AudioPlayer audioPlayerExit,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             pulsatingRocking.ConnectTo(strobeLight, Utils.Data(DataElements.Color, Color.HotPink));
+            pulsatingExit.ConnectTo(eyesPopSkull);
 
             OutputPower.Subscribe(x =>
             {
                 if (x)
                 {
-                    LockDevices(rockingMotor, ladyEyes, strobeLight);
-                    audioPlayer.SetBackgroundVolume(0.2);
-                    audioPlayer.PlayBackground();
+                    LockDevices(rockingMotor, ladyEyes, strobeLight, eyesPopSkull);
+                    audioPlayerRocker.SetBackgroundVolume(0.2);
+                    audioPlayerRocker.PlayBackground();
+                    pulsatingExit.Start(token: this.controlToken);
                     sub.Run();
                 }
                 else
                 {
-                    audioPlayer.PauseBackground();
+                    pulsatingExit.Stop();
+                    audioPlayerRocker.PauseBackground();
                     UnlockDevices();
                     Exec.Cancel(sub);
                 }
@@ -54,12 +60,12 @@ namespace Animatroller.Scenes.Modules
                         switch (random.Next(2))
                         {
                             case 0:
-                                audioPlayer.PlayEffect("Disgusting Things.wav");
+                                audioPlayerRocker.PlayEffect("Disgusting Things.wav");
                                 ins.WaitFor(S(6), true);
                                 break;
 
                             case 1:
-                                audioPlayer.PlayEffect("Guts Boy.wav");
+                                audioPlayerRocker.PlayEffect("Guts Boy.wav");
                                 ins.WaitFor(S(4), true);
                                 break;
                         }
@@ -70,7 +76,7 @@ namespace Animatroller.Scenes.Modules
                 })
                 .TearDown(ins =>
                 {
-                    audioPlayer.StopFX();
+                    audioPlayerRocker.StopFX();
                     ladyEyes.SetValue(false, token: this.controlToken);
                     rockingMotor.SetValue(false, token: this.controlToken);
                 });
@@ -85,20 +91,22 @@ namespace Animatroller.Scenes.Modules
                         switch (random.Next(3))
                         {
                             case 0:
-                                audioPlayer.PlayEffect("032495843-old-woman-cough.wav");
+                                audioPlayerRocker.PlayEffect("032495843-old-woman-cough.wav");
                                 break;
 
                             case 1:
-                                audioPlayer.PlayEffect("049951942-grampy-old-woman-cackle.wav");
+                                audioPlayerRocker.PlayEffect("049951942-grampy-old-woman-cackle.wav");
                                 break;
 
                             case 2:
-                                audioPlayer.PlayEffect("053851373-old-ungly-female-laughter.wav");
+                                audioPlayerRocker.PlayEffect("053851373-old-ungly-female-laughter.wav");
                                 break;
                         }
                     }
 
                     ins.WaitFor(S(7));
+
+                    audioPlayerExit.PlayEffect("Leave Now.wav");
                 })
                 .TearDown(ins =>
                 {

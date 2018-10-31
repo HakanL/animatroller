@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Threading;
 using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
 
@@ -8,6 +9,8 @@ namespace Animatroller.Scenes
 {
     internal partial class Halloween2018
     {
+        private bool[] triggers = new bool[25];
+
         public void ConfigureOSC()
         {
             oscServer.RegisterActionSimple<bool>("/ExpanderFrankGhostAudioStop/x", (msg, data) =>
@@ -70,6 +73,12 @@ namespace Animatroller.Scenes
                     audioHifi.StopFX();
             });
 
+            oscServer.RegisterActionSimple<bool>("/ExpanderEeeboxAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioPopSkull.StopFX();
+            });
+
             oscServer.RegisterActionSimple<double>("/HazerFan/x", (msg, data) =>
             {
                 hazerFanSpeed.SetBrightness(data);
@@ -82,55 +91,101 @@ namespace Animatroller.Scenes
 
             oscServer.RegisterAction<bool>("/Triggers/x", (msg, data) =>
             {
-                if (data[0])
-                    pictureFrame1.SendCommand(null, 1);
+                if (data.Count != triggers.Length)
+                {
+                    this.log.Warning("Invalid data length for triggers");
+                    return;
+                }
 
-                if (data[1])
-                    pictureFrame1.SendCommand(null, 99);
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (data[i] && !triggers[i])
+                    {
+                        // Trigger
 
-                //if (data[2])
-                //    expanderGhost.SendSerial(0, new byte[] { 0x01 });
+                        switch (i)
+                        {
+                            case 0:
+                                flyingSkeleton.InputTrigger.OnNext(true);
+                                break;
 
-                if (data[3])
-                    subFog.Run();
+                            case 1:
+                                fogStairsPump1.SetThroughput(0.4);
+                                fogStairsLight1.SetColor(Color.Purple, 1.0);
 
-                //                if (data[4])
-                //                {
-                //bigEye.Send("/eyecontrol", data[4] ? 1 : 0);
-                //floodLights.Value = !floodLights.Value;
-                //                }
+                                fogStairsPump2.SetThroughput(0.4);
+                                fogStairsLight2.SetColor(Color.Purple, 1.0);
 
-                //bigSpiderEyes.SetBrightness(data[5] ? 1.0 : 0.0);
+                                Thread.Sleep(S(1.0));
 
-                if (data[6])
-                    audioHifi.PlayEffect("sixthsense-deadpeople.wav");
+                                fogStairsPump1.SetThroughput(0);
+                                fogStairsPump2.SetThroughput(0);
 
-                //                flyingSkeletonEyes.SetBrightness(data[7] ? 1.0 : 0.0);
+                                Thread.Sleep(S(1.0));
+                                fogStairsLight1.SetBrightness(0);
+                                fogStairsLight2.SetBrightness(0);
+                                break;
 
-                //flyingSkeletonEyes.SetBrightness(data[7] ? 1 : 0);
-                //if (data[7])
-                //    subSpiderJump.Run();
+                            case 2:
+                                pictureFrameSender.SendCommand(null, 1);
+                                break;
 
-                if (data[8])
-                    audioBigEye.PlayEffect("162 Blood Curdling Scream of Terror.wav");
+                            case 3:
+                                bigEyeModule.InputTrigger.OnNext(true);
+                                break;
 
-                //if (data[9])
-                //    sub3dfxRandom.Run();
+                            case 4:
+                                spiderSquirt.InputTrigger.OnNext(true);
+                                break;
 
-                //wall8Light.SetBrightness(data[10] ? 1 : 0);
-                //wall9Light.SetBrightness(data[11] ? 1 : 0);
+                            case 5:
+                                subFog.Run();
+                                break;
 
-                //if (data[12])
-                //    subLast.Run();
+                            case 6:
+                                audioHifi.PlayNewEffect("Tolling Bell.wav");
+                                break;
 
-                //if (data[13])
-                //    sub3dfxLady.Run();
+                            case 7:
+                                audioHifi.PlayNewEffect("Electric Sound.wav");
+                                break;
 
-                //if (data[14])
-                //    sub3dfxMan.Run();
+                            case 8:
+                                audioHifi.PlayNewEffect("Raven.wav");
+                                break;
 
-                //if (data[15])
-                //    sub3dfxKids.Run();
+                            case 9:
+                                audioHifi.PlayNewEffect("Creaking Door Spooky.wav");
+                                break;
+                        }
+                    }
+
+                    if (!data[i] && triggers[i])
+                    {
+                        // Off
+
+                        switch (i)
+                        {
+                            case 0:
+                                flyingSkeleton.InputTrigger.OnNext(false);
+                                break;
+
+                            case 2:
+                                pictureFrameSender.SendCommand(null, 0);
+                                break;
+
+                            case 3:
+                                bigEyeModule.InputTrigger.OnNext(false);
+                                break;
+
+                            case 4:
+                                spiderSquirt.InputTrigger.OnNext(false);
+                                break;
+                        }
+                    }
+
+                    triggers[i] = data[i];
+                }
             }, 25);
 
             oscServer.RegisterAction<bool>("/SoundBoard/x", (msg, data) =>
@@ -266,7 +321,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 8:
-                        audioLocal.PlayNewEffect(fileName);
+                        audioPopSkull.PlayNewEffect(fileName);
                         break;
                 }
             }, 30);

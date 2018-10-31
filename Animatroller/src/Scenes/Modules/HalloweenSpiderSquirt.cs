@@ -10,19 +10,25 @@ namespace Animatroller.Scenes.Modules
 {
     public class HalloweenSpiderSquirt : TriggeredSubBaseModule
     {
+        Effect.Pulsating pulsatingEyes = new Effect.Pulsating(S(4), 0.1, 0.5, false);
+
         public HalloweenSpiderSquirt(
-            IReceivesBrightness eyesLight,
+            IReceivesBrightness spiderEyesLight,
+            IReceivesBrightness headEyesLight,
             DigitalOutput2 venom,
             StrobeDimmer3 strobeLight,
-            AudioPlayer audioPlayer,
+            AudioPlayer audioPlayerSpider,
+            AudioPlayer audioPlayerHead,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+            pulsatingEyes.ConnectTo(headEyesLight);
+
             OutputPower.Subscribe(x =>
             {
                 if (x)
                 {
-                    LockDevices(venom, eyesLight, strobeLight);
+                    LockDevices(venom, spiderEyesLight, strobeLight, headEyesLight);
                 }
                 else
                 {
@@ -32,11 +38,16 @@ namespace Animatroller.Scenes.Modules
 
             PowerOn.RunAction(ins =>
                 {
-                    ins.WaitFor(S(1.0));
+                    ins.WaitFor(S(0.3));
+                    pulsatingEyes.Start(token: this.controlToken);
+                    audioPlayerHead.PlayEffect("125919__klankbeeld__horror-what-are-you-doing-here-cathedral.wav");
+
+                    ins.WaitFor(S(3.0));
                     venom.SetValue(true);
                     ins.WaitFor(S(0.5));
-                    audioPlayer.PlayNewEffect("348 Spider Hiss.wav");
-                    eyesLight.SetBrightness(1);
+                    pulsatingEyes.Stop();
+                    audioPlayerSpider.PlayNewEffect("348 Spider Hiss.wav");
+                    spiderEyesLight.SetBrightness(1);
                     ins.WaitFor(S(0.2));
                     strobeLight.SetBrightnessStrobeSpeed(1, 1);
                     ins.WaitFor(S(2.0));
@@ -47,8 +58,9 @@ namespace Animatroller.Scenes.Modules
                 })
                 .TearDown(ins =>
                 {
+                    pulsatingEyes.Stop();
                     venom.SetValue(false);
-                    eyesLight.SetBrightness(0);
+                    spiderEyesLight.SetBrightness(0);
                     strobeLight.SetBrightnessStrobeSpeed(0, 0);
                     ins.WaitFor(S(1.0));
                 });
