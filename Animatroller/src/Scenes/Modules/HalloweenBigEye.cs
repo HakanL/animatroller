@@ -16,7 +16,7 @@ namespace Animatroller.Scenes.Modules
                         ins.WaitFor(S(2));
                         oscSender.Send("/eyecontrol", 1);
 
-                        audioPlayer.PlayEffect("I Will Kill You.wav", 1.0, 1.0);
+                        audioPlayer.PlayEffect("Short Laugh.wav", 1.0, 1.0);
                         ins.WaitFor(S(7.0));
                     })
                 .TearDown(ins =>

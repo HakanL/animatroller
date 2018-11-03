@@ -456,9 +456,9 @@ namespace Animatroller.Scenes
             pulsatingGargoyle.ConnectTo(gargoyleLightsCrystal);
             pulsatingGargoyle.ConnectTo(gargoyleSpotLight, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(255, 0, 255)));
             pulsatingEffect1.ConnectTo(underFlagSkulls);
-            pulsatingEffect1.ConnectTo(headEyes);
-            pulsatingEffect1.ConnectTo(popSkullEyes);
-            pulsatingEffect1.ConnectTo(hangingSpiderEyes);
+            //pulsatingEffect1.ConnectTo(headEyes);
+            //pulsatingEffect1.ConnectTo(popSkullEyes);
+            //pulsatingEffect1.ConnectTo(hangingSpiderEyes);
             pulsatingEffect1.ConnectTo(catSkeletonEyes);
             pulsatingEffect1.ConnectTo(flyingSkeletonEyes);
             pulsatingEffect1.ConnectTo(pinSpot, Tuple.Create<DataElements, object>(DataElements.Color, Color.FromArgb(0, 255, 0)));
