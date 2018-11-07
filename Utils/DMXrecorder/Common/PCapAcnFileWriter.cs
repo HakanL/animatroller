@@ -169,6 +169,9 @@ namespace Animatroller.Common
 
         public void Output(DmxData dmxData)
         {
+            if (dmxData.DataType == DmxData.DataTypes.NoChange)
+                return;
+
             var packet = new Acn.Packets.sAcn.StreamingAcnDmxPacket();
             packet.Framing.SourceName = AcnSourceName;
             packet.Framing.Universe = (short)dmxData.Universe;

@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Animatroller.DMXrecorder
 {
@@ -16,9 +10,10 @@ namespace Animatroller.DMXrecorder
     {
         private readonly Guid acnId = new Guid("{1A246A28-D145-449F-B3F2-68676BA0E93F}");
         private Stopwatch masterClock;
-        private Dictionary<int, UniverseData> universes;
-        private Acn.Sockets.StreamingAcnSocket acnSocket;
-        private OutputProcessor writer;
+        private readonly Dictionary<int, UniverseData> universes;
+        private readonly Acn.Sockets.StreamingAcnSocket acnSocket;
+        private readonly OutputProcessor writer;
+        private int receivedPackets;
 
         public AcnRecorder(OutputProcessor writer, int[] universes)
         {
@@ -47,6 +42,7 @@ namespace Animatroller.DMXrecorder
 
         public void StartRecord()
         {
+            this.receivedPackets = 0;
             foreach (var kvp in this.universes)
                 this.acnSocket.JoinDmxUniverse(kvp.Key);
         }
@@ -99,6 +95,10 @@ namespace Animatroller.DMXrecorder
                 data: newDmxData.Skip(1).ToArray());
 
             this.writer.AddData(dmxData);
+
+            this.receivedPackets++;
+            if (this.receivedPackets % 100 == 0)
+                Console.WriteLine($"Received {this.receivedPackets} packets");
         }
 
         public void Dispose()
