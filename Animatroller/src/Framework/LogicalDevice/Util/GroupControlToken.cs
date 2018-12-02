@@ -133,7 +133,9 @@ namespace Animatroller.Framework.LogicalDevice
                 return false;
 
             // Add
-            this.memberTokens.Add(device, device.TakeControl(channel, Priority, Name));
+            var token = device.TakeControl(channel, Priority, Name);
+            this.ownedTokens.Add(token);
+            this.memberTokens.Add(device, token);
 
             return true;
         }

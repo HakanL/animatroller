@@ -1,36 +1,32 @@
-﻿using System;
+﻿using Animatroller.Framework.Controller;
+using Animatroller.Framework.LogicalDevice;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Animatroller.Framework.Controller;
-using Animatroller.Framework.Import.FileFormat;
-using Animatroller.Framework.LogicalDevice;
 
 namespace Animatroller.Framework.Import
 {
     public class DmxPlayback : ICanExecute, IDisposable
     {
-        private string name;
-        private Subroutine sub;
+        private readonly string name;
+        private readonly Subroutine sub;
         private IFileReader reader;
-        private IFileReader3 reader3;
+        //private IFileReader3 reader3;
         private IPixel2 device;
         private Stopwatch masterClock;
         private long nextStop;
         private DmxData dmxFrame;
         private int triggerSyncOnUniverse;
-        private Dictionary<int, int[]> pixelMapping;
+        private readonly Dictionary<int, int[]> pixelMapping;
         private byte[] rgbValues;
         private int pixelWidth;
         private int pixelHeight;
         private bool loop;
-        private IChannel channel;
+        private readonly IChannel channel;
         private Bitmap bitmap;
         private Rectangle bitmapRect;
 
@@ -50,6 +46,12 @@ namespace Animatroller.Framework.Import
 
                 do
                 {
+                    if (this.reader == null)
+                    {
+                        Thread.Sleep(500);
+                        continue;
+                    }
+
                     // See if we should restart
                     if (!this.reader.DataAvailable)
                     {
@@ -267,8 +269,8 @@ namespace Animatroller.Framework.Import
             Stop();
 
             this.triggerSyncOnUniverse = reader.TriggerUniverseId;
-            this.reader3 = reader;
-            this.reader3.Rewind();
+            this.reader = reader;
+            this.reader.Rewind();
 
             this.bitmap = null;
         }
