@@ -234,6 +234,8 @@ namespace Animatroller.Framework.LogicalDevice
 
                 Executor.Current.SetControlToken(this, newOwner);
 
+                RefreshOutput();
+
                 return ownerCandidate;
             }
         }

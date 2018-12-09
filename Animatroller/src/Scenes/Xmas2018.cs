@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Drawing;
-using System.Threading;
-using System.Reactive.Subjects;
-using Animatroller.Framework;
-using Animatroller.Framework.LogicalDevice;
-using Expander = Animatroller.Framework.Expander;
-using Controller = Animatroller.Framework.Controller;
-using Physical = Animatroller.Framework.PhysicalDevice;
-using Effect = Animatroller.Framework.Effect;
-using Import = Animatroller.Framework.Import;
-using System.IO;
+﻿using Animatroller.Framework;
 using Animatroller.Framework.Extensions;
-using System.Threading.Tasks;
+using Animatroller.Framework.LogicalDevice;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Reactive.Subjects;
+using Controller = Animatroller.Framework.Controller;
+using Effect = Animatroller.Framework.Effect;
+using Expander = Animatroller.Framework.Expander;
+using Import = Animatroller.Framework.Import;
+using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.Scenes
 {
@@ -28,8 +26,8 @@ namespace Animatroller.Scenes
         const int SacnUniverseRenard2x8 = 19;        // 2 x 8-channels, 1-16
         const int SacnUniverseLED100 = 5;
         const int SacnUniverseLED50 = 6;
-        //const int SacnUniversePixelMatrixStart = 40;
-        //const int SacnUniversePixelSaber = 31;
+        const int SacnUniversePixelMatrixStart = 40;
+        const int SacnUniversePixelSaber = 31;
 
         const int midiChannel = 0;
 
@@ -113,9 +111,9 @@ namespace Animatroller.Scenes
         Dimmer3 lightInflatableTree = new Dimmer3();
 
         Dimmer3 lightHangingStar = new Dimmer3();
-        Dimmer3 lightHangingStar2 = new Dimmer3();
-        Dimmer3 lightHangingStar3 = new Dimmer3();
-        DigitalOutput2 lightXmasTree = new DigitalOutput2();
+        //Dimmer3 lightHangingStar2 = new Dimmer3();
+        //Dimmer3 lightHangingStar3 = new Dimmer3();
+        //DigitalOutput2 lightXmasTree = new DigitalOutput2();
         DigitalOutput2 lightPackages = new DigitalOutput2();
         Dimmer3 lightStairRail1 = new Dimmer3();
         Dimmer3 lightStairRail2 = new Dimmer3();
@@ -125,9 +123,17 @@ namespace Animatroller.Scenes
         Dimmer3 lightNet1 = new Dimmer3();
         Dimmer3 lightNet2 = new Dimmer3();
         Dimmer3 lightNet3 = new Dimmer3();
-        //Dimmer3 lightRail1 = new Dimmer3();
-        //Dimmer3 lightRail2 = new Dimmer3();
-        //Dimmer3 lightRail3 = new Dimmer3();
+        Dimmer3 lightNet4 = new Dimmer3();
+        Dimmer3 lightNet5 = new Dimmer3();
+        Dimmer3 lightNet6 = new Dimmer3();
+        Dimmer3 lightNet7 = new Dimmer3();
+        Dimmer3 lightNet8 = new Dimmer3();
+        Dimmer3 lightNet9 = new Dimmer3();
+        Dimmer3 lightNet10 = new Dimmer3();
+        Dimmer3 lightNet11 = new Dimmer3();
+        Dimmer3 lightRail1 = new Dimmer3();
+        Dimmer3 lightRail2 = new Dimmer3();
+        Dimmer3 lightRail3 = new Dimmer3();
         //Dimmer3 lightRail4 = new Dimmer3();
         //Dimmer3 lightStairs1 = new Dimmer3();
         //Dimmer3 lightStairs2 = new Dimmer3();
@@ -166,6 +172,7 @@ namespace Animatroller.Scenes
         VirtualPixel2D3 pixelsMatrix = new VirtualPixel2D3(48, 24);
         VirtualPixel1D3 saberPixels = new VirtualPixel1D3(33);
         VirtualPixel1D3 haloPixels = new VirtualPixel1D3(27);
+        VirtualPixel1D3 vaderEyesPixels = new VirtualPixel1D3(2);
         Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
         Expander.OscServer oscServer = new Expander.OscServer(8000);
         Subject<bool> inflatablesRunning = new Subject<bool>();
@@ -220,12 +227,21 @@ namespace Animatroller.Scenes
                 }
             }
 
+            expanderControlPanel.InvertedInputs[0] = true;
+            expanderControlPanel.InvertedInputs[1] = true;
+            expanderControlPanel.InvertedInputs[2] = true;
+            expanderControlPanel.InvertedInputs[3] = true;
+            expanderControlPanel.InvertedInputs[4] = true;
+            expanderControlPanel.InvertedInputs[5] = true;
+            expanderControlPanel.InvertedInputs[6] = true;
+            expanderControlPanel.InvertedInputs[7] = true;
+
             pulsatingStar.ConnectTo(lightHangingStar);
-            pulsatingStar.ConnectTo(lightHangingStar2);
-            pulsatingStar.ConnectTo(lightHangingStar3);
+            //pulsatingStar.ConnectTo(lightHangingStar2);
+            //pulsatingStar.ConnectTo(lightHangingStar3);
             pulsatingEffectGeneral.ConnectTo(lightHangingStar);
-            pulsatingEffectGeneral.ConnectTo(lightHangingStar2);
-            pulsatingEffectGeneral.ConnectTo(lightHangingStar3);
+            //pulsatingEffectGeneral.ConnectTo(lightHangingStar2);
+            //pulsatingEffectGeneral.ConnectTo(lightHangingStar3);
             pulsatingEffectGeneral.ConnectTo(lightOlaf);
             pulsatingEffectGeneral.ConnectTo(lightR2D2);
             pulsatingEffectGeneral.ConnectTo(lightPoppy);
@@ -236,22 +252,22 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);          // rpi-eb0092ca
             expanderServer.AddInstance("d6fc4e752af04022bf3c1a1166a557bb", expanderHiFi);           // rpi-eb428ef1
             expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderPoppy);         // rpi-eba6cbc7
-            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderDarth);           // rpi-ebd43a38
+            expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderDarth);           // rpi-ebd43a38
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderControlPanel);   // rpi-eb6a047c
             expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderInflatableTree);    // 
 
-            expanderInflatableTree.DigitalInputs[4].Connect(inInflatableTree);
-            expanderLedmx.DigitalInputs[6].Connect(inOlaf);
-            expanderLedmx.DigitalInputs[5].Connect(inPoppy);
+            //expanderInflatableTree.DigitalInputs[4].Connect(inInflatableTree);
+            //expanderLedmx.DigitalInputs[6].Connect(inOlaf);
+            expanderLedmx.DigitalInputs[5].Connect(inOlaf);
             expanderLedmx.DigitalInputs[4].Connect(inR2D2);
-            expanderLedmx.DigitalOutputs[1].Connect(snowMachine);
+            //expanderLedmx.DigitalOutputs[1].Connect(snowMachine);
 
-            expanderControlPanel.DigitalInputs[0].Connect(controlButtonWhite, true);
-            expanderControlPanel.DigitalInputs[1].Connect(controlButtonYellow, true);
-            expanderControlPanel.DigitalInputs[2].Connect(controlButtonBlue, true);
-            expanderControlPanel.DigitalInputs[3].Connect(controlButtonGreen, true);
-            expanderControlPanel.DigitalInputs[4].Connect(controlButtonBlack, true);
-            expanderControlPanel.DigitalInputs[5].Connect(controlButtonRed, true);
+            expanderControlPanel.DigitalInputs[0].Connect(controlButtonWhite);
+            expanderControlPanel.DigitalInputs[1].Connect(controlButtonYellow);
+            expanderControlPanel.DigitalInputs[2].Connect(controlButtonBlue);
+            expanderControlPanel.DigitalInputs[3].Connect(controlButtonGreen);
+            expanderControlPanel.DigitalInputs[4].Connect(controlButtonBlack);
+            expanderControlPanel.DigitalInputs[5].Connect(controlButtonRed);
 
             //expanderLedmx.Connect(audioPoppy);
             expanderHiFi.Connect(audioHiFi);
@@ -262,7 +278,7 @@ namespace Animatroller.Scenes
             blackOut.ConnectTo(Exec.Blackout);
             whiteOut.ConnectTo(Exec.Whiteout);
 
-            //var fileReaderStarWars = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Star Wars 1.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
+            var fileReaderStarWars = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Star Wars 1.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
             var fileReaderXmas = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "MerryChristmas.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
             //var fileReaderHappyNewYear = new Import.FseqFileReader(Path.Combine(Exec.ExpanderSharedFiles, "Seq", "Happy New Year.fseq"), Path.Combine(Exec.ExpanderSharedFiles, "Seq", "xlights_networks.xml"));
 
@@ -315,22 +331,30 @@ namespace Animatroller.Scenes
             lightNet1.SetBrightness(1, channel1);
             lightNet2.SetBrightness(1, channel1);
             lightNet3.SetBrightness(1, channel1);
+            lightNet4.SetBrightness(1, channel1);
+            lightNet5.SetBrightness(1, channel1);
+            lightNet6.SetBrightness(1, channel1);
+            lightNet7.SetBrightness(1, channel1);
+            lightNet8.SetBrightness(1, channel1);
+            lightNet9.SetBrightness(1, channel1);
+            lightNet10.SetBrightness(1, channel1);
+            lightNet11.SetBrightness(1, channel1);
             lightHangingStar.SetBrightness(1, channel1);
-            lightHangingStar2.SetBrightness(1, channel1);
-            lightHangingStar3.SetBrightness(1, channel1);
+            //lightHangingStar2.SetBrightness(1, channel1);
+            //lightHangingStar3.SetBrightness(1, channel1);
             lightInflatableTree.SetBrightness(1, channel1);
             lightHat1.SetBrightness(1, channel1);
-            //lightHat2.SetBrightness(1, 1);
-            //lightHat3.SetBrightness(1, 1);
-            //lightHat4.SetBrightness(1, 1);
-            lightPackages.SetValue(true, channel1);
+            lightHat2.SetBrightness(1, channel1);
+            lightHat3.SetBrightness(1, channel1);
+            lightHat4.SetBrightness(1, channel1);
+            //lightPackages.SetValue(true, channel1);
             lightSanta.SetBrightness(1, channel1);
             lightSantaPopup.SetBrightness(1, channel1);
 
             stateMachine.For(States.Setup)
                 .Execute(ins =>
                 {
-                    //Exec.SetGlobalChannel(1);
+                    Exec.SetGlobalChannel(Channel.FromId(1));
 
                     dmxPlayback.Load(fileReaderXmas);
                     //dmxPlayback.Load(fileReaderCarol);
@@ -389,10 +413,11 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.Pixel1D(pixelsGround, 0, 50), SacnUniversePixelGround, 1);
             //acnOutput.Connect(new Physical.Pixel1D(pixelsHeart, 0, 50), SacnUniversePixelString4, 1);
 
-//            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrixStart);
+            acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrixStart);
 
-            //acnOutput.Connect(new Physical.Pixel1D(saberPixels), SacnUniversePixelSaber, 1);
-            //acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 100);
+            acnOutput.Connect(new Physical.Pixel1D(saberPixels), SacnUniversePixelSaber, 1);
+            acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 100);
+            acnOutput.Connect(new Physical.Pixel1D(vaderEyesPixels), SacnUniversePixelSaber, 181);
 
             //acnOutput.Connect(new Physical.GenericDimmer(airReindeerBig, 10), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(airR2D2Olaf, 12), SacnUniverseLedmx);
@@ -403,11 +428,11 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 3), SacnUniverseRenard24);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 4), SacnUniverseRenard24);
             acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 5), SacnUniverseRenard24);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightStairRail1, 10), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightStairRail2, 4), SacnUniverseRenard19);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightRail1, 20), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 28), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightRail3, 29), SacnUniverseRenard18);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairRail1, 10), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairRail2, 4), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRail1, 11), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 5), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRail3, 9), SacnUniverseRenard2x8);
             //acnOutput.Connect(new Physical.GenericDimmer(lightRail4, 66), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood4, 310), SacnUniverseEdmx4b);
             //acnOutput.Connect(new Physical.RGBStrobe(lightFlood1, 60), SacnUniverseEdmx4);
@@ -422,12 +447,12 @@ namespace Animatroller.Scenes
 
             //acnOutput.Connect(new Physical.GenericDimmer(laser, 1), SacnUniverseRenard18);
 
-            //acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 129), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 129), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(airSnowmanSanta, 13), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(airInflatableTree, 200), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightInflatableTree, 6), SacnUniverseRenard24);
             //acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 131), SacnUniverseLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 131), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 131), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightPoppy, 128), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightSantaPopup, 256), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(movingHead, 200), SacnUniverseEdmx4);
@@ -459,22 +484,21 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 7), SacnUniverseRenard24);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 8), SacnUniverseRenard24);
             acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 9), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 6), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 3), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 7), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 8), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet8, 2), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet9, 10), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet10, 11), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet11, 12), SacnUniverseRenard2x8);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper1, 3), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper2, 4), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.RGBStrobe(lightVader, 40), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(lightVader, 310), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar, 65), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar2, 9), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar3, 52), SacnUniverseLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 26), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 27), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 34), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 35), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet8, 36), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet9, 50), SacnUniverseLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet10, 51), SacnUniverseLedmx);
 
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 4), SacnUniverseRenardSmall);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 5), SacnUniverseRenardSmall);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper1, 7), SacnUniverseRenardSmall);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper2, 8), SacnUniverseRenardSmall);
 
@@ -520,10 +544,18 @@ namespace Animatroller.Scenes
                     lightNet1.SetBrightness(1);
                     lightNet2.SetBrightness(1);
                     lightNet3.SetBrightness(1);
+                    lightNet4.SetBrightness(1);
+                    lightNet5.SetBrightness(1);
+                    lightNet6.SetBrightness(1);
+                    lightNet7.SetBrightness(1);
+                    lightNet8.SetBrightness(1);
+                    lightNet9.SetBrightness(1);
+                    lightNet10.SetBrightness(1);
+                    lightNet11.SetBrightness(1);
                     pulsatingEffectGeneral.Start();
                     pulsatingEffectTree.Start();
                     pulsatingPinSpot.Start();
-                    lightXmasTree.SetValue(true);
+                    //lightXmasTree.SetValue(true);
                     lightStairRail1.SetBrightness(1);
                     lightStairRail2.SetBrightness(1);
                     lightSanta.SetBrightness(1);
@@ -533,16 +565,20 @@ namespace Animatroller.Scenes
                     lightHat2.SetBrightness(1);
                     lightHat3.SetBrightness(1);
                     lightHat4.SetBrightness(1);
+                    lightRail1.SetBrightness(1);
+                    lightRail2.SetBrightness(1);
+                    lightRail3.SetBrightness(1);
                     lightFlood1.SetColor(Color.Red, 1, Channel.Main);
                     lightFlood2.SetColor(Color.Red, 1, Channel.Main);
                     lightFlood3.SetColor(Color.Red, 1, Channel.Main);
                     lightFlood4.SetColor(Color.Red, 1, Channel.Main);
 
-                    saberPixels.SetColor(Color.Red, 0.4, Channel.Main, token: i.Token);
+                    saberPixels.SetColor(Color.Red, 0.3, Channel.Main, token: i.Token);
+                    vaderEyesPixels.SetColor(Color.Green, 0.4, Channel.Main, token: i.Token);
 
                     subCandyCane.Run();
 
-                    //dmxPlayback.Load(fileReaderXmas);
+                    dmxPlayback.Load(fileReaderXmas);
                     //FIXME dmxPlayback.Load(fileReaderHappyNewYear);
                     dmxPlayback.Run(true);
 
@@ -631,11 +667,11 @@ namespace Animatroller.Scenes
                     });
 
             subMusicChristmasCanon
-                .LockWhenRunning(lightSantaPopup, lightXmasTree)
+                .LockWhenRunning(lightSantaPopup)
                 .RunAction(ins =>
                     {
                         lightSantaPopup.SetBrightness(1);
-                        lightXmasTree.SetValue(true);
+                        //lightXmasTree.SetValue(true);
                         audioHiFi.PlayTrack("21. Christmas Canon Rock.wav");
                         ins.WaitFor(S(300), true);
                     }).TearDown(i =>
@@ -645,11 +681,10 @@ namespace Animatroller.Scenes
                     });
 
             subMusicBelieve
-                .LockWhenRunning(lightSantaPopup, lightXmasTree, hazerFanSpeed, hazerHazeOutput)
+                .LockWhenRunning(lightSantaPopup, hazerFanSpeed, hazerHazeOutput)
                 .RunAction(ins =>
                 {
                     lightSantaPopup.SetBrightness(1);
-                    lightXmasTree.SetValue(true);
                     hazerFanSpeed.SetBrightness(0.3);
                     hazerHazeOutput.SetBrightness(0.1);
                     audioHiFi.PlayTrack("T.P.E. - 04 - Josh Groban - Believe.flac");
@@ -661,11 +696,11 @@ namespace Animatroller.Scenes
                 });
 
             subMusicSarajevo
-                .LockWhenRunning(lightSantaPopup, lightXmasTree)
+                .LockWhenRunning(lightSantaPopup)
                 .RunAction(ins =>
                 {
                     lightSantaPopup.SetBrightness(1);
-                    lightXmasTree.SetValue(true);
+                    //lightXmasTree.SetValue(true);
                     audioHiFi.PlayTrack("04 Christmas Eve _ Sarajevo (Instrum.wav");
                     ins.WaitFor(S(200), true);
                 }).TearDown(i =>
@@ -675,11 +710,11 @@ namespace Animatroller.Scenes
                 });
 
             subMusicHolyNight
-                .LockWhenRunning(lightSantaPopup, lightXmasTree)
+                .LockWhenRunning(lightSantaPopup)
                 .RunAction(ins =>
                 {
                     lightSantaPopup.SetBrightness(1);
-                    lightXmasTree.SetValue(true);
+                    //lightXmasTree.SetValue(true);
                     audioHiFi.PlayTrack("01 O Come All Ye Faithful _ O Holy N.wav");
                     ins.WaitFor(S(260), true);
                 }).TearDown(i =>
@@ -689,11 +724,11 @@ namespace Animatroller.Scenes
                 });
 
             subMusicCarol
-                .LockWhenRunning(lightSantaPopup, lightXmasTree)
+                .LockWhenRunning(lightSantaPopup)
                 .RunAction(ins =>
                 {
                     lightSantaPopup.SetBrightness(1);
-                    lightXmasTree.SetValue(true);
+                    //lightXmasTree.SetValue(true);
                     audioHiFi.PlayTrack("09 Carol of the Bells (Instrumental).wav");
                     ins.WaitFor(S(160), true);
                 }).TearDown(i =>
@@ -748,12 +783,12 @@ namespace Animatroller.Scenes
                     var levelsPlayback = new Framework.Import.LevelsPlayback();
                     levelsPlayback.Output.Controls(b => lightR2D2.SetBrightness(b, token: ins.Token));
 
-                    audioR2D2Olaf.PlayNewEffect("Im C3PO.wav", 1.0, 1.0, levelsPlayback);
+                    audioR2D2Olaf.PlayNewEffect("Im C3PO.wav", 1.0, 0.0, levelsPlayback);
                     var cts = levelsPlayback.Start(ins.Token);
                     ins.WaitFor(S(4));
                     cts.Cancel();
 
-                    audioR2D2Olaf.PlayNewEffect("Processing R2D2.wav", 0.5, 0.5, levelsPlayback);
+                    audioR2D2Olaf.PlayNewEffect("Processing R2D2.wav", 0.5, 0.0, levelsPlayback);
                     cts = levelsPlayback.Start(ins.Token);
                     ins.WaitFor(S(5));
                     cts.Cancel();
@@ -761,8 +796,10 @@ namespace Animatroller.Scenes
 
             subStarWars
                 .LockWhenRunning(
+                    lockPriority: 200,
                     saberPixels,
                     haloPixels,
+                    vaderEyesPixels,
                     lightVader,
                     lightR2D2,
                     lightHangingStar)
@@ -772,7 +809,7 @@ namespace Animatroller.Scenes
                     subStarWarsCane.Run();
                     lightR2D2.SetBrightness(1.0, token: instance.Token);
 
-                    //FIXME dmxPlayback.Load(fileReaderStarWars);
+                    dmxPlayback.Load(fileReaderStarWars);
 
                     audioHiFi.PlayTrack("01. Star Wars - Main Title.wav");
                     dmxPlayback.Run(true);
@@ -794,6 +831,7 @@ namespace Animatroller.Scenes
                     Exec.Cancel(subStarWarsCane);
                     instance.WaitFor(S(0.5));
 
+                    vaderEyesPixels.SetColor(Color.Green, brightness: 1.0, token: instance.Token);
                     audioDarthVader.PlayEffect("saberon.wav");
                     for (int sab = 0; sab < 33; sab++)
                     {
@@ -822,6 +860,7 @@ namespace Animatroller.Scenes
                     }
                     Exec.StopManagedTask(haloJob);
                     pulsatingStar.Stop();
+                    vaderEyesPixels.SetBrightness(brightness: 0, token: instance.Token);
 
                     instance.WaitFor(S(2));
                 })

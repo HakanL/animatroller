@@ -190,7 +190,7 @@ namespace Animatroller.Framework.Controller
 
             if (this.externalControlToken == null)
             {
-                this.groupControlToken = new GroupControlToken(heldLocks, disposeLocks: true, priority: this.lockPriority);
+                this.groupControlToken = new GroupControlToken(heldLocks, disposeLocks: true, priority: this.lockPriority, name: $"Lock in {Name}");
                 this.groupControlToken.AutoAddDevices = this.autoAddDevices;
             }
         }
