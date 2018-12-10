@@ -63,6 +63,8 @@ namespace Animatroller.Scenes
                 .LockWhenRunning(lightA, lightB)
                 .RunAction(i =>
                 {
+                    i.WaitFor(S(10));
+
                     lightA.SetBrightness(1.0, token: i.Token);
                     i.WaitFor(S(2.5));
 

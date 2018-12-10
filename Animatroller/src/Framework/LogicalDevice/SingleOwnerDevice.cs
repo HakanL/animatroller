@@ -76,7 +76,6 @@ namespace Animatroller.Framework.LogicalDevice
 
         protected void RefreshOutput()
         {
-            // FIXME: Should we lock the CurrentData here?
             this.outputChanged.OnNext(CurrentData);
         }
 
@@ -233,6 +232,8 @@ namespace Animatroller.Framework.LogicalDevice
                 this.currentOwner = newOwner;
 
                 Executor.Current.SetControlToken(this, newOwner);
+
+                PushOutput(this.currentChannel, newOwner);
 
                 RefreshOutput();
 
