@@ -203,6 +203,8 @@ namespace Animatroller.Framework.LogicalDevice
                             this.currentOwner = nextOwner;
 
                             Executor.Current.SetControlToken(this, nextOwner);
+
+                            PushOutput(this.currentChannel, nextOwner);
                         }
 
                         SetData(channel, nextOwner, restoreData);
@@ -234,8 +236,6 @@ namespace Animatroller.Framework.LogicalDevice
                 Executor.Current.SetControlToken(this, newOwner);
 
                 PushOutput(this.currentChannel, newOwner);
-
-                RefreshOutput();
 
                 return ownerCandidate;
             }

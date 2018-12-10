@@ -573,7 +573,7 @@ namespace Animatroller.Scenes
                     lightFlood3.SetColor(Color.Red, 1, Channel.Main);
                     lightFlood4.SetColor(Color.Red, 1, Channel.Main);
 
-                    saberPixels.SetColor(Color.Red, 0.3, Channel.Main, token: i.Token);
+                    saberPixels.SetColor(Color.Red, 0.2, Channel.Main, token: i.Token);
                     vaderEyesPixels.SetColor(Color.Green, 0.4, Channel.Main, token: i.Token);
 
                     subCandyCane.Run();

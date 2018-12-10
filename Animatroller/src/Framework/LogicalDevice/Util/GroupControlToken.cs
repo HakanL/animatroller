@@ -72,6 +72,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (AutoAddDevices)
             {
                 token = device.TakeControl(channel: channel, priority: Priority, name: Name);
+                this.ownedTokens.Add(token);
                 Add(device, token);
 
                 return token.GetDataForDevice(device, channel);
@@ -104,7 +105,7 @@ namespace Animatroller.Framework.LogicalDevice
 
         public void Add(IOwnedDevice device, IChannel channel = null)
         {
-            var token = device.TakeControl(channel: null, priority: Priority, name: Name);
+            var token = device.TakeControl(channel: channel, priority: Priority, name: Name);
             this.ownedTokens.Add(token);
             this.memberTokens.Add(device, token);
         }
@@ -113,7 +114,7 @@ namespace Animatroller.Framework.LogicalDevice
         {
             foreach (var device in devices)
             {
-                var token = device.TakeControl(channel: null, priority: Priority, name: Name);
+                var token = device.TakeControl(channel: channel, priority: Priority, name: Name);
                 this.ownedTokens.Add(token);
                 this.memberTokens.Add(device, token);
             }
