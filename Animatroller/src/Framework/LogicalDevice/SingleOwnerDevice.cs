@@ -121,7 +121,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (token == null)
             {
                 // Attempt to get from call context
-                token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
+                token = Executor.AsyncLocalTokens.Value;
 
                 if (token is GroupControlToken groupToken)
                 {
@@ -141,7 +141,7 @@ namespace Animatroller.Framework.LogicalDevice
             if (token == null)
             {
                 // Attempt to get from call context
-                token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
+                token = Executor.AsyncLocalTokens.Value;
 
                 if (token is GroupControlToken groupToken)
                 {

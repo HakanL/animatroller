@@ -33,7 +33,7 @@ namespace Animatroller.SceneRunner
             var logConfig = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .MinimumLevel.Verbose()
-                .WriteTo.ColoredConsole(outputTemplate: ConsoleTemplate)
+                .WriteTo.Console(outputTemplate: ConsoleTemplate)
                 .WriteTo.Debug(outputTemplate: DebugTemplate)
                 .WriteTo.RollingFile(
                     pathFormat: Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),

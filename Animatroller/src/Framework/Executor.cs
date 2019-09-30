@@ -12,6 +12,8 @@ namespace Animatroller.Framework
 {
     public class Executor
     {
+        public static AsyncLocal<IControlToken> AsyncLocalTokens = new AsyncLocal<IControlToken>();
+        
         public class ThreadLocalStorage
         {
             public List<Tuple<Task, CancellationTokenSource>> ManagedTasks { get; private set; }
@@ -179,7 +181,7 @@ namespace Animatroller.Framework
             if (token != null)
                 return token;
 
-            token = System.Runtime.Remoting.Messaging.CallContext.LogicalGetData("TOKEN") as IControlToken;
+            token = AsyncLocalTokens.Value;
 
             if (token != null)
                 return token;

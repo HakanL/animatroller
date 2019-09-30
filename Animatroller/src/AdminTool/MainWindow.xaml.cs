@@ -38,7 +38,7 @@ namespace Animatroller.AdminTool
 
             string instanceId = Guid.NewGuid().ToString("n");
 
-            DotNetty.Common.Internal.Logging.InternalLoggerFactory.DefaultFactory.AddProvider(new Microsoft.Extensions.Logging.Debug.DebugLoggerProvider());
+//FIXME            DotNetty.Common.Internal.Logging.InternalLoggerFactory.DefaultFactory.AddProvider(new Microsoft.Extensions.Logging.Debug.DebugLoggerProvider());
             //DotNetty.Common.ResourceLeakDetector.Level = DotNetty.Common.ResourceLeakDetector.DetectionLevel.Advanced;
 
             this.communication = new ExpanderCommunication.NettyClient(

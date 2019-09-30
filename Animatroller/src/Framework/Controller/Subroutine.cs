@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice;
 using Serilog;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Diagnostics;
 using System.Reactive.Subjects;
@@ -224,7 +223,8 @@ namespace Animatroller.Framework.Controller
 
                 Lock();
 
-                CallContext.LogicalSetData("TOKEN", this.externalControlToken ?? this.groupControlToken);
+                Executor.AsyncLocalTokens.Value = this.externalControlToken ?? this.groupControlToken;
+                //CallContext.LogicalSetData("TOKEN", this.externalControlToken ?? this.groupControlToken);
 
                 try
                 {
@@ -282,7 +282,8 @@ namespace Animatroller.Framework.Controller
                 this.lifecycle.OnNext(LifeCycles.Teardown);
                 this.tearDownAction?.Invoke(this);
 
-                CallContext.LogicalSetData("TOKEN", null);
+                Executor.AsyncLocalTokens.Value = null;
+                //CallContext.LogicalSetData("TOKEN", null);
                 Release();
 
                 this.lifecycle.OnNext(LifeCycles.Stopped);
