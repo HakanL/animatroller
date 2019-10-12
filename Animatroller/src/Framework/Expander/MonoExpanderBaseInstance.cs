@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Animatroller.Framework.MonoExpanderMessages;
 using Serilog;
 
@@ -19,12 +20,28 @@ namespace Animatroller.Framework.Expander
         protected string instanceId;
         private readonly Dictionary<string, object> lastState;
         private bool hasReported;
+        private Timer timerRefreshOutput;
 
         public MonoExpanderBaseInstance()
         {
             this.log = Log.Logger;
             this.handleMethodCache = new Dictionary<Type, System.Reflection.MethodInfo>();
             this.lastState = new Dictionary<string, object>();
+            this.timerRefreshOutput = new Timer(state =>
+                {
+                    try
+                    {
+                        // Send all state data
+                        lock (this.lastState)
+                        {
+                            foreach (var kvp in this.lastState)
+                                SendMessage(kvp.Value);
+                        }
+                    }
+                    catch
+                    {
+                    }
+                }, null, 15_000, 15_000);
         }
 
         internal void Initialize(string expanderSharedFiles, string instanceId, Action<object> sendAction)

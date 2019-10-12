@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Framework.LogicalDevice.Event;
+using Animatroller.Framework.MonoExpanderMessages;
 using CSCore;
 using CSCore.Codecs;
 using CSCore.CoreAudioAPI;
@@ -15,19 +18,30 @@ namespace Animatroller.Framework.LogicalDevice
 {
     public class AudioPlayer : BaseDevice
     {
+        public struct AudioData
+        {
+            public AudioTypes AudioType { get; set; }
+
+            public string Filename { get; set; }
+        }
+
         private bool silent;
         private double currentBackgroundVolume = 1.0;
         private double currentEffectVolume = 1.0;
         private double currentTrackVolume = 1.0;
 
+        private ISubject<AudioData> audioTrackStart;
+        private ISubject<AudioTypes> audioTrackDone;
+
         public event EventHandler<AudioChangedEventArgs> AudioChanged;
         public event EventHandler<AudioCommandEventArgs> ExecuteCommand;
-        public event EventHandler<EventArgs> AudioTrackDone;
-        public event EventHandler<AudioStartEventArgs> AudioTrackStart;
 
         public AudioPlayer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+            this.audioTrackStart = new Subject<AudioData>();
+            this.audioTrackDone = new Subject<AudioTypes>();
+
             Executor.Current.MasterVolume.Subscribe(mv =>
                 {
                     RaiseExecuteCommand(AudioCommandEventArgs.Commands.BackgroundVolume, this.currentBackgroundVolume * mv);
@@ -36,14 +50,28 @@ namespace Animatroller.Framework.LogicalDevice
                 });
         }
 
-        internal void RaiseAudioTrackStart(string fileName)
+        public IObservable<AudioData> AudioTrackStart
         {
-            AudioTrackStart?.Invoke(this, new AudioStartEventArgs(fileName));
+            get { return this.audioTrackStart.AsObservable(); }
+        }
+
+        public IObservable<AudioTypes> AudioTrackDone
+        {
+            get { return this.audioTrackDone.AsObservable(); }
+        }
+
+        internal void RaiseAudioTrackStart(AudioTypes audioType, string fileName)
+        {
+            this.audioTrackStart.OnNext(new AudioData
+            {
+                AudioType = audioType,
+                Filename = fileName
+            });
         }
 
         internal void RaiseAudioTrackDone()
         {
-            AudioTrackDone?.Invoke(this, EventArgs.Empty);
+            this.audioTrackDone.OnNext(AudioTypes.Track);
         }
 
         protected virtual void RaiseAudioChanged(AudioChangedEventArgs.Commands command, string audioFile, double? leftVolume = null, double? rightVolume = null)

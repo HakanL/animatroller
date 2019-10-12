@@ -564,10 +564,10 @@ namespace Animatroller.Scenes
                 });
 
 
-            expanderHifi.AudioTrackStart.Subscribe(x =>
+            audioHifi.AudioTrackStart.Subscribe(x =>
             {
                 // Next track
-                switch (x.Item2)
+                switch (x.Filename)
                 {
                     case "Thunder1.wav":
                         timelineThunder1.Start();

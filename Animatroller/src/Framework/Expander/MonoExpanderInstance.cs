@@ -13,14 +13,13 @@ namespace Animatroller.Framework.Expander
             PiFace
         }
 
-        private event EventHandler<EventArgs> AudioTrackDone;
-        private event EventHandler<EventArgs> VideoTrackDone;
-        private ISubject<Tuple<AudioTypes, string>> audioTrackStart;
-        private bool[] invertedInputs;
+        private ISubject<int> audioTrackDone;
+        private ISubject<int> videoTrackDone;
+        private ISubject<(int Output, AudioTypes AudioType, string Filename)> audioTrackStart;
 
         public MonoExpanderInstance(HardwareType hardware, [System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
-            switch(hardware)
+            switch (hardware)
             {
                 case HardwareType.None:
                     Init(name, 0, 0);
@@ -30,10 +29,10 @@ namespace Animatroller.Framework.Expander
                     Init(name, 8, 8);
 
                     // Default for the PiFace
-                    this.invertedInputs[0] = true;
-                    this.invertedInputs[1] = true;
-                    this.invertedInputs[2] = true;
-                    this.invertedInputs[3] = true;
+                    InvertedInputs[0] = true;
+                    InvertedInputs[1] = true;
+                    InvertedInputs[2] = true;
+                    InvertedInputs[3] = true;
                     break;
 
                 default:
@@ -50,8 +49,8 @@ namespace Animatroller.Framework.Expander
         {
             this.name = name;
 
-            this.DigitalInputs = new PhysicalDevice.DigitalInput[inputs];
-            this.invertedInputs = new bool[inputs];
+            DigitalInputs = new PhysicalDevice.DigitalInput[inputs];
+            InvertedInputs = new bool[inputs];
 
             for (int index = 0; index < this.DigitalInputs.Length; index++)
                 this.DigitalInputs[index] = new PhysicalDevice.DigitalInput();
@@ -60,7 +59,9 @@ namespace Animatroller.Framework.Expander
             for (int index = 0; index < this.DigitalOutputs.Length; index++)
                 WireupOutput(index);
 
-            this.audioTrackStart = new Subject<Tuple<AudioTypes, string>>();
+            this.audioTrackDone = new Subject<int>();
+            this.videoTrackDone = new Subject<int>();
+            this.audioTrackStart = new Subject<(int Output, AudioTypes AudioType, string Filename)>();
 
             this.Motor = new PhysicalDevice.MotorWithFeedback((target, speed, timeout) =>
             {
@@ -94,24 +95,17 @@ namespace Animatroller.Framework.Expander
             Executor.Current.Register(this);
         }
 
-        public IObservable<Tuple<AudioTypes, string>> AudioTrackStart => this.audioTrackStart.AsObservable();
-
         public PhysicalDevice.DigitalInput[] DigitalInputs { get; private set; }
 
         public PhysicalDevice.DigitalOutput[] DigitalOutputs { get; private set; }
 
         public PhysicalDevice.MotorWithFeedback Motor { get; private set; }
 
-        public bool[] InvertedInputs => this.invertedInputs;
-
-        protected virtual void RaiseAudioTrackDone()
-        {
-            AudioTrackDone?.Invoke(this, EventArgs.Empty);
-        }
+        public bool[] InvertedInputs { get; private set; }
 
         protected virtual void RaiseVideoTrackDone()
         {
-            VideoTrackDone?.Invoke(this, EventArgs.Empty);
+            this.videoTrackDone.OnNext(0);
         }
 
         public void Start()
@@ -187,18 +181,14 @@ namespace Animatroller.Framework.Expander
             }, $"d-out{output}");
         }
 
-        public MonoExpanderInstance Connect(LogicalDevice.AudioPlayer logicalDevice)
+        public MonoExpanderInstance Connect(LogicalDevice.AudioPlayer logicalDevice, int output = 0)
         {
-            this.AudioTrackDone += (o, e) =>
-                {
-                    logicalDevice.RaiseAudioTrackDone();
-                };
+            this.audioTrackDone.Where(x => x == output).Subscribe(o =>
+             {
+                 logicalDevice.RaiseAudioTrackDone();
+             });
 
-            this.AudioTrackStart.Subscribe(x =>
-                {
-                    if (x.Item1 == AudioTypes.Track)
-                        logicalDevice.RaiseAudioTrackStart(x.Item2);
-                });
+            this.audioTrackStart.Where(x => x.Output == output).Subscribe(d => logicalDevice.RaiseAudioTrackStart(d.AudioType, d.Filename));
 
             logicalDevice.AudioChanged += (sender, e) =>
                 {
@@ -209,6 +199,7 @@ namespace Animatroller.Framework.Expander
                             if (e.LeftVolume.HasValue && e.RightVolume.HasValue)
                                 SendMessage(new AudioEffectPlay
                                 {
+                                    Output = output,
                                     FileName = e.AudioFile,
                                     VolumeLeft = e.LeftVolume.Value,
                                     VolumeRight = e.RightVolume.Value,
@@ -217,6 +208,7 @@ namespace Animatroller.Framework.Expander
                             else
                                 SendMessage(new AudioEffectPlay
                                 {
+                                    Output = output,
                                     FileName = e.AudioFile,
                                     Simultaneous = e.Command == LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayNewFX
                                 });
@@ -225,6 +217,7 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueFX:
                             SendMessage(new AudioEffectCue
                             {
+                                Output = output,
                                 FileName = e.AudioFile
                             });
                             break;
@@ -232,6 +225,7 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.CueTrack:
                             SendMessage(new AudioTrackCue
                             {
+                                Output = output,
                                 FileName = e.AudioFile
                             });
                             break;
@@ -239,6 +233,7 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioChangedEventArgs.Commands.PlayTrack:
                             SendMessage(new AudioTrackPlay
                             {
+                                Output = output,
                                 FileName = e.AudioFile
                             });
                             break;
@@ -250,51 +245,53 @@ namespace Animatroller.Framework.Expander
                     switch (e.Command)
                     {
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PlayBackground:
-                            SendMessage(new AudioBackgroundResume(), "play-bg");
+                            SendMessage(new AudioBackgroundResume { Output = output }, "play-bg");
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseBackground:
-                            SendMessage(new AudioBackgroundPause(), "pause-bg");
+                            SendMessage(new AudioBackgroundPause { Output = output }, "pause-bg");
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeFX:
-                            SendMessage(new AudioEffectResume());
+                            SendMessage(new AudioEffectResume { Output = output });
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseFX:
-                            SendMessage(new AudioEffectPause());
+                            SendMessage(new AudioEffectPause { Output = output });
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.StopFX:
-                            SendMessage(new AudioEffectStop());
+                            SendMessage(new AudioEffectStop { Output = output });
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.NextBackground:
-                            SendMessage(new AudioBackgroundNext());
+                            SendMessage(new AudioBackgroundNext { Output = output });
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.BackgroundVolume:
                             SendMessage(new AudioBackgroundSetVolume
                             {
+                                Output = output,
                                 Volume = ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value
                             }, "mv-bg");
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeTrack:
-                            SendMessage(new AudioTrackResume());
+                            SendMessage(new AudioTrackResume { Output = output });
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseTrack:
-                            SendMessage(new AudioTrackPause());
+                            SendMessage(new AudioTrackPause { Output = output });
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.StopTrack:
-                            SendMessage(new AudioTrackStop());
+                            SendMessage(new AudioTrackStop { Output = output });
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.EffectVolume:
                             SendMessage(new AudioEffectSetVolume
                             {
+                                Output = output,
                                 Volume = ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value
                             }, "mv-fx");
                             break;
@@ -302,6 +299,7 @@ namespace Animatroller.Framework.Expander
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.TrackVolume:
                             SendMessage(new AudioTrackSetVolume
                             {
+                                Output = output,
                                 Volume = ((LogicalDevice.Event.AudioCommandValueEventArgs)e).Value
                             }, "mv-trk");
                             break;
@@ -313,10 +311,10 @@ namespace Animatroller.Framework.Expander
 
         public MonoExpanderInstance Connect(LogicalDevice.VideoPlayer logicalDevice)
         {
-            this.VideoTrackDone += (o, e) =>
+            this.videoTrackDone.Subscribe(o =>
             {
                 logicalDevice.RaiseVideoTrackDone();
-            };
+            });
 
             logicalDevice.ExecuteCommand += (sender, e) =>
             {
@@ -346,7 +344,7 @@ namespace Animatroller.Framework.Expander
                     if (inputId >= 0 && inputId < this.DigitalInputs.Length)
                     {
                         bool value = message.Value != 0;
-                        if (this.invertedInputs[inputId])
+                        if (this.InvertedInputs[inputId])
                             value = !value;
 
                         this.DigitalInputs[inputId].Trigger(value);
@@ -389,7 +387,7 @@ namespace Animatroller.Framework.Expander
                 case AudioTypes.Background:
                     log.Debug("Playing {0} track {1} on {2}", message.Type, message.Id, this.name);
 
-                    this.audioTrackStart.OnNext(Tuple.Create(message.Type, message.Id));
+                    this.audioTrackStart.OnNext((message.Output, message.Type, message.Id));
                     break;
 
                 case AudioTypes.Effect:
@@ -411,7 +409,7 @@ namespace Animatroller.Framework.Expander
             {
                 case AudioTypes.Track:
                     log.Debug("Audio track {0} done", message.Id);
-                    RaiseAudioTrackDone();
+                    this.audioTrackDone.OnNext(message.Output);
                     break;
             }
 

@@ -986,9 +986,9 @@ namespace Animatroller.Scenes
                     this.stateMachine.GoToDefaultState();
             });
 
-            audioHiFi.AudioTrackStart += (o, e) =>
+            audioHiFi.AudioTrackStart.Subscribe(e =>
             {
-                switch (e.FileName)
+                switch (e.Filename)
                 {
                     case "21. Christmas Canon Rock.wav":
                         lorChristmasCanon.Start();
@@ -1010,7 +1010,7 @@ namespace Animatroller.Scenes
                         lorCarol.Start();
                         break;
                 }
-            };
+            });
 
             inShowMachine.Output.Subscribe(x =>
             {

@@ -678,9 +678,9 @@ namespace Animatroller.Scenes
                 }
             });
 
-            audioMain.AudioTrackStart += (o, e) =>
+            audioMain.AudioTrackStart.Subscribe(e =>
             {
-                switch (e.FileName)
+                switch (e.Filename)
                 {
                     case "08 Feel the Light.wav":
                         lorFeelTheLight.Start(27830);
@@ -690,13 +690,13 @@ namespace Animatroller.Scenes
                         lorBelieve.Start();
                         break;
                 }
-            };
+            });
 
-            audioMain.AudioTrackDone += (o, e) =>
-            {
-                //                Thread.Sleep(5000);
-                //    audio2.PlayTrack("08 Feel the Light.wav");
-            };
+            //audioMain.AudioTrackDone += (o, e) =>
+            //{
+            //    //                Thread.Sleep(5000);
+            //    //    audio2.PlayTrack("08 Feel the Light.wav");
+            //};
 
             inShowMachine.Output.Subscribe(x =>
             {

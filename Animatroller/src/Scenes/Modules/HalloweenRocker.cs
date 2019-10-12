@@ -51,6 +51,7 @@ namespace Animatroller.Scenes.Modules
                 {
                     ladyEyes.SetValue(true, token: this.controlToken);
                     rockingMotor.SetValue(true, token: this.controlToken);
+                    pulsatingRocking.Start(token: this.controlToken);
                 })
                 .RunAction(ins =>
                 {
@@ -76,6 +77,7 @@ namespace Animatroller.Scenes.Modules
                 })
                 .TearDown(ins =>
                 {
+                    pulsatingRocking.Stop();
                     audioPlayerRocker.StopFX();
                     ladyEyes.SetValue(false, token: this.controlToken);
                     rockingMotor.SetValue(false, token: this.controlToken);
@@ -85,7 +87,7 @@ namespace Animatroller.Scenes.Modules
                 .SetLoop(true)
                 .RunAction(ins =>
                 {
-                    pulsatingRocking.Start(token: this.controlToken);
+                    //pulsatingRocking.Start(token: this.controlToken);
                     if (!isRockingLadyTalking)
                     {
                         switch (random.Next(3))
@@ -110,7 +112,15 @@ namespace Animatroller.Scenes.Modules
                 })
                 .TearDown(ins =>
                 {
-                    pulsatingRocking.Stop();
+                    //pulsatingRocking.Stop();
+                });
+
+
+            PowerOff
+                .RunAction(ins =>
+                {
+                    audioPlayerRocker.PlayEffect("053851373-old-ungly-female-laughter.wav", 0.2);
+                    ins.WaitFor(S(5));
                 });
         }
     }
