@@ -29,6 +29,10 @@ namespace Animatroller.MonoExpander
         [ArgDescription("Auto-start background tracks")]
         public bool BackgroundTrackAutoStart { get; set; }
 
+        [ArgShortcut("ad")]
+        [ArgDescription("Audio driver name")]
+        public string[] AudioDriver { get; set; }
+
         [ArgShortcut("sp0")]
         [ArgDescription("Serial port 0 port name")]
         public string SerialPort0 { get; set; }
@@ -68,6 +72,7 @@ namespace Animatroller.MonoExpander
         public Arguments()
         {
             Servers = new System.Net.DnsEndPoint[0];
+            AudioDriver = new string[] { "default" };
         }
     }
 }

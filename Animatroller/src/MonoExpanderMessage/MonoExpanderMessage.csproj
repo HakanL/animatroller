@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
-    <RootNamespace>Animatroller.Framework.MonoExpanderMessage</RootNamespace>
+    <RootNamespace>Animatroller.Framework.MonoExpanderMessages</RootNamespace>
     <AssemblyName>MonoExpanderMessage</AssemblyName>
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
