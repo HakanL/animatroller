@@ -101,26 +101,25 @@ namespace Animatroller.MonoExpander
 
             this.fmodSystem = new LowLevelSystem(preInit: c =>
             {
-                int driverId = 0;
+                int? driverId = null;
                 for (int i = 0; i < c.GetNumDrivers(); i++)
                 {
                     var driverInfo = c.GetDriverInfo(i);
 
-                    this.log.Information("Driver id {DriverId} - {DriverName}", i, driverInfo.Name);
+                    this.log.Debug("Driver id {DriverId} - {DriverName}", i, driverInfo.Name);
 
-                    if (driverInfo.Name.StartsWith(driverName))
+                    if (!driverId.HasValue && driverInfo.Name.StartsWith(driverName))
                     {
                         if (usedDrivers.Contains(i))
                             throw new ArgumentException("This driver id has already been used");
 
                         driverId = i;
-                        break;
                     }
                 }
 
                 this.log.Information("Setting driver id {DriverId}", driverId);
-                c.Driver = driverId;
-                usedDrivers.Add(driverId);
+                c.Driver = driverId ?? 0;
+                usedDrivers.Add(driverId ?? 0);
             });
 
             FxSystem = new SubSystem(this.fmodSystem, "FX", AudioTypes.Effect);
