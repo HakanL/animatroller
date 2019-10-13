@@ -395,11 +395,22 @@ namespace Animatroller.Framework.Expander
                     break;
             }
 
+            string playValue = message.Id;
+            if (playValue.Contains('/'))
+            {
+                // It's a path, strip the path
+                int lastPos = playValue.LastIndexOf('/');
+                if (lastPos > -1)
+                    playValue = playValue.Substring(lastPos + 1);
+            }
+            if (message.Output > 0)
+                playValue = $"{message.Output}: {playValue}";
+
             Executor.Current.Diagnostics.OnNext(new DiagDataAudioPlayback
             {
                 Type = message.Type == AudioTypes.Effect ? message.Type.ToString() : AudioTypes.Track.ToString(),
                 Name = this.name,
-                Value = message.Id
+                Value = playValue
             });
         }
 

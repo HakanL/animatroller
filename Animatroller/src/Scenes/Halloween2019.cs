@@ -724,9 +724,9 @@ namespace Animatroller.Scenes
             expanderRocking.DigitalOutputs[7].Connect(rockingChairEyes);
 
             expanderLedmx.Connect(audioCat);
+            expanderLedmx.Connect(audioFrankGhost, 1);
             //expanderCat.Connect(audioCat);
             expanderHifi.Connect(audioHifi);
-            expanderHifi.Connect(audioFlying, 1);
             //expanderLocal.Connect(audioLocal);
             //expanderFrankGhost.Connect(audioFrankGhost);
             //expanderHead.Connect(audioHead);

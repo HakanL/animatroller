@@ -114,6 +114,7 @@ namespace Animatroller.MonoExpander
                             throw new ArgumentException("This driver id has already been used");
 
                         driverId = i;
+                        break;
                     }
                 }
 
