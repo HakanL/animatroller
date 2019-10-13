@@ -189,7 +189,7 @@ namespace Animatroller.MonoExpander
                     this.messageSenderAction(new AudioFinished
                     {
                         Output = this.outputId,
-                        Id = fileName,
+                        Id = Path.GetFileName(fileName),
                         Type = AudioTypes.Effect
                     });
 
@@ -218,7 +218,7 @@ namespace Animatroller.MonoExpander
             this.messageSenderAction(new AudioStarted
             {
                 Output = this.outputId,
-                Id = fileName,
+                Id = Path.GetFileName(fileName),
                 Type = AudioTypes.Effect
             });
         }
