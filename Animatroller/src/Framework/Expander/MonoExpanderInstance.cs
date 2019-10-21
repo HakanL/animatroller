@@ -245,11 +245,11 @@ namespace Animatroller.Framework.Expander
                     switch (e.Command)
                     {
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PlayBackground:
-                            SendMessage(new AudioBackgroundResume { Output = output }, "play-bg");
+                            SendMessage(new AudioBackgroundResume { Output = output }, "background-audio");
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.PauseBackground:
-                            SendMessage(new AudioBackgroundPause { Output = output }, "pause-bg");
+                            SendMessage(new AudioBackgroundPause { Output = output }, "background-audio");
                             break;
 
                         case LogicalDevice.Event.AudioCommandEventArgs.Commands.ResumeFX:

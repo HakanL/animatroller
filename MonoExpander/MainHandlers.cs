@@ -55,10 +55,10 @@ namespace Animatroller.MonoExpander
             this.log.Information("Play audio FX {Filename} on output {Output}", message.FileName, message.Output);
 
             if (message.VolumeLeft.HasValue && message.VolumeRight.HasValue)
-                ExecuteAudioSystemCommand(message.Output, a => a.PlaySound(
+                ExecuteAudioSystemCommand(message.Output, a => a.PlayFx(
                     Path.Combine(this.soundEffectPath, message.FileName), message.Simultaneous, message.VolumeLeft.Value, message.VolumeRight.Value));
             else
-                ExecuteAudioSystemCommand(message.Output, a => a.PlaySound(
+                ExecuteAudioSystemCommand(message.Output, a => a.PlayFx(
                     Path.Combine(this.soundEffectPath, message.FileName), message.Simultaneous));
         }
 

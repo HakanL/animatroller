@@ -158,7 +158,7 @@ namespace Animatroller.MonoExpander
                 PlayNextBackground();
         }
 
-        public void PlaySound(string fileName, bool playOnNewChannel, double leftVol = 1.0, double? rightVol = null)
+        public void PlayFx(string fileName, bool playOnNewChannel, double leftVol = 1.0, double? rightVol = null)
         {
             var sound = LoadSound(fileName);
             sound.LoopCount = 0;

@@ -31,11 +31,11 @@ namespace Animatroller.Scenes
                     audioSpider.StopFX();
             });
 
-            oscServer.RegisterActionSimple<bool>("/ExpanderBigEyeAudioStop/x", (msg, data) =>
-            {
-                if (data)
-                    audioBigEye.StopFX();
-            });
+            //oscServer.RegisterActionSimple<bool>("/ExpanderBigEyeAudioStop/x", (msg, data) =>
+            //{
+            //    if (data)
+            //        audioBigEye.StopFX();
+            //});
 
             oscServer.RegisterActionSimple<bool>("/ExpanderHeadAudioStop/x", (msg, data) =>
             {
@@ -58,7 +58,7 @@ namespace Animatroller.Scenes
             oscServer.RegisterActionSimple<bool>("/ExpanderFlyingAudioStop/x", (msg, data) =>
             {
                 if (data)
-                    audioBigEye.StopFX();
+                    audioMrPumpkin.StopFX();
             });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderPopperAudioStop/x", (msg, data) =>
@@ -130,9 +130,9 @@ namespace Animatroller.Scenes
                                 pictureFrameSender.SendCommand(null, 1);
                                 break;
 
-                            case 3:
-                                bigEyeModule.InputTrigger.OnNext(true);
-                                break;
+                            //case 3:
+                            //    bigEyeModule.InputTrigger.OnNext(true);
+                            //    break;
 
                             case 4:
                                 spiderSquirt.InputTrigger.OnNext(true);
@@ -174,9 +174,9 @@ namespace Animatroller.Scenes
                                 pictureFrameSender.SendCommand(null, 0);
                                 break;
 
-                            case 3:
-                                bigEyeModule.InputTrigger.OnNext(false);
-                                break;
+                            //case 3:
+                            //    bigEyeModule.InputTrigger.OnNext(false);
+                            //    break;
 
                             case 4:
                                 spiderSquirt.InputTrigger.OnNext(false);
@@ -297,7 +297,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 2:
-                        audioBigEye.PlayNewEffect(fileName);
+                        audioMrPumpkin.PlayNewEffect(fileName);
                         break;
 
                     case 3:
@@ -333,7 +333,7 @@ namespace Animatroller.Scenes
                 blockPicture.Value = data[2];
                 blockSpiderSquirt.Value = data[3];
                 blockRocking.Value = data[4];
-                blockBigEye.Value = data[5];
+                blockMrPumpkin.Value = data[5];
                 blockCat.Value = data[6];
                 blockFrankGhost.Value = data[7];
                 //blockPumpkin.Value = data[8];

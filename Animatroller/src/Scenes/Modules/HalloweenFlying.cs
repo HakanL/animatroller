@@ -72,8 +72,10 @@ namespace Animatroller.Scenes.Modules
             PowerOff
                 .RunAction(ins =>
                 {
+                    eyes.SetBrightness(1);
                     audioPlayer.PlayEffect("Short Laugh.wav", 0.2);
                     ins.WaitFor(S(5));
+                    eyes.SetBrightness(0);
                 });
         }
     }

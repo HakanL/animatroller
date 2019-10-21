@@ -17,15 +17,16 @@ namespace Animatroller.Scenes.Modules
         public HalloweenRocker(
             DigitalOutput2 rockingMotor,
             DigitalOutput2 ladyEyes,
-            IReceivesBrightness eyesPopSkull,
             StrobeColorDimmer3 strobeLight,
             AudioPlayer audioPlayerRocker,
             AudioPlayer audioPlayerExit,
+            IReceivesBrightness eyesPopSkull = null,
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
             pulsatingRocking.ConnectTo(strobeLight, Utils.Data(DataElements.Color, Color.HotPink));
-            pulsatingExit.ConnectTo(eyesPopSkull);
+            if (eyesPopSkull != null)
+                pulsatingExit.ConnectTo(eyesPopSkull);
 
             OutputPower.Subscribe(x =>
             {

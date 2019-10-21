@@ -34,6 +34,9 @@ namespace Animatroller.Framework.LogicalDevice
             this.memberTokens = new Dictionary<IOwnedDevice, IControlToken>();
             foreach (var device in devices)
             {
+                if (device == null)
+                    continue;
+
                 var token = device.TakeControl(channel, priority, name);
                 this.memberTokens.Add(device, token);
                 this.ownedTokens.Add(token);
