@@ -51,6 +51,12 @@ namespace Animatroller.Scenes.Modules
                         }
                         else
                         {
+                            if (this.currentSub != null)
+                            {
+                                this.currentSub.RequestCancel();
+                                Executor.Current.Cancel(this.currentSub);
+                            }
+
                             var sub = this.requestedSub;
                             this.currentSub = sub;
                             Executor.Current.Execute(sub);
