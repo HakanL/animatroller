@@ -62,18 +62,18 @@ namespace Animatroller.Scenes.Modules
                         switch (random.Next(2))
                         {
                             case 0:
-                                audioPlayerRocker.PlayEffect("Disgusting Things.wav");
+                                audioPlayerRocker.PlayEffect("Disgusting Things.wav", 0.5);
                                 ins.WaitFor(S(6), true);
                                 break;
 
                             case 1:
-                                audioPlayerRocker.PlayEffect("Guts Boy.wav");
+                                audioPlayerRocker.PlayEffect("Guts Boy.wav", 0.5);
                                 ins.WaitFor(S(4), true);
                                 break;
                         }
                         isRockingLadyTalking = false;
 
-                        ins.WaitFor(S(20.0));
+                        ins.WaitFor(S(30.0));
                     }
                 })
                 .TearDown(ins =>
@@ -109,7 +109,7 @@ namespace Animatroller.Scenes.Modules
 
                     ins.WaitFor(S(7));
 
-                    audioPlayerExit.PlayEffect("Leave Now.wav");
+                    //audioPlayerExit.PlayEffect("Leave Now.wav");
                 })
                 .TearDown(ins =>
                 {

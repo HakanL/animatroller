@@ -9,8 +9,8 @@ namespace Animatroller.Scenes.Modules
 {
     public class TriggeredSubBaseModule : TriggeredBaseModule
     {
-        private Controller.Subroutine powerOnSub = new Controller.Subroutine();
-        private Controller.Subroutine powerOffSub = new Controller.Subroutine();
+        private Controller.Subroutine powerOnSub;
+        private Controller.Subroutine powerOffSub;
         private EventLoopScheduler scheduler = new EventLoopScheduler();
         private IObserver<bool> stateChecker;
         private bool transition;
@@ -21,6 +21,8 @@ namespace Animatroller.Scenes.Modules
         public TriggeredSubBaseModule([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool reportMasterStatus = true)
             : base(name)
         {
+            this.powerOnSub = new Controller.Subroutine(name: $"{name}/PowerOn");
+            this.powerOffSub = new Controller.Subroutine(name: $"{name}/PowerOff");
             this.reportMasterStatus = reportMasterStatus;
 
             this.stateChecker = Observer.NotifyOn(Observer.Create<bool>(_ =>

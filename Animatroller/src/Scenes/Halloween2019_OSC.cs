@@ -31,11 +31,11 @@ namespace Animatroller.Scenes
                     audioSpider.StopFX();
             });
 
-            //oscServer.RegisterActionSimple<bool>("/ExpanderBigEyeAudioStop/x", (msg, data) =>
-            //{
-            //    if (data)
-            //        audioBigEye.StopFX();
-            //});
+            oscServer.RegisterActionSimple<bool>("/ExpanderBigEyeAudioStop/x", (msg, data) =>
+            {
+                if (data)
+                    audioBigEye.StopFX();
+            });
 
             oscServer.RegisterActionSimple<bool>("/ExpanderHeadAudioStop/x", (msg, data) =>
             {
@@ -130,9 +130,10 @@ namespace Animatroller.Scenes
                                 pictureFrameSender.SendCommand(null, 1);
                                 break;
 
-                            //case 3:
-                            //    bigEyeModule.InputTrigger.OnNext(true);
-                            //    break;
+                            case 3:
+                                //bigEyeSender.Send("/eyecontrol", 1);
+                                bigEyeModule.InputTrigger.OnNext(true);
+                                break;
 
                             case 4:
                                 spiderSquirt.InputTrigger.OnNext(true);
@@ -174,9 +175,9 @@ namespace Animatroller.Scenes
                                 pictureFrameSender.SendCommand(null, 0);
                                 break;
 
-                            //case 3:
-                            //    bigEyeModule.InputTrigger.OnNext(false);
-                            //    break;
+                            case 3:
+                                bigEyeModule.InputTrigger.OnNext(false);
+                                break;
 
                             case 4:
                                 spiderSquirt.InputTrigger.OnNext(false);
@@ -297,7 +298,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 2:
-                        audioMrPumpkin.PlayNewEffect(fileName);
+                        audioBigEye.PlayNewEffect(fileName);
                         break;
 
                     case 3:
@@ -305,7 +306,8 @@ namespace Animatroller.Scenes
                         break;
 
                     case 4:
-                        audioHead.PlayNewEffect(fileName);
+                        audioMrPumpkin.PlayNewEffect(fileName);
+                        //audioHead.PlayNewEffect(fileName);
                         break;
 
                     case 5:
@@ -321,7 +323,7 @@ namespace Animatroller.Scenes
                         break;
 
                     case 8:
-                        audioPopSkull.PlayNewEffect(fileName);
+                        //audioPopSkull.PlayNewEffect(fileName);
                         break;
                 }
             }, 30);

@@ -1,4 +1,9 @@
 ﻿using Animatroller.Framework.LogicalDevice;
+using System;
+using System.Collections.Generic;
+using Animatroller.Framework;
+using System.Drawing;
+using Animatroller.Framework.Extensions;
 
 namespace Animatroller.Scenes.Modules
 {
@@ -10,14 +15,20 @@ namespace Animatroller.Scenes.Modules
             [System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : base(name)
         {
+            OutputPower.Subscribe(x =>
+            {
+                if(!x)
+                    oscSender.Send("/eyecontrol", 0);
+            });
+
             PowerOn
                 .RunAction(ins =>
                     {
-                        ins.WaitFor(S(2));
+                        //ins.WaitFor(S(2));
                         oscSender.Send("/eyecontrol", 1);
 
                         audioPlayer.PlayEffect("Short Laugh.wav", 1.0, 1.0);
-                        ins.WaitFor(S(7.0));
+                        ins.WaitFor(S(5.0));
                     })
                 .TearDown(ins =>
                     {

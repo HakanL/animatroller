@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Serilog;
@@ -72,6 +74,7 @@ namespace Animatroller.Framework.Expander
         private readonly Dictionary<string, object[]> queuedData;
         private readonly Dictionary<string, List<int>> portDiagStatus = new Dictionary<string, List<int>>();
         private readonly Dictionary<string, List<bool>> portCommandStatus = new Dictionary<string, List<bool>>();
+        private readonly Timer timerPinger;
 
         public OscServer([System.Runtime.CompilerServices.CallerMemberName] string name = "")
             : this(Executor.Current.GetSetKey<int>(name, 8000))
@@ -90,6 +93,14 @@ namespace Animatroller.Framework.Expander
             this.clients = new Dictionary<IPEndPoint, ConnectedClient>();
             this.scheduler = new EventLoopScheduler();
             this.queuedData = new Dictionary<string, object[]>();
+
+            var watcher = Stopwatch.StartNew();
+
+            this.timerPinger = new Timer(state =>
+            {
+                SendAllClients("/Pinger/x", (watcher.ElapsedMilliseconds % 10000) / 9000.0);
+                SendAllClients("/Clock/Text", DateTime.Now.ToShortTimeString());
+            }, null, 1000, 1000);
 
             this.receiverTask = new Task(x =>
             {
@@ -489,6 +500,7 @@ namespace Animatroller.Framework.Expander
 
         public void Dispose()
         {
+            this.timerPinger?.Dispose();
             this.scheduler?.Dispose();
             this.scheduler = null;
         }

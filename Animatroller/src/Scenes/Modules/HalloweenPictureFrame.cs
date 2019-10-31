@@ -18,9 +18,9 @@ namespace Animatroller.Scenes.Modules
                 .SetMaxRuntime(S(60))
                 .RunAction(ins =>
                 {
-                    ins.WaitFor(S(2));
+                    //ins.WaitFor(S(2));
                     medeaWizPlayer.SendCommand(this.controlToken, 1);
-                    ins.WaitFor(S(10));
+                    ins.WaitFor(S(6));
                 })
                 .TearDown(ins =>
                 {
