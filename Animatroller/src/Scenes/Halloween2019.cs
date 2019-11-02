@@ -272,7 +272,7 @@ namespace Animatroller.Scenes
             pictureFrame = new Modules.HalloweenPictureFrame(
                 medeaWizPlayer: pictureFrameSender,
                 name: nameof(pictureFrame));
-            stateMachine.WhenStates(States.BackgroundFull).Controls(pictureFrame.InputPower);
+            stateMachine.WhenStates(States.BackgroundFull, States.Setup).Controls(pictureFrame.InputPower);
 
             flyingSkeleton = new Modules.HalloweenFlying(
                 eyes: flyingSkeletonEyes,
@@ -300,7 +300,7 @@ namespace Animatroller.Scenes
                 oscSender: bigEyeSender,
                 audioPlayer: audioBigEye,
                 name: nameof(bigEyeModule));
-            stateMachine.WhenStates(States.BackgroundFull, States.Setup).Controls(bigEyeModule.InputPower);
+            stateMachine.WhenStates(States.BackgroundFull).Controls(bigEyeModule.InputPower);
 
             mrPumpkingModule = new Modules.HalloweenMrPumpkin(
                 light: mrPumpkinLights,
@@ -325,7 +325,7 @@ namespace Animatroller.Scenes
                 audioPlayerSpider: audioSpider,
                 //audioPlayerHead: audioHead,
                 name: nameof(spiderSquirt));
-            stateMachine.WhenStates(States.BackgroundFull, States.Setup).Controls(spiderSquirt.InputPower);
+            stateMachine.WhenStates(States.BackgroundFull).Controls(spiderSquirt.InputPower);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -701,7 +701,7 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.GenericDimmer(underFlagSkulls, 128), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(headEyes, 131), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(catSkeletonEyes, 128), SacnUniverseDMXLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(popSkullEyes, 130), SacnUniverseDMXLedmx);
+            //acnOutput.Connect(new Physical.GenericDimmer(gargoyleLights, 258), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(popperEyes, 132), SacnUniverseDMXLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(popper, 133), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.EliminatorFlash192(flashUnderSpider, 110), SacnUniverseDMXLedmx);

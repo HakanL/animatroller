@@ -20,7 +20,7 @@ namespace Animatroller.Scenes.Modules
                 {
                     //ins.WaitFor(S(2));
                     medeaWizPlayer.SendCommand(this.controlToken, 1);
-                    ins.WaitFor(S(6));
+                    ins.WaitFor(S(11));
                 })
                 .TearDown(ins =>
                 {

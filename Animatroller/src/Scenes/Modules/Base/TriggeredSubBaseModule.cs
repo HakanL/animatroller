@@ -61,7 +61,15 @@ namespace Animatroller.Scenes.Modules
 
                             var sub = this.requestedSub;
                             this.currentSub = sub;
-                            Executor.Current.Execute(sub);
+                            if (sub != null)
+                            {
+                                Executor.Current.Execute(sub);
+                            }
+                            else
+                            {
+                                // Request to turn off
+                                this.transition = true;
+                            }
                             QueueCheckState();
                         }
                     }

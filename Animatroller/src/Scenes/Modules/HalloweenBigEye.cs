@@ -40,7 +40,7 @@ namespace Animatroller.Scenes.Modules
                 .RunAction(ins =>
                 {
                     ins.WaitFor(S(2));
-                    audioPlayer.PlayEffect("No Mercy.wav", 0.2);
+//                    audioPlayer.PlayEffect("No Mercy.wav", 0.2);
                     ins.WaitFor(S(5));
                 });
         }
