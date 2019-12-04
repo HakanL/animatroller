@@ -1,5 +1,5 @@
 ﻿using Animatroller.Framework.PhysicalDevice;
-using kadmium_sacn_core;
+using Haukcode.sACN;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -185,7 +185,7 @@ namespace Animatroller.Framework.Expander
 
                 lock (this.lockObject)
                 {
-                    this.parent.acnSender.Send(this.universe, this.currentData, this.priority);
+                    this.parent.acnSender.SendMulticast(this.universe, this.currentData, this.priority);
                 }
 
                 this.lastSendWatch.Restart();
@@ -225,7 +225,7 @@ namespace Animatroller.Framework.Expander
         }
 
         private readonly object lockObject = new object();
-        private kadmium_sacn_core.SACNSender acnSender;
+        private SACNClient acnSender;
         private readonly Dictionary<int, AcnUniverse> sendingUniverses;
         private readonly int defaultPriority;
 
@@ -233,7 +233,7 @@ namespace Animatroller.Framework.Expander
         {
             this.defaultPriority = defaultPriority;
             this.log = Log.Logger;
-            this.acnSender = new SACNSender(animatrollerAcnId, "Animatroller");
+            this.acnSender = new SACNClient(animatrollerAcnId, "Animatroller", SACNCommon.GetFirstBindAddress());
 
             this.sendingUniverses = new Dictionary<int, AcnUniverse>();
 
