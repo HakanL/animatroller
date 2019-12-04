@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:Animatroller.ConverterUI"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+
     </Application.Resources>
 </Application>

@@ -1,42 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.IO.Ports;
-using System.Threading.Tasks;
-using Acn.Sockets;
 using System.Net;
-using Acn.Packets.sAcn;
-using System.Net.NetworkInformation;
-using System.Collections.ObjectModel;
-using Acn;
-using Acn.Helpers;
+using Haukcode.sACN;
 
 namespace Animatroller.DMXplayer
 {
     public class AcnStream : IOutput
     {
         public readonly Guid dmxPlayerAcnId = new Guid("{D599A13F-8117-4A6E-AE1E-753B7D4DB347}");
-        private StreamingAcnSocket socket;
-        private byte priority;
+        private readonly SACNClient acnClient;
+        private readonly byte priority;
 
         public AcnStream(IPAddress bindIpAddress, byte priority)
         {
             if (bindIpAddress == null)
-                bindIpAddress = GetFirstBindAddress();
+                bindIpAddress = SACNCommon.GetFirstBindAddress();
+            if (bindIpAddress == null)
+                throw new ArgumentException("No suitable NIC found");
 
             this.priority = priority;
 
-            this.socket = new StreamingAcnSocket(dmxPlayerAcnId, "DmxPlayer");
-            this.socket.Open(new IPEndPoint(bindIpAddress, 0));
-            this.socket.UnhandledException += Socket_UnhandledException;
-            Console.WriteLine("ACN binding to {0}", bindIpAddress);
-        }
+            this.acnClient = new SACNClient(
+                senderId: this.dmxPlayerAcnId,
+                senderName: "DmxPlayer",
+                localAddress: bindIpAddress);
 
-        private void Socket_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-        {
-            Console.WriteLine("Error");
+            Console.WriteLine("ACN binding to {0}", bindIpAddress);
         }
 
         public AcnStream(byte priority = 100)
@@ -46,52 +34,16 @@ namespace Animatroller.DMXplayer
 
         public void SendDmx(int universe, byte[] data, byte? priority = null)
         {
-            this.socket.SendDmx(
-                universe: universe,
+            this.acnClient.SendMulticast(
+                universeId: (ushort)universe,
                 startCode: 0,
-                dmxData: data,
+                data: data,
                 priority: priority ?? this.priority);
-        }
-
-        private IPAddress GetAddressFromInterfaceType(NetworkInterfaceType interfaceType)
-        {
-            foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
-            {
-                if (adapter.SupportsMulticast && adapter.NetworkInterfaceType == interfaceType &&
-                    adapter.OperationalStatus == OperationalStatus.Up)
-                {
-                    IPInterfaceProperties ipProperties = adapter.GetIPProperties();
-
-                    foreach (var ipAddress in ipProperties.UnicastAddresses)
-                    {
-                        if (ipAddress.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                            return ipAddress.Address;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        private IPAddress GetFirstBindAddress()
-        {
-            // Try Ethernet first
-            IPAddress ipAddress = GetAddressFromInterfaceType(NetworkInterfaceType.Ethernet);
-            if (ipAddress != null)
-                return ipAddress;
-
-            ipAddress = GetAddressFromInterfaceType(NetworkInterfaceType.Wireless80211);
-            if (ipAddress != null)
-                return ipAddress;
-
-            throw new ArgumentException("No suitable NIC found");
         }
 
         public void Dispose()
         {
-            this.socket.Close();
-            this.socket.Dispose();
-            this.socket = null;
+            this.acnClient.Dispose();
         }
     }
 }

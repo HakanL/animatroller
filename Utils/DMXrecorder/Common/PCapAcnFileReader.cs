@@ -1,5 +1,7 @@
-﻿using PcapngUtils;
-using PcapngUtils.Pcap;
+﻿using Haukcode.PcapngUtils;
+using Haukcode.PcapngUtils.Pcap;
+using Haukcode.sACN;
+using Haukcode.sACN.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +14,8 @@ namespace Animatroller.Common
 {
     public class PCapAcnFileReader : IFileReader, IDisposable
     {
-        private PcapngUtils.Common.IReader reader;
-        private List<PcapngUtils.Common.IPacket> packets;
+        private Haukcode.PcapngUtils.Common.IReader reader;
+        private List<Haukcode.PcapngUtils.Common.IPacket> packets;
         private int readPosition;
 
         public bool DataAvailable
@@ -23,7 +25,7 @@ namespace Animatroller.Common
 
         public PCapAcnFileReader(string fileName)
         {
-            this.packets = new List<PcapngUtils.Common.IPacket>();
+            this.packets = new List<Haukcode.PcapngUtils.Common.IPacket>();
             this.reader = IReaderFactory.GetReader(fileName);
             this.reader.OnReadPacketEvent += Reader_OnReadPacketEvent;
 
@@ -31,7 +33,7 @@ namespace Animatroller.Common
             this.reader.ReadPackets(CancellationToken.None);
         }
 
-        private void Reader_OnReadPacketEvent(object context, PcapngUtils.Common.IPacket packet)
+        private void Reader_OnReadPacketEvent(object context, Haukcode.PcapngUtils.Common.IPacket packet)
         {
             this.packets.Add(packet);
         }
@@ -86,26 +88,31 @@ namespace Animatroller.Common
 
             var dataStream = new MemoryStream(pcapData.Data);
             ReadNetworkPacket(dataStream);
-            var reader = new Acn.IO.AcnBinaryReader(dataStream);
-            var packet = Acn.AcnPacket.ReadPacket(reader) as Acn.Packets.sAcn.StreamingAcnDmxPacket;
-            if (packet == null)
+
+            byte[] dataBytes = new byte[dataStream.Length - dataStream.Position];
+            dataStream.Read(dataBytes, 0, dataBytes.Length);
+
+            var packet = SACNPacket.Parse(dataBytes);
+            var framingLayer = packet?.RootLayer?.FramingLayer;
+            var dmpLayer = framingLayer?.DMPLayer;
+            if (dmpLayer == null)
                 throw new InvalidDataException("Not a valid Streaming DMX ACN packet");
 
             byte[] dmxData;
-            if (packet.Dmx.StartCode == 0xff)
+            if (dmpLayer.StartCode == 0xff)
             {
-                dmxData = new byte[packet.Dmx.Data.Length - 1];
-                Buffer.BlockCopy(packet.Dmx.Data, 1, dmxData, 0, dmxData.Length);
+                dmxData = new byte[dmpLayer.Data.Length - 1];
+                Buffer.BlockCopy(dmpLayer.Data, 1, dmxData, 0, dmxData.Length);
             }
             else
-                dmxData = packet.Dmx.Data;
+                dmxData = dmpLayer.Data;
 
             return new DmxData
             {
                 DataType = DmxData.DataTypes.FullFrame,
-                Sequence = packet.Framing.SequenceNumber,
+                Sequence = framingLayer.SequenceID,
                 TimestampMS = pcapData.Seconds * 1000 + (ulong)(pcapData.Microseconds / 1000),
-                Universe = packet.Framing.Universe,
+                Universe = framingLayer.UniverseID,
                 Data = dmxData
             };
         }

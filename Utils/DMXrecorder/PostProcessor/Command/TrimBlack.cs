@@ -19,7 +19,7 @@ namespace Animatroller.PostProcessor.Command
 
         public void Execute()
         {
-            ulong? timestampOffset = null;
+            double? timestampOffset = null;
 
             var positions = new List<long>();
             var blackPositions = new HashSet<long>();

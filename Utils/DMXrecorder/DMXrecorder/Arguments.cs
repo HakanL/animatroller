@@ -29,10 +29,14 @@ namespace Animatroller.DMXrecorder
         [ArgRequired()]
         public string OutputFile { get; set; }
 
+        [ArgShortcut("n")]
+        [ArgDescription("Network adapter index")]
+        public int NetworkAdapterIndex { get; set; }
+
         [ArgShortcut("u")]
         [ArgDescription("Universes (comma-separated)")]
         [ArgDefaultValue(1)]
-        public int[] Universes { get; set; }
+        public ushort[] Universes { get; set; }
 
         [ArgShortcut("f")]
         [ArgDescription("File format")]

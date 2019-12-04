@@ -91,7 +91,7 @@ namespace Animatroller.DMXrecorder
                         if (modified)
                         {
                             this.dataWriter.Output(Common.DmxData.CreateFullFrame(
-                                millisecond: dmxData.Timestamp,
+                                millisecond: dmxData.TimestampMS,
                                 sequence: dmxData.Sequence,
                                 universe: dmxData.Universe,
                                 data: dmxData.Data));
@@ -100,7 +100,7 @@ namespace Animatroller.DMXrecorder
                         {
                             if (previousData.Sequence != dmxData.Sequence)
                                 this.dataWriter.Output(Common.DmxData.CreateNoChange(
-                                    millisecond: dmxData.Timestamp,
+                                    millisecond: dmxData.TimestampMS,
                                     sequence: dmxData.Sequence,
                                     universe: dmxData.Universe));
                         }

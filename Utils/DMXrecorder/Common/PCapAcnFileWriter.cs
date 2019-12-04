@@ -1,9 +1,12 @@
-﻿using PcapngUtils;
-using PcapngUtils.Pcap;
+﻿using Haukcode.PcapngUtils;
+using Haukcode.PcapngUtils.Pcap;
+using Haukcode.sACN;
+using Haukcode.sACN.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +18,7 @@ namespace Animatroller.Common
         public readonly Guid AcnId = new Guid("{29D35C91-702E-4B7E-9ACD-D343FD15DDEE}");
         public const string AcnSourceName = "DmxFileWriter";
 
-        private PcapngUtils.Common.IWriter writer;
+        private Haukcode.PcapngUtils.Common.IWriter writer;
         private byte priority;
 
         public PCapAcnFileWriter(string fileName, byte priority = 100)
@@ -167,28 +170,43 @@ namespace Animatroller.Common
             buf[41] = (byte)(sum & 0xFF);
         }
 
+        public static IPAddress GetUniverseAddress(int universe)
+        {
+            if (universe < 0 || universe > 63999)
+                throw new InvalidOperationException("Unable to determine multicast group because the universe must be between 1 and 64000. Universes outside this range are not allowed.");
+
+            byte[] group = new byte[] { 239, 255, 0, 0 };
+
+            group[2] = (byte)((universe >> 8) & 0xff);     //Universe Hi Byte
+            group[3] = (byte)(universe & 0xff);           //Universe Lo Byte
+
+            return new IPAddress(group);
+        }
+
+        public static IPEndPoint GetUniverseEndPoint(int universe)
+        {
+            return new IPEndPoint(GetUniverseAddress(universe), 5568);
+        }
+
         public void Output(DmxData dmxData)
         {
             if (dmxData.DataType == DmxData.DataTypes.NoChange)
                 return;
 
-            var packet = new Acn.Packets.sAcn.StreamingAcnDmxPacket();
-            packet.Framing.SourceName = AcnSourceName;
-            packet.Framing.Universe = (short)dmxData.Universe;
-            packet.Framing.Priority = this.priority;
-            packet.Framing.SequenceNumber = (byte)dmxData.Sequence;
-            packet.Dmx.StartCode = 0;
-            packet.Dmx.Data = dmxData.Data;
+            var packet = new SACNPacket(new RootLayer(
+                uuid: AcnId,
+                sourceName: AcnSourceName,
+                universeID: (ushort)dmxData.Universe,
+                sequenceID: (byte)dmxData.Sequence,
+                data: dmxData.Data,
+                priority: this.priority));
 
-            var destinationEP = Acn.Sockets.StreamingAcnSocket.GetUniverseEndPoint(dmxData.Universe);
-
-            packet.Root.SenderId = AcnId;
+            var destinationEP = GetUniverseEndPoint(dmxData.Universe);
 
             using (var data = new MemoryStream())
             {
-                var writer = new Acn.IO.AcnBinaryWriter(data);
-
-                Acn.AcnPacket.WritePacket(packet, writer);
+                byte[] packetBytes = packet.ToArray();
+                data.Write(packetBytes, 0, packetBytes.Length);
 
                 using (var networkData = new MemoryStream())
                 {
@@ -201,9 +219,9 @@ namespace Animatroller.Common
 
                     SetUDPCheckSum(networkData);
 
-                    ulong secs = dmxData.TimestampMS / 1000;
-                    ulong usecs = (dmxData.TimestampMS * 1000) - (secs * 1000000);
-                    var pcapData = new PcapngUtils.Pcap.PcapPacket(secs, usecs, networkData.ToArray(), 0);
+                    ulong secs = (ulong)(dmxData.TimestampMS / 1000);
+                    ulong usecs = (ulong)((dmxData.TimestampMS * 1000) - (secs * 1000000));
+                    var pcapData = new PcapPacket(secs, usecs, networkData.ToArray(), 0);
                     this.writer.WritePacket(pcapData);
                 }
             }

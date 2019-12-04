@@ -21,7 +21,7 @@ namespace Animatroller.PostProcessor.Command
 
         public void Execute()
         {
-            ulong? timestampOffset = null;
+            double? timestampOffset = null;
 
             while (this.fileReader.DataAvailable)
             {

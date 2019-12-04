@@ -13,7 +13,7 @@ namespace Animatroller.DMXplayer
     {
         private Common.IFileReader fileReader;
         private Stopwatch masterClock;
-        private ulong nextStop;
+        private double nextStop;
         private CancellationTokenSource cts;
         private IOutput output;
         private Task runnerTask;
@@ -32,7 +32,7 @@ namespace Animatroller.DMXplayer
         public void Run(int loop)
         {
             this.masterClock = new Stopwatch();
-            ulong timestampOffset = 0;
+            double timestampOffset = 0;
 
             this.cts = new CancellationTokenSource();
 
@@ -69,7 +69,7 @@ namespace Animatroller.DMXplayer
                         // Calculate when the next stop is
                         this.nextStop = dmxFrame.TimestampMS - timestampOffset;
 
-                        long msLeft = (long)this.nextStop - this.masterClock.ElapsedMilliseconds;
+                        double msLeft = this.nextStop - this.masterClock.Elapsed.TotalMilliseconds;
                         if (msLeft <= 0)
                         {
                             // Output

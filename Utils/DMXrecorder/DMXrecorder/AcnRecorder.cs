@@ -3,34 +3,37 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using Haukcode.sACN;
 
 namespace Animatroller.DMXrecorder
 {
     public class AcnRecorder : IRecorder
     {
         private readonly Guid acnId = new Guid("{1A246A28-D145-449F-B3F2-68676BA0E93F}");
-        private Stopwatch masterClock;
-        private readonly Dictionary<int, UniverseData> universes;
-        private readonly Acn.Sockets.StreamingAcnSocket acnSocket;
+        private double? clockOffset;
+        private readonly Dictionary<ushort, UniverseData> universes;
+        private readonly SACNClient sacnClient;
         private readonly OutputProcessor writer;
         private int receivedPackets;
 
-        public AcnRecorder(OutputProcessor writer, int[] universes)
+        public AcnRecorder(OutputProcessor writer, ushort[] universes, IPAddress bindAddress)
         {
             if (universes.Length == 0)
                 throw new ArgumentException("No universes specified");
 
             this.writer = writer;
 
-            this.acnSocket = new Acn.Sockets.StreamingAcnSocket(acnId, "DMX Recorder");
+            this.sacnClient = new SACNClient(
+                senderId: this.acnId,
+                senderName: "DMX Recorder",
+                localAddress: bindAddress);
 
-            this.acnSocket.NewPacket += AcnSocket_NewPacket;
+            this.sacnClient.OnError.Subscribe(ex => Console.WriteLine($"*Error* {ex.Message}"));
+            this.sacnClient.OnPacket.Subscribe(AcnSocket_NewPacket);
 
-            this.acnSocket.Open(IPAddress.Any);
+            this.universes = new Dictionary<ushort, UniverseData>();
 
-            this.universes = new Dictionary<int, UniverseData>();
-
-            foreach (int universe in universes)
+            foreach (ushort universe in universes)
             {
                 var universeData = new UniverseData(universe);
 
@@ -42,57 +45,58 @@ namespace Animatroller.DMXrecorder
 
         public void StartRecord()
         {
+            this.sacnClient.StartReceive();
+
             this.receivedPackets = 0;
             foreach (var kvp in this.universes)
-                this.acnSocket.JoinDmxUniverse(kvp.Key);
+                this.sacnClient.JoinDMXUniverse(kvp.Key);
         }
 
         public void StopRecord()
         {
             foreach (var kvp in this.universes)
             {
-                this.acnSocket.DropDmxUniverse(kvp.Key);
+                this.sacnClient.DropDMXUniverse(kvp.Key);
 
                 this.writer.CompleteUniverse(kvp.Key);
             }
         }
 
-        private void AcnSocket_NewPacket(object sender, Acn.Sockets.NewPacketEventArgs<Acn.Packets.sAcn.StreamingAcnDmxPacket> e)
+        private void AcnSocket_NewPacket(ReceiveDataPacket receiveData)
         {
-            if (this.masterClock == null)
-                this.masterClock = Stopwatch.StartNew();
-            ulong timestamp = (ulong)this.masterClock.ElapsedMilliseconds;
+            if (!this.clockOffset.HasValue)
+                this.clockOffset = receiveData.TimestampMS;
+            double timestamp = receiveData.TimestampMS - this.clockOffset.Value;
 
-            var propData = e.Packet.Dmx.PropertyData;
-            if (propData.Length < 1)
+            var dmpLayer = receiveData.Packet.RootLayer?.FramingLayer?.DMPLayer;
+            if (dmpLayer.Length < 1)
                 // Unknown/unsupported
                 return;
 
-            if (propData[0] != 0)
+            if (dmpLayer.StartCode != 0)
                 // We only support start code 0
                 return;
 
-            var newDmxData = e.Packet.Dmx.PropertyData;
+            var newDmxData = dmpLayer.Data;
 
-            UniverseData universeData;
-            if (!this.universes.TryGetValue(e.Packet.Framing.Universe, out universeData))
+            if (!this.universes.TryGetValue(receiveData.Packet.UniverseId, out UniverseData universeData))
                 // Unknown universe
                 return;
 
-            long sequence = e.Packet.Framing.SequenceNumber + universeData.SequenceHigh;
-            if (e.Packet.Framing.SequenceNumber < universeData.LastSequenceLow)
+            long sequence = receiveData.Packet.SequenceId + universeData.SequenceHigh;
+            if (receiveData.Packet.SequenceId < universeData.LastSequenceLow)
             {
                 // Wrap
                 universeData.SequenceHigh += 256;
                 sequence += 256;
             }
-            universeData.LastSequenceLow = e.Packet.Framing.SequenceNumber;
+            universeData.LastSequenceLow = receiveData.Packet.SequenceId;
 
             var dmxData = RawDmxData.Create(
                 millisecond: timestamp,
                 sequence: sequence,
-                universe: e.Packet.Framing.Universe,
-                data: newDmxData.Skip(1).ToArray());
+                universe: receiveData.Packet.UniverseId,
+                data: dmpLayer.Data);
 
             this.writer.AddData(dmxData);
 
@@ -103,8 +107,7 @@ namespace Animatroller.DMXrecorder
 
         public void Dispose()
         {
-            this.acnSocket.Close();
-            this.acnSocket.Dispose();
+            this.sacnClient.Dispose();
         }
     }
 }

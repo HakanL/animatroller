@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using Acn.Sockets;
-using Acn.ArtNet;
-using Acn.ArtNet.Sockets;
-using Acn.ArtNet.Packets;
+using Haukcode.ArtNet;
+using Haukcode.ArtNet.Packets;
+using Haukcode.ArtNet.Sockets;
+using Haukcode.Sockets;
 
 namespace Animatroller.DMXrecorder
 {
@@ -16,7 +16,7 @@ namespace Animatroller.DMXrecorder
         private ArtNetSocket socket;
         private OutputProcessor writer;
 
-        public ArtNetRecorder(OutputProcessor writer, int[] universes)
+        public ArtNetRecorder(OutputProcessor writer, ushort[] universes)
         {
             if (universes.Length == 0)
                 throw new ArgumentException("No universes specified");

@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMXrecorder", "DMXrecorder\DMXrecorder.csproj", "{4D3CF655-C2E0-4B14-A441-80791C0FE092}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostProcessor", "PostProcessor\PostProcessor.csproj", "{D55F0B0F-63F9-4D3F-B27D-A913D2B2D5EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PostProcessor", "PostProcessor\PostProcessor.csproj", "{D55F0B0F-63F9-4D3F-B27D-A913D2B2D5EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{3B9FB049-939E-4DD6-AAFD-DCC5564BAEF6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{3B9FB049-939E-4DD6-AAFD-DCC5564BAEF6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DMXplayer", "DMXplayer\DMXplayer.csproj", "{3C05395C-3C35-4C2F-938F-80A117A8D65D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DMXplayer", "DMXplayer\DMXplayer.csproj", "{3C05395C-3C35-4C2F-938F-80A117A8D65D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConverterUI", "ConverterUI\ConverterUI.csproj", "{B5D58C51-D5B7-409F-936D-CDFCBECD6C5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConverterUI", "ConverterUI\ConverterUI.csproj", "{95B2BF6D-31AC-408E-AADA-3B25422843B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{3C05395C-3C35-4C2F-938F-80A117A8D65D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C05395C-3C35-4C2F-938F-80A117A8D65D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C05395C-3C35-4C2F-938F-80A117A8D65D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B5D58C51-D5B7-409F-936D-CDFCBECD6C5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B5D58C51-D5B7-409F-936D-CDFCBECD6C5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B5D58C51-D5B7-409F-936D-CDFCBECD6C5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B5D58C51-D5B7-409F-936D-CDFCBECD6C5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95B2BF6D-31AC-408E-AADA-3B25422843B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95B2BF6D-31AC-408E-AADA-3B25422843B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95B2BF6D-31AC-408E-AADA-3B25422843B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95B2BF6D-31AC-408E-AADA-3B25422843B8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

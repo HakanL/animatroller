@@ -23,15 +23,39 @@ namespace Animatroller.DMXrecorder
 
                 using (var writer = new OutputProcessor(arguments))
                 {
+                    var interfaces = Haukcode.sACN.SACNCommon.GetCommonInterfaces();
+                    Console.WriteLine("Network adapters");
+
+                    for (int i = 0; i < interfaces.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {interfaces[i].AdapterName} - {interfaces[i].IPAddress}");
+                    }
+                    Console.WriteLine();
+
+                    IPAddress bindAddress = null;
+                    if (arguments.NetworkAdapterIndex > 0)
+                    {
+                        if (arguments.NetworkAdapterIndex > interfaces.Count)
+                            throw new ArgumentOutOfRangeException("Invalid network adapter index");
+
+                        bindAddress = interfaces[arguments.NetworkAdapterIndex - 1].IPAddress;
+                    }
+                    else
+                        bindAddress = Haukcode.sACN.SACNCommon.GetFirstBindAddress();
+
+                    Console.WriteLine($"Binding to network adapter with IP {bindAddress}");
+                    Console.WriteLine();
+
                     IRecorder recorder;
 
                     switch (arguments.InputType)
                     {
                         case Arguments.InputTypes.sACN:
-                            recorder = new AcnRecorder(writer, arguments.Universes);
+                            recorder = new AcnRecorder(writer, arguments.Universes, bindAddress);
                             break;
 
                         case Arguments.InputTypes.ArtNet:
+                            throw new NotImplementedException();
                             recorder = new ArtNetRecorder(writer, arguments.Universes);
                             break;
 
