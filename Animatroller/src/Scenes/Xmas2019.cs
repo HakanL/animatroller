@@ -22,14 +22,17 @@ namespace Animatroller.Scenes
         //const int SacnUniverseEdmx4c = 22;
         //const int SacnUniverseEdmx4d = 23;
         const int SacnUniverseLedmx = 10;
-        const int SacnUniverseRenard24 = 18;
-        const int SacnUniverseRenard2x8 = 19;        // 2 x 8-channels, 1-16
+        const int SacnUniverseRenard2x8 = 18;        // Closest to laptop
+        const int SacnUniverseRenard24 = 19;        // 2 x 8-channels, 1-16
         const int SacnUniverseLED100 = 5;
         const int SacnUniverseLED50 = 6;
         const int SacnUniversePixelMatrixStart = 40;
         const int SacnUniversePixelSaber = 31;
 
         const int midiChannel = 0;
+
+        // OLA - 192.168.240.182 (port 9090) rpi-eb91bc26
+
 
         public enum States
         {
@@ -63,7 +66,8 @@ namespace Animatroller.Scenes
         Expander.MonoExpanderInstance expanderControlPanel = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderInstance expanderInflatableTree = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
-        AudioPlayer audioR2D2Olaf = new AudioPlayer();
+        AudioPlayer audioR2D2 = new AudioPlayer();
+        AudioPlayer audioOlaf = new AudioPlayer();
         AudioPlayer audioHiFi = new AudioPlayer();
         AudioPlayer audioPoppy = new AudioPlayer();
         AudioPlayer audioDarthVader = new AudioPlayer();
@@ -99,7 +103,8 @@ namespace Animatroller.Scenes
         [SimulatorButtonType(SimulatorButtonTypes.FlipFlop)]
         DigitalInput2 inSetupMode = new DigitalInput2(persistState: true);
 
-        DigitalOutput2 airR2D2Olaf = new DigitalOutput2();
+        DigitalOutput2 airR2D2 = new DigitalOutput2();
+        DigitalOutput2 airOlaf = new DigitalOutput2();
         DigitalOutput2 airSantaPoppyEtc = new DigitalOutput2();
         DigitalOutput2 airSnowmanSanta = new DigitalOutput2();
         DigitalOutput2 airInflatableTree = new DigitalOutput2();
@@ -218,7 +223,7 @@ namespace Animatroller.Scenes
         public Xmas2019(IEnumerable<string> args)
         {
             mainSchedule.AddRange("4:00 pm", "10:00 pm");
-            interactiveSchedule.AddRange("4:00 pm", "8:00 pm");
+            interactiveSchedule.AddRange("4:00 pm", "9:00 pm");
 
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
@@ -257,13 +262,13 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderPoppy);         // rpi-eba6cbc7
             expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderDarth);           // rpi-ebd43a38
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderControlPanel);   // rpi-eb6a047c
-            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderInflatableTree);    // 
+            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderInflatableTree);    // rpi-eb81c94e
 
             //expanderInflatableTree.DigitalInputs[4].Connect(inInflatableTree);
             //expanderLedmx.DigitalInputs[6].Connect(inOlaf);
-            expanderLedmx.DigitalInputs[5].Connect(inOlaf);
-            expanderLedmx.DigitalInputs[4].Connect(inR2D2);
-            expanderLedmx.DigitalOutputs[0].Connect(snowMachine);
+            expanderLedmx.DigitalInputs[4].Connect(inOlaf);
+            expanderLedmx.DigitalInputs[5].Connect(inR2D2);
+            expanderInflatableTree.DigitalOutputs[6].Connect(snowMachine);
 
             expanderControlPanel.DigitalInputs[0].Connect(controlButtonWhite);
             expanderControlPanel.DigitalInputs[1].Connect(controlButtonYellow);
@@ -275,7 +280,8 @@ namespace Animatroller.Scenes
             //expanderLedmx.Connect(audioPoppy);
             expanderHiFi.Connect(audioHiFi);
             expanderDarth.Connect(audioDarthVader);
-            expanderLedmx.Connect(audioR2D2Olaf);
+            expanderLedmx.Connect(audioOlaf, 0);
+            expanderLedmx.Connect(audioR2D2, 1);
             expanderInflatableTree.Connect(audioInflatableTree);
 
             blackOut.ConnectTo(Exec.Blackout);
@@ -425,20 +431,21 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 100);
             acnOutput.Connect(new Physical.Pixel1D(vaderEyesPixels), SacnUniversePixelSaber, 181);
 
-            //acnOutput.Connect(new Physical.GenericDimmer(airReindeerBig, 10), SacnUniverseLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(airR2D2Olaf, 12), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(airReindeerBig, 13), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(airOlaf, 10), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(airR2D2, 11), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 64), SacnUniverseEdmx4a);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 65), SacnUniverseEdmx4a);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 1), SacnUniverseRenard19);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 2), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 3), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 4), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 5), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightStairRail1, 10), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightStairRail2, 4), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightRail1, 11), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 5), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightRail3, 9), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 64), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 65), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 66), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 67), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairRail1, 5), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairRail2, 4), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRail1, 7), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 5), SacnUniverseRenard24);
+            //acnOutput.Connect(new Physical.GenericDimmer(lightRail3, 9), SacnUniverseRenard2x8);
             //acnOutput.Connect(new Physical.GenericDimmer(lightRail4, 66), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood4, 310), SacnUniverseEdmx4b);
             //acnOutput.Connect(new Physical.RGBStrobe(lightFlood1, 60), SacnUniverseEdmx4);
@@ -453,57 +460,54 @@ namespace Animatroller.Scenes
 
             //acnOutput.Connect(new Physical.GenericDimmer(laser, 1), SacnUniverseRenard18);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 129), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightOlaf, 128), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(airSnowmanSanta, 13), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightCandyCane1, 200), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightCandyCane2, 201), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightCandyCane3, 202), SacnUniverseLedmx);
-            //acnOutput.Connect(new Physical.GenericDimmer(airInflatableTree, 200), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightInflatableTree, 6), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(airInflatableTree, 9), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightInflatableTree, 8), SacnUniverseRenard2x8);
             //acnOutput.Connect(new Physical.GenericDimmer(lightSnowman, 131), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 131), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightPoppy, 128), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightSantaPopup, 256), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightSanta, 130), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightPoppy, 129), SacnUniverseLedmx);
+            //acnOutput.Connect(new Physical.GenericDimmer(lightSantaPopup, 256), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.MonopriceMovingHeadLight12chn(movingHead, 200), SacnUniverseEdmx4);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightReindeerBig, 64), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightPackages, 12), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightReindeerBig, 3), SacnUniverseRenard24);
+            //acnOutput.Connect(new Physical.GenericDimmer(lightPackages, 12), SacnUniverseLedmx);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightStairPath1, 67), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairPath1, 6), SacnUniverseRenard2x8);
             acnOutput.Connect(new Physical.GenericDimmer(lightStairPath2, 1), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightStairPath3, 1), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightStairPath3, 11), SacnUniverseRenard24);
             //acnOutput.Connect(new Physical.MonopriceRGBWPinSpot(lightPinSpot, 20), SacnUniverseEdmx4);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTreeStars, 39), SacnUniverseRenard18);
 
-            acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 66), SacnUniverseLedmx);
-            ////acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 11), SacnUniverseRenardBig);
-            ////acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 19), SacnUniverseRenardBig);
-            acnOutput.Connect(new Physical.GenericDimmer(airSantaPopup, 10), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(airSantaPoppyEtc, 11), SacnUniverseLedmx);
-            ////acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 22), SacnUniverseRenardBig);
+            acnOutput.Connect(new Physical.GenericDimmer(lightR2D2, 2), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 6), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 7), SacnUniverseRenard24);
+            //acnOutput.Connect(new Physical.GenericDimmer(airSantaPopup, 10), SacnUniverseLedmx);
+            //acnOutput.Connect(new Physical.GenericDimmer(airSantaPoppyEtc, 11), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 8), SacnUniverseRenard24);
 
             //acnOutput.Connect(new Physical.GenericDimmer(hazerFanSpeed, 500), SacnUniverseEdmx4);
             //acnOutput.Connect(new Physical.GenericDimmer(hazerHazeOutput, 501), SacnUniverseEdmx4);
             ////            acnOutput.Connect(new Physical.GenericDimmer(lightStairs2, 25), SacnUniverseRenardBig);
-            //acnOutput.Connect(new Physical.GenericDimmer(lightXmasTree, 67), SacnUniverseEdmx4a);
+            //acnOutput.Connect(new Physical.GenericDimmer(lightXmasTree, 8), SacnUniverseRenard2x8);
             //acnOutput.Connect(new Physical.GenericDimmer(lightReindeers, 40), SacnUniverseRenard18);
 
             ////            acnOutput.Connect(new Physical.GenericDimmer(lightStairs1, 1), SacnUniverseRenardSmall);
             ////acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 2), SacnUniverseRenardSmall);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 7), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 8), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 9), SacnUniverseRenard24);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 6), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet5, 3), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet6, 7), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet7, 8), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet8, 2), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet9, 10), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet10, 11), SacnUniverseRenard2x8);
-            acnOutput.Connect(new Physical.GenericDimmer(lightNet11, 12), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet1, 4), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet2, 3), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet3, 2), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet4, 1), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet8, 9), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet9, 10), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet10, 12), SacnUniverseRenard24);
+            acnOutput.Connect(new Physical.GenericDimmer(lightNet11, 13), SacnUniverseRenard24);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper1, 3), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper2, 4), SacnUniverseRenard18);
-            acnOutput.Connect(new Physical.MarcGamutParH7(lightVader, 310), SacnUniverseLedmx);
+            //acnOutput.Connect(new Physical.MarcGamutParH7(lightVader, 310), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar, 203), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar2, 9), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar3, 52), SacnUniverseLedmx);
@@ -769,7 +773,7 @@ namespace Animatroller.Scenes
                     var levelsPlayback = new Framework.Import.LevelsPlayback();
                     levelsPlayback.Output.Controls(b => lightOlaf.SetBrightness(b, token: ins.Token));
 
-                    audioR2D2Olaf.PlayNewEffect("WarmHugs.wav", 0.0, 1.0, levelsPlayback);
+                    audioOlaf.PlayNewEffect("WarmHugs.wav", 1.0, 1.0, levelsPlayback: levelsPlayback);
                     var cts = levelsPlayback.Start(ins.Token);
                     ins.WaitFor(S(10));
                     cts.Cancel();
@@ -795,12 +799,12 @@ namespace Animatroller.Scenes
                     var levelsPlayback = new Framework.Import.LevelsPlayback();
                     levelsPlayback.Output.Controls(b => lightR2D2.SetBrightness(b, token: ins.Token));
 
-                    audioR2D2Olaf.PlayNewEffect("Im C3PO.wav", 1.0, 0.0, levelsPlayback);
+                    audioR2D2.PlayNewEffect("Im C3PO.wav", 1.0, 1.0, levelsPlayback);
                     var cts = levelsPlayback.Start(ins.Token);
                     ins.WaitFor(S(4));
                     cts.Cancel();
 
-                    audioR2D2Olaf.PlayNewEffect("Processing R2D2.wav", 0.5, 0.0, levelsPlayback);
+                    audioR2D2.PlayNewEffect("Processing R2D2.wav", 0.5, 0.5, levelsPlayback);
                     cts = levelsPlayback.Start(ins.Token);
                     ins.WaitFor(S(5));
                     cts.Cancel();
@@ -1023,7 +1027,8 @@ namespace Animatroller.Scenes
                 mainSchedule.IsOpen && airActivated.Value;
 
             airReindeerBig.SetValue(airOn, Channel.Main);
-            airR2D2Olaf.SetValue(airOn, Channel.Main);
+            airOlaf.SetValue(airOn, Channel.Main);
+            airR2D2.SetValue(airOn, Channel.Main);
             airSantaPoppyEtc.SetValue(airOn, Channel.Main);
             airSantaPopup.SetValue(airOn, Channel.Main);
             airSnowmanSanta.SetValue(airOn, Channel.Main);
