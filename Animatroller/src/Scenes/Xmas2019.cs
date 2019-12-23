@@ -32,6 +32,8 @@ namespace Animatroller.Scenes
         const int midiChannel = 0;
 
         // OLA - 192.168.240.182 (port 9090) rpi-eb91bc26
+        // E6804 12V - 192.168.240.247
+        // E6804 5V - 192.168.240.2
 
 
         public enum States
@@ -178,7 +180,7 @@ namespace Animatroller.Scenes
         //VirtualPixel1D3 pixelsHeart = new VirtualPixel1D3(50);
         //VirtualPixel1D3 pixelsGround = new VirtualPixel1D3(50);
         VirtualPixel2D3 pixelsMatrix = new VirtualPixel2D3(48, 24);
-        VirtualPixel1D3 saberPixels = new VirtualPixel1D3(33);
+        VirtualPixel1D3 saberPixels = new VirtualPixel1D3(32);
         VirtualPixel1D3 haloPixels = new VirtualPixel1D3(27);
         VirtualPixel1D3 vaderEyesPixels = new VirtualPixel1D3(2);
         Expander.MidiInput2 midiAkai = new Expander.MidiInput2("LPD8", true);
@@ -259,10 +261,11 @@ namespace Animatroller.Scenes
             expanderServer.AddInstance("ec30b8eda95b4c5cab46bf630d74810e", expanderLocal);
             expanderServer.AddInstance("ed86c3dc166f41ee86626897ba039ed2", expanderLedmx);          // rpi-eb0092ca
             expanderServer.AddInstance("d6fc4e752af04022bf3c1a1166a557bb", expanderHiFi);           // rpi-eb428ef1
-            expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderPoppy);         // rpi-eba6cbc7
-            expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderDarth);           // rpi-ebd43a38
+            expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderPoppy);          // rpi-eba6cbc7
+            //expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderDarth);          // rpi-ebd43a38
+            expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderDarth);          // rpi-ebd43a38
             expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderControlPanel);   // rpi-eb6a047c
-            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderInflatableTree);    // rpi-eb81c94e
+            expanderServer.AddInstance("1583f686014345888c15d7fc9c55ca3c", expanderInflatableTree); // rpi-eb81c94e
 
             //expanderInflatableTree.DigitalInputs[4].Connect(inInflatableTree);
             //expanderLedmx.DigitalInputs[6].Connect(inOlaf);
@@ -303,9 +306,15 @@ namespace Animatroller.Scenes
             buttonOverrideHours.Output.Subscribe(x =>
             {
                 if (x)
+                {
                     mainSchedule.SetForced(true);
+                    interactiveSchedule.SetForced(true);
+                }
                 else
+                {
                     mainSchedule.SetForced(null);
+                    interactiveSchedule.SetForced(null);
+                }
             });
 
             //inflatablesRunning.Subscribe(x =>
@@ -428,8 +437,8 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.Pixel2D(pixelsMatrix, pixelMapping2D), SacnUniversePixelMatrixStart);
 
             acnOutput.Connect(new Physical.Pixel1D(saberPixels), SacnUniversePixelSaber, 1);
-            acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 100);
-            acnOutput.Connect(new Physical.Pixel1D(vaderEyesPixels), SacnUniversePixelSaber, 181);
+            acnOutput.Connect(new Physical.Pixel1D(haloPixels), SacnUniversePixelSaber, 97);
+            acnOutput.Connect(new Physical.Pixel1D(vaderEyesPixels), SacnUniversePixelSaber, 178);
 
             acnOutput.Connect(new Physical.GenericDimmer(airReindeerBig, 13), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(airOlaf, 10), SacnUniverseLedmx);
@@ -437,21 +446,21 @@ namespace Animatroller.Scenes
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 64), SacnUniverseEdmx4a);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 65), SacnUniverseEdmx4a);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 1), SacnUniverseRenard19);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 64), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 65), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 66), SacnUniverseLedmx);
-            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 67), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat1, 10), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat2, 11), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat3, 12), SacnUniverseRenard2x8);
+            acnOutput.Connect(new Physical.GenericDimmer(lightHat4, 13), SacnUniverseRenard2x8);
             acnOutput.Connect(new Physical.GenericDimmer(lightStairRail1, 5), SacnUniverseRenard2x8);
             acnOutput.Connect(new Physical.GenericDimmer(lightStairRail2, 4), SacnUniverseRenard24);
             acnOutput.Connect(new Physical.GenericDimmer(lightRail1, 7), SacnUniverseRenard2x8);
             acnOutput.Connect(new Physical.GenericDimmer(lightRail2, 5), SacnUniverseRenard24);
             //acnOutput.Connect(new Physical.GenericDimmer(lightRail3, 9), SacnUniverseRenard2x8);
             //acnOutput.Connect(new Physical.GenericDimmer(lightRail4, 66), SacnUniverseLedmx);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood4, 310), SacnUniverseEdmx4b);
             //acnOutput.Connect(new Physical.RGBStrobe(lightFlood1, 60), SacnUniverseEdmx4);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood1, 300), SacnUniverseEdmx4b);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood2, 330), SacnUniverseEdmx4b);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood3, 340), SacnUniverseEdmx4b);
+            acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood1, 340), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood2, 330), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood3, 300), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood4, 310), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.RGBStrobe(lightFlood4, 40), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.RGBStrobe(lightFlood4, 40), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.MarcGamutParH7(lightFlood5, 340), SacnUniverseLedmx);
@@ -507,7 +516,7 @@ namespace Animatroller.Scenes
             acnOutput.Connect(new Physical.GenericDimmer(lightNet11, 13), SacnUniverseRenard24);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper1, 3), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightTopper2, 4), SacnUniverseRenard18);
-            //acnOutput.Connect(new Physical.MarcGamutParH7(lightVader, 310), SacnUniverseLedmx);
+            acnOutput.Connect(new Physical.SmallRGBStrobe(lightVader, 320), SacnUniverseLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar, 203), SacnUniverseLedmx);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar2, 9), SacnUniverseRenard18);
             //acnOutput.Connect(new Physical.GenericDimmer(lightHangingStar3, 52), SacnUniverseLedmx);
@@ -849,7 +858,7 @@ namespace Animatroller.Scenes
 
                     vaderEyesPixels.SetColor(Color.Green, brightness: 1.0, token: instance.Token);
                     audioDarthVader.PlayEffect("saberon.wav");
-                    for (int sab = 0; sab < 33; sab++)
+                    for (int sab = 0; sab < 32; sab++)
                     {
                         saberPixels.Inject(Color.Red, 0.5, token: instance.Token);
                         instance.WaitFor(S(0.01));
@@ -868,7 +877,7 @@ namespace Animatroller.Scenes
 
                     audioDarthVader.PlayEffect("saberoff.wav");
                     instance.WaitFor(S(0.7));
-                    for (int sab = 0; sab < 17; sab++)
+                    for (int sab = 0; sab < 16; sab++)
                     {
                         saberPixels.InjectRev(Color.Black, 0, token: instance.Token);
                         saberPixels.InjectRev(Color.Black, 0, token: instance.Token);
@@ -936,7 +945,7 @@ namespace Animatroller.Scenes
             controlButtonGreen.WhenOutputChanges(x =>
             {
                 if (OkToRunInteractive(x))
-                    stateMachine.GoToState(States.MusicCarol);
+                    stateMachine.GoToState(States.MusicHolyNight);
             });
 
             controlButtonBlack.WhenOutputChanges(x =>
