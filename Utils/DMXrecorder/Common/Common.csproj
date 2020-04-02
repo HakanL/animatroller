@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Haukcode.PcapngUtils" Version="1.0.8" />
-    <PackageReference Include="Haukcode.sACN" Version="1.0.6" />
+    <PackageReference Include="Haukcode.sACN" Version="1.0.7" />
   </ItemGroup>
 
 </Project>
