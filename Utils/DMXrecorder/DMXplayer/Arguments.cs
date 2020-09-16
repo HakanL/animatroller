@@ -14,7 +14,8 @@ namespace Animatroller.DMXplayer
         public enum FileFormats
         {
             Binary,
-            PCapAcn
+            PCapAcn,
+            PCapArtNet
         }
 
         [ArgShortcut("t")]
@@ -35,5 +36,13 @@ namespace Animatroller.DMXplayer
         [ArgDescription("File format")]
         [ArgDefaultValue(FileFormats.Binary)]
         public FileFormats FileFormat { get; set; }
+
+        [ArgShortcut("n")]
+        [ArgDescription("Network Adapter")]
+        public string NetworkAdapter { get; set; }
+
+        [ArgShortcut("bo")]
+        [ArgDescription("Black Out at end")]
+        public bool BlackOutAtEnd { get; set; }
     }
 }

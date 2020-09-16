@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using Haukcode.sACN;
 
@@ -9,6 +12,7 @@ namespace Animatroller.DMXplayer
         public readonly Guid dmxPlayerAcnId = new Guid("{D599A13F-8117-4A6E-AE1E-753B7D4DB347}");
         private readonly SACNClient acnClient;
         private readonly byte priority;
+        private HashSet<int> usedUniverses = new HashSet<int>();
 
         public AcnStream(IPAddress bindIpAddress, byte priority)
         {
@@ -39,11 +43,15 @@ namespace Animatroller.DMXplayer
                 startCode: 0,
                 data: data,
                 priority: priority ?? this.priority);
+
+            this.usedUniverses.Add(universe);
         }
 
         public void Dispose()
         {
             this.acnClient.Dispose();
         }
+
+        public IList<int> UsedUniverses => this.usedUniverses.ToList();
     }
 }

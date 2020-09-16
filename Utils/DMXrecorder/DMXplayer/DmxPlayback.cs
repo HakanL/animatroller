@@ -29,6 +29,11 @@ namespace Animatroller.DMXplayer
             this.runnerTask.Wait();
         }
 
+        public void Cancel()
+        {
+            this.cts.Cancel();
+        }
+
         public void Run(int loop)
         {
             this.masterClock = new Stopwatch();
