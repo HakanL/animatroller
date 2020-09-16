@@ -73,12 +73,46 @@ namespace Animatroller.DMXplayer
 
                 using (var dmxPlayback = new DmxPlayback(fileReader, output))
                 {
+                    if (!string.IsNullOrEmpty(arguments.UniverseMapping))
+                    {
+                        var parts = arguments.UniverseMapping.Split(',').Select(x => x.Trim()).ToList();
+                        foreach (string part in parts)
+                        {
+                            var inputOutputParts = part.Split('=').Select(x => x.Trim()).ToList();
+                            if (inputOutputParts.Count != 2)
+                            {
+                                // Ignore
+                                Console.WriteLine($"Invalid mapping data: {part}");
+                                continue;
+                            }
+
+                            if (!ushort.TryParse(inputOutputParts[0], out ushort inputUniverse) || inputUniverse < 1 || inputUniverse > 63999)
+                            {
+                                // Ignore
+                                Console.WriteLine($"Invalid input universe: {inputOutputParts[0]}");
+                                continue;
+                            }
+
+                            if (!ushort.TryParse(inputOutputParts[1], out ushort outputUniverse) || outputUniverse < 1 || outputUniverse > 63999)
+                            {
+                                // Ignore
+                                Console.WriteLine($"Invalid output universe: {inputOutputParts[1]}");
+                                continue;
+                            }
+
+                            Console.WriteLine($"Map input universe {inputUniverse} to output universe {outputUniverse}");
+                            dmxPlayback.AddUniverseMapping(inputUniverse, outputUniverse);
+                        }
+                    }
+
                     Console.CancelKeyPress += (sender, evt) =>
                     {
                         Console.WriteLine("Aborting playback");
                         evt.Cancel = true;
                         dmxPlayback.Cancel();
                     };
+
+                    Console.WriteLine();
 
                     dmxPlayback.Run(arguments.Loop);
 
@@ -89,6 +123,8 @@ namespace Animatroller.DMXplayer
 
                 if (arguments.BlackOutAtEnd)
                 {
+                    Console.WriteLine("Black Out");
+
                     foreach (int universeId in output.UsedUniverses)
                     {
                         output.SendDmx(universeId, new byte[512]);

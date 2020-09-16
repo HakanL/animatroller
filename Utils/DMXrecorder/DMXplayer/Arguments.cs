@@ -44,5 +44,9 @@ namespace Animatroller.DMXplayer
         [ArgShortcut("bo")]
         [ArgDescription("Black Out at end")]
         public bool BlackOutAtEnd { get; set; }
+
+        [ArgShortcut("m")]
+        [ArgDescription("Universe Mapping (input=output,input2=output2 - example 1=10,2=11,6=20)")]
+        public string UniverseMapping { get; set; }
     }
 }

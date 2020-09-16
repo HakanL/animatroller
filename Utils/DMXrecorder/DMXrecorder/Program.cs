@@ -23,25 +23,32 @@ namespace Animatroller.DMXrecorder
 
                 using (var writer = new OutputProcessor(arguments))
                 {
-                    var interfaces = Haukcode.sACN.SACNCommon.GetCommonInterfaces();
+                    var networkInterfaces = Haukcode.sACN.SACNCommon.GetCommonInterfaces();
                     Console.WriteLine("Network adapters");
 
-                    for (int i = 0; i < interfaces.Count; i++)
+                    foreach(var nic in networkInterfaces)
                     {
-                        Console.WriteLine($"{i + 1}. {interfaces[i].AdapterName} - {interfaces[i].IPAddress}");
+                        Console.WriteLine($"{nic.AdapterName} - {nic.IPAddress}");
                     }
                     Console.WriteLine();
 
                     IPAddress bindAddress = null;
-                    if (arguments.NetworkAdapterIndex > 0)
-                    {
-                        if (arguments.NetworkAdapterIndex > interfaces.Count)
-                            throw new ArgumentOutOfRangeException("Invalid network adapter index");
 
-                        bindAddress = interfaces[arguments.NetworkAdapterIndex - 1].IPAddress;
+                    if (!string.IsNullOrEmpty(arguments.NetworkAdapter))
+                    {
+                        var selectedInterface = networkInterfaces.FirstOrDefault(x => x.AdapterName.Equals(arguments.NetworkAdapter.Trim(), StringComparison.OrdinalIgnoreCase));
+                        if (selectedInterface.IPAddress == null)
+                            throw new ArgumentException($"Unknown/incorrect network adapter name: {arguments.NetworkAdapter}");
+
+                        bindAddress = selectedInterface.IPAddress;
                     }
                     else
-                        bindAddress = Haukcode.sACN.SACNCommon.GetFirstBindAddress();
+                    {
+                        // Select the first that isn't virtual (Hyper-V)
+                        var selectedInterface = networkInterfaces.FirstOrDefault(x => !x.AdapterName.StartsWith("vEthernet"));
+                        if (selectedInterface.IPAddress != null)
+                            bindAddress = selectedInterface.IPAddress;
+                    }
 
                     Console.WriteLine($"Binding to network adapter with IP {bindAddress}");
                     Console.WriteLine();

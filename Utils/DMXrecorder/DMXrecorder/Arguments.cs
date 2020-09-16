@@ -30,8 +30,8 @@ namespace Animatroller.DMXrecorder
         public string OutputFile { get; set; }
 
         [ArgShortcut("n")]
-        [ArgDescription("Network adapter index")]
-        public int NetworkAdapterIndex { get; set; }
+        [ArgDescription("Network Adapter")]
+        public string NetworkAdapter { get; set; }
 
         [ArgShortcut("u")]
         [ArgDescription("Universes (comma-separated)")]

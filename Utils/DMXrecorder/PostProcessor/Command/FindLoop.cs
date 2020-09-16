@@ -70,7 +70,7 @@ namespace Animatroller.PostProcessor.Command
 
             foreach (var match in diffList.Take(10))
             {
-                Console.WriteLine("Pos {0,6:P1}   Mismatch {1,7:P2}   TrimPos: {2}", (double)match.Position / currentPos, match.Match / 100.0,
+                Console.WriteLine("Position: {0,6:P1}   Match: {1,7:P2}   TrimPos: {2}", (double)match.Position / currentPos, (100 - match.Match) / 100.0,
                     match.Position);
             }
         }

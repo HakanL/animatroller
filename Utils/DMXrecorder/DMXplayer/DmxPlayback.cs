@@ -17,6 +17,7 @@ namespace Animatroller.DMXplayer
         private CancellationTokenSource cts;
         private IOutput output;
         private Task runnerTask;
+        private Dictionary<ushort, HashSet<ushort>> universeMapping;
 
         public DmxPlayback(Common.IFileReader fileReader, IOutput output)
         {
@@ -32,6 +33,22 @@ namespace Animatroller.DMXplayer
         public void Cancel()
         {
             this.cts.Cancel();
+        }
+
+        public IDictionary<ushort, HashSet<ushort>> UniverseMapping => this.universeMapping;
+
+        public void AddUniverseMapping(ushort inputUniverse, ushort outputUniverse)
+        {
+            if (this.universeMapping == null)
+                this.universeMapping = new Dictionary<ushort, HashSet<ushort>>();
+
+            if (!this.universeMapping.TryGetValue(inputUniverse, out var outputList))
+            {
+                outputList = new HashSet<ushort>();
+                this.universeMapping.Add(inputUniverse, outputList);
+            }
+
+            outputList.Add(outputUniverse);
         }
 
         public void Run(int loop)
@@ -79,7 +96,23 @@ namespace Animatroller.DMXplayer
                         {
                             // Output
                             if (dmxFrame.DataType == Common.DmxData.DataTypes.FullFrame && dmxFrame.Data != null)
-                                this.output.SendDmx(dmxFrame.Universe, dmxFrame.Data);
+                            {
+                                if (this.universeMapping != null)
+                                {
+                                    if (this.universeMapping.TryGetValue((ushort)dmxFrame.Universe, out var outputUniverses))
+                                    {
+                                        foreach (ushort outputUniverse in outputUniverses)
+                                        {
+                                            this.output.SendDmx(outputUniverse, dmxFrame.Data);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    // No mapping
+                                    this.output.SendDmx(dmxFrame.Universe, dmxFrame.Data);
+                                }
+                            }
 
                             frames++;
 
