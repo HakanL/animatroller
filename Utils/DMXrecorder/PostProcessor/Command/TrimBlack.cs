@@ -8,8 +8,8 @@ namespace Animatroller.PostProcessor.Command
 {
     public class TrimBlack : ICommand
     {
-        private Common.IFileReader fileReader;
-        private Common.IFileWriter fileWriter;
+        private readonly Common.IFileReader fileReader;
+        private readonly Common.IFileWriter fileWriter;
 
         public TrimBlack(Common.IFileReader fileReader, Common.IFileWriter fileWriter)
         {

@@ -21,7 +21,7 @@ namespace Animatroller.PostProcessor.Command
             var firstData = new Dictionary<int, byte[]>();
             var currentData = new Dictionary<int, byte[]>();
 
-            var diffList = new List<Tuple<double, long>>();
+            var diffList = new List<(double Match, long Position)>();
 
             long currentPos = 0;
 
@@ -62,16 +62,16 @@ namespace Animatroller.PostProcessor.Command
                     }
 
                     if (diff.HasValue)
-                        diffList.Add(Tuple.Create((double)diff.Value / dataElements, pos));
+                        diffList.Add(((double)diff.Value / dataElements, pos));
                 }
             }
 
-            diffList = diffList.OrderBy(x => x.Item1).ToList();
+            diffList = diffList.OrderBy(x => x.Match).ThenByDescending(x => x.Position).ToList();
 
             foreach (var match in diffList.Take(10))
             {
-                Console.WriteLine("Pos {0:P2}   Mismatch {1:P2}   TrimPos: {2}", (double)match.Item2 / currentPos, match.Item1 / 100.0,
-                    match.Item2);
+                Console.WriteLine("Pos {0,6:P1}   Mismatch {1,7:P2}   TrimPos: {2}", (double)match.Position / currentPos, match.Match / 100.0,
+                    match.Position);
             }
         }
     }
