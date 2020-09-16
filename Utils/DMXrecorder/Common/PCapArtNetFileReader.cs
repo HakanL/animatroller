@@ -40,7 +40,7 @@ namespace Animatroller.Common
                     DataType = DmxData.DataTypes.FullFrame,
                     Sequence = ++this.sequence,
                     TimestampMS = data.Seconds * 1000 + (ulong)(data.Microseconds / 1000),
-                    Universe = dmxPacket.Universe,
+                    Universe = dmxPacket.Universe + 1,
                     Data = dmxPacket.DmxData
                 };
             }

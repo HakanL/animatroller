@@ -1,20 +1,17 @@
-﻿using Haukcode.sACN.Model;
+﻿using Haukcode.ArtNet.Packets;
+using Haukcode.sACN.Model;
 using System;
 using System.Net;
 
 namespace Animatroller.Common
 {
-    public class PCapAcnFileWriter : PCapFileWriter, IFileWriter
+    public class PCapArtNetFileWriter : PCapFileWriter, IFileWriter
     {
-        public readonly Guid AcnId = new Guid("{29D35C91-702E-4B7E-9ACD-D343FD15DDEE}");
-        public const string AcnSourceName = "DmxFileWriter";
+        public readonly byte[] BroadcastMac = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-        private readonly byte priority;
-
-        public PCapAcnFileWriter(string fileName, byte priority = 100)
+        public PCapArtNetFileWriter(string fileName)
             : base(fileName)
         {
-            this.priority = priority;
         }
 
         public static byte[] GetMacFromMulticastIP(IPAddress input)
@@ -63,18 +60,16 @@ namespace Animatroller.Common
             if (dmxData.DataType == DmxData.DataTypes.NoChange)
                 return;
 
-            var packet = new SACNPacket(new RootLayer(
-                uuid: AcnId,
-                sourceName: AcnSourceName,
-                universeID: (ushort)dmxData.Universe,
-                sequenceID: (byte)dmxData.Sequence,
-                data: dmxData.Data,
-                priority: this.priority));
+            var packet = new ArtNetDmxPacket
+            {
+                DmxData = dmxData.Data,
+                Universe = (short)(dmxData.Universe - 1),
+                Sequence = (byte)dmxData.Sequence
+            };
 
-            var destinationEP = GetUniverseEndPoint(dmxData.Universe);
-            byte[] destinationMac = GetMacFromMulticastIP(destinationEP.Address);
+            var destinationEP = new IPEndPoint(IPAddress.Broadcast, 6454);
 
-            WritePacket(destinationMac, destinationEP, packet.ToArray(), dmxData.TimestampMS);
+            WritePacket(BroadcastMac, destinationEP, packet.ToArray(), dmxData.TimestampMS);
         }
 
         public void Footer(int universeId)

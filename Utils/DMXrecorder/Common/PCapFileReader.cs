@@ -28,11 +28,6 @@ namespace Animatroller.Common
             this.reader.ReadPackets(CancellationToken.None);
         }
 
-        public bool DataAvailable
-        {
-            get { return this.packets.Count > this.readPosition; }
-        }
-
         private void Reader_OnReadPacketEvent(object context, Haukcode.PcapngUtils.Common.IPacket packet)
         {
             this.packets.Add(packet);
@@ -41,6 +36,16 @@ namespace Animatroller.Common
         public void Dispose()
         {
             this.reader.Dispose();
+        }
+
+        public bool DataAvailable
+        {
+            get { return this.packets.Count > this.readPosition; }
+        }
+
+        public void Rewind()
+        {
+            this.readPosition = 0;
         }
 
         protected (Ipv4Packet Packet, byte[] Payload, ulong Seconds, ulong Microseconds) ReadPacket()
@@ -52,17 +57,12 @@ namespace Animatroller.Common
 
             var dataStream = new MemoryStream(pcapData.Data);
 
-            var packet = new UdpPacket(dataStream);
+            var packet = UdpPacket.CreateFromStream(dataStream);
 
             byte[] dataBytes = new byte[dataStream.Length - dataStream.Position];
             dataStream.Read(dataBytes, 0, dataBytes.Length);
 
             return (packet, dataBytes, pcapData.Seconds, pcapData.Microseconds);
-        }
-
-        public void Rewind()
-        {
-            this.readPosition = 0;
         }
     }
 }

@@ -51,6 +51,10 @@ namespace Animatroller.PostProcessor
                             fileWriter = new Common.PCapAcnFileWriter(arguments.OutputFile);
                             break;
 
+                        case Arguments.FileFormats.PCapArtNet:
+                            fileWriter = new Common.PCapArtNetFileWriter(arguments.OutputFile);
+                            break;
+
                         default:
                             throw new ArgumentException("Unhandled output file format " + arguments.OutputFileFormat);
                     }
