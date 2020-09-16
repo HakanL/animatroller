@@ -18,7 +18,8 @@ namespace Animatroller.PostProcessor
         {
             Binary,
             PCapAcn,
-            FSeq
+            FSeq,
+            PCapArtNet
         }
 
         [ArgShortcut("i")]

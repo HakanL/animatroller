@@ -6,8 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Haukcode.ArtNet" Version="1.0.18" />
     <PackageReference Include="Haukcode.PcapngUtils" Version="1.0.8" />
-    <PackageReference Include="Haukcode.sACN" Version="1.0.7" />
+    <PackageReference Include="Haukcode.sACN" Version="1.0.8" />
   </ItemGroup>
 
 </Project>

@@ -27,6 +27,10 @@ namespace Animatroller.PostProcessor
                         fileReader = new Common.PCapAcnFileReader(arguments.InputFile);
                         break;
 
+                    case Arguments.FileFormats.PCapArtNet:
+                        fileReader = new Common.PCapArtNetFileReader(arguments.InputFile);
+                        break;
+
                     case Arguments.FileFormats.FSeq:
                         fileReader = new Common.FseqFileReader(arguments.InputFile, arguments.InputConfigFile);
                         break;
