@@ -86,14 +86,14 @@ namespace Animatroller.DMXplayer
                                 continue;
                             }
 
-                            if (!ushort.TryParse(inputOutputParts[0], out ushort inputUniverse) || inputUniverse < 1 || inputUniverse > 63999)
+                            if (!int.TryParse(inputOutputParts[0], out int inputUniverse) || inputUniverse < 1 || inputUniverse > 63999)
                             {
                                 // Ignore
                                 Console.WriteLine($"Invalid input universe: {inputOutputParts[0]}");
                                 continue;
                             }
 
-                            if (!ushort.TryParse(inputOutputParts[1], out ushort outputUniverse) || outputUniverse < 1 || outputUniverse > 63999)
+                            if (!int.TryParse(inputOutputParts[1], out int outputUniverse) || outputUniverse < 1 || outputUniverse > 63999)
                             {
                                 // Ignore
                                 Console.WriteLine($"Invalid output universe: {inputOutputParts[1]}");

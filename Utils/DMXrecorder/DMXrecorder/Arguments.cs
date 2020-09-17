@@ -36,7 +36,7 @@ namespace Animatroller.DMXrecorder
         [ArgShortcut("u")]
         [ArgDescription("Universes (comma-separated)")]
         [ArgDefaultValue(1)]
-        public ushort[] Universes { get; set; }
+        public int[] Universes { get; set; }
 
         [ArgShortcut("f")]
         [ArgDescription("File format")]

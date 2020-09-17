@@ -28,12 +28,12 @@ namespace Animatroller.Common
             var target = new DmxData();
             byte start = this.binRead.ReadByte();
             target.TimestampMS = (uint)this.binRead.ReadInt32();
-            target.Universe = (ushort)this.binRead.ReadInt16();
+            target.Universe = this.binRead.ReadUInt16();
             switch (start)
             {
                 case 1:
                     target.DataType = DmxData.DataTypes.FullFrame;
-                    ushort len = (ushort)this.binRead.ReadInt16();
+                    ushort len = (ushort)this.binRead.ReadUInt16();
                     target.Data = this.binRead.ReadBytes(len);
                     break;
 

@@ -29,7 +29,7 @@ namespace Animatroller.DMXplayer
         public string InputFile { get; set; }
 
         [ArgShortcut("l")]
-        [ArgDescription("Loop # of times")]
+        [ArgDescription("Loop # of times (-1 for indefinitely)")]
         public int Loop { get; set; }
 
         [ArgShortcut("f")]

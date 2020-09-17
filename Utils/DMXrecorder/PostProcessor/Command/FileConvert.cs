@@ -8,15 +8,17 @@ namespace Animatroller.PostProcessor.Command
 {
     public class FileConvert : ICommand
     {
-        private Common.IFileReader fileReader;
-        private Common.IFileWriter fileWriter;
-        private HashSet<int> universes;
+        private readonly Common.IFileReader fileReader;
+        private readonly Common.IFileWriter fileWriter;
+        private readonly HashSet<int> universes;
+        private readonly ITransformer transformer;
 
-        public FileConvert(Common.IFileReader fileReader, Common.IFileWriter fileWriter)
+        public FileConvert(Common.IFileReader fileReader, Common.IFileWriter fileWriter, ITransformer transformer)
         {
             this.fileReader = fileReader;
             this.fileWriter = fileWriter;
             this.universes = new HashSet<int>();
+            this.transformer = transformer;
         }
 
         public void Execute()
@@ -31,19 +33,27 @@ namespace Animatroller.PostProcessor.Command
                     // Skip/null data
                     continue;
 
-                if (!this.universes.Contains(data.Universe))
-                {
-                    // Write header
-                    this.fileWriter.Header(data.Universe);
-                    this.universes.Add(data.Universe);
-                }
-
                 if (!timestampOffset.HasValue)
                     timestampOffset = data.TimestampMS;
 
-                data.TimestampMS -= timestampOffset.Value;
+                this.transformer.Transform(data.Universe, data.Data, (universeId, dmxData) =>
+                {
+                    if (!this.universes.Contains(universeId))
+                    {
+                        // Write header
+                        this.fileWriter.Header(universeId);
+                        this.universes.Add(universeId);
+                    }
 
-                this.fileWriter.Output(data);
+                    this.fileWriter.Output(new Common.DmxData
+                    {
+                        Data = dmxData,
+                        DataType = data.DataType,
+                        Sequence = data.Sequence,
+                        TimestampMS = data.TimestampMS - timestampOffset.Value,
+                        Universe = universeId
+                    });
+                });
             }
 
             // Write footers

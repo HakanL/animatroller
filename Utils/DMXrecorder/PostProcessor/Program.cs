@@ -62,6 +62,49 @@ namespace Animatroller.PostProcessor
                 else
                     fileWriter = null;
 
+                var transforms = new List<ITransform>();
+                if (!string.IsNullOrEmpty(arguments.UniverseMapping))
+                {
+                    UniverseMapper mapper = null;
+
+                    var parts = arguments.UniverseMapping.Split(',').Select(x => x.Trim()).ToList();
+                    foreach (string part in parts)
+                    {
+                        var inputOutputParts = part.Split('=').Select(x => x.Trim()).ToList();
+                        if (inputOutputParts.Count != 2)
+                        {
+                            // Ignore
+                            Console.WriteLine($"Invalid mapping data: {part}");
+                            continue;
+                        }
+
+                        if (!int.TryParse(inputOutputParts[0], out int inputUniverse) || inputUniverse < 1 || inputUniverse > 63999)
+                        {
+                            // Ignore
+                            Console.WriteLine($"Invalid input universe: {inputOutputParts[0]}");
+                            continue;
+                        }
+
+                        if (!int.TryParse(inputOutputParts[1], out int outputUniverse) || outputUniverse < 1 || outputUniverse > 63999)
+                        {
+                            // Ignore
+                            Console.WriteLine($"Invalid output universe: {inputOutputParts[1]}");
+                            continue;
+                        }
+
+                        Console.WriteLine($"Map input universe {inputUniverse} to output universe {outputUniverse}");
+
+                        if (mapper == null)
+                        {
+                            mapper = new UniverseMapper();
+                            transforms.Add(mapper);
+                        }
+
+                        mapper.AddUniverseMapping(inputUniverse, outputUniverse);
+                    }
+                }
+
+                var transformer = new Transformer(transforms);
                 ICommand command = null;
 
                 switch (arguments.Command)
@@ -88,7 +131,7 @@ namespace Animatroller.PostProcessor
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Command.FileConvert(fileReader, fileWriter);
+                        command = new Command.FileConvert(fileReader, fileWriter, transformer);
                         break;
 
                     default:

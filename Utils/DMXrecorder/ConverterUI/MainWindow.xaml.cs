@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Animatroller.PostProcessor;
 
 namespace Animatroller.ConverterUI
 {
@@ -68,13 +69,15 @@ namespace Animatroller.ConverterUI
 
             try
             {
+                var transformer = new Transformer(null);
+
                 string outputFileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(textBoxInputFile.Text), System.IO.Path.GetFileNameWithoutExtension(textBoxInputFile.Text) + ".cap");
                 using (var fileReader = new Common.FseqFileReader(textBoxInputFile.Text, textBoxInputConfigFile.Text))
                 using (var fileWriter = new Common.PCapAcnFileWriter(outputFileName))
                 {
                     progress.Value = 0;
 
-                    var converter = new PostProcessor.Command.FileConvert(fileReader, fileWriter);
+                    var converter = new PostProcessor.Command.FileConvert(fileReader, fileWriter, transformer);
 
                     // TODO: Report progress
                     converter.Execute();

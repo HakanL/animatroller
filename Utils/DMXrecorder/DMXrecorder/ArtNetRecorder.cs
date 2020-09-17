@@ -16,7 +16,7 @@ namespace Animatroller.DMXrecorder
         private ArtNetSocket socket;
         private OutputProcessor writer;
 
-        public ArtNetRecorder(OutputProcessor writer, ushort[] universes)
+        public ArtNetRecorder(OutputProcessor writer, int[] universes)
         {
             if (universes.Length == 0)
                 throw new ArgumentException("No universes specified");

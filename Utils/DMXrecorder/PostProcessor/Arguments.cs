@@ -55,5 +55,9 @@ namespace Animatroller.PostProcessor
         [ArgDescription("Output File format")]
         [ArgDefaultValue(FileFormats.Binary)]
         public FileFormats OutputFileFormat { get; set; }
+
+        [ArgShortcut("m")]
+        [ArgDescription("Universe Mapping (input=output,input2=output2 - example 1=10,2=11,6=20)")]
+        public string UniverseMapping { get; set; }
     }
 }

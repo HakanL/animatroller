@@ -11,12 +11,12 @@ namespace Animatroller.DMXrecorder
     {
         private readonly Guid acnId = new Guid("{1A246A28-D145-449F-B3F2-68676BA0E93F}");
         private double? clockOffset;
-        private readonly Dictionary<ushort, UniverseData> universes;
+        private readonly Dictionary<int, UniverseData> universes;
         private readonly SACNClient sacnClient;
         private readonly OutputProcessor writer;
         private int receivedPackets;
 
-        public AcnRecorder(OutputProcessor writer, ushort[] universes, IPAddress bindAddress)
+        public AcnRecorder(OutputProcessor writer, int[] universes, IPAddress bindAddress)
         {
             if (universes.Length == 0)
                 throw new ArgumentException("No universes specified");
@@ -31,9 +31,9 @@ namespace Animatroller.DMXrecorder
             this.sacnClient.OnError.Subscribe(ex => Console.WriteLine($"*Error* {ex.Message}"));
             this.sacnClient.OnPacket.Subscribe(AcnSocket_NewPacket);
 
-            this.universes = new Dictionary<ushort, UniverseData>();
+            this.universes = new Dictionary<int, UniverseData>();
 
-            foreach (ushort universe in universes)
+            foreach (int universe in universes)
             {
                 var universeData = new UniverseData(universe);
 
@@ -49,14 +49,14 @@ namespace Animatroller.DMXrecorder
 
             this.receivedPackets = 0;
             foreach (var kvp in this.universes)
-                this.sacnClient.JoinDMXUniverse(kvp.Key);
+                this.sacnClient.JoinDMXUniverse((ushort)kvp.Key);
         }
 
         public void StopRecord()
         {
             foreach (var kvp in this.universes)
             {
-                this.sacnClient.DropDMXUniverse(kvp.Key);
+                this.sacnClient.DropDMXUniverse((ushort)kvp.Key);
 
                 this.writer.CompleteUniverse(kvp.Key);
             }

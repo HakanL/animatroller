@@ -17,7 +17,7 @@ namespace Animatroller.DMXplayer
         private CancellationTokenSource cts;
         private IOutput output;
         private Task runnerTask;
-        private Dictionary<ushort, HashSet<ushort>> universeMapping;
+        private Dictionary<int, HashSet<int>> universeMapping;
 
         public DmxPlayback(Common.IFileReader fileReader, IOutput output)
         {
@@ -35,16 +35,16 @@ namespace Animatroller.DMXplayer
             this.cts.Cancel();
         }
 
-        public IDictionary<ushort, HashSet<ushort>> UniverseMapping => this.universeMapping;
+        public IDictionary<int, HashSet<int>> UniverseMapping => this.universeMapping;
 
-        public void AddUniverseMapping(ushort inputUniverse, ushort outputUniverse)
+        public void AddUniverseMapping(int inputUniverse, int outputUniverse)
         {
             if (this.universeMapping == null)
-                this.universeMapping = new Dictionary<ushort, HashSet<ushort>>();
+                this.universeMapping = new Dictionary<int, HashSet<int>>();
 
             if (!this.universeMapping.TryGetValue(inputUniverse, out var outputList))
             {
-                outputList = new HashSet<ushort>();
+                outputList = new HashSet<int>();
                 this.universeMapping.Add(inputUniverse, outputList);
             }
 
@@ -99,9 +99,9 @@ namespace Animatroller.DMXplayer
                             {
                                 if (this.universeMapping != null)
                                 {
-                                    if (this.universeMapping.TryGetValue((ushort)dmxFrame.Universe, out var outputUniverses))
+                                    if (this.universeMapping.TryGetValue(dmxFrame.Universe, out var outputUniverses))
                                     {
-                                        foreach (ushort outputUniverse in outputUniverses)
+                                        foreach (int outputUniverse in outputUniverses)
                                         {
                                             this.output.SendDmx(outputUniverse, dmxFrame.Data);
                                         }

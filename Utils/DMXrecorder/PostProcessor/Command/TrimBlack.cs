@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace Animatroller.PostProcessor.Command
 {
+    //FIXME: Make it work with multiple universes
+
     public class TrimBlack : ICommand
     {
         private readonly Common.IFileReader fileReader;
