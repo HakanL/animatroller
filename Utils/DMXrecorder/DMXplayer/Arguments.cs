@@ -8,7 +8,8 @@ namespace Animatroller.DMXplayer
     {
         public enum OutputTypes
         {
-            sACN
+            sACN,
+            ArtNet
         }
 
         public enum FileFormats

@@ -48,6 +48,10 @@ namespace Animatroller.DMXplayer
                         output = new AcnStream(bindAddress, priority: 100);
                         break;
 
+                    case Arguments.OutputTypes.ArtNet:
+                        output = new ArtNetStream(bindAddress);
+                        break;
+
                     default:
                         throw new ArgumentException("Unsupported output type");
                 }

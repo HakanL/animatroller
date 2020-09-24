@@ -12,7 +12,7 @@ namespace Animatroller.DMXplayer
         public readonly Guid dmxPlayerAcnId = new Guid("{D599A13F-8117-4A6E-AE1E-753B7D4DB347}");
         private readonly SACNClient acnClient;
         private readonly byte priority;
-        private HashSet<int> usedUniverses = new HashSet<int>();
+        private readonly HashSet<int> usedUniverses = new HashSet<int>();
 
         public AcnStream(IPAddress bindIpAddress, byte priority)
         {
