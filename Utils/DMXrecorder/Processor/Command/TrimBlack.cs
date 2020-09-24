@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Animatroller.PostProcessor.Command
+namespace Animatroller.Processor.Command
 {
-    //FIXME: Make it work with multiple universes
-
     public class TrimBlack : ICommand
     {
         private readonly Common.IFileReader fileReader;
@@ -70,12 +68,13 @@ namespace Animatroller.PostProcessor.Command
             currentPos = 0;
             while (this.fileReader.DataAvailable)
             {
-                long pos = currentPos++;
+                long pos = currentPos;
 
                 if (pos >= firstPos)
                     break;
 
                 this.fileReader.ReadFrame();
+                currentPos++;
             }
 
             while (this.fileReader.DataAvailable)

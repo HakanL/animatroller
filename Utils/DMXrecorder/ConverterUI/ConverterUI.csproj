@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
-    <ProjectReference Include="..\PostProcessor\PostProcessor.csproj" />
+    <ProjectReference Include="..\Processor\Processor.csproj" />
   </ItemGroup>
 
 </Project>

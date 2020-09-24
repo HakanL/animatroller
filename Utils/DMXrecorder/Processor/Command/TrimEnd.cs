@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Animatroller.PostProcessor.Command
+namespace Animatroller.Processor.Command
 {
     //FIXME: Make it work with multiple universes
 

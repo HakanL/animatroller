@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Animatroller.PostProcessor;
+using Animatroller.Processor;
 
 namespace Animatroller.ConverterUI
 {
@@ -77,7 +77,7 @@ namespace Animatroller.ConverterUI
                 {
                     progress.Value = 0;
 
-                    var converter = new PostProcessor.Command.FileConvert(fileReader, fileWriter, transformer);
+                    var converter = new Processor.Command.FileConvert(fileReader, fileWriter, transformer);
 
                     // TODO: Report progress
                     converter.Execute();

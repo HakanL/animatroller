@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Animatroller.Processor;
 using PowerArgs;
 
 namespace Animatroller.PostProcessor
@@ -65,7 +66,7 @@ namespace Animatroller.PostProcessor
                 var transforms = new List<ITransform>();
                 if (!string.IsNullOrEmpty(arguments.UniverseMapping))
                 {
-                    UniverseMapper mapper = null;
+                    Processor.Transform.UniverseMapper mapper = null;
 
                     var parts = arguments.UniverseMapping.Split(',').Select(x => x.Trim()).ToList();
                     foreach (string part in parts)
@@ -96,7 +97,7 @@ namespace Animatroller.PostProcessor
 
                         if (mapper == null)
                         {
-                            mapper = new UniverseMapper();
+                            mapper = new Processor.Transform.UniverseMapper();
                             transforms.Add(mapper);
                         }
 
@@ -113,25 +114,25 @@ namespace Animatroller.PostProcessor
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Command.TrimBlack(fileReader, fileWriter);
+                        command = new Processor.Command.TrimBlack(fileReader, fileWriter);
                         break;
 
                     case Arguments.Commands.FindLoop:
-                        command = new Command.FindLoop(fileReader);
+                        command = new Processor.Command.FindLoop(fileReader);
                         break;
 
                     case Arguments.Commands.TrimEnd:
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Command.TrimEnd(fileReader, fileWriter, arguments.TrimPos);
+                        command = new Processor.Command.TrimEnd(fileReader, fileWriter, arguments.TrimPos);
                         break;
 
                     case Arguments.Commands.FileConvert:
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Command.FileConvert(fileReader, fileWriter, transformer);
+                        command = new Processor.Command.FileConvert(fileReader, fileWriter, transformer);
                         break;
 
                     default:

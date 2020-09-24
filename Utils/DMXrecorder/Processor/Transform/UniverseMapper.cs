@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Animatroller.Common;
 
-namespace Animatroller.PostProcessor
+namespace Animatroller.Processor.Transform
 {
     public class UniverseMapper : ITransform
     {

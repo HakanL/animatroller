@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Animatroller.PostProcessor
+namespace Animatroller.Processor
 {
     public interface ITransformer
     {

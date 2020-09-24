@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Animatroller.PostProcessor
+namespace Animatroller.Processor
 {
     public interface ICommand
     {
