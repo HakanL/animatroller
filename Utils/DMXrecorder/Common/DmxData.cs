@@ -23,10 +23,19 @@ namespace Animatroller.Common
 
         public long Sequence { get; set; }
 
-        public int Universe { get; set; }
+        public int UniverseId { get; set; }
 
         public DmxData()
         {
+        }
+
+        public DmxData(int universeId, byte[] dmxData, long sequence, double timestampMS)
+        {
+            UniverseId = universeId;
+            Data = dmxData;
+            DataType = DataTypes.FullFrame;
+            Sequence = sequence;
+            TimestampMS = timestampMS;
         }
 
         public static DmxData CreateNoChange(double millisecond, long sequence, int universe)
@@ -37,7 +46,7 @@ namespace Animatroller.Common
                 Data = null,
                 Sequence = sequence,
                 TimestampMS = millisecond,
-                Universe = universe
+                UniverseId = universe
             };
         }
 
@@ -49,7 +58,7 @@ namespace Animatroller.Common
                 Data = data,
                 Sequence = sequence,
                 TimestampMS = millisecond,
-                Universe = universe
+                UniverseId = universe
             };
         }
     }

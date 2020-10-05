@@ -10,11 +10,13 @@ namespace Animatroller.Processor.Command
     {
         private readonly Common.IFileReader fileReader;
         private readonly Common.IFileWriter fileWriter;
+        private readonly ITransformer transformer;
 
-        public TrimBlack(Common.IFileReader fileReader, Common.IFileWriter fileWriter)
+        public TrimBlack(Common.IFileReader fileReader, Common.IFileWriter fileWriter, ITransformer transformer)
         {
             this.fileReader = fileReader;
             this.fileWriter = fileWriter;
+            this.transformer = transformer;
         }
 
         public void Execute()
@@ -39,14 +41,19 @@ namespace Animatroller.Processor.Command
 
                 if (data.DataType == Common.DmxData.DataTypes.FullFrame)
                 {
-                    positions.Add(pos);
-                    if (data.Data.All(x => x == 0))
-                        blackPositions.Add(pos);
-                    else
+                    this.transformer.Transform(data.UniverseId, data.Data, (universeId, dmxData, sequence) =>
                     {
-                        if (!timestampOffset.HasValue)
-                            timestampOffset = data.TimestampMS;
-                    }
+                        positions.Add(pos);
+                        if (dmxData.All(x => x == 0))
+                        {
+                            blackPositions.Add(pos);
+                        }
+                        else
+                        {
+                            if (!timestampOffset.HasValue)
+                                timestampOffset = data.TimestampMS;
+                        }
+                    });
                 }
             }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Animatroller.Processor;
+using Animatroller.Processor.Transform;
 using PowerArgs;
 
 namespace Animatroller.PostProcessor
@@ -64,6 +65,9 @@ namespace Animatroller.PostProcessor
                     fileWriter = null;
 
                 var transforms = new List<ITransform>();
+
+                transforms.Add(new UniverseReporter());
+
                 if (!string.IsNullOrEmpty(arguments.UniverseMapping))
                 {
                     Processor.Transform.UniverseMapper mapper = null;
@@ -114,18 +118,18 @@ namespace Animatroller.PostProcessor
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Processor.Command.TrimBlack(fileReader, fileWriter);
+                        command = new Processor.Command.TrimBlack(fileReader, fileWriter, transformer);
                         break;
 
                     case Arguments.Commands.FindLoop:
-                        command = new Processor.Command.FindLoop(fileReader);
+                        command = new Processor.Command.FindLoop(fileReader, transformer);
                         break;
 
                     case Arguments.Commands.TrimEnd:
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Processor.Command.TrimEnd(fileReader, fileWriter, arguments.TrimPos);
+                        command = new Processor.Command.TrimEnd(fileReader, fileWriter, arguments.TrimPos, transformer);
                         break;
 
                     case Arguments.Commands.FileConvert:

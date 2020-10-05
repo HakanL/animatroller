@@ -63,7 +63,7 @@ namespace Animatroller.Common
             var packet = new ArtNetDmxPacket
             {
                 DmxData = dmxData.Data,
-                Universe = (short)(dmxData.Universe - 1),
+                Universe = (short)(dmxData.UniverseId - 1),
                 Sequence = (byte)dmxData.Sequence
             };
 

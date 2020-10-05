@@ -10,11 +10,12 @@ namespace Animatroller.Processor.Command
 
     public class TrimEnd : ICommand
     {
-        private Common.IFileReader fileReader;
-        private Common.IFileWriter fileWriter;
-        private long trimPos;
+        private readonly Common.IFileReader fileReader;
+        private readonly Common.IFileWriter fileWriter;
+        private readonly long trimPos;
+        private readonly ITransformer transformer;
 
-        public TrimEnd(Common.IFileReader fileReader, Common.IFileWriter fileWriter, long trimPos)
+        public TrimEnd(Common.IFileReader fileReader, Common.IFileWriter fileWriter, long trimPos, ITransformer transformer)
         {
             if (trimPos <= 0)
                 throw new ArgumentOutOfRangeException("TrimPos has to be a positive number (> 0)");
@@ -22,6 +23,7 @@ namespace Animatroller.Processor.Command
             this.fileReader = fileReader;
             this.fileWriter = fileWriter;
             this.trimPos = trimPos;
+            this.transformer = transformer;
         }
 
         public void Execute()
@@ -33,7 +35,11 @@ namespace Animatroller.Processor.Command
                     break;
 
                 var data = this.fileReader.ReadFrame();
-                this.fileWriter.Output(data);
+
+                this.transformer.Transform(data.UniverseId, data.Data, (universeId, dmxData, sequence) =>
+                {
+                    this.fileWriter.Output(new Common.DmxData(universeId, dmxData, sequence, data.TimestampMS));
+                });
 
                 pos++;
             }

@@ -36,7 +36,7 @@ namespace Animatroller.Processor.Command
                 if (!timestampOffset.HasValue)
                     timestampOffset = data.TimestampMS;
 
-                this.transformer.Transform(data.Universe, data.Data, (universeId, dmxData) =>
+                this.transformer.Transform(data.UniverseId, data.Data, (universeId, dmxData, sequence) =>
                 {
                     if (!this.universes.Contains(universeId))
                     {
@@ -49,9 +49,9 @@ namespace Animatroller.Processor.Command
                     {
                         Data = dmxData,
                         DataType = data.DataType,
-                        Sequence = data.Sequence,
+                        Sequence = sequence,
                         TimestampMS = data.TimestampMS - timestampOffset.Value,
-                        Universe = universeId
+                        UniverseId = universeId
                     });
                 });
             }

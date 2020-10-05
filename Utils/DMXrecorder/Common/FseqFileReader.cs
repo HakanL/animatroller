@@ -182,7 +182,7 @@ namespace Animatroller.Common
             {
                 case "E131":
                     dmxData.DataType = DmxData.DataTypes.FullFrame;
-                    dmxData.Universe = int.Parse(network.BaudRate);
+                    dmxData.UniverseId = int.Parse(network.BaudRate);
                     break;
 
                 default:

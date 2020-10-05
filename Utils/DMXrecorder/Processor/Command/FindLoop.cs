@@ -8,11 +8,13 @@ namespace Animatroller.Processor.Command
 {
     public class FindLoop : ICommand
     {
-        private Common.IFileReader fileReader;
+        private readonly Common.IFileReader fileReader;
+        private readonly ITransformer transformer;
 
-        public FindLoop(Common.IFileReader fileReader)
+        public FindLoop(Common.IFileReader fileReader, ITransformer transformer)
         {
             this.fileReader = fileReader;
+            this.transformer = transformer;
         }
 
         public void Execute()
@@ -33,37 +35,40 @@ namespace Animatroller.Processor.Command
                 if (data.DataType != Common.DmxData.DataTypes.FullFrame)
                     continue;
 
-                if (!firstData.ContainsKey(data.Universe))
+                this.transformer.Transform(data.UniverseId, data.Data, (universeId, dmxData, sequence) =>
                 {
-                    firstData.Add(data.Universe, data.Data);
-                }
-                else
-                {
-                    currentData[data.Universe] = data.Data;
-
-                    // Compare
-                    int? diff = null;
-                    int dataElements = 0;
-                    foreach (var kvp in firstData)
+                    if (!firstData.ContainsKey(universeId))
                     {
-                        byte[] compareData;
-                        if (!currentData.TryGetValue(kvp.Key, out compareData))
+                        firstData.Add(universeId, dmxData);
+                    }
+                    else
+                    {
+                        currentData[universeId] = dmxData;
+
+                        // Compare
+                        int? diff = null;
+                        int dataElements = 0;
+                        foreach (var kvp in firstData)
                         {
-                            diff = null;
-                            break;
+                            byte[] compareData;
+                            if (!currentData.TryGetValue(kvp.Key, out compareData))
+                            {
+                                diff = null;
+                                break;
+                            }
+
+                            if (!diff.HasValue)
+                                diff = 0;
+                            int maxLen = Math.Min(kvp.Value.Length, compareData.Length);
+                            for (int i = 0; i < maxLen; i++)
+                                diff += Math.Abs(kvp.Value[i] - compareData[i]);
+                            dataElements += maxLen;
                         }
 
-                        if (!diff.HasValue)
-                            diff = 0;
-                        int maxLen = Math.Min(kvp.Value.Length, compareData.Length);
-                        for (int i = 0; i < maxLen; i++)
-                            diff += Math.Abs(kvp.Value[i] - compareData[i]);
-                        dataElements += maxLen;
+                        if (diff.HasValue)
+                            diffList.Add(((double)diff.Value / dataElements, pos));
                     }
-
-                    if (diff.HasValue)
-                        diffList.Add(((double)diff.Value / dataElements, pos));
-                }
+                });
             }
 
             diffList = diffList.OrderBy(x => x.Match).ThenByDescending(x => x.Position).ToList();

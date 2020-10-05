@@ -66,12 +66,12 @@ namespace Animatroller.Common
             var packet = new SACNPacket(new RootLayer(
                 uuid: AcnId,
                 sourceName: AcnSourceName,
-                universeID: (ushort)dmxData.Universe,
+                universeID: (ushort)dmxData.UniverseId,
                 sequenceID: (byte)dmxData.Sequence,
                 data: dmxData.Data,
                 priority: this.priority));
 
-            var destinationEP = GetUniverseEndPoint(dmxData.Universe);
+            var destinationEP = GetUniverseEndPoint(dmxData.UniverseId);
             byte[] destinationMac = GetMacFromMulticastIP(destinationEP.Address);
 
             WritePacket(destinationMac, destinationEP, packet.ToArray(), dmxData.TimestampMS);

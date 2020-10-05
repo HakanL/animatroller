@@ -99,7 +99,7 @@ namespace Animatroller.DMXplayer
                             {
                                 if (this.universeMapping != null)
                                 {
-                                    if (this.universeMapping.TryGetValue(dmxFrame.Universe, out var outputUniverses))
+                                    if (this.universeMapping.TryGetValue(dmxFrame.UniverseId, out var outputUniverses))
                                     {
                                         foreach (int outputUniverse in outputUniverses)
                                         {
@@ -110,7 +110,7 @@ namespace Animatroller.DMXplayer
                                 else
                                 {
                                     // No mapping
-                                    this.output.SendDmx(dmxFrame.Universe, dmxFrame.Data);
+                                    this.output.SendDmx(dmxFrame.UniverseId, dmxFrame.Data);
                                 }
                             }
 

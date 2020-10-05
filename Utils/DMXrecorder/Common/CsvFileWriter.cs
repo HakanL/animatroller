@@ -25,12 +25,12 @@ namespace Animatroller.Common
             switch (dmxData.DataType)
             {
                 case DmxData.DataTypes.NoChange:
-                    this.streamWriter.WriteLine("{0},{1},{2},NoChange", dmxData.Sequence, dmxData.TimestampMS, dmxData.Universe);
+                    this.streamWriter.WriteLine("{0},{1},{2},NoChange", dmxData.Sequence, dmxData.TimestampMS, dmxData.UniverseId);
                     break;
 
                 case DmxData.DataTypes.FullFrame:
                     this.streamWriter.WriteLine("{0},{1},{2},Full,{3}",
-                        dmxData.Sequence, dmxData.TimestampMS, dmxData.Universe, string.Join(",", dmxData.Data.Select(x => x.ToString())));
+                        dmxData.Sequence, dmxData.TimestampMS, dmxData.UniverseId, string.Join(",", dmxData.Data.Select(x => x.ToString())));
                     break;
             }
         }
