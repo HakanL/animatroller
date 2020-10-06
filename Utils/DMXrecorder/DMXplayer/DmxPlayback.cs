@@ -18,6 +18,8 @@ namespace Animatroller.DMXplayer
         private IOutput output;
         private Task runnerTask;
         private Dictionary<int, HashSet<int>> universeMapping;
+        private Dictionary<int, double> lastFrameTimestampPerUniverse = new Dictionary<int, double>();
+        private Dictionary<int, double> intervalPerUniverse = new Dictionary<int, double>();
 
         public DmxPlayback(Common.IFileReader fileReader, IOutput output)
         {
@@ -82,12 +84,21 @@ namespace Animatroller.DMXplayer
                     {
                         dmxFrame = this.fileReader.ReadFrame();
                         timestampOffset = dmxFrame.TimestampMS;
+                        this.intervalPerUniverse.TryGetValue(dmxFrame.UniverseId, out double interval);
+                        this.lastFrameTimestampPerUniverse.Clear();
+                        timestampOffset -= interval;
                     }
 
                     this.masterClock.Start();
 
                     while (!this.cts.IsCancellationRequested)
                     {
+                        this.lastFrameTimestampPerUniverse.TryGetValue(dmxFrame.UniverseId, out double lastFrameTimestamp);
+                        this.lastFrameTimestampPerUniverse[dmxFrame.UniverseId] = dmxFrame.TimestampMS;
+                        double interval = dmxFrame.TimestampMS - lastFrameTimestamp;
+                        if (interval > 0)
+                            this.intervalPerUniverse[dmxFrame.UniverseId] = dmxFrame.TimestampMS - lastFrameTimestamp;
+
                         // Calculate when the next stop is
                         this.nextStop = dmxFrame.TimestampMS - timestampOffset;
 
