@@ -30,8 +30,8 @@ namespace Animatroller.AdminTool
                 .Enrich.FromLogContext()
                 .MinimumLevel.Verbose()
                 .WriteTo.Debug(outputTemplate: DebugTemplate)
-                .WriteTo.RollingFile(
-                    pathFormat: System.IO.Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),
+                .WriteTo.File(
+                    path: System.IO.Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),
                     outputTemplate: FileTemplate);
 
             this.log = Log.Logger = logConfig.CreateLogger();

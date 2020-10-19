@@ -35,8 +35,8 @@ namespace Animatroller.SceneRunner
                 .MinimumLevel.Verbose()
                 .WriteTo.Console(outputTemplate: ConsoleTemplate)
                 .WriteTo.Debug(outputTemplate: DebugTemplate)
-                .WriteTo.RollingFile(
-                    pathFormat: Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),
+                .WriteTo.File(
+                    path: Path.Combine(AppContext.BaseDirectory, "Logs", "log-{Date}.txt"),
                     outputTemplate: FileTemplate);
 
             if (!string.IsNullOrEmpty(SceneRunner.Properties.Settings.Default.SeqServerURL))
