@@ -40,11 +40,17 @@ namespace Animatroller.Scenes
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         Expander.OscServer oscServer = new Expander.OscServer(8000, forcedClientPort: 8000, registerAutoHandlers: true);
         AudioPlayer audioSpider = new AudioPlayer();
+        AudioPlayer audioFrankGhost = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderInstance expanderBigEye = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.AcnStream acnOutput = new Expander.AcnStream();
         Expander.OscClient bigEyeSender = new Expander.OscClient("192.168.240.155", 8000); // rpi-ebc64d15
+
+        VirtualPixel1D3 pixelsFrankGhost = new VirtualPixel1D3(5);
+        DigitalOutput2 frankGhostAir = new DigitalOutput2();
+        Modules.HalloweenFrankGhost frankGhost;
+        Modules.HalloweenSpider spider;
 
         AnalogInput3 masterVolume = new AnalogInput3(persistState: true, defaultValue: 1.0);
 
@@ -82,6 +88,7 @@ namespace Animatroller.Scenes
         public Halloween2020(IEnumerable<string> args)
         {
             mainSchedule.AddRange("5:00 pm", "10:00 pm");
+            mainSchedule.AddRange("6:30 am", "9:00 am");
             //    DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Sunday);
             //mainSchedule.AddRange("5:00 pm", "9:00 pm",
             //    DayOfWeek.Friday, DayOfWeek.Saturday);
@@ -114,6 +121,22 @@ namespace Animatroller.Scenes
             masterVolume.ConnectTo(Exec.MasterVolume);
 
             pulsatingGargoyle.ConnectTo(bigSpiderEyes);
+
+            frankGhost = new Modules.HalloweenFrankGhost(
+                air: frankGhostAir,
+                light: pixelsFrankGhost,
+                audioPlayer: audioFrankGhost,
+                name: nameof(frankGhost));
+            stateMachine.WhenStates(States.Background).Controls(frankGhost.InputPower);
+
+            spider = new Modules.HalloweenSpider(
+                spiderEyes: bigSpiderEyes,
+                strobeLight: flashUnderSpider,
+                audioPlayer: audioSpider,
+                name: nameof(spider));
+            stateMachine.WhenStates(States.Background).Controls(spider.InputPower);
+
+            spiderMotion.Controls(spider.InputTrigger);
 
             buttonOverrideHours.Output.Subscribe(x =>
             {
@@ -176,15 +199,17 @@ namespace Animatroller.Scenes
                 })
                 .Execute(ins =>
                     {
-                        bigEyeSender.Send("/eyecontrol", 1);
+                        bigEyeSender.SendAndRepeat("/eyecontrol", 1);
 
                         ins.WaitUntilCancel();
                     })
                 .TearDown(ins =>
                     {
-                        bigEyeSender.Send("/eyecontrol", 0);
+                        bigEyeSender.SendAndRepeat("/eyecontrol", 0);
                     });
 
+            acnOutput.Connect(new Physical.EliminatorFlash192(flashUnderSpider, 110), SacnUniverseDMXLedmx);
+            acnOutput.Connect(new Physical.GenericDimmer(frankGhostAir, 10), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(bigSpiderEyes, 256), SacnUniverseDMXLedmx);
 
             expanderLedmx.DigitalInputs[4].Connect(spiderMotion);

@@ -49,10 +49,10 @@ namespace Animatroller.Framework.Expander
         public class Message
         {
             public string Address { get; private set; }
-            public Rug.Osc.OscMessage RawMessage { get; private set; }
+            public Haukcode.Osc.OscMessage RawMessage { get; private set; }
             public IEnumerable<object> Data { get; private set; }
 
-            public Message(Rug.Osc.OscMessage message)
+            public Message(Haukcode.Osc.OscMessage message)
             {
                 this.Address = message.Address;
                 this.RawMessage = message;
@@ -61,7 +61,7 @@ namespace Animatroller.Framework.Expander
         }
 
         protected ILogger log;
-        private Rug.Osc.OscReceiver receiver;
+        private Haukcode.Osc.OscReceiver receiver;
         private readonly Task receiverTask;
         private System.Threading.CancellationTokenSource cancelSource;
         private readonly Dictionary<string, Action<Message>> dispatch;
@@ -86,7 +86,7 @@ namespace Animatroller.Framework.Expander
             this.forcedClientPort = forcedClientPort;
             this.registerAutoHandlers = registerAutoHandlers;
             this.log = Log.Logger;
-            this.receiver = new Rug.Osc.OscReceiver(listenPort);
+            this.receiver = new Haukcode.Osc.OscReceiver(listenPort);
             this.cancelSource = new System.Threading.CancellationTokenSource();
             this.dispatch = new Dictionary<string, Action<Message>>();
             this.dispatchPartial = new Dictionary<string, Action<Message>>();
@@ -108,11 +108,13 @@ namespace Animatroller.Framework.Expander
                 {
                     while (!this.cancelSource.IsCancellationRequested)
                     {
-                        while (this.receiver.State != Rug.Osc.OscSocketState.Closed)
+                        while (this.receiver.State != Haukcode.Osc.OscSocketState.Closed)
                         {
-                            if (this.receiver.State == Rug.Osc.OscSocketState.Connected)
+                            if (this.receiver.State == Haukcode.Osc.OscSocketState.Connected)
                             {
                                 var packet = this.receiver.Receive();
+                                if (packet == null)
+                                    break;
 
                                 lock (this.clients)
                                 {
@@ -132,14 +134,14 @@ namespace Animatroller.Framework.Expander
                                     connectedClient.Touch();
                                 }
 
-                                if (packet is Rug.Osc.OscBundle)
+                                if (packet is Haukcode.Osc.OscBundle)
                                 {
-                                    var bundles = (Rug.Osc.OscBundle)packet;
+                                    var bundles = (Haukcode.Osc.OscBundle)packet;
                                     if (bundles.Any())
                                     {
                                         foreach (var bundle in bundles)
                                         {
-                                            var oscMessage = bundle as Rug.Osc.OscMessage;
+                                            var oscMessage = bundle as Haukcode.Osc.OscMessage;
                                             if (oscMessage != null)
                                             {
 #if DEBUG_OSC
@@ -153,9 +155,9 @@ namespace Animatroller.Framework.Expander
                                     }
                                 }
 
-                                if (packet is Rug.Osc.OscMessage)
+                                if (packet is Haukcode.Osc.OscMessage)
                                 {
-                                    var msg = (Rug.Osc.OscMessage)packet;
+                                    var msg = (Haukcode.Osc.OscMessage)packet;
 
 #if DEBUG_OSC
                                     if (msg.Address != "/ping")
@@ -215,7 +217,7 @@ namespace Animatroller.Framework.Expander
             }
         }
 
-        private void Invoke(Rug.Osc.OscMessage oscMessage)
+        private void Invoke(Haukcode.Osc.OscMessage oscMessage)
         {
             var message = new Message(oscMessage);
 

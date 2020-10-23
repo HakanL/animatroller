@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 using System.IO.Ports;
 using System.Net;
 using Serilog;
-using Rug.Osc;
+using Haukcode.Osc;
+using System.Threading;
 
 namespace Animatroller.Framework.Expander
 {
@@ -18,7 +19,9 @@ namespace Animatroller.Framework.Expander
         private OscSender sender;
         private System.Net.IPAddress destination;
         private int destinationPort;
-        private object lockObject = new object();
+        private readonly object lockObject = new object();
+        private readonly Timer repeatSender;
+        private readonly Dictionary<string, OscMessage> sendList = new Dictionary<string, OscMessage>();
 
         public OscClient(string destination, int destinationPort)
             : this(IPAddress.Parse(destination), destinationPort)
@@ -42,7 +45,31 @@ namespace Animatroller.Framework.Expander
 
             this.sender.Connect();
 
+            this.repeatSender = new Timer(RepeatSenderCallback, null, 5_000, 5_000);
+
             Executor.Current.Register(this);
+        }
+
+        private void RepeatSenderCallback(object state)
+        {
+            try
+            {
+                lock (this.lockObject)
+                {
+                    foreach (var kvp in this.sendList)
+                    {
+#if DEBUG_OSC
+                        this.log.Verbose("Sending repeat to {0}", kvp.Key);
+#endif
+
+                        this.sender.Send(kvp.Value);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                this.log.Error(ex, "Error in RepeatSenderCallback: {Message}", ex.Message);
+            }
         }
 
         public void Start()
@@ -51,15 +78,21 @@ namespace Animatroller.Framework.Expander
 
         public void Stop()
         {
+            this.repeatSender.Dispose();
             this.sender.Close();
+        }
+
+        public OscClient SendAndRepeat(string address, params object[] data)
+        {
+            return Send(address, true, true, data);
         }
 
         public OscClient Send(string address, params object[] data)
         {
-            return Send(address, true, data);
+            return Send(address, true, false, data);
         }
 
-        public OscClient Send(string address, bool convertDoubleToFloat, params object[] data)
+        public OscClient Send(string address, bool convertDoubleToFloat, bool repeat, params object[] data)
         {
             //            this.sender.WaitForAllMessagesToComplete();
 
@@ -71,9 +104,14 @@ namespace Animatroller.Framework.Expander
                 // Send empty message
                 var oscMessage = new OscMessage(address);
 
-                lock (lockObject)
+                lock (this.lockObject)
                 {
                     this.sender.Send(oscMessage);
+
+                    if (repeat)
+                        this.sendList[address] = oscMessage;
+                    else
+                        this.sendList.Remove(address);
                 }
             }
             else
@@ -94,9 +132,14 @@ namespace Animatroller.Framework.Expander
                 var oscMessage = new OscMessage(address, sendData);
                 var oscPacket = new OscBundle(0, oscMessage);
 
-                lock (lockObject)
+                lock (this.lockObject)
                 {
                     this.sender.Send(oscPacket);
+
+                    if (repeat)
+                        this.sendList[address] = oscMessage;
+                    else
+                        this.sendList.Remove(address);
                 }
             }
 
