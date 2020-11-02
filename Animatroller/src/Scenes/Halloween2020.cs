@@ -88,7 +88,7 @@ namespace Animatroller.Scenes
         public Halloween2020(IEnumerable<string> args)
         {
             mainSchedule.AddRange("5:00 pm", "10:00 pm");
-            mainSchedule.AddRange("6:30 am", "9:00 am");
+            mainSchedule.AddRange("6:30 am", "8:00 am");
             //    DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Sunday);
             //mainSchedule.AddRange("5:00 pm", "9:00 pm",
             //    DayOfWeek.Friday, DayOfWeek.Saturday);
@@ -208,6 +208,7 @@ namespace Animatroller.Scenes
                         bigEyeSender.SendAndRepeat("/eyecontrol", 0);
                     });
 
+            acnOutput.Connect(new Physical.Pixel1D(pixelsFrankGhost, 0, 5), SacnUniverseFrankGhost, 1);
             acnOutput.Connect(new Physical.EliminatorFlash192(flashUnderSpider, 110), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(frankGhostAir, 10), SacnUniverseDMXLedmx);
             acnOutput.Connect(new Physical.GenericDimmer(bigSpiderEyes, 256), SacnUniverseDMXLedmx);

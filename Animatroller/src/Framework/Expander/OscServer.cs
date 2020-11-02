@@ -113,7 +113,7 @@ namespace Animatroller.Framework.Expander
                             if (this.receiver.State == Haukcode.Osc.OscSocketState.Connected)
                             {
                                 var packet = this.receiver.Receive();
-                                if (packet == null)
+                                if (Haukcode.Osc.OscPacket.Equals(packet, null))
                                     break;
 
                                 lock (this.clients)

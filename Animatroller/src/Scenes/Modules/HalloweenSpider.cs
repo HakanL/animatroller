@@ -32,9 +32,12 @@ namespace Animatroller.Scenes.Modules
                 else
                 {
                     pulsating.Stop();
+
                     UnlockDevices();
                 }
             });
+
+            PowerOn.Loop = true;
 
             PowerOn.RunAction(ins =>
                 {
@@ -42,9 +45,9 @@ namespace Animatroller.Scenes.Modules
                     audioPlayer.PlayNewEffect("348 Spider Hiss.wav", 0, 1);
                     spiderEyes?.SetBrightness(1);
                     strobeLight.SetBrightnessStrobeSpeed(1, 1);
-                    ins.WaitFor(S(5.0));
+                    ins.WaitFor(S(4.0));
                     strobeLight.SetBrightnessStrobeSpeed(0, 0);
-                    ins.WaitFor(S(2.0));
+                    ins.WaitFor(S(1.0));
                 })
                 .TearDown(ins =>
                 {

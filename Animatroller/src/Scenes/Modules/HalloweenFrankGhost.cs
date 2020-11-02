@@ -10,7 +10,7 @@ namespace Animatroller.Scenes.Modules
 {
     public class HalloweenFrankGhost : TriggeredSubBaseModule
     {
-        Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 0.5, false);
+        Effect.Pulsating pulsatingLow = new Effect.Pulsating(S(4), 0.2, 1.0, false);
         Framework.Import.LevelsPlayback levelsPlayback = new Framework.Import.LevelsPlayback();
 
         public HalloweenFrankGhost(
@@ -30,7 +30,7 @@ namespace Animatroller.Scenes.Modules
                     LockDevices(air, light);
 
                     air.SetValue(true, token: this.controlToken);
-                    light.SetColor(Color.Red, token: this.controlToken);
+                    light.SetColor(Color.Purple, token: this.controlToken);
                     pulsatingLow.Start(token: this.controlToken);
                 }
                 else
