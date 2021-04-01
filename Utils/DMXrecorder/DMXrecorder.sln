@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DMXplayer", "DMXplayer\DMXp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConverterUI", "ConverterUI\ConverterUI.csproj", "{95B2BF6D-31AC-408E-AADA-3B25422843B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Processor", "Processor\Processor.csproj", "{AD2A54A9-8B3A-498A-9F30-C2A3F72BF6F6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Processor", "Processor\Processor.csproj", "{AD2A54A9-8B3A-498A-9F30-C2A3F72BF6F6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haukcode.sACN", "..\..\..\..\OpenSource\Haukcode-sACN\src\Haukcode.sACN\Haukcode.sACN.csproj", "{34B830B5-4624-4022-83FE-B6D1EB965902}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{AD2A54A9-8B3A-498A-9F30-C2A3F72BF6F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD2A54A9-8B3A-498A-9F30-C2A3F72BF6F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD2A54A9-8B3A-498A-9F30-C2A3F72BF6F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34B830B5-4624-4022-83FE-B6D1EB965902}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34B830B5-4624-4022-83FE-B6D1EB965902}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34B830B5-4624-4022-83FE-B6D1EB965902}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34B830B5-4624-4022-83FE-B6D1EB965902}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

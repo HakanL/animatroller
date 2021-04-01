@@ -63,16 +63,16 @@ namespace Animatroller.DMXrecorder
 
                 var packet = e.Packet as ArtNetDmxPacket;
 
-                UniverseData universeData;
-                if (!this.universes.TryGetValue(packet.Universe, out universeData))
+                if (!this.universes.ContainsKey(packet.Universe))
                     // Unknown universe
                     return;
 
                 var dmxData = RawDmxData.Create(
-                    millisecond: (ulong)this.timestamper.ElapsedMilliseconds,
+                    millisecond: this.timestamper.ElapsedMilliseconds,
                     sequence: packet.Sequence,
                     universe: packet.Universe,
-                    data: packet.DmxData);
+                    data: packet.DmxData,
+                    syncAddress: 0);
 
                 this.writer.AddData(dmxData);
             }

@@ -68,7 +68,12 @@ namespace Animatroller.DMXrecorder
                 this.clockOffset = receiveData.TimestampMS;
             double timestamp = receiveData.TimestampMS - this.clockOffset.Value;
 
-            var dmpLayer = receiveData.Packet.RootLayer?.FramingLayer?.DMPLayer;
+            var dataFramingLayer = receiveData.Packet.RootLayer?.FramingLayer as Haukcode.sACN.Model.DataFramingLayer;
+            if (dataFramingLayer == null || dataFramingLayer.DMPLayer == null)
+                return;
+
+            var dmpLayer = dataFramingLayer.DMPLayer;
+
             if (dmpLayer.Length < 1)
                 // Unknown/unsupported
                 return;
@@ -77,9 +82,7 @@ namespace Animatroller.DMXrecorder
                 // We only support start code 0
                 return;
 
-            var newDmxData = dmpLayer.Data;
-
-            if (!this.universes.TryGetValue(receiveData.Packet.UniverseId, out UniverseData universeData))
+            if (!this.universes.TryGetValue(dataFramingLayer.UniverseId, out UniverseData universeData))
                 // Unknown universe
                 return;
 
@@ -95,8 +98,9 @@ namespace Animatroller.DMXrecorder
             var dmxData = RawDmxData.Create(
                 millisecond: timestamp,
                 sequence: sequence,
-                universe: receiveData.Packet.UniverseId,
-                data: dmpLayer.Data);
+                universe: dataFramingLayer.UniverseId,
+                data: dmpLayer.Data,
+                syncAddress: dataFramingLayer.SyncAddress);
 
             this.writer.AddData(dmxData);
 

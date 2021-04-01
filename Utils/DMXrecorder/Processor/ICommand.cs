@@ -8,6 +8,6 @@ namespace Animatroller.Processor
 {
     public interface ICommand
     {
-        void Execute();
+        void Execute(TransformContext context);
     }
 }

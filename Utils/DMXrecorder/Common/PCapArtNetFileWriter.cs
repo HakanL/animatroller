@@ -55,9 +55,9 @@ namespace Animatroller.Common
             return new IPEndPoint(GetUniverseAddress(universe), 5568);
         }
 
-        public void Output(DmxData dmxData)
+        public void Output(DmxDataPacket dmxData)
         {
-            if (dmxData.DataType == DmxData.DataTypes.NoChange)
+            if (dmxData.DataType == DmxDataFrame.DataTypes.NoChange)
                 return;
 
             var packet = new ArtNetDmxPacket

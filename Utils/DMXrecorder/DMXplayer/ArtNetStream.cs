@@ -27,7 +27,7 @@ namespace Animatroller.DMXplayer
             Console.WriteLine("ArtNet binding to {0}", bindIpAddress);
         }
 
-        public void SendDmx(int universe, byte[] data, byte? priority = null)
+        public void SendDmx(int universe, byte[] data, byte? priority = null, int syncUniverse = 0)
         {
             this.usedUniverses.TryGetValue(universe, out byte seq);
             seq++;
@@ -47,6 +47,12 @@ namespace Animatroller.DMXplayer
         public void Dispose()
         {
             this.artNetClient.Dispose();
+        }
+
+        public void SendSync(int syncUniverse)
+        {
+            // Send ArtNetSync
+            throw new NotImplementedException();
         }
 
         public IList<int> UsedUniverses => this.usedUniverses.Keys.ToList();

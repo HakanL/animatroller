@@ -16,18 +16,21 @@ namespace Animatroller.DMXrecorder
 
         public int Universe { get; set; }
 
+        public int SyncAddress { get; set; }
+
         private RawDmxData()
         {
         }
 
-        public static RawDmxData Create(double millisecond, long sequence, int universe, byte[] data)
+        public static RawDmxData Create(double millisecond, long sequence, int universe, byte[] data, int syncAddress)
         {
             return new RawDmxData
             {
                 Data = data,
                 Sequence = sequence,
                 TimestampMS = millisecond,
-                Universe = universe
+                Universe = universe,
+                SyncAddress = syncAddress
             };
         }
     }

@@ -10,7 +10,7 @@ namespace Animatroller.PostProcessor
         {
             TrimBlack,
             FindLoop,
-            TrimEnd,
+            Trim,
             FileConvert
         }
 
@@ -47,9 +47,17 @@ namespace Animatroller.PostProcessor
         [ArgDefaultValue(FileFormats.Binary)]
         public FileFormats InputFileFormat { get; set; }
 
-        [ArgShortcut("tp")]
-        [ArgDescription("Trim position")]
-        public long TrimPos { get; set; }
+        [ArgShortcut("ts")]
+        [ArgDescription("Trim start position")]
+        public long? TrimStart { get; set; }
+
+        [ArgShortcut("te")]
+        [ArgDescription("Trim end position")]
+        public long? TrimEnd { get; set; }
+
+        [ArgShortcut("tc")]
+        [ArgDescription("Trim count")]
+        public long? TrimCount { get; set; }
 
         [ArgShortcut("of")]
         [ArgDescription("Output File format")]
@@ -59,5 +67,9 @@ namespace Animatroller.PostProcessor
         [ArgShortcut("m")]
         [ArgDescription("Universe Mapping (input=output,input2=output2 - example 1=10,2=11,6=20)")]
         public string UniverseMapping { get; set; }
+
+        [ArgShortcut("e")]
+        [ArgDescription("Enhancers, example -e BrightnessFixer,TimestampFixer")]
+        public string Enhancers { get; set; }
     }
 }

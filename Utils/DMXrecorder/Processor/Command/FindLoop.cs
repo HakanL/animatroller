@@ -17,7 +17,7 @@ namespace Animatroller.Processor.Command
             this.transformer = transformer;
         }
 
-        public void Execute()
+        public void Execute(TransformContext context)
         {
             // Find all universes and the first data in each
             var firstData = new Dictionary<int, byte[]>();
@@ -32,18 +32,21 @@ namespace Animatroller.Processor.Command
                 long pos = currentPos++;
                 var data = this.fileReader.ReadFrame();
 
-                if (data.DataType != Common.DmxData.DataTypes.FullFrame)
+                if (data.DataType != Common.DmxDataFrame.DataTypes.FullFrame)
                     continue;
 
-                this.transformer.Transform(data.UniverseId, data.Data, (universeId, dmxData, sequence) =>
+                this.transformer.Transform(context, data, packet =>
                 {
-                    if (!firstData.ContainsKey(universeId))
+                    if (data.DataType != Common.BaseDmxData.DataTypes.FullFrame)
+                        return;
+ 
+                    if (!firstData.ContainsKey(packet.UniverseId.Value))
                     {
-                        firstData.Add(universeId, dmxData);
+                        firstData.Add(packet.UniverseId.Value, packet.Data);
                     }
                     else
                     {
-                        currentData[universeId] = dmxData;
+                        currentData[packet.UniverseId.Value] = packet.Data;
 
                         // Compare
                         int? diff = null;

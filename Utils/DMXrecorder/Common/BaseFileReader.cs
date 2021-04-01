@@ -6,6 +6,7 @@ namespace Animatroller.Common
 {
     public abstract class BaseFileReader : IFileReader, IDisposable
     {
+        protected int framesRead = 0;
         protected FileStream fileStream;
 
         public BaseFileReader(string fileName)
@@ -40,6 +41,8 @@ namespace Animatroller.Common
             get { return this.fileStream.Length; }
         }
 
-        public abstract DmxData ReadFrame();
+        public int FramesRead => this.framesRead;
+
+        public abstract DmxDataPacket ReadFrame();
     }
 }

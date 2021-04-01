@@ -11,20 +11,23 @@ namespace Animatroller.DMXplayer
 {
     public class DmxPlayback : IDisposable
     {
-        private Common.IFileReader fileReader;
-        private Stopwatch masterClock;
-        private double nextStop;
+        private readonly Common.IFileReader fileReader;
         private CancellationTokenSource cts;
-        private IOutput output;
         private Task runnerTask;
         private Dictionary<int, HashSet<int>> universeMapping;
-        private Dictionary<int, double> lastFrameTimestampPerUniverse = new Dictionary<int, double>();
-        private Dictionary<int, double> intervalPerUniverse = new Dictionary<int, double>();
+        private readonly Dictionary<int, double> lastFrameTimestampPerUniverse = new Dictionary<int, double>();
+        private readonly Dictionary<int, double> intervalPerUniverse = new Dictionary<int, double>();
+        private readonly Scheduler scheduler;
 
-        public DmxPlayback(Common.IFileReader fileReader, IOutput output)
+        public DmxPlayback(Common.IFileReader fileReader, IOutput output, int periodMS, int sendSyncUniverseId)
         {
             this.fileReader = fileReader;
-            this.output = output;
+            this.scheduler = new Scheduler(output, periodMS, sendSyncUniverseId: sendSyncUniverseId);
+
+            this.scheduler.ProgressFrames.Subscribe(info =>
+            {
+                Console.WriteLine($"{info.TimestampMS:N2} ms - played {info.PlayedFrames} frames");
+            });
         }
 
         public void WaitForCompletion()
@@ -55,107 +58,119 @@ namespace Animatroller.DMXplayer
 
         public void Run(int loop)
         {
-            this.masterClock = new Stopwatch();
             double timestampOffset = 0;
 
             this.cts = new CancellationTokenSource();
 
-            int loopCount = 0;
+            var waitHandles = new WaitHandle[] { this.cts.Token.WaitHandle, this.scheduler.FillBuffer };
+
+            int loopCount = 1;
+            Scheduler.SyncModes syncMode = Scheduler.SyncModes.Timestamp;
 
             this.runnerTask = Task.Run(() =>
             {
-                Common.DmxData dmxFrame = null;
+                Common.DmxDataFrame dmxFrame = null;
 
                 do
                 {
-                    int frames = 0;
-                    var watch = Stopwatch.StartNew();
-
                     // See if we should restart
                     if (!this.fileReader.DataAvailable)
                     {
                         // Restart
                         this.fileReader.Rewind();
                         dmxFrame = null;
-                        this.masterClock.Reset();
                     }
 
                     if (dmxFrame == null)
                     {
-                        dmxFrame = this.fileReader.ReadFrame();
-                        timestampOffset = dmxFrame.TimestampMS;
-                        this.intervalPerUniverse.TryGetValue(dmxFrame.UniverseId, out double interval);
-                        this.lastFrameTimestampPerUniverse.Clear();
-                        timestampOffset -= interval;
-                    }
+                        Console.WriteLine($"Reading first frame, iteration {loopCount}. Total {this.fileReader.FramesRead} frames read");
 
-                    this.masterClock.Start();
+                        dmxFrame = this.fileReader.ReadFrame();
+
+                        if (dmxFrame.UniverseId.HasValue)
+                        {
+                            this.lastFrameTimestampPerUniverse.TryGetValue(dmxFrame.UniverseId.Value, out double lastFrameTimestamp);
+
+                            timestampOffset += lastFrameTimestamp;
+
+                            this.intervalPerUniverse.TryGetValue(dmxFrame.UniverseId.Value, out double interval);
+                            this.lastFrameTimestampPerUniverse.Clear();
+                            timestampOffset += interval;
+                        }
+                    }
 
                     while (!this.cts.IsCancellationRequested)
                     {
-                        this.lastFrameTimestampPerUniverse.TryGetValue(dmxFrame.UniverseId, out double lastFrameTimestamp);
-                        this.lastFrameTimestampPerUniverse[dmxFrame.UniverseId] = dmxFrame.TimestampMS;
-                        double interval = dmxFrame.TimestampMS - lastFrameTimestamp;
-                        if (interval > 0)
-                            this.intervalPerUniverse[dmxFrame.UniverseId] = dmxFrame.TimestampMS - lastFrameTimestamp;
-
-                        // Calculate when the next stop is
-                        this.nextStop = dmxFrame.TimestampMS - timestampOffset;
-
-                        double msLeft = this.nextStop - this.masterClock.Elapsed.TotalMilliseconds;
-                        if (msLeft <= 0)
+                        if (dmxFrame.DataType == Common.DmxDataFrame.DataTypes.Sync)
                         {
-                            // Output
-                            if (dmxFrame.DataType == Common.DmxData.DataTypes.FullFrame && dmxFrame.Data != null)
+                            syncMode = Scheduler.SyncModes.Manual;
+                            this.scheduler.SendCurrentData(false);
+                        }
+                        else
+                        {
+                            this.lastFrameTimestampPerUniverse.TryGetValue(dmxFrame.UniverseId.Value, out double lastFrameTimestamp);
+                            this.lastFrameTimestampPerUniverse[dmxFrame.UniverseId.Value] = dmxFrame.TimestampMS;
+                            double interval = dmxFrame.TimestampMS - lastFrameTimestamp;
+                            if (interval > 0)
                             {
-                                if (this.universeMapping != null)
-                                {
-                                    if (this.universeMapping.TryGetValue(dmxFrame.UniverseId, out var outputUniverses))
-                                    {
-                                        foreach (int outputUniverse in outputUniverses)
-                                        {
-                                            this.output.SendDmx(outputUniverse, dmxFrame.Data);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    // No mapping
-                                    this.output.SendDmx(dmxFrame.UniverseId, dmxFrame.Data);
-                                }
+                                this.intervalPerUniverse[dmxFrame.UniverseId.Value] = interval;
+                            }
+                            else
+                            {
+                                // Default
+                                this.intervalPerUniverse[dmxFrame.UniverseId.Value] = this.scheduler.PeriodMS;
                             }
 
-                            frames++;
-
-                            if (frames % 100 == 0)
-                                Console.WriteLine("{0} Played back {1} frames", this.masterClock.Elapsed.ToString(@"hh\:mm\:ss\.fff"), frames);
-
-                            if (!this.fileReader.DataAvailable)
-                                break;
-
-                            // Read next frame
-                            dmxFrame = this.fileReader.ReadFrame();
-                            continue;
+                            if (this.universeMapping != null)
+                            {
+                                if (this.universeMapping.TryGetValue(dmxFrame.UniverseId.Value, out var outputUniverses))
+                                {
+                                    foreach (int outputUniverse in outputUniverses)
+                                    {
+                                        this.scheduler.AddData(dmxFrame.TimestampMS + timestampOffset, outputUniverse, dmxFrame.Data, syncMode);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                // No mapping
+                                this.scheduler.AddData(dmxFrame.TimestampMS + timestampOffset, dmxFrame.UniverseId.Value, dmxFrame.Data, syncMode);
+                            }
                         }
-                        else if (msLeft < 16)
+
+                        WaitHandle.WaitAny(waitHandles);
+
+                        if (!this.scheduler.IsClockRunning && this.scheduler.IsQueueFilled)
                         {
-                            SpinWait.SpinUntil(() => this.masterClock.ElapsedMilliseconds >= (long)this.nextStop);
-                            continue;
+                            // Start
+                            this.scheduler.StartOutput();
                         }
 
-                        Thread.Sleep(1);
+                        if (!this.fileReader.DataAvailable)
+                            // End of file
+                            break;
+
+                        // Read next frame
+                        dmxFrame = this.fileReader.ReadFrame();
+
+                        if (dmxFrame == null)
+                            // End of file
+                            break;
                     }
 
                     loopCount++;
-                    watch.Stop();
-
-                    Console.WriteLine("Playback complete {0:N1} s, {1} frames, iteration {2}", watch.Elapsed.TotalSeconds, frames, loopCount);
 
                 } while (!this.cts.IsCancellationRequested && (loop < 0 || loopCount <= loop));
 
-                this.masterClock.Stop();
+                this.scheduler.EndOfData();
 
-                Console.WriteLine("Playback completed");
+                // If we have an extremely short sequence then we need to start the clock here
+                if (!this.scheduler.IsClockRunning)
+                    this.scheduler.StartOutput();
+
+                WaitHandle.WaitAny(new WaitHandle[] { this.cts.Token.WaitHandle, this.scheduler.QueueEmpty });
+
+                Console.WriteLine($"Playback completed, {this.scheduler.PlayedFrames} frames played, {this.fileReader.FramesRead} frames read");
             });
         }
 
@@ -164,6 +179,8 @@ namespace Animatroller.DMXplayer
             this.cts.Cancel();
 
             this.runnerTask.Wait();
+
+            this.scheduler.Dispose();
         }
     }
 }

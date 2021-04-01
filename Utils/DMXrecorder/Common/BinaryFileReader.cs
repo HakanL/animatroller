@@ -23,22 +23,22 @@ namespace Animatroller.Common
             base.Dispose();
         }
 
-        public override DmxData ReadFrame()
+        public override DmxDataPacket ReadFrame()
         {
-            var target = new DmxData();
+            var target = new DmxDataPacket();
             byte start = this.binRead.ReadByte();
             target.TimestampMS = (uint)this.binRead.ReadInt32();
             target.UniverseId = this.binRead.ReadUInt16();
             switch (start)
             {
                 case 1:
-                    target.DataType = DmxData.DataTypes.FullFrame;
-                    ushort len = (ushort)this.binRead.ReadUInt16();
+                    target.DataType = DmxDataFrame.DataTypes.FullFrame;
+                    ushort len = this.binRead.ReadUInt16();
                     target.Data = this.binRead.ReadBytes(len);
                     break;
 
                 case 2:
-                    target.DataType = DmxData.DataTypes.NoChange;
+                    target.DataType = DmxDataFrame.DataTypes.NoChange;
                     break;
 
                 default:
@@ -48,6 +48,8 @@ namespace Animatroller.Common
 
             if (end != 4)
                 throw new ArgumentException("Invalid data");
+
+            this.framesRead++;
 
             return target;
         }

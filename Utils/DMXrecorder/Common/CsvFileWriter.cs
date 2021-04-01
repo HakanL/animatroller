@@ -20,15 +20,15 @@ namespace Animatroller.Common
             this.streamWriter.Dispose();
         }
 
-        public override void Output(DmxData dmxData)
+        public override void Output(DmxDataPacket dmxData)
         {
             switch (dmxData.DataType)
             {
-                case DmxData.DataTypes.NoChange:
+                case DmxDataFrame.DataTypes.NoChange:
                     this.streamWriter.WriteLine("{0},{1},{2},NoChange", dmxData.Sequence, dmxData.TimestampMS, dmxData.UniverseId);
                     break;
 
-                case DmxData.DataTypes.FullFrame:
+                case DmxDataFrame.DataTypes.FullFrame:
                     this.streamWriter.WriteLine("{0},{1},{2},Full,{3}",
                         dmxData.Sequence, dmxData.TimestampMS, dmxData.UniverseId, string.Join(",", dmxData.Data.Select(x => x.ToString())));
                     break;

@@ -25,13 +25,13 @@ namespace Animatroller.Common
 
         public void WritePacket(byte[] destinationMac, IPEndPoint destinationEP, byte[] payload, double timestampMS)
         {
-            ulong secs = (ulong)(timestampMS / 1000);
-            ulong usecs = (ulong)((timestampMS * 1000) - (secs * 1000000));
+            uint secs = (uint)(timestampMS / 1000);
+            uint usecs = (uint)(Math.Round(timestampMS * 1000, 3) - (secs * 1000000));
 
             WritePacket(destinationMac, destinationEP, payload, secs, usecs);
         }
 
-        public void WritePacket(byte[] destinationMac, IPEndPoint destinationEP, byte[] payload, ulong seconds, ulong microSeconds)
+        public void WritePacket(byte[] destinationMac, IPEndPoint destinationEP, byte[] payload, uint seconds, uint microSeconds)
         {
             var packet = new UdpPacket(payload.Length)
             {

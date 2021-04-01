@@ -75,7 +75,21 @@ namespace Animatroller.DMXplayer
                         throw new ArgumentException("Unsupported file format");
                 }
 
-                using (var dmxPlayback = new DmxPlayback(fileReader, output))
+                var analyzer = new Common.Analyzer(fileReader);
+
+                analyzer.Analyze();
+
+                // Rewind so we'll start from the beginning
+                fileReader.Rewind();
+
+                int frequencyHertz = 25;
+                int sendSyncUniverseId;
+                if (analyzer.SyncFrameDetected)
+                    sendSyncUniverseId = 1;
+                else
+                    sendSyncUniverseId = 0;
+
+                using (var dmxPlayback = new DmxPlayback(fileReader, output, 1000 / frequencyHertz, sendSyncUniverseId))
                 {
                     if (!string.IsNullOrEmpty(arguments.UniverseMapping))
                     {

@@ -10,6 +10,8 @@ namespace Animatroller.Common
 
         void Rewind();
 
-        DmxData ReadFrame();
+        DmxDataPacket ReadFrame();
+
+        int FramesRead { get; }
     }
 }

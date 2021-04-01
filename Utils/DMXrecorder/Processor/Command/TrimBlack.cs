@@ -19,7 +19,7 @@ namespace Animatroller.Processor.Command
             this.transformer = transformer;
         }
 
-        public void Execute()
+        public void Execute(TransformContext context)
         {
             double? timestampOffset = null;
 
@@ -39,12 +39,12 @@ namespace Animatroller.Processor.Command
                 var data = this.fileReader.ReadFrame();
                 inputFrameCount++;
 
-                if (data.DataType == Common.DmxData.DataTypes.FullFrame)
+                if (data.DataType == Common.DmxDataFrame.DataTypes.FullFrame)
                 {
-                    this.transformer.Transform(data.UniverseId, data.Data, (universeId, dmxData, sequence) =>
+                    this.transformer.Transform(context, data, packet =>
                     {
                         positions.Add(pos);
-                        if (dmxData.All(x => x == 0))
+                        if (packet.Data.All(x => x == 0))
                         {
                             blackPositions.Add(pos);
                         }

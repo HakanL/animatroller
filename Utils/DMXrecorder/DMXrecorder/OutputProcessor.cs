@@ -90,19 +90,22 @@ namespace Animatroller.DMXrecorder
 
                         if (modified)
                         {
-                            this.dataWriter.Output(Common.DmxData.CreateFullFrame(
+                            this.dataWriter.Output(Common.DmxDataPacket.CreateFullFrame(
                                 millisecond: dmxData.TimestampMS,
                                 sequence: dmxData.Sequence,
                                 universe: dmxData.Universe,
-                                data: dmxData.Data));
+                                data: dmxData.Data,
+                                syncAddress: dmxData.SyncAddress));
                         }
                         else
                         {
                             if (previousData.Sequence != dmxData.Sequence)
-                                this.dataWriter.Output(Common.DmxData.CreateNoChange(
+                            {
+                                this.dataWriter.Output(Common.DmxDataPacket.CreateNoChange(
                                     millisecond: dmxData.TimestampMS,
                                     sequence: dmxData.Sequence,
                                     universe: dmxData.Universe));
+                            }
                         }
 
                         previousData.Sequence = dmxData.Sequence;

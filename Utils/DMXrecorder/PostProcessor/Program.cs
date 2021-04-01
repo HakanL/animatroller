@@ -41,6 +41,13 @@ namespace Animatroller.PostProcessor
                         throw new ArgumentException("Unhandled input file format " + arguments.InputFileFormat);
                 }
 
+                var analyzer = new Common.Analyzer(fileReader);
+
+                analyzer.Analyze();
+
+                // Rewind so we'll start from the beginning
+                fileReader.Rewind();
+
                 if (!string.IsNullOrEmpty(arguments.OutputFile))
                 {
                     switch (arguments.OutputFileFormat)
@@ -62,11 +69,27 @@ namespace Animatroller.PostProcessor
                     }
                 }
                 else
+                {
                     fileWriter = null;
+                }
 
-                var transforms = new List<ITransform>();
+                var transforms = new List<IBaseTransform>();
 
                 transforms.Add(new UniverseReporter());
+
+                var enhancers = new HashSet<string>((arguments.Enhancers ?? string.Empty).Split(',').Select(x => x.Trim().ToLower()).Where(x => !string.IsNullOrEmpty(x)));
+
+                if (analyzer.SyncFrameDetected)
+                {
+                    if (enhancers.Contains("timestampfixer"))
+                        transforms.Add(new TimestampFixerWithSync(analyzer.AdjustedTiming, adjustTolerancePercent: 80));
+                }
+
+                // Test
+#if DEBUG
+                if (enhancers.Contains("brightnessfixer"))
+                    transforms.Add(new BrightnessFixer());
+#endif
 
                 if (!string.IsNullOrEmpty(arguments.UniverseMapping))
                 {
@@ -125,11 +148,11 @@ namespace Animatroller.PostProcessor
                         command = new Processor.Command.FindLoop(fileReader, transformer);
                         break;
 
-                    case Arguments.Commands.TrimEnd:
+                    case Arguments.Commands.Trim:
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Processor.Command.TrimEnd(fileReader, fileWriter, arguments.TrimPos, transformer);
+                        command = new Processor.Command.Trim(fileReader, fileWriter, arguments.TrimStart, arguments.TrimEnd, arguments.TrimCount, transformer);
                         break;
 
                     case Arguments.Commands.FileConvert:
@@ -143,7 +166,12 @@ namespace Animatroller.PostProcessor
                         throw new ArgumentOutOfRangeException("Unknown command");
                 }
 
-                command.Execute();
+                var context = new TransformContext
+                {
+                    FirstSyncTimestampMS = analyzer.FirstSyncTimestampMS,
+                    HasSyncFrames = analyzer.SyncFrameDetected
+                };
+                command.Execute(context);
 
                 (fileReader as IDisposable)?.Dispose();
                 (fileWriter as IDisposable)?.Dispose();

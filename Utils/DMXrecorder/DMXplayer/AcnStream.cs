@@ -9,7 +9,6 @@ namespace Animatroller.DMXplayer
 {
     public class AcnStream : IOutput
     {
-        public readonly Guid dmxPlayerAcnId = new Guid("{D599A13F-8117-4A6E-AE1E-753B7D4DB347}");
         private readonly SACNClient acnClient;
         private readonly byte priority;
         private readonly HashSet<int> usedUniverses = new HashSet<int>();
@@ -24,8 +23,8 @@ namespace Animatroller.DMXplayer
             this.priority = priority;
 
             this.acnClient = new SACNClient(
-                senderId: this.dmxPlayerAcnId,
-                senderName: "DmxPlayer",
+                senderId: Const.AcnSourceId,
+                senderName: Const.AcnSourceName,
                 localAddress: bindIpAddress);
 
             Console.WriteLine("ACN binding to {0}", bindIpAddress);
@@ -36,13 +35,14 @@ namespace Animatroller.DMXplayer
         {
         }
 
-        public void SendDmx(int universe, byte[] data, byte? priority = null)
+        public void SendDmx(int universe, byte[] data, byte? priority = null, int syncUniverse = 0)
         {
             this.acnClient.SendMulticast(
                 universeId: (ushort)universe,
                 startCode: 0,
                 data: data,
-                priority: priority ?? this.priority);
+                priority: priority ?? this.priority,
+                syncAddress: (ushort)syncUniverse);
 
             this.usedUniverses.Add(universe);
         }
@@ -50,6 +50,11 @@ namespace Animatroller.DMXplayer
         public void Dispose()
         {
             this.acnClient.Dispose();
+        }
+
+        public void SendSync(int syncUniverse)
+        {
+            this.acnClient.SendMulticastSync((ushort)syncUniverse);
         }
 
         public IList<int> UsedUniverses => this.usedUniverses.ToList();

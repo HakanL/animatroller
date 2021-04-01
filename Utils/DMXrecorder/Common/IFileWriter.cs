@@ -8,7 +8,7 @@ namespace Animatroller.Common
     {
         void Header(int universeId);
 
-        void Output(DmxData dmxData);
+        void Output(DmxDataPacket dmxData);
 
         void Footer(int universeId);
     }

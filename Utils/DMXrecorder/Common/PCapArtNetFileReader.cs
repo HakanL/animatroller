@@ -15,6 +15,7 @@ namespace Animatroller.Common
 {
     public class PCapArtNetFileReader : PCapFileReader, IFileReader
     {
+        private double? timestampOffsetMs = null;
         private long sequence;
 
         public PCapArtNetFileReader(string fileName)
@@ -22,7 +23,7 @@ namespace Animatroller.Common
         {
         }
 
-        public DmxData ReadFrame()
+        public DmxDataPacket ReadFrame()
         {
             var data = ReadPacket();
 
@@ -33,15 +34,20 @@ namespace Animatroller.Common
             };
             var packet = ArtNetPacket.Create(artNetData, null);
 
+            double timestampMs = data.Seconds * 1000 + (data.Microseconds / 1000.0);
+            if (!this.timestampOffsetMs.HasValue)
+                timestampOffsetMs = timestampMs;
+
             if (packet is ArtNetDmxPacket dmxPacket)
             {
-                return new DmxData
+                return new DmxDataPacket
                 {
-                    DataType = DmxData.DataTypes.FullFrame,
+                    DataType = DmxDataFrame.DataTypes.FullFrame,
                     Sequence = ++this.sequence,
-                    TimestampMS = data.Seconds * 1000 + (data.Microseconds / 1000.0),
+                    TimestampMS = timestampMs - this.timestampOffsetMs.Value,
                     UniverseId = dmxPacket.Universe + 1,
-                    Data = dmxPacket.DmxData
+                    Data = dmxPacket.DmxData,
+                    SyncAddress = 0
                 };
             }
             else

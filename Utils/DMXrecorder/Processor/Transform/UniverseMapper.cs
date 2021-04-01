@@ -5,7 +5,7 @@ using Animatroller.Common;
 
 namespace Animatroller.Processor.Transform
 {
-    public class UniverseMapper : ITransform
+    public class UniverseMapper : ITransformData
     {
         private Dictionary<int, HashSet<int>> universeMapping;
 
@@ -25,24 +25,24 @@ namespace Animatroller.Processor.Transform
             outputList.Add(outputUniverse);
         }
 
-        public IList<(int UniverseId, byte[] DmxData)> Transform(int universeId, byte[] dmxData)
+        public IList<Common.BaseDmxData> TransformData(Common.BaseDmxData dmxData)
         {
-            var output = new List<(int UniverseId, byte[] DmxData)>();
+            var output = new List<Common.BaseDmxData>();
 
             if (this.universeMapping != null)
             {
-                if (this.universeMapping.TryGetValue(universeId, out var outputUniverses))
+                if (dmxData.UniverseId.HasValue && this.universeMapping.TryGetValue(dmxData.UniverseId.Value, out var outputUniverses))
                 {
                     foreach (int outputUniverse in outputUniverses)
                     {
-                        output.Add((outputUniverse, dmxData));
+                        output.Add(BaseDmxData.CreateFullFrame(outputUniverse, dmxData.SyncAddress, dmxData.Data));
                     }
                 }
             }
             else
             {
                 // No mapping
-                output.Add((universeId, dmxData));
+                output.Add(dmxData);
             }
 
             return output;

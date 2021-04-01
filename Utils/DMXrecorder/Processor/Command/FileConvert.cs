@@ -21,39 +21,65 @@ namespace Animatroller.Processor.Command
             this.transformer = transformer;
         }
 
-        public void Execute()
+        public void Execute(TransformContext context)
         {
             double? timestampOffset = null;
+            bool firstFrame = true;
+            var readaheadQueue = new List<Common.DmxDataPacket>();
 
             while (this.fileReader.DataAvailable)
             {
                 var data = this.fileReader.ReadFrame();
 
-                if (data.DataType == Common.DmxData.DataTypes.Nop)
+                if (data.DataType == Common.DmxDataFrame.DataTypes.Nop)
                     // Skip/null data
                     continue;
 
                 if (!timestampOffset.HasValue)
                     timestampOffset = data.TimestampMS;
 
-                this.transformer.Transform(data.UniverseId, data.Data, (universeId, dmxData, sequence) =>
+                // Apply offset
+                data.TimestampMS -= timestampOffset.Value;
+
+                readaheadQueue.Add(data);
+
+                if (firstFrame && context.HasSyncFrames)
                 {
-                    if (!this.universes.Contains(universeId))
+                    // We need to add to the readahead queue to find the next sync
+                    if (data.DataType == Common.BaseDmxData.DataTypes.Sync)
                     {
-                        // Write header
-                        this.fileWriter.Header(universeId);
-                        this.universes.Add(universeId);
+                        context.FirstSyncTimestampMS = data.TimestampMS;
+
+                        // Simulate the output so we can count the frames
+                        context.FullFramesBeforeFirstSync = 0;
+                        foreach (var item in readaheadQueue)
+                        {
+                            if (item.DataType == Common.BaseDmxData.DataTypes.FullFrame)
+                                this.transformer.Simulate(context, item, packet => context.FullFramesBeforeFirstSync++);
+                        }
+
+                        firstFrame = false;
+                    }
+                }
+                else
+                {
+                    foreach (var outputData in readaheadQueue)
+                    {
+                        this.transformer.Transform(context, outputData, packet =>
+                            {
+                                if (packet.UniverseId.HasValue && !this.universes.Contains(packet.UniverseId.Value))
+                                {
+                                    // Write header
+                                    this.fileWriter.Header(packet.UniverseId.Value);
+                                    this.universes.Add(packet.UniverseId.Value);
+                                }
+
+                                this.fileWriter.Output(packet);
+                            });
                     }
 
-                    this.fileWriter.Output(new Common.DmxData
-                    {
-                        Data = dmxData,
-                        DataType = data.DataType,
-                        Sequence = sequence,
-                        TimestampMS = data.TimestampMS - timestampOffset.Value,
-                        UniverseId = universeId
-                    });
-                });
+                    readaheadQueue.Clear();
+                }
             }
 
             // Write footers

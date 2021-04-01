@@ -58,20 +58,39 @@ namespace Animatroller.Common
             return new IPEndPoint(GetUniverseAddress(universe), 5568);
         }
 
-        public void Output(DmxData dmxData)
+        public void Output(DmxDataPacket dmxData)
         {
-            if (dmxData.DataType == DmxData.DataTypes.NoChange)
-                return;
+            SACNDataPacket packet;
+            IPEndPoint destinationEP;
 
-            var packet = new SACNPacket(new RootLayer(
-                uuid: AcnId,
-                sourceName: AcnSourceName,
-                universeID: (ushort)dmxData.UniverseId,
-                sequenceID: (byte)dmxData.Sequence,
-                data: dmxData.Data,
-                priority: this.priority));
+            switch (dmxData.DataType)
+            {
+                case DmxDataFrame.DataTypes.FullFrame:
+                    packet = new SACNDataPacket(RootLayer.CreateRootLayerData(
+                        uuid: AcnId,
+                        sourceName: AcnSourceName,
+                        universeID: (ushort)dmxData.UniverseId,
+                        sequenceID: (byte)dmxData.Sequence,
+                        data: dmxData.Data,
+                        priority: this.priority,
+                        syncAddress: (ushort)dmxData.SyncAddress));
 
-            var destinationEP = GetUniverseEndPoint(dmxData.UniverseId);
+                    destinationEP = GetUniverseEndPoint(dmxData.UniverseId.Value);
+                    break;
+
+                case DmxDataFrame.DataTypes.Sync:
+                    packet = new SACNDataPacket(RootLayer.CreateRootLayerSync(
+                        uuid: AcnId,
+                        sequenceID: (byte)dmxData.Sequence,
+                        syncAddress: (ushort)dmxData.SyncAddress));
+
+                    destinationEP = GetUniverseEndPoint(dmxData.SyncAddress);
+                    break;
+
+                default:
+                    return;
+            }
+
             byte[] destinationMac = GetMacFromMulticastIP(destinationEP.Address);
 
             WritePacket(destinationMac, destinationEP, packet.ToArray(), dmxData.TimestampMS);

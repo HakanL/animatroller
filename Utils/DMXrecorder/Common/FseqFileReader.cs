@@ -139,7 +139,7 @@ namespace Animatroller.Common
             this.currentFrame++;
         }
 
-        public override DmxData ReadFrame()
+        public override DmxDataPacket ReadFrame()
         {
             if (this.currentNetwork == 0)
             {
@@ -168,25 +168,27 @@ namespace Animatroller.Common
                 break;
             }
 
-            var dmxData = new DmxData
+            var dmxData = new DmxDataPacket
             {
                 Data = new byte[network.MaxChannels],
-                TimestampMS = (ulong)(this.currentFrame * this.header.StepTimeMS),
+                TimestampMS = this.currentFrame * this.header.StepTimeMS,
                 Sequence = this.currentFrame
             };
 
             Buffer.BlockCopy(this.frameBuffer, this.currentReadPosition, dmxData.Data, 0, dmxData.Data.Length);
             this.currentReadPosition += dmxData.Data.Length;
 
+            this.framesRead++;
+
             switch (network.NetworkType)
             {
                 case "E131":
-                    dmxData.DataType = DmxData.DataTypes.FullFrame;
+                    dmxData.DataType = DmxDataFrame.DataTypes.FullFrame;
                     dmxData.UniverseId = int.Parse(network.BaudRate);
                     break;
 
                 default:
-                    dmxData.DataType = DmxData.DataTypes.Nop;
+                    dmxData.DataType = DmxDataFrame.DataTypes.Nop;
                     break;
             }
 

@@ -7,43 +7,141 @@ namespace Animatroller.Processor
 {
     public class Transformer : ITransformer
     {
-        private readonly IList<ITransform> transforms;
+        private readonly IList<IBaseTransform> transforms;
         private readonly Dictionary<int, long> sequencePerUniverse = new Dictionary<int, long>();
+        private readonly Dictionary<int, long> sequencePerSyncAddress = new Dictionary<int, long>();
 
-        public Transformer(IList<ITransform> transforms)
+        public Transformer(IList<IBaseTransform> transforms)
         {
-            this.transforms = transforms ?? new List<ITransform>();
+            this.transforms = transforms ?? new List<IBaseTransform>();
         }
 
-        public void Transform(int universeId, byte[] dmxData, Action<int, byte[], long> action)
+        public void Simulate(TransformContext context, DmxDataFrame dmxData, Action<DmxDataPacket> action)
         {
-            var data = new List<(int UniverseId, byte[] DmxData)>() { (universeId, dmxData) };
+            var data = new List<BaseDmxData>() { dmxData };
 
             foreach (var transform in this.transforms)
             {
-                var outputData = new List<(int UniverseId, byte[] DmxData)>();
-
-                foreach (var input in data)
+                if (transform is ITransformData transformData)
                 {
-                    var newData = transform.Transform(input.UniverseId, input.DmxData);
-                    if (newData == null)
-                        outputData.Add(input);
-                    else
-                        outputData.AddRange(newData);
-                }
+                    var outputData = new List<BaseDmxData>();
 
-                data = outputData;
+                    foreach (var input in data)
+                    {
+                        if (input.Data == null)
+                        {
+                            outputData.Add(input);
+                        }
+                        else
+                        {
+                            var newData = transformData.TransformData(input);
+
+                            if (newData == null)
+                                outputData.Add(input);
+                            else
+                                outputData.AddRange(newData);
+                        }
+                    }
+
+                    data = outputData;
+                }
             }
+
+            double timestamp = dmxData.TimestampMS;
 
             foreach (var actionData in data)
             {
-                this.sequencePerUniverse.TryGetValue(actionData.UniverseId, out long sequence);
+                DmxDataPacket packet;
+                switch (actionData.DataType)
+                {
+                    case BaseDmxData.DataTypes.FullFrame:
+                        packet = new DmxDataPacket(actionData, timestamp, -1);
+                        break;
 
-                action(actionData.UniverseId, actionData.DmxData, sequence);
+                    case BaseDmxData.DataTypes.Sync:
+                        packet = new DmxDataPacket(actionData, timestamp, -1);
+                        break;
+
+                    default:
+                        continue;
+                }
+
+                action(packet);
+            }
+        }
+
+        public void Transform(TransformContext context, Common.DmxDataFrame dmxData, Action<Common.DmxDataPacket> action)
+        {
+            var data = new List<BaseDmxData>() { dmxData };
+
+            foreach (var transform in this.transforms)
+            {
+                if (transform is ITransformData transformData)
+                {
+                    var outputData = new List<BaseDmxData>();
+
+                    foreach (var input in data)
+                    {
+                        if (input.Data == null)
+                        {
+                            outputData.Add(input);
+                        }
+                        else
+                        {
+                            var newData = transformData.TransformData(input);
+
+                            if (newData == null)
+                                outputData.Add(input);
+                            else
+                                outputData.AddRange(newData);
+                        }
+                    }
+
+                    data = outputData;
+                }
+            }
+
+            double timestamp = dmxData.TimestampMS;
+
+            foreach (var actionData in data)
+            {
+                foreach (var transform in this.transforms)
+                {
+                    if (transform is ITransformTimestamp transformTimestamp)
+                    {
+                        timestamp = Math.Round(transformTimestamp.TransformTimestamp(actionData, timestamp, context), 3);
+                    }
+                }
+
+                long sequence = 0;
+                if (actionData.UniverseId.HasValue)
+                    this.sequencePerUniverse.TryGetValue(actionData.UniverseId.Value, out sequence);
+                else
+                    this.sequencePerSyncAddress.TryGetValue(actionData.SyncAddress, out sequence);
+
+                DmxDataPacket packet;
+                switch (actionData.DataType)
+                {
+                    case BaseDmxData.DataTypes.FullFrame:
+                        packet = new DmxDataPacket(actionData, timestamp, sequence);
+                        break;
+
+                    case BaseDmxData.DataTypes.Sync:
+                        packet = new DmxDataPacket(actionData, timestamp, sequence);
+                        break;
+
+                    default:
+                        continue;
+                }
+
+                action(packet);
 
                 sequence++;
 
-                this.sequencePerUniverse[actionData.UniverseId] = sequence;
+                if (actionData.UniverseId.HasValue)
+                    this.sequencePerUniverse[actionData.UniverseId.Value] = sequence;
+                else
+                    this.sequencePerSyncAddress[actionData.SyncAddress] = sequence;
             }
         }
     }

@@ -1,36 +1,17 @@
 ﻿using Haukcode.PcapngUtils;
-using Haukcode.PcapngUtils.Pcap;
-using Haukcode.sACN;
-using Haukcode.sACN.Model;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Animatroller.Common
 {
     public abstract class PCapFileReader : IDisposable
     {
+        private int framesRead = 0;
         private readonly Haukcode.PcapngUtils.Common.IReader reader;
-        private readonly List<Haukcode.PcapngUtils.Common.IPacket> packets;
-        private int readPosition;
 
         public PCapFileReader(string fileName)
         {
-            this.packets = new List<Haukcode.PcapngUtils.Common.IPacket>();
             this.reader = IReaderFactory.GetReader(fileName);
-            this.reader.OnReadPacketEvent += Reader_OnReadPacketEvent;
-
-            // Reads all packets
-            this.reader.ReadPackets(CancellationToken.None);
-        }
-
-        private void Reader_OnReadPacketEvent(object context, Haukcode.PcapngUtils.Common.IPacket packet)
-        {
-            this.packets.Add(packet);
         }
 
         public void Dispose()
@@ -38,14 +19,13 @@ namespace Animatroller.Common
             this.reader.Dispose();
         }
 
-        public bool DataAvailable
-        {
-            get { return this.packets.Count > this.readPosition; }
-        }
+        public bool DataAvailable => this.reader.MoreAvailable;
+
+        public int FramesRead => this.framesRead;
 
         public void Rewind()
         {
-            this.readPosition = 0;
+            this.reader.Rewind();
         }
 
         protected (Ipv4Packet Packet, byte[] Payload, ulong Seconds, ulong Microseconds) ReadPacket()
@@ -53,16 +33,25 @@ namespace Animatroller.Common
             if (!DataAvailable)
                 throw new EndOfStreamException();
 
-            var pcapData = this.packets[this.readPosition++];
+            var pcapData = this.reader.ReadNextPacket();
 
-            var dataStream = new MemoryStream(pcapData.Data);
+            if (pcapData == null)
+            {
+                // Packet that we ignore was read and then the stream ended
+                return (null, null, 0, 0);
+            }
 
-            var packet = UdpPacket.CreateFromStream(dataStream);
+            this.framesRead++;
 
-            byte[] dataBytes = new byte[dataStream.Length - dataStream.Position];
-            dataStream.Read(dataBytes, 0, dataBytes.Length);
+            using (var dataStream = new MemoryStream(pcapData.Data))
+            {
+                var packet = UdpPacket.CreateFromStream(dataStream);
 
-            return (packet, dataBytes, pcapData.Seconds, pcapData.Microseconds);
+                byte[] dataBytes = new byte[dataStream.Length - dataStream.Position];
+                dataStream.Read(dataBytes, 0, dataBytes.Length);
+
+                return (packet, dataBytes, pcapData.Seconds, pcapData.Microseconds);
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ namespace Animatroller.Common
         {
         }
 
-        public abstract void Output(DmxData dmxData);
+        public abstract void Output(DmxDataPacket dmxData);
 
         public virtual void Footer(int universeId)
         {

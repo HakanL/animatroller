@@ -80,7 +80,8 @@ namespace Animatroller.ConverterUI
                     var converter = new Processor.Command.FileConvert(fileReader, fileWriter, transformer);
 
                     // TODO: Report progress
-                    converter.Execute();
+                    var context = new TransformContext();
+                    converter.Execute(context);
 
                     progress.Value = 1000;
                 }
