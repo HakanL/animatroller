@@ -82,14 +82,19 @@ namespace Animatroller.DMXplayer
                 // Rewind so we'll start from the beginning
                 fileReader.Rewind();
 
-                int frequencyHertz = 25;
-                int sendSyncUniverseId;
+                int frequencyHertz = 40;
+                int sendSyncAddress;
                 if (analyzer.SyncFrameDetected)
-                    sendSyncUniverseId = 1;
+                {
+                    sendSyncAddress = 1;
+                    frequencyHertz = analyzer.AdjustedFrequency.Value;
+                }
                 else
-                    sendSyncUniverseId = 0;
+                {
+                    sendSyncAddress = 0;
+                }
 
-                using (var dmxPlayback = new DmxPlayback(fileReader, output, 1000 / frequencyHertz, sendSyncUniverseId))
+                using (var dmxPlayback = new DmxPlayback(fileReader, output, 1000 / frequencyHertz, sendSyncAddress))
                 {
                     if (!string.IsNullOrEmpty(arguments.UniverseMapping))
                     {

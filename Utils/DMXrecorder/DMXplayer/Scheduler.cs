@@ -49,7 +49,7 @@ namespace Animatroller.DMXplayer
         private readonly IOutput output;
         private readonly int progressReportPeriodMS;
         private readonly int periodMS;
-        private int sendSyncUniverseId;
+        private int sendSyncAddress;
 
         public Scheduler(IOutput output, int periodMS = 25, int sendSyncUniverseId = 0, int progressReportPeriodMS = 1000)
         {
@@ -58,7 +58,7 @@ namespace Animatroller.DMXplayer
 
             this.output = output;
             this.periodMS = periodMS;
-            this.sendSyncUniverseId = sendSyncUniverseId;
+            this.sendSyncAddress = sendSyncUniverseId;
             this.progressReportPeriodMS = progressReportPeriodMS;
 
             this.sendTimer = new HighResolutionTimer();
@@ -112,14 +112,14 @@ namespace Animatroller.DMXplayer
                         {
                             //Console.WriteLine($"Playing frame {PlayedFrames + 1} with priority {sendData.Priority}");
 
-                            this.output.SendDmx(sendData.UniverseId, sendData.DmxData, sendData.Priority, this.sendSyncUniverseId);
+                            this.output.SendDmx(sendData.UniverseId, sendData.DmxData, sendData.Priority, this.sendSyncAddress);
 
                             PlayedFrames++;
                         }
 
-                        if (this.sendSyncUniverseId > 0)
+                        if (this.sendSyncAddress > 0)
                         {
-                            this.output.SendSync(this.sendSyncUniverseId);
+                            this.output.SendSync(this.sendSyncAddress);
                         }
 
                         sendDataList.Clear();

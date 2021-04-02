@@ -35,14 +35,14 @@ namespace Animatroller.DMXplayer
         {
         }
 
-        public void SendDmx(int universe, byte[] data, byte? priority = null, int syncUniverse = 0)
+        public void SendDmx(int universe, byte[] data, byte? priority = null, int syncAddress = 0)
         {
             this.acnClient.SendMulticast(
                 universeId: (ushort)universe,
                 startCode: 0,
                 data: data,
                 priority: priority ?? this.priority,
-                syncAddress: (ushort)syncUniverse);
+                syncAddress: (ushort)syncAddress);
 
             this.usedUniverses.Add(universe);
         }
@@ -52,9 +52,9 @@ namespace Animatroller.DMXplayer
             this.acnClient.Dispose();
         }
 
-        public void SendSync(int syncUniverse)
+        public void SendSync(int syncAddress)
         {
-            this.acnClient.SendMulticastSync((ushort)syncUniverse);
+            this.acnClient.SendMulticastSync((ushort)syncAddress);
         }
 
         public IList<int> UsedUniverses => this.usedUniverses.ToList();

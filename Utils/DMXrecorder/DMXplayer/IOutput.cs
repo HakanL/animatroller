@@ -8,9 +8,9 @@ namespace Animatroller.DMXplayer
 {
     public interface IOutput : IDisposable
     {
-        void SendDmx(int universe, byte[] data, byte? priority = null, int syncUniverse = 0);
+        void SendDmx(int universe, byte[] data, byte? priority = null, int syncAddress = 0);
 
-        void SendSync(int syncUniverse);
+        void SendSync(int syncAddress);
 
         IList<int> UsedUniverses { get; }
     }
