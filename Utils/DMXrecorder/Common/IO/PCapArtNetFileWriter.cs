@@ -3,7 +3,7 @@ using Haukcode.sACN.Model;
 using System;
 using System.Net;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class PCapArtNetFileWriter : PCapFileWriter, IFileWriter
     {
@@ -55,21 +55,24 @@ namespace Animatroller.Common
             return new IPEndPoint(GetUniverseAddress(universe), 5568);
         }
 
-        public void Output(DmxDataPacket dmxData)
+        public void Output(DmxDataOutputPacket dmxData)
         {
-            if (dmxData.DataType == DmxDataFrame.DataTypes.NoChange)
-                return;
+            //FIXME: Handle ArtNet sync
+            var dmxFrame = dmxData.Content as DmxDataFrame;
 
-            var packet = new ArtNetDmxPacket
+            if (dmxFrame != null)
             {
-                DmxData = dmxData.Data,
-                Universe = (short)(dmxData.UniverseId - 1),
-                Sequence = (byte)dmxData.Sequence
-            };
+                var packet = new ArtNetDmxPacket
+                {
+                    DmxData = dmxFrame.Data,
+                    Universe = (short)(dmxFrame.UniverseId - 1),
+                    Sequence = (byte)dmxData.Sequence
+                };
 
-            var destinationEP = new IPEndPoint(IPAddress.Broadcast, 6454);
+                var destinationEP = new IPEndPoint(IPAddress.Broadcast, 6454);
 
-            WritePacket(BroadcastMac, destinationEP, packet.ToArray(), dmxData.TimestampMS);
+                WritePacket(BroadcastMac, destinationEP, packet.ToArray(), dmxData.TimestampMS);
+            }
         }
 
         public void Footer(int universeId)

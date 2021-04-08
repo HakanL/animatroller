@@ -2,7 +2,7 @@
 using System;
 using System.Net;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class PCapAcnFileWriter : PCapFileWriter, IFileWriter
     {
@@ -58,33 +58,33 @@ namespace Animatroller.Common
             return new IPEndPoint(GetUniverseAddress(universe), 5568);
         }
 
-        public void Output(DmxDataPacket dmxData)
+        public void Output(DmxDataOutputPacket dmxData)
         {
             SACNDataPacket packet;
             IPEndPoint destinationEP;
 
-            switch (dmxData.DataType)
+            switch (dmxData.Content)
             {
-                case DmxDataFrame.DataTypes.FullFrame:
+                case DmxDataFrame dmxDataFrame:
                     packet = new SACNDataPacket(RootLayer.CreateRootLayerData(
                         uuid: AcnId,
                         sourceName: AcnSourceName,
-                        universeID: (ushort)dmxData.UniverseId,
+                        universeID: (ushort)dmxDataFrame.UniverseId,
                         sequenceID: (byte)dmxData.Sequence,
-                        data: dmxData.Data,
+                        data: dmxDataFrame.Data,
                         priority: this.priority,
-                        syncAddress: (ushort)dmxData.SyncAddress));
+                        syncAddress: (ushort)dmxDataFrame.SyncAddress));
 
-                    destinationEP = GetUniverseEndPoint(dmxData.UniverseId.Value);
+                    destinationEP = GetUniverseEndPoint(dmxDataFrame.UniverseId.Value);
                     break;
 
-                case DmxDataFrame.DataTypes.Sync:
+                case SyncFrame syncFrame:
                     packet = new SACNDataPacket(RootLayer.CreateRootLayerSync(
                         uuid: AcnId,
                         sequenceID: (byte)dmxData.Sequence,
-                        syncAddress: (ushort)dmxData.SyncAddress));
+                        syncAddress: (ushort)syncFrame.SyncAddress));
 
-                    destinationEP = GetUniverseEndPoint(dmxData.SyncAddress);
+                    destinationEP = GetUniverseEndPoint(syncFrame.SyncAddress);
                     break;
 
                 default:

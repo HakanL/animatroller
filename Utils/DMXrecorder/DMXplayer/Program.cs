@@ -56,45 +56,53 @@ namespace Animatroller.DMXplayer
                         throw new ArgumentException("Unsupported output type");
                 }
 
-                Common.IFileReader fileReader;
+                Common.IO.IFileReader fileReader;
                 switch (arguments.FileFormat)
                 {
                     case Arguments.FileFormats.Binary:
-                        fileReader = new Common.BinaryFileReader(arguments.InputFile);
+                        fileReader = new Common.IO.BinaryFileReader(arguments.InputFile);
                         break;
 
                     case Arguments.FileFormats.PCapAcn:
-                        fileReader = new Common.PCapAcnFileReader(arguments.InputFile);
+                        fileReader = new Common.IO.PCapAcnFileReader(arguments.InputFile);
                         break;
 
                     case Arguments.FileFormats.PCapArtNet:
-                        fileReader = new Common.PCapArtNetFileReader(arguments.InputFile);
+                        fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFile);
                         break;
 
                     default:
                         throw new ArgumentException("Unsupported file format");
                 }
 
-                var analyzer = new Common.Analyzer(fileReader);
+                var inputReader = new Common.InputReader(fileReader);
+                var analyzer = new Common.Analyzer(inputReader);
 
                 analyzer.Analyze();
 
                 // Rewind so we'll start from the beginning
-                fileReader.Rewind();
+                inputReader.Rewind();
 
                 int frequencyHertz = 40;
                 int sendSyncAddress;
                 if (analyzer.SyncFrameDetected)
                 {
                     sendSyncAddress = 1;
-                    frequencyHertz = analyzer.AdjustedFrequency.Value;
+
+                    if (analyzer.IsOptimizedStream.HasValue)
+                    {
+                        if (analyzer.IsOptimizedStream == true)
+                            frequencyHertz = analyzer.ShortestFrequency.Value;
+                        else
+                            frequencyHertz = analyzer.AdjustedFrequency.Value;
+                    }
                 }
                 else
                 {
                     sendSyncAddress = 0;
                 }
 
-                using (var dmxPlayback = new DmxPlayback(fileReader, output, 1000 / frequencyHertz, sendSyncAddress))
+                using (var dmxPlayback = new DmxPlayback(inputReader, output, 1000 / frequencyHertz, sendSyncAddress))
                 {
                     if (!string.IsNullOrEmpty(arguments.UniverseMapping))
                     {
@@ -151,6 +159,11 @@ namespace Animatroller.DMXplayer
                     foreach (int universeId in output.UsedUniverses)
                     {
                         output.SendDmx(universeId, new byte[512]);
+                    }
+
+                    if(sendSyncAddress > 0)
+                    {
+                        output.SendSync(sendSyncAddress);
                     }
                 }
             }

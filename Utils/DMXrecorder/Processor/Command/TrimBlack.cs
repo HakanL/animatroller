@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Animatroller.Common;
 
 namespace Animatroller.Processor.Command
 {
     public class TrimBlack : ICommand
     {
-        private readonly Common.IFileReader fileReader;
-        private readonly Common.IFileWriter fileWriter;
+        private readonly IInputReader inputReader;
         private readonly ITransformer transformer;
 
-        public TrimBlack(Common.IFileReader fileReader, Common.IFileWriter fileWriter, ITransformer transformer)
+        public TrimBlack(IInputReader inputReader, ITransformer transformer)
         {
-            this.fileReader = fileReader;
-            this.fileWriter = fileWriter;
+            this.inputReader = inputReader;
             this.transformer = transformer;
         }
 
@@ -32,26 +31,32 @@ namespace Animatroller.Processor.Command
             long currentPos = 0;
 
             // Read until we have all starting points
-            while (this.fileReader.DataAvailable)
+            while (true)
             {
                 long pos = currentPos++;
 
-                var data = this.fileReader.ReadFrame();
+                var data = this.inputReader.ReadFrame();
+                if (data == null)
+                    break;
+
                 inputFrameCount++;
 
-                if (data.DataType == Common.DmxDataFrame.DataTypes.FullFrame)
+                if (data.Content is DmxDataFrame)
                 {
                     this.transformer.Transform(context, data, packet =>
                     {
-                        positions.Add(pos);
-                        if (packet.Data.All(x => x == 0))
+                        if (packet is DmxDataFrame dmxDataFrame)
                         {
-                            blackPositions.Add(pos);
-                        }
-                        else
-                        {
-                            if (!timestampOffset.HasValue)
-                                timestampOffset = data.TimestampMS;
+                            positions.Add(pos);
+                            if (dmxDataFrame.Data.All(x => x == 0))
+                            {
+                                blackPositions.Add(pos);
+                            }
+                            else
+                            {
+                                if (!timestampOffset.HasValue)
+                                    timestampOffset = data.TimestampMS;
+                            }
                         }
                     });
                 }
@@ -70,31 +75,36 @@ namespace Animatroller.Processor.Command
             if (lastPos == 0)
                 lastPos = null;
 
-            this.fileReader.Rewind();
+            this.inputReader.Rewind();
             // Skip the black data at the beginning of the file
             currentPos = 0;
-            while (this.fileReader.DataAvailable)
+            while (true)
             {
                 long pos = currentPos;
 
                 if (pos >= firstPos)
                     break;
 
-                this.fileReader.ReadFrame();
                 currentPos++;
+                var data = this.inputReader.ReadFrame();
+                if (data == null)
+                    break;
             }
 
-            while (this.fileReader.DataAvailable)
+            while (true)
             {
                 long pos = currentPos++;
                 if (lastPos.HasValue && pos > lastPos.Value)
                     break;
 
-                var data = this.fileReader.ReadFrame();
+                var data = this.inputReader.ReadFrame();
+                if (data == null)
+                    break;
 
                 data.TimestampMS -= timestampOffset.Value;
 
-                this.fileWriter.Output(data);
+                throw new NotImplementedException();
+                //this.fileWriter.Output(data);
                 outputFrameCount++;
             }
 

@@ -2,7 +2,7 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class CsvFileWriter : BaseFileWriter
     {
@@ -20,17 +20,17 @@ namespace Animatroller.Common
             this.streamWriter.Dispose();
         }
 
-        public override void Output(DmxDataPacket dmxData)
+        public override void Output(DmxDataOutputPacket dmxData)
         {
-            switch (dmxData.DataType)
+            switch (dmxData.Content)
             {
-                case DmxDataFrame.DataTypes.NoChange:
-                    this.streamWriter.WriteLine("{0},{1},{2},NoChange", dmxData.Sequence, dmxData.TimestampMS, dmxData.UniverseId);
+                case SyncFrame syncFrame:
+                    this.streamWriter.WriteLine("{0},{1},{2},Sync", dmxData.Sequence, dmxData.TimestampMS, syncFrame.SyncAddress);
                     break;
 
-                case DmxDataFrame.DataTypes.FullFrame:
+                case DmxDataFrame dmxDataFrame:
                     this.streamWriter.WriteLine("{0},{1},{2},Full,{3}",
-                        dmxData.Sequence, dmxData.TimestampMS, dmxData.UniverseId, string.Join(",", dmxData.Data.Select(x => x.ToString())));
+                        dmxData.Sequence, dmxData.TimestampMS, dmxDataFrame.UniverseId, string.Join(",", dmxDataFrame.Data.Select(x => x.ToString())));
                     break;
             }
         }

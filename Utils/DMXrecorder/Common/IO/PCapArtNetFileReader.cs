@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class PCapArtNetFileReader : PCapFileReader, IFileReader
     {
@@ -23,7 +23,7 @@ namespace Animatroller.Common
         {
         }
 
-        public DmxDataPacket ReadFrame()
+        public DmxDataOutputPacket ReadFrame()
         {
             var data = ReadPacket();
 
@@ -40,14 +40,11 @@ namespace Animatroller.Common
 
             if (packet is ArtNetDmxPacket dmxPacket)
             {
-                return new DmxDataPacket
+                return new DmxDataOutputPacket
                 {
-                    DataType = DmxDataFrame.DataTypes.FullFrame,
+                    Content = DmxDataFrame.CreateFrame(dmxPacket.Universe + 1, 0, dmxPacket.DmxData),
                     Sequence = ++this.sequence,
-                    TimestampMS = timestampMs - this.timestampOffsetMs.Value,
-                    UniverseId = dmxPacket.Universe + 1,
-                    Data = dmxPacket.DmxData,
-                    SyncAddress = 0
+                    TimestampMS = timestampMs - this.timestampOffsetMs.Value
                 };
             }
             else

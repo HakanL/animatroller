@@ -7,14 +7,14 @@ namespace Animatroller.Processor.Transform
 {
     public class BrightnessFixer : ITransformData
     {
-        private byte threshold;
+        private readonly byte threshold;
 
         public BrightnessFixer(byte threshold = 10)
         {
             this.threshold = threshold;
         }
 
-        public IList<Common.BaseDmxData> TransformData(Common.BaseDmxData dmxData)
+        public IList<DmxDataFrame> TransformData(DmxDataFrame dmxData)
         {
             for (int i = 0; i < dmxData.Data.Length; i++)
             {
@@ -24,7 +24,7 @@ namespace Animatroller.Processor.Transform
                     dmxData.Data[i] = 0;
             }
 
-            return new List<Common.BaseDmxData>() { dmxData };
+            return new List<DmxDataFrame>() { dmxData };
         }
     }
 }

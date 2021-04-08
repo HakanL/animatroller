@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Common
 {
-    public class DmxDataPacket
+    public class BaseDmxFrame
     {
-        public double TimestampMS { get; set; }
+        public int SyncAddress { get; set; }
 
-        public BaseDmxFrame Content { get; set; }
+        public BaseDmxFrame()
+        {
+        }
     }
 }

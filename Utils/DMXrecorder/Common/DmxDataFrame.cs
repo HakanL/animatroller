@@ -6,18 +6,31 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Common
 {
-    public class DmxDataFrame : BaseDmxData
+    public class DmxDataFrame : BaseDmxFrame
     {
-        public double TimestampMS { get; set; }
+        public byte[] Data { get; set; }
+
+        public int? UniverseId { get; set; }
 
         public DmxDataFrame()
         {
         }
 
-        public DmxDataFrame(BaseDmxData dmxData, double timestampMS)
-            : base(dmxData)
+        public DmxDataFrame(DmxDataFrame source)
         {
-            TimestampMS = timestampMS;
+            Data = source.Data;
+            UniverseId = source.UniverseId;
+            SyncAddress = source.SyncAddress;
+        }
+
+        public static DmxDataFrame CreateFrame(int universe, int syncAddress, byte[] data)
+        {
+            return new DmxDataFrame
+            {
+                UniverseId = universe,
+                SyncAddress = syncAddress,
+                Data = data
+            };
         }
     }
 }

@@ -22,24 +22,24 @@ namespace Animatroller.Processor.Transform
             this.adjustTolerancePercent = adjustTolerancePercent;
         }
 
-        public double TransformTimestamp(Common.BaseDmxData dmxData, double timestampMS, TransformContext context)
+        public double TransformTimestamp(Common.BaseDmxFrame dmxData, double timestampMS, TransformContext context)
         {
             double newTimestamp = timestampMS;
             bool firstSync = false;
-            if (dmxData.DataType == BaseDmxData.DataTypes.Sync && !this.timestampOffset.HasValue)
+            if (dmxData is SyncFrame && !this.timestampOffset.HasValue)
             {
                 this.timestampOffset = timestampMS - MinSeparationMS * context.FullFramesBeforeFirstSync;
                 firstSync = true;
             }
 
-            switch (dmxData.DataType)
+            switch (dmxData)
             {
-                case BaseDmxData.DataTypes.FullFrame:
+                case DmxDataFrame dmxDataFrame:
                     newTimestamp = MinSeparationMS * this.universeFrameCount;
                     this.universeFrameCount++;
                     break;
 
-                case BaseDmxData.DataTypes.Sync:
+                case SyncFrame syncFrame:
                     // Reset the counter
                     this.universeFrameCount = 0;
                     newTimestamp -= this.timestampOffset ?? 0;

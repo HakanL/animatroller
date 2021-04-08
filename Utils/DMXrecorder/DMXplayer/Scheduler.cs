@@ -49,7 +49,7 @@ namespace Animatroller.DMXplayer
         private readonly IOutput output;
         private readonly int progressReportPeriodMS;
         private readonly int periodMS;
-        private int sendSyncAddress;
+        private readonly int sendSyncAddress;
 
         public Scheduler(IOutput output, int periodMS = 25, int sendSyncUniverseId = 0, int progressReportPeriodMS = 1000)
         {
@@ -88,13 +88,14 @@ namespace Animatroller.DMXplayer
 
         private void Sender(object state)
         {
-            var sendDataList = new List<SendData>();
+            List<SendData> sendDataList = null;
 
             // Wait until we're ready to run
             this.runningEvent.WaitOne();
 
             bool done = false;
             double lastReported = 0;
+            bool dataSent = false;
 
             while (this.running)
             {
@@ -102,33 +103,23 @@ namespace Animatroller.DMXplayer
 
                 try
                 {
-                    bool dataSent = false;
-
-                    if (sendDataList.Any())
+                    if (this.sendSyncAddress == 0)
                     {
-                        dataSent = true;
-
-                        foreach (var sendData in sendDataList)
+                        SendDataFromList(sendDataList);
+                    }
+                    else
+                    {
+                        if (dataSent)
                         {
-                            //Console.WriteLine($"Playing frame {PlayedFrames + 1} with priority {sendData.Priority}");
-
-                            this.output.SendDmx(sendData.UniverseId, sendData.DmxData, sendData.Priority, this.sendSyncAddress);
-
-                            PlayedFrames++;
-                        }
-
-                        if (this.sendSyncAddress > 0)
-                        {
+                            // Send sync
                             this.output.SendSync(this.sendSyncAddress);
                         }
+                    }
 
-                        sendDataList.Clear();
-
-                        if (playTimestamp - lastReported > this.progressReportPeriodMS)
-                        {
-                            this.progressSubject.OnNext((playTimestamp, PlayedFrames));
-                            lastReported = playTimestamp;
-                        }
+                    if (playTimestamp - lastReported > this.progressReportPeriodMS)
+                    {
+                        this.progressSubject.OnNext((playTimestamp, PlayedFrames));
+                        lastReported = playTimestamp;
                     }
 
                     if (done)
@@ -137,35 +128,17 @@ namespace Animatroller.DMXplayer
                         break;
                     }
 
-                    double endTimestamp;
-                    if (dataSent)
-                        endTimestamp = playTimestamp + this.periodMS + this.periodMS / 2;
-                    else
-                        endTimestamp = playTimestamp + this.periodMS / 2;
+                    sendDataList = GetSendData(playTimestamp, ref done);
 
-                    // Loop until we have everything we need to send
-                    lock (this.lockObject)
+                    if (this.sendSyncAddress > 0)
                     {
-                        while (true)
-                        {
-                            if (!this.sendQueue.TryPeek(out var result))
-                                break;
+                        dataSent = sendDataList.Any();
 
-                            if (result.TimestampMS > endTimestamp)
-                                // Wait until next period with some tolerance
-                                break;
-
-                            if (!this.sendQueue.TryDequeue(out var sendDataResult))
-                                break;
-
-                            sendDataList.AddRange(sendDataResult.Data);
-
-                            this.queueEmpty.Reset();
-
-                            if (sendDataResult.EndOfData)
-                                done = true;
-                        }
+                        // Send the data now
+                        SendDataFromList(sendDataList);
                     }
+
+                    this.queueEmpty.Reset();
 
                     if (this.sendQueue.Count < BufferLowMark)
                         this.fillEvent.Set();
@@ -194,6 +167,51 @@ namespace Animatroller.DMXplayer
             this.queueEmpty.Set();
         }
 
+        private void SendDataFromList(List<SendData> sendDataList)
+        {
+            if (sendDataList?.Any() == true)
+            {
+                foreach (var sendData in sendDataList)
+                {
+                    //Console.WriteLine($"Playing frame {PlayedFrames + 1} with priority {sendData.Priority}");
+
+                    this.output.SendDmx(sendData.UniverseId, sendData.DmxData, sendData.Priority, this.sendSyncAddress);
+
+                    PlayedFrames++;
+                }
+            }
+        }
+
+        private List<SendData> GetSendData(double playTimestamp, ref bool done)
+        {
+            var sendDataList = new List<SendData>();
+            double endTimestamp = playTimestamp + this.periodMS;
+
+            // Loop until we have everything we need to send
+            lock (this.lockObject)
+            {
+                while (true)
+                {
+                    if (!this.sendQueue.TryPeek(out var result))
+                        break;
+
+                    if (result.TimestampMS >= endTimestamp)
+                        // Wait until next period
+                        break;
+
+                    if (!this.sendQueue.TryDequeue(out var sendDataResult))
+                        break;
+
+                    sendDataList.AddRange(sendDataResult.Data);
+
+                    if (sendDataResult.EndOfData)
+                        done = true;
+                }
+            }
+
+            return sendDataList;
+        }
+
         public bool IsQueueFilled => this.sendQueue.Count >= BufferLowMark;
 
         public bool IsClockRunning => this.masterClock.IsRunning;
@@ -204,12 +222,12 @@ namespace Animatroller.DMXplayer
             {
                 case SyncModes.RepeatUniverseId:
                     if (this.currentData.ContainsKey(universeId))
-                        SendCurrentData(false);
+                        SendCurrentData();
                     break;
 
                 case SyncModes.Timestamp:
                     if (Math.Abs(timestampMS - this.currentTimestampMS) > (this.periodMS / 3))
-                        SendCurrentData(false);
+                        SendCurrentData();
                     break;
             }
 
@@ -219,7 +237,7 @@ namespace Animatroller.DMXplayer
                 this.currentTimestampMS = timestampMS;
         }
 
-        public void SendCurrentData(bool endOfData)
+        public void SendCurrentData()
         {
             var queueData = new List<SendData>();
             foreach (var kvp in this.currentData)
@@ -235,7 +253,7 @@ namespace Animatroller.DMXplayer
             lock (this.lockObject)
             {
                 if (queueData.Any())
-                    this.sendQueue.Enqueue((this.currentTimestampMS, queueData.OrderBy(x => x.UniverseId).ToList(), endOfData));
+                    this.sendQueue.Enqueue((this.currentTimestampMS, queueData.OrderBy(x => x.UniverseId).ToList(), false));
 
                 if (this.sendQueue.Count > BufferHighMark)
                     // Don't need anything more in the queue at the moment
@@ -248,10 +266,7 @@ namespace Animatroller.DMXplayer
 
         public void EndOfData()
         {
-            if (this.currentData.Any())
-            {
-                SendCurrentData(true);
-            }
+            this.sendQueue.Enqueue((this.currentTimestampMS, new List<SendData>(), true));
         }
 
         public void Dispose()

@@ -69,15 +69,15 @@ namespace Animatroller.ConverterUI
 
             try
             {
-                var transformer = new Transformer(null);
-
                 string outputFileName = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(textBoxInputFile.Text), System.IO.Path.GetFileNameWithoutExtension(textBoxInputFile.Text) + ".cap");
-                using (var fileReader = new Common.FseqFileReader(textBoxInputFile.Text, textBoxInputConfigFile.Text))
-                using (var fileWriter = new Common.PCapAcnFileWriter(outputFileName))
+                using (var fileReader = new Common.IO.FseqFileReader(textBoxInputFile.Text, textBoxInputConfigFile.Text))
+                using (var fileWriter = new Common.IO.PCapAcnFileWriter(outputFileName))
                 {
+                    var inputReader = new Common.InputReader(fileReader);
                     progress.Value = 0;
 
-                    var converter = new Processor.Command.FileConvert(fileReader, fileWriter, transformer);
+                    var transformer = new Transformer(null, fileWriter, 0);
+                    var converter = new Processor.Command.FileConvert(inputReader, transformer);
 
                     // TODO: Report progress
                     var context = new TransformContext();

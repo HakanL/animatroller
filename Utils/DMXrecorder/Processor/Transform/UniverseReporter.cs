@@ -8,7 +8,7 @@ namespace Animatroller.Processor.Transform
     {
         private HashSet<int> universeIds = new HashSet<int>();
 
-        public IList<Common.BaseDmxData> TransformData(Common.BaseDmxData dmxData)
+        public IList<Common.DmxDataFrame> TransformData(Common.DmxDataFrame dmxData)
         {
             if (dmxData.UniverseId.HasValue && this.universeIds.Add(dmxData.UniverseId.Value))
             {

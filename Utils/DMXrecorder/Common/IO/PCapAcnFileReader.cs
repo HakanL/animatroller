@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class PCapAcnFileReader : PCapFileReader, IFileReader
     {
@@ -21,7 +21,7 @@ namespace Animatroller.Common
         {
         }
 
-        public DmxDataPacket ReadFrame()
+        public DmxDataOutputPacket ReadFrame()
         {
             var data = ReadPacket();
 
@@ -64,11 +64,11 @@ namespace Animatroller.Common
                     dmxData = dmpLayer.Data;
                 }
 
-                return DmxDataPacket.CreateFullFrame(timestampMs, dataFramingLayer.SequenceId, dataFramingLayer.UniverseId, dmxData, dataFramingLayer.SyncAddress);
+                return DmxDataOutputPacket.CreateFullFrame(timestampMs, dataFramingLayer.SequenceId, dataFramingLayer.UniverseId, dmxData, dataFramingLayer.SyncAddress);
             }
             else if (rootLayer.FramingLayer is SyncFramingLayer syncFramingLayer)
             {
-                return DmxDataPacket.CreateSync(timestampMs, syncFramingLayer.SequenceId, syncFramingLayer.SyncAddress);
+                return DmxDataOutputPacket.CreateSync(timestampMs, syncFramingLayer.SequenceId, syncFramingLayer.SyncAddress);
             }
             else
             {

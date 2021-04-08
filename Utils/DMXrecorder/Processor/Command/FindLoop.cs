@@ -8,12 +8,12 @@ namespace Animatroller.Processor.Command
 {
     public class FindLoop : ICommand
     {
-        private readonly Common.IFileReader fileReader;
+        private readonly Common.IInputReader inputReader;
         private readonly ITransformer transformer;
 
-        public FindLoop(Common.IFileReader fileReader, ITransformer transformer)
+        public FindLoop(Common.IInputReader inputReader, ITransformer transformer)
         {
-            this.fileReader = fileReader;
+            this.inputReader = inputReader;
             this.transformer = transformer;
         }
 
@@ -27,49 +27,48 @@ namespace Animatroller.Processor.Command
 
             long currentPos = 0;
 
-            while (this.fileReader.DataAvailable)
+            while (true)
             {
                 long pos = currentPos++;
-                var data = this.fileReader.ReadFrame();
-
-                if (data.DataType != Common.DmxDataFrame.DataTypes.FullFrame)
-                    continue;
+                var data = this.inputReader.ReadFrame();
+                if (data == null)
+                    break;
 
                 this.transformer.Transform(context, data, packet =>
                 {
-                    if (data.DataType != Common.BaseDmxData.DataTypes.FullFrame)
-                        return;
- 
-                    if (!firstData.ContainsKey(packet.UniverseId.Value))
+                    if (packet is Common.DmxDataFrame dmxDataFrame)
                     {
-                        firstData.Add(packet.UniverseId.Value, packet.Data);
-                    }
-                    else
-                    {
-                        currentData[packet.UniverseId.Value] = packet.Data;
-
-                        // Compare
-                        int? diff = null;
-                        int dataElements = 0;
-                        foreach (var kvp in firstData)
+                        if (!firstData.ContainsKey(dmxDataFrame.UniverseId.Value))
                         {
-                            byte[] compareData;
-                            if (!currentData.TryGetValue(kvp.Key, out compareData))
+                            firstData.Add(dmxDataFrame.UniverseId.Value, dmxDataFrame.Data);
+                        }
+                        else
+                        {
+                            currentData[dmxDataFrame.UniverseId.Value] = dmxDataFrame.Data;
+
+                            // Compare
+                            int? diff = null;
+                            int dataElements = 0;
+                            foreach (var kvp in firstData)
                             {
-                                diff = null;
-                                break;
+                                byte[] compareData;
+                                if (!currentData.TryGetValue(kvp.Key, out compareData))
+                                {
+                                    diff = null;
+                                    break;
+                                }
+
+                                if (!diff.HasValue)
+                                    diff = 0;
+                                int maxLen = Math.Min(kvp.Value.Length, compareData.Length);
+                                for (int i = 0; i < maxLen; i++)
+                                    diff += Math.Abs(kvp.Value[i] - compareData[i]);
+                                dataElements += maxLen;
                             }
 
-                            if (!diff.HasValue)
-                                diff = 0;
-                            int maxLen = Math.Min(kvp.Value.Length, compareData.Length);
-                            for (int i = 0; i < maxLen; i++)
-                                diff += Math.Abs(kvp.Value[i] - compareData[i]);
-                            dataElements += maxLen;
+                            if (diff.HasValue)
+                                diffList.Add(((double)diff.Value / dataElements, pos));
                         }
-
-                        if (diff.HasValue)
-                            diffList.Add(((double)diff.Value / dataElements, pos));
                     }
                 });
             }

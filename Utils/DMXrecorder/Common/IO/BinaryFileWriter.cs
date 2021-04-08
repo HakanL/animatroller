@@ -2,7 +2,7 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class BinaryFileWriter : BaseFileWriter
     {
@@ -20,23 +20,23 @@ namespace Animatroller.Common
             this.streamWriter.Dispose();
         }
 
-        public override void Output(DmxDataPacket dmxData)
+        public override void Output(DmxDataOutputPacket dmxData)
         {
-            switch (dmxData.DataType)
+            switch (dmxData.Content)
             {
-                case DmxDataFrame.DataTypes.FullFrame:
+                case DmxDataFrame dmxDataFrame:
                     this.streamWriter.Write((byte)0x01);
                     this.streamWriter.Write((uint)dmxData.TimestampMS);
-                    this.streamWriter.Write((ushort)dmxData.UniverseId);
-                    this.streamWriter.Write((ushort)dmxData.Data.Length);
-                    this.streamWriter.Write(dmxData.Data);
+                    this.streamWriter.Write((ushort)dmxDataFrame.UniverseId);
+                    this.streamWriter.Write((ushort)dmxDataFrame.Data.Length);
+                    this.streamWriter.Write(dmxDataFrame.Data);
                     this.streamWriter.Write((byte)0x04);
                     break;
 
-                case DmxDataFrame.DataTypes.NoChange:
+                case SyncFrame syncFrame:
                     this.streamWriter.Write((byte)0x02);
                     this.streamWriter.Write((uint)dmxData.TimestampMS);
-                    this.streamWriter.Write((ushort)dmxData.UniverseId);
+                    this.streamWriter.Write((ushort)syncFrame.SyncAddress);
                     this.streamWriter.Write((byte)0x04);
                     break;
             }

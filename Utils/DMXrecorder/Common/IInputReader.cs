@@ -4,13 +4,11 @@ using System.IO;
 
 namespace Animatroller.Common
 {
-    public interface IFileReader
+    public interface IInputReader
     {
-        bool DataAvailable { get; }
-
         void Rewind();
 
-        DmxDataPacket ReadFrame();
+        DmxDataOutputPacket ReadFrame();
 
         int FramesRead { get; }
     }

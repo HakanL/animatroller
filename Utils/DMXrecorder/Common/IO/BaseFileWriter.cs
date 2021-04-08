@@ -2,7 +2,7 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public abstract class BaseFileWriter : IFileWriter, IDisposable
     {
@@ -19,7 +19,7 @@ namespace Animatroller.Common
         {
         }
 
-        public abstract void Output(DmxDataPacket dmxData);
+        public abstract void Output(DmxDataOutputPacket dmxData);
 
         public virtual void Footer(int universeId)
         {

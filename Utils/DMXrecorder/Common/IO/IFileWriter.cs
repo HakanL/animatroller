@@ -2,13 +2,13 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public interface IFileWriter
     {
         void Header(int universeId);
 
-        void Output(DmxDataPacket dmxData);
+        void Output(DmxDataOutputPacket dmxData);
 
         void Footer(int universeId);
     }

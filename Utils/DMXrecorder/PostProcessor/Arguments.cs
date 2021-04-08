@@ -71,5 +71,9 @@ namespace Animatroller.PostProcessor
         [ArgShortcut("e")]
         [ArgDescription("Enhancers, example -e BrightnessFixer,TimestampFixer")]
         public string Enhancers { get; set; }
+
+        [ArgShortcut("l")]
+        [ArgDescription("Loop")]
+        public int? Loop { get; set; }
     }
 }

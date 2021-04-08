@@ -2,11 +2,10 @@
 using System.Linq;
 using System.IO;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public abstract class BaseFileReader : IFileReader, IDisposable
     {
-        protected int framesRead = 0;
         protected FileStream fileStream;
 
         public BaseFileReader(string fileName)
@@ -25,11 +24,6 @@ namespace Animatroller.Common
             get { return this.fileStream.Position < this.fileStream.Length; }
         }
 
-        public void Rewind()
-        {
-            this.fileStream.Position = 0;
-        }
-
         public long Position
         {
             get { return this.fileStream.Position; }
@@ -41,8 +35,6 @@ namespace Animatroller.Common
             get { return this.fileStream.Length; }
         }
 
-        public int FramesRead => this.framesRead;
-
-        public abstract DmxDataPacket ReadFrame();
+        public abstract DmxDataOutputPacket ReadFrame();
     }
 }

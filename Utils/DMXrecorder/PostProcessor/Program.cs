@@ -17,51 +17,52 @@ namespace Animatroller.PostProcessor
             {
                 var arguments = Args.Parse<Arguments>(args);
 
-                Common.IFileReader fileReader;
-                Common.IFileWriter fileWriter;
+                Common.IO.IFileReader fileReader;
+                Common.IO.IFileWriter fileWriter;
                 switch (arguments.InputFileFormat)
                 {
                     case Arguments.FileFormats.Binary:
-                        fileReader = new Common.BinaryFileReader(arguments.InputFile);
+                        fileReader = new Common.IO.BinaryFileReader(arguments.InputFile);
                         break;
 
                     case Arguments.FileFormats.PCapAcn:
-                        fileReader = new Common.PCapAcnFileReader(arguments.InputFile);
+                        fileReader = new Common.IO.PCapAcnFileReader(arguments.InputFile);
                         break;
 
                     case Arguments.FileFormats.PCapArtNet:
-                        fileReader = new Common.PCapArtNetFileReader(arguments.InputFile);
+                        fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFile);
                         break;
 
                     case Arguments.FileFormats.FSeq:
-                        fileReader = new Common.FseqFileReader(arguments.InputFile, arguments.InputConfigFile);
+                        fileReader = new Common.IO.FseqFileReader(arguments.InputFile, arguments.InputConfigFile);
                         break;
 
                     default:
                         throw new ArgumentException("Unhandled input file format " + arguments.InputFileFormat);
                 }
 
-                var analyzer = new Common.Analyzer(fileReader);
+                var inputReader = new Common.InputReader(fileReader);
+                var analyzer = new Common.Analyzer(inputReader);
 
                 analyzer.Analyze();
 
                 // Rewind so we'll start from the beginning
-                fileReader.Rewind();
+                inputReader.Rewind();
 
                 if (!string.IsNullOrEmpty(arguments.OutputFile))
                 {
                     switch (arguments.OutputFileFormat)
                     {
                         case Arguments.FileFormats.Binary:
-                            fileWriter = new Common.BinaryFileWriter(arguments.OutputFile);
+                            fileWriter = new Common.IO.BinaryFileWriter(arguments.OutputFile);
                             break;
 
                         case Arguments.FileFormats.PCapAcn:
-                            fileWriter = new Common.PCapAcnFileWriter(arguments.OutputFile);
+                            fileWriter = new Common.IO.PCapAcnFileWriter(arguments.OutputFile);
                             break;
 
                         case Arguments.FileFormats.PCapArtNet:
-                            fileWriter = new Common.PCapArtNetFileWriter(arguments.OutputFile);
+                            fileWriter = new Common.IO.PCapArtNetFileWriter(arguments.OutputFile);
                             break;
 
                         default:
@@ -82,7 +83,7 @@ namespace Animatroller.PostProcessor
                 if (analyzer.SyncFrameDetected)
                 {
                     if (enhancers.Contains("timestampfixer"))
-                        transforms.Add(new TimestampFixerWithSync(analyzer.AdjustedTiming, adjustTolerancePercent: 80));
+                        transforms.Add(new TimestampFixerWithSync(analyzer.AdjustedIntervalMS, adjustTolerancePercent: 80));
                 }
 
                 // Test
@@ -132,7 +133,7 @@ namespace Animatroller.PostProcessor
                     }
                 }
 
-                var transformer = new Transformer(transforms);
+                var transformer = new Transformer(transforms, fileWriter, arguments.Loop ?? 0);
                 ICommand command = null;
 
                 switch (arguments.Command)
@@ -141,25 +142,25 @@ namespace Animatroller.PostProcessor
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Processor.Command.TrimBlack(fileReader, fileWriter, transformer);
+                        command = new Processor.Command.TrimBlack(inputReader, transformer);
                         break;
 
                     case Arguments.Commands.FindLoop:
-                        command = new Processor.Command.FindLoop(fileReader, transformer);
+                        command = new Processor.Command.FindLoop(inputReader, transformer);
                         break;
 
                     case Arguments.Commands.Trim:
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Processor.Command.Trim(fileReader, fileWriter, arguments.TrimStart, arguments.TrimEnd, arguments.TrimCount, transformer);
+                        command = new Processor.Command.Trim(inputReader, arguments.TrimStart, arguments.TrimEnd, arguments.TrimCount, transformer);
                         break;
 
                     case Arguments.Commands.FileConvert:
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Processor.Command.FileConvert(fileReader, fileWriter, transformer);
+                        command = new Processor.Command.FileConvert(inputReader, transformer);
                         break;
 
                     default:
@@ -171,7 +172,10 @@ namespace Animatroller.PostProcessor
                     FirstSyncTimestampMS = analyzer.FirstSyncTimestampMS,
                     HasSyncFrames = analyzer.SyncFrameDetected
                 };
+
                 command.Execute(context);
+
+                transformer.WriteOutput();
 
                 (fileReader as IDisposable)?.Dispose();
                 (fileWriter as IDisposable)?.Dispose();

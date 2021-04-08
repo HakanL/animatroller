@@ -27,7 +27,7 @@ namespace Animatroller.DMXrecorder
         private int samplesWritten;
         private bool isRunning;
         private Dictionary<int, UniverseInfo> universeData;
-        private Common.IFileWriter dataWriter;
+        private Common.IO.IFileWriter dataWriter;
 
         public OutputProcessor(Arguments args)
         {
@@ -42,15 +42,15 @@ namespace Animatroller.DMXrecorder
             switch (args.FileFormat)
             {
                 case Arguments.FileFormats.Csv:
-                    this.dataWriter = new Common.CsvFileWriter(args.OutputFile);
+                    this.dataWriter = new Common.IO.CsvFileWriter(args.OutputFile);
                     break;
 
                 case Arguments.FileFormats.Binary:
-                    this.dataWriter = new Common.BinaryFileWriter(args.OutputFile);
+                    this.dataWriter = new Common.IO.BinaryFileWriter(args.OutputFile);
                     break;
 
                 case Arguments.FileFormats.PCapAcn:
-                    this.dataWriter = new Common.PCapAcnFileWriter(args.OutputFile);
+                    this.dataWriter = new Common.IO.PCapAcnFileWriter(args.OutputFile);
                     break;
 
                 default:
@@ -69,44 +69,25 @@ namespace Animatroller.DMXrecorder
                     RawDmxData dmxData;
                     while (this.receivedData.TryDequeue(out dmxData))
                     {
-                        bool newData = false;
                         UniverseInfo previousData;
                         if (!this.universeData.TryGetValue(dmxData.Universe, out previousData))
                         {
                             previousData = new UniverseInfo();
                             previousData.Data = new byte[dmxData.Data.Length];
                             this.universeData.Add(dmxData.Universe, previousData);
-                            newData = true;
                         }
-
-                        bool modified = !dmxData.Data.SequenceEqual(previousData.Data);
-                        if (newData)
-                            modified = true;
 
                         if (previousData.Data.Length != dmxData.Data.Length)
                             previousData.Data = new byte[dmxData.Data.Length];
 
                         Buffer.BlockCopy(dmxData.Data, 0, previousData.Data, 0, previousData.Data.Length);
 
-                        if (modified)
-                        {
-                            this.dataWriter.Output(Common.DmxDataPacket.CreateFullFrame(
-                                millisecond: dmxData.TimestampMS,
-                                sequence: dmxData.Sequence,
-                                universe: dmxData.Universe,
-                                data: dmxData.Data,
-                                syncAddress: dmxData.SyncAddress));
-                        }
-                        else
-                        {
-                            if (previousData.Sequence != dmxData.Sequence)
-                            {
-                                this.dataWriter.Output(Common.DmxDataPacket.CreateNoChange(
-                                    millisecond: dmxData.TimestampMS,
-                                    sequence: dmxData.Sequence,
-                                    universe: dmxData.Universe));
-                            }
-                        }
+                        this.dataWriter.Output(Common.DmxDataOutputPacket.CreateFullFrame(
+                            millisecond: dmxData.TimestampMS,
+                            sequence: dmxData.Sequence,
+                            universe: dmxData.Universe,
+                            data: dmxData.Data,
+                            syncAddress: dmxData.SyncAddress));
 
                         previousData.Sequence = dmxData.Sequence;
                         this.samplesWritten++;

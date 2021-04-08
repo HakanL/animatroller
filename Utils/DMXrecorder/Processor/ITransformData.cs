@@ -6,6 +6,6 @@ namespace Animatroller.Processor
 {
     public interface ITransformData : IBaseTransform
     {
-        IList<Common.BaseDmxData> TransformData(Common.BaseDmxData dmxData);
+        IList<Common.DmxDataFrame> TransformData(Common.DmxDataFrame dmxData);
     }
 }

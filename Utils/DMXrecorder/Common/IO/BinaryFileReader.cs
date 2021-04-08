@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class BinaryFileReader : BaseFileReader
     {
@@ -23,22 +23,26 @@ namespace Animatroller.Common
             base.Dispose();
         }
 
-        public override DmxDataPacket ReadFrame()
+        public override DmxDataOutputPacket ReadFrame()
         {
-            var target = new DmxDataPacket();
+            var dmxDataFrame = new DmxDataFrame();
+
+            var target = new DmxDataOutputPacket
+            {
+                Content = dmxDataFrame
+            };
             byte start = this.binRead.ReadByte();
             target.TimestampMS = (uint)this.binRead.ReadInt32();
-            target.UniverseId = this.binRead.ReadUInt16();
+            dmxDataFrame.UniverseId = this.binRead.ReadUInt16();
             switch (start)
             {
                 case 1:
-                    target.DataType = DmxDataFrame.DataTypes.FullFrame;
                     ushort len = this.binRead.ReadUInt16();
-                    target.Data = this.binRead.ReadBytes(len);
+                    dmxDataFrame.Data = this.binRead.ReadBytes(len);
                     break;
 
                 case 2:
-                    target.DataType = DmxDataFrame.DataTypes.NoChange;
+                    target.Content = null;
                     break;
 
                 default:
@@ -48,8 +52,6 @@ namespace Animatroller.Common
 
             if (end != 4)
                 throw new ArgumentException("Invalid data");
-
-            this.framesRead++;
 
             return target;
         }

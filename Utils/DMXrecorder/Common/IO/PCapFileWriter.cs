@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Net;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class PCapFileWriter : IDisposable
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Animatroller.Common.FileFormat
+namespace Animatroller.Common.IO.FileFormat
 {
     [Serializable()]
     [XmlType(AnonymousType = true)]

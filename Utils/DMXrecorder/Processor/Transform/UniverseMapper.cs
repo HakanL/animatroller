@@ -25,9 +25,9 @@ namespace Animatroller.Processor.Transform
             outputList.Add(outputUniverse);
         }
 
-        public IList<Common.BaseDmxData> TransformData(Common.BaseDmxData dmxData)
+        public IList<DmxDataFrame> TransformData(DmxDataFrame dmxData)
         {
-            var output = new List<Common.BaseDmxData>();
+            var output = new List<DmxDataFrame>();
 
             if (this.universeMapping != null)
             {
@@ -35,7 +35,7 @@ namespace Animatroller.Processor.Transform
                 {
                     foreach (int outputUniverse in outputUniverses)
                     {
-                        output.Add(BaseDmxData.CreateFullFrame(outputUniverse, dmxData.SyncAddress, dmxData.Data));
+                        output.Add(DmxDataFrame.CreateFrame(outputUniverse, dmxData.SyncAddress, dmxData.Data));
                     }
                 }
             }

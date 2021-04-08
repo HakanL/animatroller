@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace Animatroller.Common
+namespace Animatroller.Common.IO
 {
     public class FseqFileReader : BaseFileReader
     {
@@ -139,7 +139,7 @@ namespace Animatroller.Common
             this.currentFrame++;
         }
 
-        public override DmxDataPacket ReadFrame()
+        public override DmxDataOutputPacket ReadFrame()
         {
             if (this.currentNetwork == 0)
             {
@@ -168,9 +168,14 @@ namespace Animatroller.Common
                 break;
             }
 
-            var dmxData = new DmxDataPacket
+            var dmxData = new DmxDataFrame
             {
-                Data = new byte[network.MaxChannels],
+                Data = new byte[network.MaxChannels]
+            };
+
+            var packet = new DmxDataOutputPacket
+            {
+                Content = dmxData,
                 TimestampMS = this.currentFrame * this.header.StepTimeMS,
                 Sequence = this.currentFrame
             };
@@ -178,21 +183,17 @@ namespace Animatroller.Common
             Buffer.BlockCopy(this.frameBuffer, this.currentReadPosition, dmxData.Data, 0, dmxData.Data.Length);
             this.currentReadPosition += dmxData.Data.Length;
 
-            this.framesRead++;
-
             switch (network.NetworkType)
             {
                 case "E131":
-                    dmxData.DataType = DmxDataFrame.DataTypes.FullFrame;
                     dmxData.UniverseId = int.Parse(network.BaudRate);
                     break;
 
                 default:
-                    dmxData.DataType = DmxDataFrame.DataTypes.Nop;
-                    break;
+                    return null;
             }
 
-            return dmxData;
+            return packet;
         }
     }
 }
