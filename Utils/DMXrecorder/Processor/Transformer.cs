@@ -10,27 +10,14 @@ namespace Animatroller.Processor
     {
         private const double MinSeparationMS = 0.001;
 
-        public class Frame
-        {
-            public double TimestampMS;
-
-            public int? SyncAddress;
-
-            public List<DmxDataFrame> DmxData;
-
-            public Frame()
-            {
-                DmxData = new List<DmxDataFrame>();
-            }
-        }
-
-        private readonly List<Frame> output = new List<Frame>();
-        private Frame currentFrame = null;
+        private readonly List<OutputFrame> output = new List<OutputFrame>();
+        private OutputFrame currentFrame = null;
         private readonly IList<IBaseTransform> transforms;
         private readonly Dictionary<int, long> sequencePerUniverse = new Dictionary<int, long>();
         private readonly Dictionary<int, long> sequencePerSyncAddress = new Dictionary<int, long>();
         private readonly Common.IO.IFileWriter fileWriter;
         private int outputDuplicateCount;
+        private double? firstFrameTimestampOffset = null;
 
         public Transformer(IList<IBaseTransform> transforms, Common.IO.IFileWriter fileWriter, int outputDuplicateCount)
         {
@@ -147,7 +134,7 @@ namespace Animatroller.Processor
                 {
                     case DmxDataFrame dmxDataFrame:
                         if (this.currentFrame == null)
-                            this.currentFrame = new Frame();
+                            this.currentFrame = new OutputFrame();
 
                         //FIXME per sync address
                         this.currentFrame.DmxData.Add(dmxDataFrame);
@@ -156,7 +143,7 @@ namespace Animatroller.Processor
                     case SyncFrame syncFrame:
                         if (this.currentFrame != null)
                         {
-                            this.currentFrame.TimestampMS = dmxData.TimestampMS;
+                            //FIXME this.currentFrame.TimestampMS = dmxData.TimestampMS;
                             this.currentFrame.SyncAddress = syncFrame.SyncAddress;
 
                             this.output.Add(this.currentFrame);
@@ -167,9 +154,83 @@ namespace Animatroller.Processor
             }
         }
 
+        public void Transform2(TransformContext context, InputFrame inputFrame, InputFrame nextFrame, Action<BaseDmxFrame> action)
+        {
+            if (!this.firstFrameTimestampOffset.HasValue)
+                this.firstFrameTimestampOffset = inputFrame.TimestampMS;
+            double timestampMS = inputFrame.TimestampMS - this.firstFrameTimestampOffset.Value;
+            double delayMS = 0;
+            if (nextFrame != null)
+                delayMS = nextFrame.TimestampMS - inputFrame.TimestampMS;
+
+            var frame = new OutputFrame
+            {
+                DmxData = inputFrame.DmxData,
+                SyncAddress = inputFrame.SyncAddress,
+                DelayMS = delayMS
+            };
+
+            foreach (var transformTimestamp in this.transforms.OfType<ITransformTimestamp>())
+            {
+                frame.DelayMS = Math.Round(transformTimestamp.TransformTimestamp2(frame, context), 3);
+            }
+
+            var data = new List<DmxDataFrame>(frame.DmxData);
+
+            foreach (var transform in this.transforms)
+            {
+                if (transform is ITransformData transformData)
+                {
+                    var outputData = new List<DmxDataFrame>();
+
+                    foreach (var input in data)
+                    {
+                        var newData = transformData.TransformData(input);
+
+                        if (newData == null)
+                            outputData.Add(input);
+                        else
+                            outputData.AddRange(newData);
+                    }
+
+                    data = outputData;
+                }
+            }
+
+            foreach (var actionData in data)
+            {
+                action?.Invoke(actionData);
+
+                if (this.currentFrame == null)
+                {
+                    this.currentFrame = new OutputFrame
+                    {
+                        DelayMS = frame.DelayMS,
+                        SyncAddress = frame.SyncAddress
+                    };
+                }
+
+                this.currentFrame.DmxData.Add(actionData);
+            }
+
+            if (this.currentFrame != null)
+            {
+                //this.currentFrame.TimestampMS = timestampMS;
+                //this.currentFrame.SyncAddress = frame.SyncAddress;
+                //this.currentFrame.DelayMS = delayMS;
+
+                this.output.Add(this.currentFrame);
+                this.currentFrame = null;
+            }
+        }
+
         public void WriteOutput()
         {
-            var universeIds = this.output.SelectMany(x => x.DmxData.Where(x => x.UniverseId.HasValue).Select(x => x.UniverseId.Value)).Distinct().ToList();
+            if (!this.output.Any())
+                // Nothing
+                return;
+
+            var universeIds = this.output.SelectMany(x => x.DmxData.Select(x => x.UniverseId)).Distinct().ToList();
 
             // Write headers
             foreach (int universeId in universeIds)
@@ -177,42 +238,56 @@ namespace Animatroller.Processor
 
             // Write output
             int loop = 0;
+            double nextPacketWriteTimestampMS = 0;
+            double masterTimestamp = 0;
+
             do
             {
-                foreach (var data in this.output)
+                //TODO If we have multiple sync addresses then the output wouldn't be correct
+                foreach (var frame in this.output)
                 {
-                    double timestamp = data.TimestampMS - (data.DmxData.Count * MinSeparationMS);
+                    long sequence;
 
-                    foreach (var dmxData in data.DmxData.OrderBy(x => x.UniverseId))
+                    foreach (var dmxData in frame.DmxData.OrderBy(x => x.UniverseId))
                     {
-                        long sequence = 0;
-                        if (dmxData.UniverseId.HasValue)
-                            this.sequencePerUniverse.TryGetValue(dmxData.UniverseId.Value, out sequence);
-                        else
-                            this.sequencePerSyncAddress.TryGetValue(dmxData.SyncAddress, out sequence);
+                        this.sequencePerUniverse.TryGetValue(dmxData.UniverseId, out sequence);
 
-                        DmxDataOutputPacket packet;
-                        /*FIXME switch (dmxData.Content)
-                        {
-                            case DmxDataFrame dmxDataFrame:
-                                packet = new DmxDataOutputPacket(dmxData, timestamp, sequence);
-                                break;
+                        var packet = DmxDataOutputPacket.CreateFullFrame(
+                            nextPacketWriteTimestampMS,
+                            sequence,
+                            dmxData.UniverseId,
+                            dmxData.Data,
+                            dmxData.SyncAddress);
 
-                            case SyncFrame syncFrame:
-                                packet = new DmxDataOutputPacket(dmxData, timestamp, sequence);
-                                break;
-
-                            default:
-                                continue;
-                        }
-                        this.fileWriter.Output(packet);*/
+                        this.fileWriter.Output(packet);
+                        nextPacketWriteTimestampMS = packet.TimestampMS + MinSeparationMS;
 
                         sequence++;
 
-                        if (dmxData.UniverseId.HasValue)
-                            this.sequencePerUniverse[dmxData.UniverseId.Value] = sequence;
-                        else
-                            this.sequencePerSyncAddress[dmxData.SyncAddress] = sequence;
+                        this.sequencePerUniverse[dmxData.UniverseId] = sequence;
+
+                        //timestamp += MinSeparationMS;
+                    }
+
+                    masterTimestamp += frame.DelayMS;
+
+                    if (frame.SyncAddress != 0)
+                    {
+                        this.sequencePerSyncAddress.TryGetValue(frame.SyncAddress, out sequence);
+
+                        var packet = DmxDataOutputPacket.CreateSync(masterTimestamp, sequence, frame.SyncAddress);
+                        this.fileWriter.Output(packet);
+                        // Pad the delay to the next set of data packets so we won't risk having the data come
+                        // over the wire before the Sync packet during playback
+                        // Not sure if it's necessary
+                        nextPacketWriteTimestampMS = packet.TimestampMS + 1.0;
+
+                        sequence++;
+                        this.sequencePerSyncAddress[frame.SyncAddress] = sequence;
+                    }
+                    else
+                    {
+                        nextPacketWriteTimestampMS = masterTimestamp;
                     }
                 }
             } while (++loop < this.outputDuplicateCount);

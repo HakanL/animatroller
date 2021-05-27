@@ -29,16 +29,18 @@ namespace Animatroller.Processor.Command
 
         public void Execute(TransformContext context)
         {
-            bool firstFrame = true;
-            var inputFrameCountPerUniverse = new Dictionary<int, int>();
-            var inputFrameCountPerSyncAddress = new Dictionary<int, int>();
+            //bool firstFrame = true;
+            //var inputFrameCountPerUniverse = new Dictionary<int, int>();
+            //var inputFrameCountPerSyncAddress = new Dictionary<int, int>();
             var outputFrameCountPerUniverse = new Dictionary<int, int>();
             var outputFrameCountPerSyncAddress = new Dictionary<int, int>();
-            var readaheadQueue = new List<Common.DmxDataOutputPacket>();
+            //var readaheadQueue = new List<Common.DmxDataOutputPacket>();
+
+            int inputPos = 0;
 
             while (true)
             {
-                int inputPos;
+/*                int inputPos;
                 if (inputFrameCountPerSyncAddress.Any())
                 {
                     // If we have sync packets then we should use that
@@ -47,7 +49,7 @@ namespace Animatroller.Processor.Command
                 else
                 {
                     inputPos = inputFrameCountPerUniverse.Max(x => (int?)x.Value) ?? 0;
-                }
+                }*/
 
                 // Check if we have passed the threshold
                 if (trimEnd.HasValue && inputPos >= trimEnd.Value)
@@ -68,17 +70,18 @@ namespace Animatroller.Processor.Command
                 if (trimCount.HasValue && outputCount >= trimCount.Value)
                     break;
 
-                var data = this.inputReader.ReadFrame();
+                var data = this.inputReader.ReadFrame2();
                 if (data == null)
                     break;
 
-                int value;
+                inputPos++;
+/*                int value;
                 switch (data.Content)
                 {
                     case DmxDataFrame dmxDataFrame:
-                        inputFrameCountPerUniverse.TryGetValue(dmxDataFrame.UniverseId.Value, out value);
+                        inputFrameCountPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out value);
                         value++;
-                        inputFrameCountPerUniverse[dmxDataFrame.UniverseId.Value] = value;
+                        inputFrameCountPerUniverse[dmxDataFrame.UniverseId] = value;
                         break;
 
                     case SyncFrame syncFrame:
@@ -86,42 +89,43 @@ namespace Animatroller.Processor.Command
                         value++;
                         inputFrameCountPerSyncAddress[syncFrame.SyncAddress] = value;
                         break;
-                }
+                }*/
 
                 if (inputPos >= trimStart)
                 {
-                    readaheadQueue.Add(data);
+                    //readaheadQueue.Add(data);
 
-                    if (firstFrame)
-                    {
-                        // We need to add to the readahead queue to find the next sync
-                        if (data.Content is SyncFrame)
-                        {
-                            context.FirstSyncTimestampMS = data.TimestampMS;
+                    //if (firstFrame)
+                    //{
+                    //    // We need to add to the readahead queue to find the next sync
+                    //    if (data.Content is SyncFrame)
+                    //    {
+                    //        context.FirstSyncTimestampMS = data.TimestampMS;
 
-                            // Simulate the output so we can count the frames
-                            context.FullFramesBeforeFirstSync = 0;
-                            foreach (var item in readaheadQueue)
+                    //        // Simulate the output so we can count the frames
+                    //        context.FullFramesBeforeFirstSync = 0;
+                    //        foreach (var item in readaheadQueue)
+                    //        {
+                    //            if (item.Content is DmxDataFrame)
+                    //                this.transformer.Simulate(context, item, packet => context.FullFramesBeforeFirstSync++);
+                    //        }
+
+                    //        firstFrame = false;
+                    //    }
+                    //}
+                    //else
+                    //{
+                        //foreach (var outputData in readaheadQueue)
+                        //{
+                            this.transformer.Transform2(context, data, this.inputReader.PeekFrame2(), packet =>
                             {
-                                if (item.Content is DmxDataFrame)
-                                    this.transformer.Simulate(context, item, packet => context.FullFramesBeforeFirstSync++);
-                            }
-
-                            firstFrame = false;
-                        }
-                    }
-                    else
-                    {
-                        foreach (var outputData in readaheadQueue)
-                        {
-                            this.transformer.Transform(context, outputData, packet =>
-                            {
+                                int value;
                                 switch (packet)
                                 {
                                     case DmxDataFrame dmxDataFrame:
-                                        outputFrameCountPerUniverse.TryGetValue(dmxDataFrame.UniverseId.Value, out value);
+                                        outputFrameCountPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out value);
                                         value++;
-                                        outputFrameCountPerUniverse[dmxDataFrame.UniverseId.Value] = value;
+                                        outputFrameCountPerUniverse[dmxDataFrame.UniverseId] = value;
                                         break;
                                     
                                     case SyncFrame syncFrame:
@@ -131,10 +135,10 @@ namespace Animatroller.Processor.Command
                                         break;
                                 }
                             });
-                        }
+                        //}
 
-                        readaheadQueue.Clear();
-                    }
+                        //readaheadQueue.Clear();
+                    //}
                 }
             }
         }

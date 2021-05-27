@@ -20,51 +20,51 @@ namespace Animatroller.Processor.Command
 
         public void Execute(TransformContext context)
         {
-            double? timestampOffset = null;
-            bool firstFrame = true;
-            var readaheadQueue = new List<Common.DmxDataOutputPacket>();
+            //double? timestampOffset = null;
+            //bool firstFrame = true;
+            //var readaheadQueue = new List<Common.DmxDataOutputPacket>();
 
             while (true)
             {
-                var data = this.fileReader.ReadFrame();
+                var data = this.fileReader.ReadFrame2();
                 if (data == null)
                     break;
 
-                if (!timestampOffset.HasValue)
-                    timestampOffset = data.TimestampMS;
+                //if (!timestampOffset.HasValue)
+                //    timestampOffset = data.TimestampMS;
 
                 // Apply offset
-                data.TimestampMS -= timestampOffset.Value;
+                //data.TimestampMS -= timestampOffset.Value;
 
-                readaheadQueue.Add(data);
+                //readaheadQueue.Add(data);
 
-                if (firstFrame && context.HasSyncFrames)
-                {
-                    // We need to add to the readahead queue to find the next sync
-                    if (data.Content is SyncFrame)
-                    {
-                        context.FirstSyncTimestampMS = data.TimestampMS;
+                //if (firstFrame && context.HasSyncFrames)
+                //{
+                //    // We need to add to the readahead queue to find the next sync
+                //    if (data.Content is SyncFrame)
+                //    {
+                //        context.FirstSyncTimestampMS = data.TimestampMS;
 
-                        // Simulate the output so we can count the frames
-                        context.FullFramesBeforeFirstSync = 0;
-                        foreach (var item in readaheadQueue)
-                        {
-                            if (item.Content is DmxDataFrame)
-                                this.transformer.Simulate(context, item, packet => context.FullFramesBeforeFirstSync++);
-                        }
+                //        // Simulate the output so we can count the frames
+                //        //context.FullFramesBeforeFirstSync = 0;
+                //        foreach (var item in readaheadQueue)
+                //        {
+                //            if (item.Content is DmxDataFrame)
+                //                this.transformer.Simulate(context, item, packet => context.FullFramesBeforeFirstSync++);
+                //        }
 
-                        firstFrame = false;
-                    }
-                }
-                else
-                {
-                    foreach (var outputData in readaheadQueue)
-                    {
-                        this.transformer.Transform(context, outputData);
-                    }
+                //        firstFrame = false;
+                //    }
+                //}
+                //else
+                //{
+                    //foreach (var outputData in readaheadQueue)
+                    //{
+                        this.transformer.Transform2(context, data, this.fileReader.PeekFrame2());
+                    //}
 
-                    readaheadQueue.Clear();
-                }
+                    //readaheadQueue.Clear();
+                //}
             }
         }
     }

@@ -75,7 +75,7 @@ namespace Animatroller.Common.IO
                         priority: this.priority,
                         syncAddress: (ushort)dmxDataFrame.SyncAddress));
 
-                    destinationEP = GetUniverseEndPoint(dmxDataFrame.UniverseId.Value);
+                    destinationEP = GetUniverseEndPoint(dmxDataFrame.UniverseId);
                     break;
 
                 case SyncFrame syncFrame:

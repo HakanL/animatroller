@@ -11,5 +11,11 @@ namespace Animatroller.Common
         DmxDataOutputPacket ReadFrame();
 
         int FramesRead { get; }
+
+        InputFrame ReadFrame2();
+
+        InputFrame PeekFrame2();
+
+        bool HasSyncFrames { get; }
     }
 }

@@ -10,7 +10,7 @@ namespace Animatroller.Processor.Transform
 
         public IList<Common.DmxDataFrame> TransformData(Common.DmxDataFrame dmxData)
         {
-            if (dmxData.UniverseId.HasValue && this.universeIds.Add(dmxData.UniverseId.Value))
+            if (this.universeIds.Add(dmxData.UniverseId))
             {
                 Console.WriteLine($"Universe Id {dmxData.UniverseId} found in input stream");
             }

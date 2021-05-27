@@ -38,13 +38,13 @@ namespace Animatroller.Processor.Command
                 {
                     if (packet is Common.DmxDataFrame dmxDataFrame)
                     {
-                        if (!firstData.ContainsKey(dmxDataFrame.UniverseId.Value))
+                        if (!firstData.ContainsKey(dmxDataFrame.UniverseId))
                         {
-                            firstData.Add(dmxDataFrame.UniverseId.Value, dmxDataFrame.Data);
+                            firstData.Add(dmxDataFrame.UniverseId, dmxDataFrame.Data);
                         }
                         else
                         {
-                            currentData[dmxDataFrame.UniverseId.Value] = dmxDataFrame.Data;
+                            currentData[dmxDataFrame.UniverseId] = dmxDataFrame.Data;
 
                             // Compare
                             int? diff = null;

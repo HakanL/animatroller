@@ -13,13 +13,20 @@ namespace Animatroller.Processor.Transform
         private double masterClock;
         private double lastTimestamp;
         private int universeFrameCount;
-        private double? adjustedTimingMS;
-        private double adjustTolerancePercent;
+        private readonly double? adjustedTimingMS;
+        private readonly double adjustTolerancePercent;
 
         public TimestampFixerWithSync(double? adjustedTimingMS, double adjustTolerancePercent)
         {
             this.adjustedTimingMS = adjustedTimingMS;
             this.adjustTolerancePercent = adjustTolerancePercent;
+        }
+
+        public double TransformTimestamp2(Common.OutputFrame frame, TransformContext context)
+        {
+            double delayMS = this.adjustedTimingMS ?? frame.DelayMS;
+
+            return delayMS;
         }
 
         public double TransformTimestamp(Common.BaseDmxFrame dmxData, double timestampMS, TransformContext context)
@@ -28,7 +35,7 @@ namespace Animatroller.Processor.Transform
             bool firstSync = false;
             if (dmxData is SyncFrame && !this.timestampOffset.HasValue)
             {
-                this.timestampOffset = timestampMS - MinSeparationMS * context.FullFramesBeforeFirstSync;
+                this.timestampOffset = timestampMS;//FIXME - MinSeparationMS * context.FullFramesBeforeFirstSync;
                 firstSync = true;
             }
 

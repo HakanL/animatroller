@@ -10,7 +10,7 @@ namespace Animatroller.Common
     {
         public byte[] Data { get; set; }
 
-        public int? UniverseId { get; set; }
+        public int UniverseId { get; set; }
 
         public DmxDataFrame()
         {

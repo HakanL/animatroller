@@ -8,12 +8,10 @@ namespace Animatroller.Common
     public class Analyzer
     {
         private readonly IInputReader inputReader;
-        private int readFrames;
-        private bool syncFrameDetected;
         private readonly Dictionary<int, double> lastFrameTimestampPerUniverse = new Dictionary<int, double>();
         private readonly Dictionary<int, double> lastFrameTimestampPerSyncAddress = new Dictionary<int, double>();
         private readonly List<double> intervals = new List<double>();
-        private readonly List<double> syncIntervals = new List<double>();
+        private readonly Dictionary<int, List<double>> intervalMSPerSyncAddress = new Dictionary<int, List<double>>();
         private double? firstSyncTimestampMS;
 
         public Analyzer(IInputReader inputReader)
@@ -21,9 +19,7 @@ namespace Animatroller.Common
             this.inputReader = inputReader;
         }
 
-        public int ReadFrames => this.readFrames;
-
-        public bool SyncFrameDetected => this.syncFrameDetected;
+        public bool SyncFrameDetected => this.inputReader.HasSyncFrames;
 
         public double FirstSyncTimestampMS => this.firstSyncTimestampMS ?? 0;
 
@@ -52,81 +48,93 @@ namespace Animatroller.Common
             }
         }
 
-        public void Analyze(int maxFramesToRead = 1000)
+        public void Analyze()
         {
-            while (readFrames <= maxFramesToRead)
+            InputFrame dmxFrame;
+            while ((dmxFrame = this.inputReader.ReadFrame2()) != null)
             {
-                var dmxFrame = this.inputReader.ReadFrame();
-                if (dmxFrame == null)
-                    break;
-
-                readFrames++;
-
                 double lastFrameTimestamp;
                 double interval;
 
-                if (dmxFrame.Content is SyncFrame syncFrame)
+                if (dmxFrame.SyncAddress > 0)
                 {
                     if (!this.firstSyncTimestampMS.HasValue)
                         this.firstSyncTimestampMS = dmxFrame.TimestampMS;
 
-                    this.syncFrameDetected = true;
+                    this.lastFrameTimestampPerSyncAddress.TryGetValue(dmxFrame.SyncAddress, out lastFrameTimestamp);
+                    this.lastFrameTimestampPerSyncAddress[dmxFrame.SyncAddress] = dmxFrame.TimestampMS;
+                    interval = Math.Round(dmxFrame.TimestampMS - lastFrameTimestamp, 2);
 
-                    this.lastFrameTimestampPerSyncAddress.TryGetValue(syncFrame.SyncAddress, out lastFrameTimestamp);
-                    this.lastFrameTimestampPerSyncAddress[syncFrame.SyncAddress] = dmxFrame.TimestampMS;
-                    interval = Math.Round(dmxFrame.TimestampMS - lastFrameTimestamp, 2);
                     if (interval > 0)
-                        syncIntervals.Add(interval);
+                    {
+                        if (!this.intervalMSPerSyncAddress.TryGetValue(dmxFrame.SyncAddress, out var list))
+                        {
+                            list = new List<double>();
+                            this.intervalMSPerSyncAddress.Add(dmxFrame.SyncAddress, list);
+                        }
+                        list.Add(interval);
+                    }
                 }
-                else if (dmxFrame.Content is DmxDataFrame dmxDataFrame)
+                else
                 {
-                    this.lastFrameTimestampPerUniverse.TryGetValue(dmxDataFrame.UniverseId.Value, out lastFrameTimestamp);
-                    this.lastFrameTimestampPerUniverse[dmxDataFrame.UniverseId.Value] = dmxFrame.TimestampMS;
-                    interval = Math.Round(dmxFrame.TimestampMS - lastFrameTimestamp, 2);
-                    if (interval > 0)
-                        intervals.Add(interval);
+                    foreach (var dmxData in dmxFrame.DmxData)
+                    {
+                        this.lastFrameTimestampPerUniverse.TryGetValue(dmxData.UniverseId, out lastFrameTimestamp);
+                        this.lastFrameTimestampPerUniverse[dmxData.UniverseId] = dmxFrame.TimestampMS;
+                        interval = Math.Round(dmxFrame.TimestampMS - lastFrameTimestamp, 2);
+                        if (interval > 0)
+                            intervals.Add(interval);
+                    }
                 }
             }
 
             intervals.Sort();
-            syncIntervals.Sort();
-
-            if (this.syncFrameDetected && syncIntervals.Any())
+            foreach (var kvp in this.intervalMSPerSyncAddress)
             {
-                Console.WriteLine($"Sync frames detected in input file. Sampled {syncIntervals.Count} sync-frames");
+                kvp.Value.Sort();
+            }
 
-                ShortestIntervalMS = syncIntervals.First();
-                ShortestFrequency = (int)Math.Round(1000.0 / ShortestIntervalMS.Value, 0);
-                double stdDev = StdDev(syncIntervals, false);
-                AverageIntervalMS = syncIntervals.Average();
-
-                Console.WriteLine($"Shortest period = {ShortestIntervalMS:N3} ms, frequency = {ShortestFrequency:N1} Hz");
-                Console.WriteLine($"Standard deviation = {stdDev:N3} ms, average unscrubbed = {AverageIntervalMS:N3} ms");
-                Console.WriteLine($"Optimized stream = {(IsOptimizedStream == true ? "Yes" : "No")}");
-
-                if (IsOptimizedStream == false)
+            if (SyncFrameDetected && intervalMSPerSyncAddress.Any())
+            {
+                foreach (var kvp in this.intervalMSPerSyncAddress)
                 {
-                    // Remove any outside the standard deviation
-                    int removedOutliers = 0;
-                    for (int i = syncIntervals.Count - 1; i >= 0; i--)
+                    //TODO: Handle multiple sync addresses
+
+                    Console.WriteLine($"Sync frames detected in input file. Sampled {kvp.Value.Count} sync-frames for sync address {kvp.Key}");
+
+                    ShortestIntervalMS = kvp.Value.First();
+                    ShortestFrequency = (int)Math.Round(1000.0 / ShortestIntervalMS.Value, 0);
+                    double stdDev = StdDev(kvp.Value, false);
+                    AverageIntervalMS = kvp.Value.Average();
+
+                    Console.WriteLine($"Shortest period = {ShortestIntervalMS:N3} ms, frequency = {ShortestFrequency:N1} Hz");
+                    Console.WriteLine($"Standard deviation = {stdDev:N3} ms, average unscrubbed = {AverageIntervalMS:N3} ms");
+                    Console.WriteLine($"Optimized stream = {(IsOptimizedStream == true ? "Yes" : "No")}");
+
+                    if (IsOptimizedStream == false)
                     {
-                        if (Math.Abs(syncIntervals[i] - AverageIntervalMS.Value) > stdDev)
+                        // Remove any outside the standard deviation
+                        int removedOutliers = 0;
+                        for (int i = kvp.Value.Count - 1; i >= 0; i--)
                         {
-                            // Remove
-                            syncIntervals.RemoveAt(i);
-                            removedOutliers++;
+                            if (Math.Abs(kvp.Value[i] - AverageIntervalMS.Value) > stdDev)
+                            {
+                                // Remove
+                                kvp.Value.RemoveAt(i);
+                                removedOutliers++;
+                            }
                         }
+                        Console.WriteLine($"Removing {removedOutliers} outliers");
+
+                        // Re-calculate the average
+                        AverageIntervalMS = kvp.Value.Average();
+                        DetectedFrequency = 1000.0 / AverageIntervalMS.Value;
+                        AdjustedFrequency = (int)Math.Round(DetectedFrequency.Value, 0);
+                        AdjustedIntervalMS = 1000.0 / AdjustedFrequency.Value;
+
+                        Console.WriteLine($"Detected Freq = {DetectedFrequency:N2} Hz and average timing (scrubbed) = {AverageIntervalMS:N2} ms");
+                        Console.WriteLine($"Adjusted frequency set to {AdjustedFrequency:N1} Hz and timing to {AdjustedIntervalMS:N2} ms");
                     }
-                    Console.WriteLine($"Removing {removedOutliers} outliers");
-
-                    // Re-calculate the average
-                    AverageIntervalMS = syncIntervals.Average();
-                    DetectedFrequency = 1000.0 / AverageIntervalMS.Value;
-                    AdjustedFrequency = (int)Math.Round(DetectedFrequency.Value, 0);
-                    AdjustedIntervalMS = 1000.0 / AdjustedFrequency.Value;
-
-                    Console.WriteLine($"Detected Freq = {DetectedFrequency:N2} Hz and average timing (scrubbed) = {AverageIntervalMS:N2} ms");
-                    Console.WriteLine($"Adjusted frequency set to {AdjustedFrequency:N1} Hz and timing to {AdjustedIntervalMS:N2} ms");
                 }
             }
         }

@@ -82,13 +82,13 @@ namespace Animatroller.DMXplayer
                             break;
 
                         var dmxDataFrame = dmxFrame.Content as Common.DmxDataFrame;
-                        if (dmxDataFrame != null && dmxDataFrame.UniverseId.HasValue)
+                        if (dmxDataFrame != null)
                         {
-                            this.lastFrameTimestampPerUniverse.TryGetValue(dmxDataFrame.UniverseId.Value, out double lastFrameTimestamp);
+                            this.lastFrameTimestampPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out double lastFrameTimestamp);
 
                             timestampOffset += lastFrameTimestamp;
 
-                            this.intervalPerUniverse.TryGetValue(dmxDataFrame.UniverseId.Value, out double interval);
+                            this.intervalPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out double interval);
                             this.lastFrameTimestampPerUniverse.Clear();
                             timestampOffset += interval;
                         }
@@ -105,22 +105,22 @@ namespace Animatroller.DMXplayer
                         {
                             var dmxDataFrame = dmxFrame.Content as Common.DmxDataFrame;
 
-                            this.lastFrameTimestampPerUniverse.TryGetValue(dmxDataFrame.UniverseId.Value, out double lastFrameTimestamp);
-                            this.lastFrameTimestampPerUniverse[dmxDataFrame.UniverseId.Value] = dmxFrame.TimestampMS;
+                            this.lastFrameTimestampPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out double lastFrameTimestamp);
+                            this.lastFrameTimestampPerUniverse[dmxDataFrame.UniverseId] = dmxFrame.TimestampMS;
                             double interval = dmxFrame.TimestampMS - lastFrameTimestamp;
                             if (interval > 0)
                             {
-                                this.intervalPerUniverse[dmxDataFrame.UniverseId.Value] = interval;
+                                this.intervalPerUniverse[dmxDataFrame.UniverseId] = interval;
                             }
                             else
                             {
                                 // Default
-                                this.intervalPerUniverse[dmxDataFrame.UniverseId.Value] = this.scheduler.PeriodMS;
+                                this.intervalPerUniverse[dmxDataFrame.UniverseId] = this.scheduler.PeriodMS;
                             }
 
                             if (this.universeMapping != null)
                             {
-                                if (this.universeMapping.TryGetValue(dmxDataFrame.UniverseId.Value, out var outputUniverses))
+                                if (this.universeMapping.TryGetValue(dmxDataFrame.UniverseId, out var outputUniverses))
                                 {
                                     foreach (int outputUniverse in outputUniverses)
                                     {
@@ -131,7 +131,7 @@ namespace Animatroller.DMXplayer
                             else
                             {
                                 // No mapping
-                                this.scheduler.AddData(dmxFrame.TimestampMS + timestampOffset, dmxDataFrame.UniverseId.Value, dmxDataFrame.Data, syncMode);
+                                this.scheduler.AddData(dmxFrame.TimestampMS + timestampOffset, dmxDataFrame.UniverseId, dmxDataFrame.Data, syncMode);
                             }
                         }
 

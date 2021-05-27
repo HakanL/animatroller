@@ -31,7 +31,7 @@ namespace Animatroller.Processor.Transform
 
             if (this.universeMapping != null)
             {
-                if (dmxData.UniverseId.HasValue && this.universeMapping.TryGetValue(dmxData.UniverseId.Value, out var outputUniverses))
+                if (this.universeMapping.TryGetValue(dmxData.UniverseId, out var outputUniverses))
                 {
                     foreach (int outputUniverse in outputUniverses)
                     {

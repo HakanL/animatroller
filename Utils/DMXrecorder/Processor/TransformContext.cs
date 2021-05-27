@@ -8,7 +8,7 @@ namespace Animatroller.Processor
     {
         public double FirstSyncTimestampMS { get; set; }
 
-        public int FullFramesBeforeFirstSync { get; set; }
+        //public int FullFramesBeforeFirstSync { get; set; }
 
         public bool HasSyncFrames { get; set; }
 
