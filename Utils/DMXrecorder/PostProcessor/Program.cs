@@ -180,7 +180,7 @@ namespace Animatroller.PostProcessor
                         if (fileWriter == null)
                             throw new ArgumentNullException("Missing output file");
 
-                        command = new Processor.Command.Generate(transformer, universeIds, arguments.Frequency.Value, arguments.TrimCount.Value);
+                        command = new Processor.Command.Generate(transformer, universeIds, arguments.Frequency.Value, arguments.TrimCount.Value, arguments.FillByte);
                         break;
 
                     default:

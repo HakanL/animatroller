@@ -9,12 +9,12 @@ namespace Animatroller.Processor.Command
 {
     public class FileConvert : ICommand
     {
-        private readonly Common.IInputReader fileReader;
+        private readonly Common.IInputReader inputReader;
         private readonly ITransformer transformer;
 
-        public FileConvert(Common.IInputReader fileReader, ITransformer transformer)
+        public FileConvert(Common.IInputReader inputReader, ITransformer transformer)
         {
-            this.fileReader = fileReader;
+            this.inputReader = inputReader;
             this.transformer = transformer;
         }
 
@@ -26,7 +26,7 @@ namespace Animatroller.Processor.Command
 
             while (true)
             {
-                var data = this.fileReader.ReadFrame2();
+                var data = this.inputReader.ReadFrame2();
                 if (data == null)
                     break;
 
@@ -60,7 +60,7 @@ namespace Animatroller.Processor.Command
                 //{
                     //foreach (var outputData in readaheadQueue)
                     //{
-                        this.transformer.Transform2(context, data, this.fileReader.PeekFrame2());
+                        this.transformer.Transform2(context, data, this.inputReader.PeekFrame2());
                     //}
 
                     //readaheadQueue.Clear();

@@ -226,7 +226,7 @@ namespace Animatroller.Processor
 
         public void WriteOutput()
         {
-            if (!this.output.Any())
+            if (!this.output.Any() || this.fileWriter == null)
                 // Nothing
                 return;
 

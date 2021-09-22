@@ -13,14 +13,16 @@ namespace Animatroller.Processor.Command
         private readonly int[] universeIds;
         private readonly double frequency;
         private readonly long lengthFrames;
+        private readonly byte fillValue;
         private double timestampMS;
 
-        public Generate(ITransformer transformer, int[] universeIds, double frequency, long lengthFrames)
+        public Generate(ITransformer transformer, int[] universeIds, double frequency, long lengthFrames, byte fillValue)
         {
             this.transformer = transformer;
             this.universeIds = universeIds;
             this.frequency = frequency;
             this.lengthFrames = lengthFrames;
+            this.fillValue = fillValue;
         }
 
         private InputFrame GetFrame()
@@ -32,12 +34,17 @@ namespace Animatroller.Processor.Command
 
             foreach (int universeId in this.universeIds)
             {
-                inputFrame.DmxData.Add(new DmxDataFrame
+                var frame = new DmxDataFrame
                 {
                     Data = new byte[512],
                     UniverseId = universeId,
                     SyncAddress = 0
-                });
+                };
+
+                for (int i = 0; i < 512; i++)
+                    frame.Data[i] = this.fillValue;
+
+                inputFrame.DmxData.Add(frame);
             }
 
             this.timestampMS += 1000.0 / this.frequency;

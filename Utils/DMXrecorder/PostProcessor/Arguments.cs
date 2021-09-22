@@ -59,6 +59,10 @@ namespace Animatroller.PostProcessor
         [ArgDescription("Trim count")]
         public long? TrimCount { get; set; }
 
+        [ArgShortcut("fb")]
+        [ArgDescription("Fill byte")]
+        public byte FillByte { get; set; }
+
         [ArgShortcut("of")]
         [ArgDescription("Output File format")]
         [ArgDefaultValue(FileFormats.PCapAcn)]

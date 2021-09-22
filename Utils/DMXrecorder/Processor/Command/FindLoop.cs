@@ -30,11 +30,12 @@ namespace Animatroller.Processor.Command
             while (true)
             {
                 long pos = currentPos++;
-                var data = this.inputReader.ReadFrame();
+
+                var data = this.inputReader.ReadFrame2();
                 if (data == null)
                     break;
 
-                this.transformer.Transform(context, data, packet =>
+                this.transformer.Transform2(context, data, this.inputReader.PeekFrame2(), packet =>
                 {
                     if (packet is Common.DmxDataFrame dmxDataFrame)
                     {
