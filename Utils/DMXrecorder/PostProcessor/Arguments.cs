@@ -11,7 +11,8 @@ namespace Animatroller.PostProcessor
             TrimBlack,
             FindLoop,
             Trim,
-            FileConvert
+            FileConvert,
+            Generate
         }
 
         public enum FileFormats
@@ -24,7 +25,6 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("i")]
         [ArgDescription("Input file")]
-        [ArgRequired()]
         [ArgExistingFile()]
         public string InputFile { get; set; }
 
@@ -44,7 +44,7 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("if")]
         [ArgDescription("Input File format")]
-        [ArgDefaultValue(FileFormats.Binary)]
+        [ArgDefaultValue(FileFormats.PCapAcn)]
         public FileFormats InputFileFormat { get; set; }
 
         [ArgShortcut("ts")]
@@ -61,12 +61,20 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("of")]
         [ArgDescription("Output File format")]
-        [ArgDefaultValue(FileFormats.Binary)]
+        [ArgDefaultValue(FileFormats.PCapAcn)]
         public FileFormats OutputFileFormat { get; set; }
 
         [ArgShortcut("m")]
         [ArgDescription("Universe Mapping (input=output,input2=output2 - example 1=10,2=11,6=20)")]
         public string UniverseMapping { get; set; }
+
+        [ArgShortcut("u")]
+        [ArgDescription("Universes")]
+        public string Universes { get; set; }
+
+        [ArgShortcut("hz")]
+        [ArgDescription("Frequency")]
+        public double? Frequency { get; set; }
 
         [ArgShortcut("e")]
         [ArgDescription("Enhancers, example -e BrightnessFixer,TimestampFixer")]

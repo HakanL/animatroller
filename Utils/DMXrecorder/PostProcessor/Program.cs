@@ -17,37 +17,44 @@ namespace Animatroller.PostProcessor
             {
                 var arguments = Args.Parse<Arguments>(args);
 
-                Common.IO.IFileReader fileReader;
+                Common.IO.IFileReader fileReader = null;
                 Common.IO.IFileWriter fileWriter;
-                switch (arguments.InputFileFormat)
+                Common.IInputReader inputReader = null;
+                Common.Analyzer analyzer = null;
+
+                if (!string.IsNullOrEmpty(arguments.InputFile))
                 {
-                    case Arguments.FileFormats.Binary:
-                        fileReader = new Common.IO.BinaryFileReader(arguments.InputFile);
-                        break;
+                    switch (arguments.InputFileFormat)
+                    {
+                        case Arguments.FileFormats.Binary:
+                            fileReader = new Common.IO.BinaryFileReader(arguments.InputFile);
+                            break;
 
-                    case Arguments.FileFormats.PCapAcn:
-                        fileReader = new Common.IO.PCapAcnFileReader(arguments.InputFile);
-                        break;
+                        case Arguments.FileFormats.PCapAcn:
+                            fileReader = new Common.IO.PCapAcnFileReader(arguments.InputFile);
+                            break;
 
-                    case Arguments.FileFormats.PCapArtNet:
-                        fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFile);
-                        break;
+                        case Arguments.FileFormats.PCapArtNet:
+                            fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFile);
+                            break;
 
-                    case Arguments.FileFormats.FSeq:
-                        fileReader = new Common.IO.FseqFileReader(arguments.InputFile, arguments.InputConfigFile);
-                        break;
+                        case Arguments.FileFormats.FSeq:
+                            fileReader = new Common.IO.FseqFileReader(arguments.InputFile, arguments.InputConfigFile);
+                            break;
 
-                    default:
-                        throw new ArgumentException("Unhandled input file format " + arguments.InputFileFormat);
+                        default:
+                            throw new ArgumentException("Unhandled input file format " + arguments.InputFileFormat);
+                    }
+
+                    inputReader = new Common.InputReader(fileReader);
+                    analyzer = new Common.Analyzer(inputReader);
+
+                    analyzer.Analyze();
+
+                    // Rewind so we'll start from the beginning
+                    inputReader.Rewind();
                 }
 
-                var inputReader = new Common.InputReader(fileReader);
-                var analyzer = new Common.Analyzer(inputReader);
-
-                analyzer.Analyze();
-
-                // Rewind so we'll start from the beginning
-                inputReader.Rewind();
 
                 if (!string.IsNullOrEmpty(arguments.OutputFile))
                 {
@@ -80,7 +87,7 @@ namespace Animatroller.PostProcessor
 
                 var enhancers = new HashSet<string>((arguments.Enhancers ?? string.Empty).Split(',').Select(x => x.Trim().ToLower()).Where(x => !string.IsNullOrEmpty(x)));
 
-                if (analyzer.SyncFrameDetected)
+                if (analyzer != null && analyzer.SyncFrameDetected)
                 {
                     if (enhancers.Contains("timestampfixer"))
                         transforms.Add(new TimestampFixerWithSync(analyzer.AdjustedIntervalMS, adjustTolerancePercent: 80));
@@ -136,6 +143,12 @@ namespace Animatroller.PostProcessor
                 var transformer = new Transformer(transforms, fileWriter, arguments.Loop ?? 0);
                 ICommand command = null;
 
+                int[] universeIds = null;
+                if (!string.IsNullOrEmpty(arguments.Universes))
+                {
+                    universeIds = arguments.Universes.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).Select(x => int.Parse(x)).ToArray();
+                }
+
                 switch (arguments.Command)
                 {
                     case Arguments.Commands.TrimBlack:
@@ -163,14 +176,21 @@ namespace Animatroller.PostProcessor
                         command = new Processor.Command.FileConvert(inputReader, transformer);
                         break;
 
+                    case Arguments.Commands.Generate:
+                        if (fileWriter == null)
+                            throw new ArgumentNullException("Missing output file");
+
+                        command = new Processor.Command.Generate(transformer, universeIds, arguments.Frequency.Value, arguments.TrimCount.Value);
+                        break;
+
                     default:
                         throw new ArgumentOutOfRangeException("Unknown command");
                 }
 
                 var context = new TransformContext
                 {
-                    FirstSyncTimestampMS = analyzer.FirstSyncTimestampMS,
-                    HasSyncFrames = analyzer.SyncFrameDetected
+                    FirstSyncTimestampMS = analyzer?.FirstSyncTimestampMS ?? 0,
+                    HasSyncFrames = analyzer?.SyncFrameDetected ?? false
                 };
 
                 command.Execute(context);
