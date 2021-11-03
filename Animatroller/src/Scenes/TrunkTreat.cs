@@ -14,7 +14,7 @@ using Physical = Animatroller.Framework.PhysicalDevice;
 
 namespace Animatroller.Scenes
 {
-    internal partial class Halloween2020 : BaseScene
+    internal partial class TrunkTreat : BaseScene
     {
         const int SacnUniverseDMXFogA = 55;
         //const int SacnUniverseEdmx4A = 20;
@@ -35,17 +35,20 @@ namespace Animatroller.Scenes
         }
 
         const int midiChannel = 0;
+        int soundBoardOutputIndex = 0;
 
         Controller.EnumStateMachine<States> stateMachine = new Controller.EnumStateMachine<States>();
         Expander.MidiInput2 midiInput = new Expander.MidiInput2("LPD8", ignoreMissingDevice: true);
         Expander.OscServer oscServer = new Expander.OscServer(8000, forcedClientPort: 8000, registerAutoHandlers: true);
         AudioPlayer audioSpider = new AudioPlayer();
         AudioPlayer audioFrankGhost = new AudioPlayer();
+        AudioPlayer audioHifi = new AudioPlayer();
         Expander.MonoExpanderServer expanderServer = new Expander.MonoExpanderServer(listenPort: 8899);
         Expander.MonoExpanderInstance expanderLedmx = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.PiFace);
         Expander.MonoExpanderInstance expanderBigEye = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
+        Expander.MonoExpanderInstance expanderHifi = new Expander.MonoExpanderInstance(hardware: Expander.MonoExpanderInstance.HardwareType.None);
         Expander.AcnStream acnOutput = new Expander.AcnStream();
-        Expander.OscClient bigEyeSender = new Expander.OscClient("192.168.240.52", 8000); // rpi-ebc64d15
+        Expander.OscClient bigEyeSender = new Expander.OscClient("192.168.240.100", 8000); // rpi-ebc64d15
 
         VirtualPixel1D3 pixelsFrankGhost = new VirtualPixel1D3(5);
         DigitalOutput2 frankGhostAir = new DigitalOutput2();
@@ -85,14 +88,8 @@ namespace Animatroller.Scenes
 
         StrobeDimmer3 flashUnderSpider = new StrobeDimmer3("Eliminator Flash");
 
-        public Halloween2020(IEnumerable<string> args)
+        public TrunkTreat(IEnumerable<string> args)
         {
-            mainSchedule.AddRange("5:00 pm", "10:00 pm");
-            mainSchedule.AddRange("6:30 am", "8:00 am");
-            //    DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday, DayOfWeek.Thursday, DayOfWeek.Sunday);
-            //mainSchedule.AddRange("5:00 pm", "9:00 pm",
-            //    DayOfWeek.Friday, DayOfWeek.Saturday);
-
             string expFilesParam = args.FirstOrDefault(x => x.StartsWith("EXPFILES"));
             if (!string.IsNullOrEmpty(expFilesParam))
             {
@@ -110,13 +107,14 @@ namespace Animatroller.Scenes
             //expanderServer.AddInstance("d6fc4e752af04022bf3c1a1166a557bb", expanderHifi);       // rpi-eb428ef1
             //expanderServer.AddInstance("60023fcde5b549b89fa828d31741dd0c", expanderPicture);    // rpi-eb91bc26
             //expanderServer.AddInstance("e41d2977931d4887a9417e8adcd87306", expanderRocking);    // rpi-eb6a047c
-            expanderServer.AddInstance("16e49fc1188e4310931a4e6d21b3e940", expanderBigEye);    // rpi-ebc64d15
+            //expanderServer.AddInstance("16e49fc1188e4310931a4e6d21b3e940", expanderBigEye);    // rpi-ebc64d15
             //expanderServer.AddInstance("999861affa294fd7bbf0601505e9ae09", expanderRocking); // rpi-ebd43a38
             //expanderServer.AddInstance("992f8db68e874248b5ee667d23d74ac3", expanderFlying);     // rpi-eb9b3145
             //expanderServer.AddInstance("db9b41a596cb4ed28e91f11a59afb95a", expanderHead);      // rpi-eb32e5f9
             //expanderServer.AddInstance("acbfada45c674077b9154f6a0e0df359", expanderMrPumpkin);     // rpi-eb35666e
             //expanderServer.AddInstance("2e105175a66549d4a0ab7f8d446c2e29", expanderPopper);     // rpi-eb997095
             //expanderServer.AddInstance("4fabc4931566424c870ccb83984b3ffb", expanderEeebox);     // videoplayer1
+            expanderServer.AddInstance("d6fc4e752af04022bf3c1a1166a557bb", expanderHifi);       // rpi-eb428ef1
 
             masterVolume.ConnectTo(Exec.MasterVolume);
 
@@ -138,6 +136,8 @@ namespace Animatroller.Scenes
 
             spiderMotion.Controls(spider.InputTrigger);
 
+            expanderHifi.Connect(audioHifi);
+
             buttonOverrideHours.Output.Subscribe(x =>
             {
                 if (x)
@@ -149,6 +149,7 @@ namespace Animatroller.Scenes
 
             testButton1.Output.Subscribe(x =>
             {
+                audioHifi.PlayEffect("scream.wav");
             });
 
             testButton2.Output.Subscribe(x =>
@@ -201,7 +202,24 @@ namespace Animatroller.Scenes
                     {
                         bigEyeSender.SendAndRepeat("/eyecontrol", 1);
 
-                        ins.WaitUntilCancel();
+                        while (!ins.IsCancellationRequested)
+                        {
+                            switch (random.Next(2))
+                            {
+                                case 0:
+                                    audioHifi.PlayEffect("Disgusting Things.wav");
+                                    ins.WaitFor(S(6), true);
+                                    break;
+
+                                case 1:
+                                    audioHifi.PlayEffect("Guts Boy.wav");
+                                    ins.WaitFor(S(4), true);
+                                    break;
+                            }
+
+                            ins.WaitFor(S(15.0));
+                        }
+                        //                        ins.WaitUntilCancel();
                     })
                 .TearDown(ins =>
                     {
@@ -217,6 +235,8 @@ namespace Animatroller.Scenes
 
             //expanderLedmx.Connect(audioCat);
             expanderLedmx.Connect(audioSpider, 1);
+
+            ConfigureOSC();
         }
 
         public override void Run()

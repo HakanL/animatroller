@@ -43,9 +43,12 @@ namespace Animatroller.ExpanderCommunication
             string channelId = context.Channel.Id.AsShortText();
 
             var buffer = message as IByteBuffer;
-            if (buffer != null)
+            if (buffer != null && buffer.Capacity > 0)
             {
                 int stringLength = buffer.ReadByte();
+                if (stringLength > buffer.Capacity)
+                    return;
+
                 var b = new byte[stringLength];
                 buffer.ReadBytes(b, 0, b.Length);
                 string instanceId = Encoding.UTF8.GetString(b);

@@ -191,6 +191,7 @@ namespace Animatroller.Framework.Expander
                 this.lastSendWatch.Restart();
             }
 
+
             public void SendDmxData(int address, byte value)
             {
                 lock (this.lockObject)
