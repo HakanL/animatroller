@@ -6,27 +6,33 @@ using Animatroller.Common;
 
 namespace Animatroller.Processor
 {
-    public class Transformer : ITransformer
+    public class OutputWriter : IOutputWriter
     {
         private const double MinSeparationMS = 0.001;
 
-        private readonly List<OutputFrame> output = new List<OutputFrame>();
-        private OutputFrame currentFrame = null;
+        private readonly List<TransformFrame> output = new List<TransformFrame>();
+        private TransformFrame currentFrame = null;
         private readonly IList<IBaseTransform> transforms;
         private readonly Dictionary<int, long> sequencePerUniverse = new Dictionary<int, long>();
         private readonly Dictionary<int, long> sequencePerSyncAddress = new Dictionary<int, long>();
-        private readonly Common.IO.IFileWriter fileWriter;
         private int outputDuplicateCount;
         private double? firstFrameTimestampOffset = null;
 
-        public Transformer(IList<IBaseTransform> transforms, Common.IO.IFileWriter fileWriter, int outputDuplicateCount)
+        private OutputFrame inputFrameToProcess;
+        private OutputFrame nextFrameToProcess;
+        private Action<BaseDmxFrame> actionToProcess;
+        private ProcessorContext contextToProcess;
+
+        public OutputWriter(IList<IBaseTransform> transforms, Common.IO.IFileWriter fileWriter, int outputDuplicateCount)
         {
             this.transforms = transforms ?? new List<IBaseTransform>();
-            this.fileWriter = fileWriter;
+            FileWriter = fileWriter;
             this.outputDuplicateCount = outputDuplicateCount;
         }
 
-        public void Simulate(TransformContext context, DmxDataPacket dmxData, Action<BaseDmxFrame> action)
+        public Common.IO.IFileWriter FileWriter { get; set; }
+
+        public void Simulate(ProcessorContext context, DmxDataPacket dmxData, Action<BaseDmxFrame> action)
         {
             var data = new List<BaseDmxFrame>() { dmxData.Content };
 
@@ -77,102 +83,29 @@ namespace Animatroller.Processor
             }
         }
 
-        public void Transform(TransformContext context, Common.DmxDataPacket dmxData, Action<BaseDmxFrame> action)
+        private void ProcessData()
         {
-            var data = new List<BaseDmxFrame>() { dmxData.Content };
+            if (this.inputFrameToProcess == null)
+                // Nothing to do
+                return;
 
-            foreach (var transform in this.transforms)
-            {
-                if (transform is ITransformData transformData)
-                {
-                    var outputData = new List<BaseDmxFrame>();
-
-                    foreach (var input in data)
-                    {
-                        /*FIXME if (input.Data == null)
-                        {
-                            outputData.Add(input);
-                        }
-                        else
-                        {*/
-                        if (input is DmxDataFrame dmxDataFrame)
-                        {
-                            var newData = transformData.TransformData(dmxDataFrame);
-
-                            if (newData == null)
-                                outputData.Add(input);
-                            else
-                                outputData.AddRange(newData);
-                        }
-                        else
-                        {
-                            outputData.Add(input);
-                        }
-                        //}
-                    }
-
-                    data = outputData;
-                }
-            }
-
-            double timestamp = dmxData.TimestampMS;
-
-            foreach (var actionData in data)
-            {
-                foreach (var transform in this.transforms)
-                {
-                    if (transform is ITransformTimestamp transformTimestamp)
-                    {
-                        timestamp = Math.Round(transformTimestamp.TransformTimestamp(actionData, timestamp, context), 3);
-                    }
-                }
-
-                if (actionData is DmxDataFrame dmxFrame)
-                    action?.Invoke(dmxFrame);
-
-                switch (actionData)
-                {
-                    case DmxDataFrame dmxDataFrame:
-                        if (this.currentFrame == null)
-                            this.currentFrame = new OutputFrame();
-
-                        //FIXME per sync address
-                        this.currentFrame.DmxData.Add(dmxDataFrame);
-                        break;
-
-                    case SyncFrame syncFrame:
-                        if (this.currentFrame != null)
-                        {
-                            //FIXME this.currentFrame.TimestampMS = dmxData.TimestampMS;
-                            this.currentFrame.SyncAddress = syncFrame.SyncAddress;
-
-                            this.output.Add(this.currentFrame);
-                            this.currentFrame = null;
-                        }
-                        break;
-                }
-            }
-        }
-
-        public void Transform2(TransformContext context, InputFrame inputFrame, InputFrame nextFrame, Action<BaseDmxFrame> action)
-        {
             if (!this.firstFrameTimestampOffset.HasValue)
-                this.firstFrameTimestampOffset = inputFrame.TimestampMS;
-            double timestampMS = inputFrame.TimestampMS - this.firstFrameTimestampOffset.Value;
+                this.firstFrameTimestampOffset = this.inputFrameToProcess.TimestampMS;
+            double timestampMS = this.inputFrameToProcess.TimestampMS - this.firstFrameTimestampOffset.Value;
             double delayMS = 0;
-            if (nextFrame != null)
-                delayMS = nextFrame.TimestampMS - inputFrame.TimestampMS;
+            if (nextFrameToProcess != null)
+                delayMS = nextFrameToProcess.TimestampMS - this.inputFrameToProcess.TimestampMS;
 
-            var frame = new OutputFrame
+            var frame = new TransformFrame
             {
-                DmxData = inputFrame.DmxData,
-                SyncAddress = inputFrame.SyncAddress,
+                DmxData = this.inputFrameToProcess.DmxData,
+                SyncAddress = this.inputFrameToProcess.SyncAddress,
                 DelayMS = delayMS
             };
 
             foreach (var transformTimestamp in this.transforms.OfType<ITransformTimestamp>())
             {
-                frame.DelayMS = Math.Round(transformTimestamp.TransformTimestamp2(frame, context), 3);
+                frame.DelayMS = Math.Round(transformTimestamp.TransformTimestamp2(frame, this.contextToProcess), 3);
             }
 
             var data = new List<DmxDataFrame>(frame.DmxData);
@@ -199,11 +132,11 @@ namespace Animatroller.Processor
 
             foreach (var actionData in data)
             {
-                action?.Invoke(actionData);
+                this.actionToProcess?.Invoke(actionData);
 
                 if (this.currentFrame == null)
                 {
-                    this.currentFrame = new OutputFrame
+                    this.currentFrame = new TransformFrame
                     {
                         DelayMS = frame.DelayMS,
                         SyncAddress = frame.SyncAddress
@@ -224,9 +157,23 @@ namespace Animatroller.Processor
             }
         }
 
+        public void Output(ProcessorContext context, OutputFrame outputFrame, Action<BaseDmxFrame> action)
+        {
+            this.nextFrameToProcess = outputFrame;
+
+            ProcessData();
+
+            this.inputFrameToProcess = outputFrame;
+            this.contextToProcess = context;
+            this.actionToProcess = action;
+            this.nextFrameToProcess = null;
+        }
+
         public void WriteOutput()
         {
-            if (!this.output.Any() || this.fileWriter == null)
+            ProcessData();
+
+            if (!this.output.Any() || FileWriter == null)
                 // Nothing
                 return;
 
@@ -234,7 +181,7 @@ namespace Animatroller.Processor
 
             // Write headers
             foreach (int universeId in universeIds)
-                this.fileWriter.Header(universeId);
+                FileWriter.Header(universeId);
 
             // Write output
             int loop = 0;
@@ -259,7 +206,7 @@ namespace Animatroller.Processor
                             dmxData.Data,
                             dmxData.SyncAddress);
 
-                        this.fileWriter.Output(packet);
+                        FileWriter.Output(packet);
                         nextPacketWriteTimestampMS = packet.TimestampMS + MinSeparationMS;
 
                         sequence++;
@@ -276,7 +223,7 @@ namespace Animatroller.Processor
                         this.sequencePerSyncAddress.TryGetValue(frame.SyncAddress, out sequence);
 
                         var packet = DmxDataOutputPacket.CreateSync(masterTimestamp, sequence, frame.SyncAddress);
-                        this.fileWriter.Output(packet);
+                        FileWriter.Output(packet);
                         // Pad the delay to the next set of data packets so we won't risk having the data come
                         // over the wire before the Sync packet during playback
                         // Not sure if it's necessary
@@ -294,7 +241,7 @@ namespace Animatroller.Processor
 
             // Write footers
             foreach (int universeId in universeIds)
-                this.fileWriter.Footer(universeId);
+                FileWriter.Footer(universeId);
         }
     }
 }

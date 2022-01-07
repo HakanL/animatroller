@@ -32,5 +32,10 @@ namespace Animatroller.Common
                 Data = data
             };
         }
+
+        public bool IsAllBlack()
+        {
+            return Data.All(d => d == 0);
+        }
     }
 }

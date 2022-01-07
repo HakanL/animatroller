@@ -10,9 +10,13 @@ namespace Animatroller.PostProcessor
         {
             TrimBlack,
             FindLoop,
-            Trim,
-            FileConvert,
-            Generate
+            TrimBlackFindLoop,
+            TrimFrame,
+            TrimTime,
+            Convert,
+            GenerateStatic,
+            GenerateRamp,
+            Duplicate
         }
 
         public enum FileFormats
@@ -26,7 +30,7 @@ namespace Animatroller.PostProcessor
         [ArgShortcut("i")]
         [ArgDescription("Input file")]
         [ArgExistingFile()]
-        public string InputFile { get; set; }
+        public string InputFilename { get; set; }
 
         [ArgShortcut("ic")]
         [ArgDescription("Input config file")]
@@ -35,7 +39,7 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("o")]
         [ArgDescription("Output file")]
-        public string OutputFile { get; set; }
+        public string OutputFilename { get; set; }
 
         [ArgShortcut("c")]
         [ArgDescription("Command")]
@@ -44,20 +48,23 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("if")]
         [ArgDescription("Input File format")]
-        [ArgDefaultValue(FileFormats.PCapAcn)]
-        public FileFormats InputFileFormat { get; set; }
+        public FileFormats? InputFileFormat { get; set; }
+
+        [ArgDefaultValue(true)]
+        [ArgDescription("Set to True if TrimBlack should leave the first frame black")]
+        public bool FirstFrameBlack { get; set; }
 
         [ArgShortcut("ts")]
         [ArgDescription("Trim start position")]
-        public long? TrimStart { get; set; }
+        public double? TrimStart { get; set; }
 
         [ArgShortcut("te")]
         [ArgDescription("Trim end position")]
-        public long? TrimEnd { get; set; }
+        public double? TrimEnd { get; set; }
 
-        [ArgShortcut("tc")]
-        [ArgDescription("Trim count")]
-        public long? TrimCount { get; set; }
+        [ArgShortcut("td")]
+        [ArgDescription("Trim duration/count")]
+        public double? TrimDuration { get; set; }
 
         [ArgShortcut("fb")]
         [ArgDescription("Fill byte")]
@@ -65,8 +72,7 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("of")]
         [ArgDescription("Output File format")]
-        [ArgDefaultValue(FileFormats.PCapAcn)]
-        public FileFormats OutputFileFormat { get; set; }
+        public FileFormats? OutputFileFormat { get; set; }
 
         [ArgShortcut("m")]
         [ArgDescription("Universe Mapping (input=output,input2=output2 - example 1=10,2=11,6=20)")]
@@ -77,8 +83,9 @@ namespace Animatroller.PostProcessor
         public string Universes { get; set; }
 
         [ArgShortcut("hz")]
+        [ArgDefaultValue(40)]
         [ArgDescription("Frequency")]
-        public double? Frequency { get; set; }
+        public double Frequency { get; set; }
 
         [ArgShortcut("e")]
         [ArgDescription("Enhancers, example -e BrightnessFixer,TimestampFixer")]

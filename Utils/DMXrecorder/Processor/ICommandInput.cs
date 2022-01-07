@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Animatroller.Processor
 {
-    public interface ICommand
+    public interface ICommandInput : ICommand
     {
+        void Execute(ProcessorContext context, Common.IInputReader inputReader);
     }
 }

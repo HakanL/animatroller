@@ -77,7 +77,7 @@ namespace Animatroller.DMXplayer
                     {
                         Console.WriteLine($"Reading first frame, iteration {loopCount}");
 
-                        dmxFrame = this.fileReader.ReadFrame();
+                        dmxFrame = this.fileReader.ReadFrameLegacy();
                         if (dmxFrame == null)
                             break;
 
@@ -144,7 +144,7 @@ namespace Animatroller.DMXplayer
                         }
 
                         // Read next frame
-                        dmxFrame = this.fileReader.ReadFrame();
+                        dmxFrame = this.fileReader.ReadFrameLegacy();
 
                         if (dmxFrame == null)
                             // End of file

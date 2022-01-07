@@ -72,6 +72,7 @@ namespace Animatroller.Common
                                 //    lastTimestampMS = data.TimestampMS;
 
                                 currentFrame.TimestampMS = data.TimestampMS;
+                                currentFrame.Position = this.frames.Count;
                                 //FIXME currentFrame.DelayMS = data.TimestampMS - lastTimestampMS.Value;
                                 this.frames.Add(currentFrame);
 
@@ -92,6 +93,7 @@ namespace Animatroller.Common
                         currentFrame = new InputFrame
                         {
                             TimestampMS = data.TimestampMS,
+                            Position = this.frames.Count,
                             //DelayMS = data.TimestampMS - lastTimestampMS.Value,
                             SyncAddress = dmxDataFrame.UniverseId       // Set it to the universe to simplify the rest of the code
                         };
@@ -105,7 +107,7 @@ namespace Animatroller.Common
             }
         }
 
-        public InputFrame ReadFrame2()
+        public InputFrame ReadFrame()
         {
             if (this.readPosition < this.frames.Count)
                 return this.frames[this.readPosition++];
@@ -113,15 +115,7 @@ namespace Animatroller.Common
             return null;
         }
 
-        public InputFrame PeekFrame2()
-        {
-            if (this.readPosition < this.frames.Count)
-                return this.frames[this.readPosition];
-
-            return null;
-        }
-
-        public DmxDataOutputPacket ReadFrame()
+        public DmxDataOutputPacket ReadFrameLegacy()
         {
             if (this.readPosition < this.readPackets.Count)
                 return this.readPackets[this.readPosition++];
@@ -151,6 +145,8 @@ namespace Animatroller.Common
         }
 
         public int FramesRead => this.readPackets.Count;
+
+        public int TotalFrames => this.frames.Count;
 
         public bool HasSyncFrames { get; set; }
     }

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Animatroller.Common
 {
-    public class OutputFrame : Frame
+    public class TransformFrame : Frame
     {
-        public double TimestampMS { get; set; }
+        public double DelayMS { get; set; }
     }
 }

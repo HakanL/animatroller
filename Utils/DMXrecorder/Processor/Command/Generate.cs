@@ -7,29 +7,38 @@ using Animatroller.Common;
 
 namespace Animatroller.Processor.Command
 {
-    public class Generate : ICommand
+    public class Generate : ICommandOutput
     {
-        private readonly ITransformer transformer;
         private readonly int[] universeIds;
         private readonly double frequency;
-        private readonly long lengthFrames;
+        private readonly double durationMS;
         private readonly byte fillValue;
+        private readonly GenerateSubCommands subCommand;
         private double timestampMS;
+        private double rampUpPerFrame;
+        private double currentValue;
 
-        public Generate(ITransformer transformer, int[] universeIds, double frequency, long lengthFrames, byte fillValue)
+        public enum GenerateSubCommands
         {
-            this.transformer = transformer;
-            this.universeIds = universeIds;
-            this.frequency = frequency;
-            this.lengthFrames = lengthFrames;
-            this.fillValue = fillValue;
+            Static,
+            Ramp
         }
 
-        private InputFrame GetFrame()
+        public Generate(GenerateSubCommands subCommand, int[] universeIds, double frequency, double durationMS, byte fillValue = 0)
+        {
+            this.universeIds = universeIds ?? new int[] { 1 };
+            this.frequency = frequency;
+            this.durationMS = durationMS;
+            this.fillValue = fillValue;
+            this.subCommand = subCommand;
+        }
+
+        private OutputFrame GetFrame()
         {
             var inputFrame = new InputFrame
             {
-                TimestampMS = this.timestampMS
+                TimestampMS = this.timestampMS,
+                SyncAddress = 0
             };
 
             foreach (int universeId in this.universeIds)
@@ -41,8 +50,20 @@ namespace Animatroller.Processor.Command
                     SyncAddress = 0
                 };
 
-                for (int i = 0; i < 512; i++)
-                    frame.Data[i] = this.fillValue;
+                if (this.subCommand == GenerateSubCommands.Static)
+                {
+                    for (int i = 0; i < 512; i++)
+                        frame.Data[i] = this.fillValue;
+                }
+                else if (this.subCommand == GenerateSubCommands.Ramp)
+                {
+                    for (int i = 0; i < 512; i++)
+                        frame.Data[i] = (byte)this.currentValue;
+
+                    this.currentValue += this.rampUpPerFrame;
+                }
+                else
+                    throw new ArgumentOutOfRangeException(nameof(subCommand));
 
                 inputFrame.DmxData.Add(frame);
             }
@@ -52,18 +73,19 @@ namespace Animatroller.Processor.Command
             return inputFrame;
         }
 
-        public void Execute(TransformContext context)
+        public void Execute(ProcessorContext context, IOutputWriter outputWriter)
         {
-            var inputFrame = GetFrame();
+            int frames = (int)(this.durationMS / (1000.0 / this.frequency));
+            this.rampUpPerFrame = 255.0 / frames;
 
-            for (int frameCount = 0; frameCount < this.lengthFrames; frameCount++)
+            OutputFrame data;
+            do
             {
-                var nextFrame = GetFrame();
+                data = GetFrame();
 
-                this.transformer.Transform2(context, inputFrame, nextFrame);
+                outputWriter.Output(context, data);
 
-                inputFrame = nextFrame;
-            }
+            } while (data.TimestampMS < this.durationMS);
         }
     }
 }

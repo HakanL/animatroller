@@ -1,0 +1,9 @@
+-i C:\Users\hakan.HAKANDEV2019\Downloads\show038.cap -if PCapAcn -of PCapAcn -o hakan_test_1.cap -c Trim -ts 20 -tc 20  -e TimestampFixer,BrightnessFixer -l 5 -m 4=1
+
+
+# Generate 200 frame blank file
+-of PCapAcn -o hakan_test_1.cap -c Generate -tc 200 -hz 40 -u 1,2 -fb 0
+
+-if PCapACN -i C:\Temp\show007.cap -c Trim -o C:\Temp\show007_out.cap -of PCapACN -te 350
+
+-if PCapACN -i C:\Temp\show007.cap -c FindLoop

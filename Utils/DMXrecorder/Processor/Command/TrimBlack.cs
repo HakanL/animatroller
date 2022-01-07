@@ -3,112 +3,68 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Animatroller.Common;
 
 namespace Animatroller.Processor.Command
 {
-    public class TrimBlack : ICommand
+    public class TrimBlack : ICommandInputOutput
     {
-        private readonly IInputReader inputReader;
-        private readonly ITransformer transformer;
+        private readonly bool firstFrameBlack;
 
-        public TrimBlack(IInputReader inputReader, ITransformer transformer)
+        public TrimBlack(bool firstFrameBlack)
         {
-            this.inputReader = inputReader;
-            this.transformer = transformer;
+            this.firstFrameBlack = firstFrameBlack;
         }
 
-        public void Execute(TransformContext context)
+        public void Execute(ProcessorContext context, Common.IInputReader inputReader, IOutputWriter outputWriter)
         {
-            double? timestampOffset = null;
+            double? startBlackTimestamp = null;
+            double? endBlackTimestamp = null;
+            double lastTimestamp = 0;
 
-            var positions = new List<long>();
-            var blackPositions = new HashSet<long>();
-
-            int inputFrameCount = 0;
-            int outputFrameCount = 0;
-
-            long currentPos = 0;
-
-            // Read until we have all starting points
-            while (true)
+            Common.InputFrame data;
+            while ((data = inputReader.ReadFrame()) != null)
             {
-                long pos = currentPos++;
-
-                var data = this.inputReader.ReadFrame();
-                if (data == null)
-                    break;
-
-                inputFrameCount++;
-
-                if (data.Content is DmxDataFrame)
+                if (data.IsAllBlack())
                 {
-                    this.transformer.Transform(context, data, packet =>
-                    {
-                        if (packet is DmxDataFrame dmxDataFrame)
-                        {
-                            positions.Add(pos);
-                            if (dmxDataFrame.Data.All(x => x == 0))
-                            {
-                                blackPositions.Add(pos);
-                            }
-                            else
-                            {
-                                if (!timestampOffset.HasValue)
-                                    timestampOffset = data.TimestampMS;
-                            }
-                        }
-                    });
+                    if (startBlackTimestamp.HasValue && !endBlackTimestamp.HasValue)
+                        endBlackTimestamp = data.TimestampMS;
                 }
+                else
+                {
+                    if (!startBlackTimestamp.HasValue)
+                        startBlackTimestamp = lastTimestamp;
+
+                    endBlackTimestamp = null;
+                }
+
+                lastTimestamp = data.TimestampMS;
             }
 
-            Console.WriteLine("{0} frames in input file", inputFrameCount);
+            if (startBlackTimestamp.HasValue)
+                Console.WriteLine($"Start trimming at {startBlackTimestamp:N1} mS");
+            if (endBlackTimestamp.HasValue)
+                Console.WriteLine($"Stop trimming at {endBlackTimestamp:N1} mS");
 
-            long firstPos = positions
-                .SkipWhile(x => blackPositions.Contains(x))
-                .FirstOrDefault();
+            inputReader.Rewind();
 
-            long? lastPos = positions
-                .Reverse<long>()
-                .SkipWhile(x => blackPositions.Contains(x))
-                .FirstOrDefault();
-            if (lastPos == 0)
-                lastPos = null;
-
-            this.inputReader.Rewind();
-            // Skip the black data at the beginning of the file
-            currentPos = 0;
-            while (true)
+            while ((data = inputReader.ReadFrame()) != null)
             {
-                long pos = currentPos;
+                if (this.firstFrameBlack)
+                {
+                    if (startBlackTimestamp.HasValue && data.TimestampMS < startBlackTimestamp.Value)
+                        continue;
+                }
+                else
+                {
+                    if (startBlackTimestamp.HasValue && data.TimestampMS <= startBlackTimestamp.Value)
+                        continue;
+                }
 
-                if (pos >= firstPos)
+                if (endBlackTimestamp.HasValue && data.TimestampMS >= endBlackTimestamp.Value)
                     break;
 
-                currentPos++;
-                var data = this.inputReader.ReadFrame();
-                if (data == null)
-                    break;
+                outputWriter.Output(context, data);
             }
-
-            while (true)
-            {
-                long pos = currentPos++;
-                if (lastPos.HasValue && pos > lastPos.Value)
-                    break;
-
-                var data = this.inputReader.ReadFrame();
-                if (data == null)
-                    break;
-
-                data.TimestampMS -= timestampOffset.Value;
-
-                throw new NotImplementedException();
-                //this.fileWriter.Output(data);
-                outputFrameCount++;
-            }
-
-            Console.WriteLine("{0} frames written to output file", outputFrameCount);
         }
     }
 }

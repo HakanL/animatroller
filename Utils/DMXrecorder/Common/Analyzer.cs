@@ -51,7 +51,7 @@ namespace Animatroller.Common
         public void Analyze()
         {
             InputFrame dmxFrame;
-            while ((dmxFrame = this.inputReader.ReadFrame2()) != null)
+            while ((dmxFrame = this.inputReader.ReadFrame()) != null)
             {
                 double lastFrameTimestamp;
                 double interval;

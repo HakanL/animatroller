@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Animatroller.Common
@@ -13,6 +14,11 @@ namespace Animatroller.Common
         public Frame()
         {
             DmxData = new List<DmxDataFrame>();
+        }
+
+        public bool IsAllBlack()
+        {
+            return DmxData.All(x => x.IsAllBlack());
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,28 +19,57 @@ namespace Animatroller.PostProcessor
                 var arguments = Args.Parse<Arguments>(args);
 
                 Common.IO.IFileReader fileReader = null;
-                Common.IO.IFileWriter fileWriter;
                 Common.IInputReader inputReader = null;
                 Common.Analyzer analyzer = null;
 
-                if (!string.IsNullOrEmpty(arguments.InputFile))
+                if (!string.IsNullOrEmpty(arguments.InputFilename))
                 {
+                    // Try to determine the format by probing
+                    if (!arguments.InputFileFormat.HasValue)
+                    {
+                        try
+                        {
+                            using var testReader = new Common.IO.PCapAcnFileReader(arguments.InputFilename);
+                            testReader.ReadFrame();
+
+                            arguments.InputFileFormat = Arguments.FileFormats.PCapAcn;
+                        }
+                        catch (InvalidDataException)
+                        {
+                        }
+                    }
+
+                    if (!arguments.InputFileFormat.HasValue)
+                    {
+                        // Try to determine the format by attempting to read
+                        try
+                        {
+                            using var testReader = new Common.IO.PCapArtNetFileReader(arguments.InputFilename);
+                            testReader.ReadFrame();
+
+                            arguments.InputFileFormat = Arguments.FileFormats.PCapArtNet;
+                        }
+                        catch (InvalidDataException)
+                        {
+                        }
+                    }
+
                     switch (arguments.InputFileFormat)
                     {
                         case Arguments.FileFormats.Binary:
-                            fileReader = new Common.IO.BinaryFileReader(arguments.InputFile);
+                            fileReader = new Common.IO.BinaryFileReader(arguments.InputFilename);
                             break;
 
                         case Arguments.FileFormats.PCapAcn:
-                            fileReader = new Common.IO.PCapAcnFileReader(arguments.InputFile);
+                            fileReader = new Common.IO.PCapAcnFileReader(arguments.InputFilename);
                             break;
 
                         case Arguments.FileFormats.PCapArtNet:
-                            fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFile);
+                            fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFilename);
                             break;
 
                         case Arguments.FileFormats.FSeq:
-                            fileReader = new Common.IO.FseqFileReader(arguments.InputFile, arguments.InputConfigFile);
+                            fileReader = new Common.IO.FseqFileReader(arguments.InputFilename, arguments.InputConfigFile);
                             break;
 
                         default:
@@ -53,32 +83,6 @@ namespace Animatroller.PostProcessor
 
                     // Rewind so we'll start from the beginning
                     inputReader.Rewind();
-                }
-
-
-                if (!string.IsNullOrEmpty(arguments.OutputFile))
-                {
-                    switch (arguments.OutputFileFormat)
-                    {
-                        case Arguments.FileFormats.Binary:
-                            fileWriter = new Common.IO.BinaryFileWriter(arguments.OutputFile);
-                            break;
-
-                        case Arguments.FileFormats.PCapAcn:
-                            fileWriter = new Common.IO.PCapAcnFileWriter(arguments.OutputFile);
-                            break;
-
-                        case Arguments.FileFormats.PCapArtNet:
-                            fileWriter = new Common.IO.PCapArtNetFileWriter(arguments.OutputFile);
-                            break;
-
-                        default:
-                            throw new ArgumentException("Unhandled output file format " + arguments.OutputFileFormat);
-                    }
-                }
-                else
-                {
-                    fileWriter = null;
                 }
 
                 var transforms = new List<IBaseTransform>();
@@ -140,7 +144,7 @@ namespace Animatroller.PostProcessor
                     }
                 }
 
-                var transformer = new Transformer(transforms, fileWriter, arguments.Loop ?? 0);
+                var transformer = new OutputWriter(transforms, null, arguments.Loop ?? 0);
                 ICommand command = null;
 
                 int[] universeIds = null;
@@ -149,51 +153,110 @@ namespace Animatroller.PostProcessor
                     universeIds = arguments.Universes.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)).Select(x => int.Parse(x)).ToArray();
                 }
 
+                Common.IO.IFileWriter fileWriter = null;
+
                 switch (arguments.Command)
                 {
                     case Arguments.Commands.TrimBlack:
-                        if (fileWriter == null)
-                            throw new ArgumentNullException("Missing output file");
-
-                        command = new Processor.Command.TrimBlack(inputReader, transformer);
+                        command = new Processor.Command.TrimBlack(arguments.FirstFrameBlack);
                         break;
 
                     case Arguments.Commands.FindLoop:
-                        command = new Processor.Command.FindLoop(inputReader, transformer);
+                        command = new Processor.Command.FindLoop(trimBlack: false, arguments.FirstFrameBlack);
                         break;
 
-                    case Arguments.Commands.Trim:
-                        if (fileWriter == null)
-                            throw new ArgumentNullException("Missing output file");
-
-                        command = new Processor.Command.Trim(inputReader, arguments.TrimStart, arguments.TrimEnd, arguments.TrimCount, transformer);
+                    case Arguments.Commands.TrimBlackFindLoop:
+                        command = new Processor.Command.FindLoop(trimBlack: true, arguments.FirstFrameBlack);
                         break;
 
-                    case Arguments.Commands.FileConvert:
-                        if (fileWriter == null)
-                            throw new ArgumentNullException("Missing output file");
-
-                        command = new Processor.Command.FileConvert(inputReader, transformer);
+                    case Arguments.Commands.TrimFrame:
+                        command = new Processor.Command.TrimFrame((long?)arguments.TrimStart, (long?)arguments.TrimEnd, (long?)arguments.TrimDuration);
                         break;
 
-                    case Arguments.Commands.Generate:
-                        if (fileWriter == null)
-                            throw new ArgumentNullException("Missing output file");
+                    case Arguments.Commands.TrimTime:
+                        command = new Processor.Command.TrimTime(arguments.TrimStart, arguments.TrimEnd, arguments.TrimDuration);
+                        break;
 
-                        command = new Processor.Command.Generate(transformer, universeIds, arguments.Frequency.Value, arguments.TrimCount.Value, arguments.FillByte);
+                    case Arguments.Commands.Convert:
+                        command = new Processor.Command.Convert();
+                        break;
+
+                    case Arguments.Commands.Duplicate:
+                        command = new Processor.Command.Duplicate(extraCopies: arguments.Loop ?? 1);
+                        break;
+
+                    case Arguments.Commands.GenerateStatic:
+                        command = new Processor.Command.Generate(
+                            Processor.Command.Generate.GenerateSubCommands.Static,
+                            universeIds,
+                            arguments.Frequency,
+                            arguments.TrimDuration.Value,
+                            arguments.FillByte);
+                        break;
+
+                    case Arguments.Commands.GenerateRamp:
+                        command = new Processor.Command.Generate(
+                            Processor.Command.Generate.GenerateSubCommands.Ramp,
+                            universeIds,
+                            arguments.Frequency,
+                            arguments.TrimDuration.Value);
                         break;
 
                     default:
                         throw new ArgumentOutOfRangeException("Unknown command");
                 }
 
-                var context = new TransformContext
+                var context = new ProcessorContext
                 {
                     FirstSyncTimestampMS = analyzer?.FirstSyncTimestampMS ?? 0,
-                    HasSyncFrames = analyzer?.SyncFrameDetected ?? false
+                    HasSyncFrames = analyzer?.SyncFrameDetected ?? false,
+                    TotalFrames = inputReader?.TotalFrames ?? 0,
+                    InputFilename = arguments.InputFilename
                 };
 
-                command.Execute(context);
+                if (command is ICommandInputOutput || command is ICommandOutput)
+                {
+                    if (string.IsNullOrEmpty(arguments.OutputFilename))
+                    {
+                        // Use the input name
+                        arguments.OutputFilename = Path.Combine(Path.GetDirectoryName(arguments.InputFilename),
+                            Path.GetFileNameWithoutExtension(arguments.InputFilename) + "_out" + Path.GetExtension(arguments.InputFilename));
+                    }
+
+                    if (!arguments.OutputFileFormat.HasValue)
+                        arguments.OutputFileFormat = arguments.InputFileFormat;
+
+                    if (!arguments.OutputFileFormat.HasValue)
+                        // Default
+                        arguments.OutputFileFormat = Arguments.FileFormats.PCapAcn;
+
+                    switch (arguments.OutputFileFormat)
+                    {
+                        case Arguments.FileFormats.Binary:
+                            fileWriter = new Common.IO.BinaryFileWriter(arguments.OutputFilename);
+                            break;
+
+                        case Arguments.FileFormats.PCapAcn:
+                            fileWriter = new Common.IO.PCapAcnFileWriter(arguments.OutputFilename);
+                            break;
+
+                        case Arguments.FileFormats.PCapArtNet:
+                            fileWriter = new Common.IO.PCapArtNetFileWriter(arguments.OutputFilename);
+                            break;
+
+                        default:
+                            throw new ArgumentException("Unhandled output file format " + arguments.OutputFileFormat);
+                    }
+                }
+
+                transformer.FileWriter = fileWriter;
+
+                if (command is ICommandInputOutput commandInputOutput)
+                    commandInputOutput.Execute(context, inputReader, transformer);
+                else if (command is ICommandOutput commandOutput)
+                    commandOutput.Execute(context, transformer);
+                else if (command is ICommandInput commandInput)
+                    commandInput.Execute(context, inputReader);
 
                 transformer.WriteOutput();
 

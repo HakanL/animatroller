@@ -22,14 +22,14 @@ namespace Animatroller.Processor.Transform
             this.adjustTolerancePercent = adjustTolerancePercent;
         }
 
-        public double TransformTimestamp2(Common.OutputFrame frame, TransformContext context)
+        public double TransformTimestamp2(Common.TransformFrame frame, ProcessorContext context)
         {
             double delayMS = this.adjustedTimingMS ?? frame.DelayMS;
 
             return delayMS;
         }
 
-        public double TransformTimestamp(Common.BaseDmxFrame dmxData, double timestampMS, TransformContext context)
+        public double TransformTimestamp(Common.BaseDmxFrame dmxData, double timestampMS, ProcessorContext context)
         {
             double newTimestamp = timestampMS;
             bool firstSync = false;
