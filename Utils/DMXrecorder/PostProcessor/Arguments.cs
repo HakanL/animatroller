@@ -16,15 +16,8 @@ namespace Animatroller.PostProcessor
             Convert,
             GenerateStatic,
             GenerateRamp,
+            GenerateSaw,
             Duplicate
-        }
-
-        public enum FileFormats
-        {
-            Binary,
-            PCapAcn,
-            FSeq,
-            PCapArtNet
         }
 
         [ArgShortcut("i")]
@@ -48,7 +41,7 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("if")]
         [ArgDescription("Input File format")]
-        public FileFormats? InputFileFormat { get; set; }
+        public Common.FileFormats? InputFileFormat { get; set; }
 
         [ArgDefaultValue(true)]
         [ArgDescription("Set to True if TrimBlack should leave the first frame black")]
@@ -72,7 +65,7 @@ namespace Animatroller.PostProcessor
 
         [ArgShortcut("of")]
         [ArgDescription("Output File format")]
-        public FileFormats? OutputFileFormat { get; set; }
+        public Common.FileFormats? OutputFileFormat { get; set; }
 
         [ArgShortcut("m")]
         [ArgDescription("Universe Mapping (input=output,input2=output2 - example 1=10,2=11,6=20)")]

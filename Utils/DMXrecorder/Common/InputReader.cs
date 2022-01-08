@@ -44,7 +44,6 @@ namespace Animatroller.Common
             HasSyncFrames = readFrames.Any(x => x.Content is SyncFrame);
 
             // Organize data
-            //double? lastTimestampMS = null;
             foreach (var data in readFrames)
             {
                 InputFrame currentFrame;
@@ -68,15 +67,10 @@ namespace Animatroller.Common
                         case SyncFrame syncFrame:
                             if (this.framePerSyncAddress.TryGetValue(syncFrame.SyncAddress, out currentFrame))
                             {
-                                //if (!lastTimestampMS.HasValue)
-                                //    lastTimestampMS = data.TimestampMS;
-
                                 currentFrame.TimestampMS = data.TimestampMS;
                                 currentFrame.Position = this.frames.Count;
-                                //FIXME currentFrame.DelayMS = data.TimestampMS - lastTimestampMS.Value;
-                                this.frames.Add(currentFrame);
 
-                                //lastTimestampMS = data.TimestampMS;
+                                this.frames.Add(currentFrame);
 
                                 this.framePerSyncAddress.Remove(syncFrame.SyncAddress);
                             }
@@ -87,21 +81,15 @@ namespace Animatroller.Common
                 {
                     if (data.Content is DmxDataFrame dmxDataFrame)
                     {
-                        //if (!lastTimestampMS.HasValue)
-                        //    lastTimestampMS = data.TimestampMS;
-
                         currentFrame = new InputFrame
                         {
                             TimestampMS = data.TimestampMS,
                             Position = this.frames.Count,
-                            //DelayMS = data.TimestampMS - lastTimestampMS.Value,
                             SyncAddress = dmxDataFrame.UniverseId       // Set it to the universe to simplify the rest of the code
                         };
                         currentFrame.DmxData.Add(dmxDataFrame);
 
                         this.frames.Add(currentFrame);
-
-                        //lastTimestampMS = data.TimestampMS;
                     }
                 }
             }
@@ -115,7 +103,7 @@ namespace Animatroller.Common
             return null;
         }
 
-        public DmxDataOutputPacket ReadFrameLegacy()
+        /*public DmxDataOutputPacket ReadFrameLegacy()
         {
             if (this.readPosition < this.readPackets.Count)
                 return this.readPackets[this.readPosition++];
@@ -137,7 +125,7 @@ namespace Animatroller.Common
             } while (this.reader.DataAvailable);
 
             return null;
-        }
+        }*/
 
         public void Rewind()
         {

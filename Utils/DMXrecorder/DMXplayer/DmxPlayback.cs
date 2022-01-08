@@ -58,18 +58,18 @@ namespace Animatroller.DMXplayer
 
         public void Run(int loop)
         {
-            double timestampOffset = 0;
-
             this.cts = new CancellationTokenSource();
 
             var waitHandles = new WaitHandle[] { this.cts.Token.WaitHandle, this.scheduler.FillBuffer };
 
             int loopCount = 1;
-            Scheduler.SyncModes syncMode = Scheduler.SyncModes.Timestamp;
+            Scheduler.SyncModes syncMode = this.fileReader.HasSyncFrames ? Scheduler.SyncModes.Manual : Scheduler.SyncModes.Timestamp;
 
             this.runnerTask = Task.Run(() =>
             {
-                Common.DmxDataPacket dmxFrame = null;
+                Common.InputFrame dmxFrame = null;
+                double lastTimestampMS = 0;
+                double loopTimestampMS = 0;
 
                 do
                 {
@@ -77,33 +77,29 @@ namespace Animatroller.DMXplayer
                     {
                         Console.WriteLine($"Reading first frame, iteration {loopCount}");
 
-                        dmxFrame = this.fileReader.ReadFrameLegacy();
+                        dmxFrame = this.fileReader.ReadFrame();
                         if (dmxFrame == null)
                             break;
 
-                        var dmxDataFrame = dmxFrame.Content as Common.DmxDataFrame;
-                        if (dmxDataFrame != null)
+                        foreach (var dmxDataFrame in dmxFrame.DmxData)
                         {
                             this.lastFrameTimestampPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out double lastFrameTimestamp);
 
-                            timestampOffset += lastFrameTimestamp;
+                            //timestampOffset += lastFrameTimestamp;
 
                             this.intervalPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out double interval);
                             this.lastFrameTimestampPerUniverse.Clear();
-                            timestampOffset += interval;
+                            //timestampOffset += interval;
                         }
                     }
 
                     while (!this.cts.IsCancellationRequested)
                     {
-                        if (dmxFrame.Content is Common.SyncFrame)
+                        lastTimestampMS = dmxFrame.TimestampMS;
+
+                        foreach (var dmxDataFrame in dmxFrame.DmxData)
                         {
-                            syncMode = Scheduler.SyncModes.Manual;
-                            this.scheduler.SendCurrentData();
-                        }
-                        else
-                        {
-                            var dmxDataFrame = dmxFrame.Content as Common.DmxDataFrame;
+                            //var dmxDataFrame = dmxFrame.Content as Common.DmxDataFrame;
 
                             this.lastFrameTimestampPerUniverse.TryGetValue(dmxDataFrame.UniverseId, out double lastFrameTimestamp);
                             this.lastFrameTimestampPerUniverse[dmxDataFrame.UniverseId] = dmxFrame.TimestampMS;
@@ -124,16 +120,19 @@ namespace Animatroller.DMXplayer
                                 {
                                     foreach (int outputUniverse in outputUniverses)
                                     {
-                                        this.scheduler.AddData(dmxFrame.TimestampMS + timestampOffset, outputUniverse, dmxDataFrame.Data, syncMode);
+                                        this.scheduler.AddData(loopTimestampMS + dmxFrame.TimestampMS, outputUniverse, dmxDataFrame.Data, syncMode);
                                     }
                                 }
                             }
                             else
                             {
                                 // No mapping
-                                this.scheduler.AddData(dmxFrame.TimestampMS + timestampOffset, dmxDataFrame.UniverseId, dmxDataFrame.Data, syncMode);
+                                this.scheduler.AddData(loopTimestampMS + dmxFrame.TimestampMS, dmxDataFrame.UniverseId, dmxDataFrame.Data, syncMode);
                             }
                         }
+
+                        if (syncMode == Scheduler.SyncModes.Manual)
+                            this.scheduler.SendCurrentData();
 
                         WaitHandle.WaitAny(waitHandles);
 
@@ -144,7 +143,7 @@ namespace Animatroller.DMXplayer
                         }
 
                         // Read next frame
-                        dmxFrame = this.fileReader.ReadFrameLegacy();
+                        dmxFrame = this.fileReader.ReadFrame();
 
                         if (dmxFrame == null)
                             // End of file
@@ -152,6 +151,7 @@ namespace Animatroller.DMXplayer
                     }
 
                     loopCount++;
+                    loopTimestampMS += lastTimestampMS;
 
                     if (dmxFrame == null)
                     {

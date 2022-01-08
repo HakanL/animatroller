@@ -27,48 +27,24 @@ namespace Animatroller.PostProcessor
                     // Try to determine the format by probing
                     if (!arguments.InputFileFormat.HasValue)
                     {
-                        try
-                        {
-                            using var testReader = new Common.IO.PCapAcnFileReader(arguments.InputFilename);
-                            testReader.ReadFrame();
-
-                            arguments.InputFileFormat = Arguments.FileFormats.PCapAcn;
-                        }
-                        catch (InvalidDataException)
-                        {
-                        }
-                    }
-
-                    if (!arguments.InputFileFormat.HasValue)
-                    {
-                        // Try to determine the format by attempting to read
-                        try
-                        {
-                            using var testReader = new Common.IO.PCapArtNetFileReader(arguments.InputFilename);
-                            testReader.ReadFrame();
-
-                            arguments.InputFileFormat = Arguments.FileFormats.PCapArtNet;
-                        }
-                        catch (InvalidDataException)
-                        {
-                        }
+                        arguments.InputFileFormat = Common.FileFormatProber.ProbeFile(arguments.InputFilename);
                     }
 
                     switch (arguments.InputFileFormat)
                     {
-                        case Arguments.FileFormats.Binary:
+                        case Common.FileFormats.Binary:
                             fileReader = new Common.IO.BinaryFileReader(arguments.InputFilename);
                             break;
 
-                        case Arguments.FileFormats.PCapAcn:
+                        case Common.FileFormats.PCapAcn:
                             fileReader = new Common.IO.PCapAcnFileReader(arguments.InputFilename);
                             break;
 
-                        case Arguments.FileFormats.PCapArtNet:
+                        case Common.FileFormats.PCapArtNet:
                             fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFilename);
                             break;
 
-                        case Arguments.FileFormats.FSeq:
+                        case Common.FileFormats.FSeq:
                             fileReader = new Common.IO.FseqFileReader(arguments.InputFilename, arguments.InputConfigFile);
                             break;
 
@@ -202,6 +178,14 @@ namespace Animatroller.PostProcessor
                             arguments.TrimDuration.Value);
                         break;
 
+                    case Arguments.Commands.GenerateSaw:
+                        command = new Processor.Command.Generate(
+                            Processor.Command.Generate.GenerateSubCommands.Saw,
+                            universeIds,
+                            arguments.Frequency,
+                            arguments.TrimDuration.Value);
+                        break;
+
                     default:
                         throw new ArgumentOutOfRangeException("Unknown command");
                 }
@@ -228,19 +212,19 @@ namespace Animatroller.PostProcessor
 
                     if (!arguments.OutputFileFormat.HasValue)
                         // Default
-                        arguments.OutputFileFormat = Arguments.FileFormats.PCapAcn;
+                        arguments.OutputFileFormat = Common.FileFormats.PCapAcn;
 
                     switch (arguments.OutputFileFormat)
                     {
-                        case Arguments.FileFormats.Binary:
+                        case Common.FileFormats.Binary:
                             fileWriter = new Common.IO.BinaryFileWriter(arguments.OutputFilename);
                             break;
 
-                        case Arguments.FileFormats.PCapAcn:
+                        case Common.FileFormats.PCapAcn:
                             fileWriter = new Common.IO.PCapAcnFileWriter(arguments.OutputFilename);
                             break;
 
-                        case Arguments.FileFormats.PCapArtNet:
+                        case Common.FileFormats.PCapArtNet:
                             fileWriter = new Common.IO.PCapArtNetFileWriter(arguments.OutputFilename);
                             break;
 

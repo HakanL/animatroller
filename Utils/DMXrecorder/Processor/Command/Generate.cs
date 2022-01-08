@@ -21,7 +21,8 @@ namespace Animatroller.Processor.Command
         public enum GenerateSubCommands
         {
             Static,
-            Ramp
+            Ramp,
+            Saw
         }
 
         public Generate(GenerateSubCommands subCommand, int[] universeIds, double frequency, double durationMS, byte fillValue = 0)
@@ -31,6 +32,19 @@ namespace Animatroller.Processor.Command
             this.durationMS = durationMS;
             this.fillValue = fillValue;
             this.subCommand = subCommand;
+
+            int frames = (int)(this.durationMS / (1000.0 / this.frequency));
+
+            switch (subCommand)
+            {
+                case GenerateSubCommands.Ramp:
+                    this.rampUpPerFrame = 255.0 / frames;
+                    break;
+
+                case GenerateSubCommands.Saw:
+                    this.rampUpPerFrame = 2 * 255.0 / frames;
+                    break;
+            }
         }
 
         private OutputFrame GetFrame()
@@ -62,6 +76,18 @@ namespace Animatroller.Processor.Command
 
                     this.currentValue += this.rampUpPerFrame;
                 }
+                else if (this.subCommand == GenerateSubCommands.Saw)
+                {
+                    byte value = (byte)Math.Min(this.currentValue, 255);
+
+                    for (int i = 0; i < 512; i++)
+                        frame.Data[i] = value;
+
+                    this.currentValue += this.rampUpPerFrame;
+
+                    if (this.currentValue >= 255 || this.currentValue <= 0)
+                        this.rampUpPerFrame = -this.rampUpPerFrame;
+                }
                 else
                     throw new ArgumentOutOfRangeException(nameof(subCommand));
 
@@ -75,9 +101,6 @@ namespace Animatroller.Processor.Command
 
         public void Execute(ProcessorContext context, IOutputWriter outputWriter)
         {
-            int frames = (int)(this.durationMS / (1000.0 / this.frequency));
-            this.rampUpPerFrame = 255.0 / frames;
-
             OutputFrame data;
             do
             {

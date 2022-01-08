@@ -12,13 +12,6 @@ namespace Animatroller.DMXplayer
             ArtNet
         }
 
-        public enum FileFormats
-        {
-            Binary,
-            PCapAcn,
-            PCapArtNet
-        }
-
         [ArgShortcut("t")]
         [ArgDescription("Output type")]
         [ArgDefaultValue(OutputTypes.sACN)]
@@ -27,7 +20,7 @@ namespace Animatroller.DMXplayer
         [ArgShortcut("i")]
         [ArgDescription("Input file")]
         [ArgRequired()]
-        public string InputFile { get; set; }
+        public string InputFilename { get; set; }
 
         [ArgShortcut("l")]
         [ArgDescription("Loop # of times (-1 for indefinitely)")]
@@ -35,8 +28,7 @@ namespace Animatroller.DMXplayer
 
         [ArgShortcut("f")]
         [ArgDescription("File format")]
-        [ArgDefaultValue(FileFormats.Binary)]
-        public FileFormats FileFormat { get; set; }
+        public Common.FileFormats? FileFormat { get; set; }
 
         [ArgShortcut("n")]
         [ArgDescription("Network Adapter")]

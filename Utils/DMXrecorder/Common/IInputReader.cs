@@ -8,7 +8,7 @@ namespace Animatroller.Common
     {
         void Rewind();
 
-        DmxDataOutputPacket ReadFrameLegacy();
+        //DmxDataOutputPacket ReadFrameLegacy();
 
         int FramesRead { get; }
 
