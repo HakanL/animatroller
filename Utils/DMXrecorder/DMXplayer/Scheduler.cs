@@ -22,8 +22,8 @@ namespace Animatroller.DMXplayer
             Timestamp
         }
 
-        public const int BufferLowMark = 5;
-        public const int BufferHighMark = 10;
+        public const int BufferLowMark = 10;
+        public const int BufferHighMark = 20;
 
         public class SendData
         {
@@ -53,7 +53,7 @@ namespace Animatroller.DMXplayer
 
         public Scheduler(IOutput output, int periodMS = 25, int sendSyncUniverseId = 0, int progressReportPeriodMS = 1000)
         {
-            if (periodMS < 10)
+            if (periodMS < 1)
                 throw new ArgumentOutOfRangeException(nameof(periodMS));
 
             this.output = output;
@@ -88,7 +88,7 @@ namespace Animatroller.DMXplayer
 
         private void Sender(object state)
         {
-            List<SendData> sendDataList = null;
+            SendData[] sendDataList = null;
 
             // Wait until we're ready to run
             this.runningEvent.WaitOne();
@@ -96,6 +96,7 @@ namespace Animatroller.DMXplayer
             bool done = false;
             double lastReported = 0;
             bool dataSent = false;
+            double? nextTimestamp = null;
 
             while (this.running)
             {
@@ -105,7 +106,8 @@ namespace Animatroller.DMXplayer
                 {
                     if (this.sendSyncAddress == 0)
                     {
-                        SendDataFromList(sendDataList);
+                        if (sendDataList != null)
+                            SendDataFromList(sendDataList);
                     }
                     else
                     {
@@ -113,53 +115,64 @@ namespace Animatroller.DMXplayer
                         {
                             // Send sync
                             this.output.SendSync(this.sendSyncAddress);
+
+                            dataSent = false;
                         }
                     }
 
-                    if (playTimestamp - lastReported > this.progressReportPeriodMS)
+                    if ((sendDataList != null || dataSent) && !this.masterClock.IsRunning)
                     {
-                        this.progressSubject.OnNext((playTimestamp, PlayedFrames));
-                        lastReported = playTimestamp;
-                    }
+                        Console.WriteLine("Start timer");
 
-                    if (done)
+                        this.sendTimer.Start();
+                        this.masterClock.Restart();
+                    }
+                    else
                     {
-                        this.sendTimer.WaitForTrigger();
-                        break;
+                        if (playTimestamp - lastReported > this.progressReportPeriodMS)
+                        {
+                            this.progressSubject.OnNext((playTimestamp, PlayedFrames));
+                            lastReported = playTimestamp;
+                        }
+
+                        if (done)
+                        {
+                            // Wait for 25 mS at the end of playback to make sure the blackout doesn't happen right away
+                            while (playTimestamp + 25 > MasterClockMS)
+                            {
+                                this.sendTimer.WaitForTrigger();
+                            }
+
+                            break;
+                        }
+
+                        sendDataList = GetSendData(playTimestamp, ref done, out nextTimestamp);
+
+                        if (this.sendSyncAddress > 0 && sendDataList != null)
+                        {
+                            // Send the data now
+                            dataSent = SendDataFromList(sendDataList);
+                        }
+
+                        this.queueEmpty.Reset();
+
+                        if (this.sendQueue.Count < BufferLowMark)
+                            this.fillEvent.Set();
                     }
-
-                    sendDataList = GetSendData(playTimestamp, ref done);
-
-                    if (this.sendSyncAddress > 0)
-                    {
-                        dataSent = sendDataList.Any();
-
-                        // Send the data now
-                        SendDataFromList(sendDataList);
-                    }
-
-                    this.queueEmpty.Reset();
-
-                    if (this.sendQueue.Count < BufferLowMark)
-                        this.fillEvent.Set();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error when sending: {ex.Message}");
                 }
 
-                if (!this.masterClock.IsRunning)
+                if (this.masterClock.IsRunning)
                 {
-                    Console.WriteLine("Start timer");
+                    while (nextTimestamp.HasValue && nextTimestamp.Value > MasterClockMS)
+                    {
+                        this.sendTimer.WaitForTrigger();
+                    }
 
-                    this.sendTimer.Start();
-                    this.masterClock.Restart();
-                }
-                else
-                {
-                    this.sendTimer.WaitForTrigger();
-
-                    //Console.WriteLine($"Test timer {this.masterClock.Elapsed.TotalMilliseconds:N2}");
+                    //Console.WriteLine($"Test timer {this.masterClock.Elapsed.TotalMilliseconds:N2}   Next: {nextTimestamp:N2}   List: {sendDataList != null}");
                 }
             }
 
@@ -167,25 +180,29 @@ namespace Animatroller.DMXplayer
             this.queueEmpty.Set();
         }
 
-        private void SendDataFromList(List<SendData> sendDataList)
+        private bool SendDataFromList(IEnumerable<SendData> sendDataList)
         {
-            if (sendDataList?.Any() == true)
+            bool anythingSent = false;
+            //Console.WriteLine($"Playing {sendDataList.Count} frames at {MasterClockMS:N2}");
+
+            foreach (var sendData in sendDataList)
             {
-                foreach (var sendData in sendDataList)
-                {
-                    //Console.WriteLine($"Playing frame {PlayedFrames + 1} with priority {sendData.Priority}");
+                //Console.WriteLine($"Playing frame {PlayedFrames + 1} with priority {sendData.Priority} at {MasterClockMS:N2}");
 
-                    this.output.SendDmx(sendData.UniverseId, sendData.DmxData, sendData.Priority, this.sendSyncAddress);
+                this.output.SendDmx(sendData.UniverseId, sendData.DmxData, sendData.Priority, this.sendSyncAddress);
 
-                    PlayedFrames++;
-                }
+                PlayedFrames++;
+                anythingSent = true;
             }
+
+            return anythingSent;
         }
 
-        private List<SendData> GetSendData(double playTimestamp, ref bool done)
+        private SendData[] GetSendData(double playTimestamp, ref bool done, out double? nextTimestamp)
         {
-            var sendDataList = new List<SendData>();
+            var sendDataList = new List<SendData>(128);
             double endTimestamp = playTimestamp + this.periodMS;
+            nextTimestamp = null;
 
             // Loop until we have everything we need to send
             lock (this.lockObject)
@@ -196,8 +213,15 @@ namespace Animatroller.DMXplayer
                         break;
 
                     if (result.TimestampMS >= endTimestamp)
+                    {
                         // Wait until next period
-                        break;
+                        nextTimestamp = result.TimestampMS;
+
+                        if (sendDataList.Any())
+                            break;
+                        else
+                            return null;
+                    }
 
                     if (!this.sendQueue.TryDequeue(out var sendDataResult))
                         break;
@@ -209,7 +233,7 @@ namespace Animatroller.DMXplayer
                 }
             }
 
-            return sendDataList;
+            return sendDataList.ToArray();
         }
 
         public bool IsQueueFilled => this.sendQueue.Count >= BufferLowMark;

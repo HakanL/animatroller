@@ -108,7 +108,7 @@ namespace Animatroller.DMXplayer
                     sendSyncAddress = 0;
                 }
 
-                using (var dmxPlayback = new DmxPlayback(inputReader, output, 1000 / frequencyHertz, sendSyncAddress))
+                using (var dmxPlayback = new DmxPlayback(inputReader, output, 1, sendSyncAddress))
                 {
                     if (!string.IsNullOrEmpty(arguments.UniverseMapping))
                     {

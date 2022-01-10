@@ -103,30 +103,6 @@ namespace Animatroller.Common
             return null;
         }
 
-        /*public DmxDataOutputPacket ReadFrameLegacy()
-        {
-            if (this.readPosition < this.readPackets.Count)
-                return this.readPackets[this.readPosition++];
-
-            do
-            {
-                if (!this.reader.DataAvailable)
-                    break;
-
-                var frame = this.reader.ReadFrame();
-                if (frame == null)
-                    break;
-                if (frame.Content == null)
-                    continue;
-
-                this.readPackets.Add(frame);
-                this.readPosition++;
-                return frame;
-            } while (this.reader.DataAvailable);
-
-            return null;
-        }*/
-
         public void Rewind()
         {
             this.readPosition = 0;
