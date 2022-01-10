@@ -186,6 +186,14 @@ namespace Animatroller.PostProcessor
                             arguments.TrimDuration.Value);
                         break;
 
+                    case Arguments.Commands.GenerateRainbow:
+                        command = new Processor.Command.Generate(
+                            Processor.Command.Generate.GenerateSubCommands.Rainbow,
+                            universeIds,
+                            arguments.Frequency,
+                            arguments.TrimDuration.Value);
+                        break;
+
                     default:
                         throw new ArgumentOutOfRangeException("Unknown command");
                 }

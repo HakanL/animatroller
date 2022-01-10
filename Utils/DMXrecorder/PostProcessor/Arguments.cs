@@ -17,6 +17,7 @@ namespace Animatroller.PostProcessor
             GenerateStatic,
             GenerateRamp,
             GenerateSaw,
+            GenerateRainbow,
             Duplicate
         }
 
