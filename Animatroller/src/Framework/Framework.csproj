@@ -40,7 +40,7 @@
     <PackageReference Include="Haukcode.BinaryRage" Version="1.5.0" />
     <PackageReference Include="Haukcode.Osc" Version="1.0.0" />
     <PackageReference Include="Haukcode.sACN" Version="1.0.8" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Sanford.Multimedia.Midi" Version="6.6.2" />
     <PackageReference Include="Serilog" Version="2.10.0" />
     <PackageReference Include="System.Buffers" Version="4.5.1" />
