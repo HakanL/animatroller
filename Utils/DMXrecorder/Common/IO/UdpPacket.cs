@@ -29,17 +29,20 @@ namespace Animatroller.Common.IO
         public static UdpPacket CreateFromStream(Stream input)
         {
             var target = new UdpPacket(-1);
-            target.ReadPacket(input);
+            if (!target.ReadPacket(input))
+                return null;
 
             return target;
         }
 
-        public override void ReadPacket(Stream input)
+        public override bool ReadPacket(Stream input)
         {
-            base.ReadPacket(input);
+            if (!base.ReadPacket(input))
+                return false;
 
             if (Protocol != 17)
-                throw new InvalidDataException($"Invalid protocol {Protocol}");
+                // Not UDP packet
+                return false;
 
             var binReader = new BinaryReader(input);
 
@@ -48,6 +51,8 @@ namespace Animatroller.Common.IO
             int udpLength = ReadNetworkUInt16(binReader);
             this.payloadLength = udpLength - 8;
             UdpChecksum = ReadNetworkUInt16(binReader);
+
+            return true;
         }
 
         public void WritePacket(Stream stream, byte[] payload)

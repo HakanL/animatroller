@@ -23,14 +23,34 @@ namespace Animatroller.Common.IO
 
         public DmxDataOutputPacket ReadFrame()
         {
-            var data = ReadPacket();
+            double timestampMs;
+            SACNPacket packet;
 
-            if (data.Packet == null)
-                return null;
+            while (true)
+            {
+                try
+                {
+                    var data = ReadPacket();
 
-            var packet = SACNPacket.Parse(data.Payload);
+                    if (data.Packet == null && data.Payload != null)
+                        // Invalid packet, read next
+                        continue;
 
-            double timestampMs = data.Seconds * 1000 + (data.Microseconds / 1000.0);
+                    if (data.Packet == null)
+                        return null;
+
+                    timestampMs = data.Seconds * 1000 + (data.Microseconds / 1000.0);
+                    packet = SACNPacket.Parse(data.Payload);
+                }
+                catch (InvalidDataException)
+                {
+                    // Ignore
+                    continue;
+                }
+
+                break;
+            }
+
             if (!this.timestampOffsetMs.HasValue)
             {
                 timestampOffsetMs = timestampMs;

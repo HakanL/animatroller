@@ -36,6 +36,10 @@ namespace Animatroller.Common.IO
             using var dataStream = new MemoryStream(pcapData.Data);
             var packet = UdpPacket.CreateFromStream(dataStream);
 
+            if (packet == null)
+                // Invalid packet
+                return (null, new byte[0], 0, 0);
+
             byte[] dataBytes = new byte[dataStream.Length - dataStream.Position];
             dataStream.Read(dataBytes, 0, dataBytes.Length);
 

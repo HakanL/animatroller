@@ -47,7 +47,7 @@ namespace Animatroller.Common.IO
             this.payloadLength = payloadLength;
         }
 
-        public virtual void ReadPacket(Stream input)
+        public virtual bool ReadPacket(Stream input)
         {
             var binReader = new BinaryReader(input);
 
@@ -81,6 +81,8 @@ namespace Animatroller.Common.IO
             }
 
             Options = options;
+
+            return true;
         }
 
         protected UInt16 ReadNetworkUInt16(BinaryReader binReader)
