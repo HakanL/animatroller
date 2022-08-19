@@ -335,7 +335,7 @@ namespace Animatroller.Common.IO
 
         public override DmxDataOutputPacket ReadFrame()
         {
-            double timestampMS = this.currentFrame * this.header.StepTimeMS;
+            double timestampMS;
 
             if (this.currentNetwork == 0)
             {
@@ -345,6 +345,7 @@ namespace Animatroller.Common.IO
                     // Emit sync
                     this.emittedSync = true;
 
+                    timestampMS = this.currentFrame * this.header.StepTimeMS;
                     return DmxDataOutputPacket.CreateSync(timestampMS, ++this.syncSequenceId, 1, null);
                 }
 
@@ -352,6 +353,8 @@ namespace Animatroller.Common.IO
                 ReadFullFrame();
                 this.currentReadPosition = 0;
             }
+
+            timestampMS = this.currentFrame * this.header.StepTimeMS;
 
             FileFormat.NetworkNode network;
             while (true)

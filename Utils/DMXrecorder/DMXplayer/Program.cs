@@ -77,6 +77,10 @@ namespace Animatroller.DMXplayer
                         fileReader = new Common.IO.PCapArtNetFileReader(arguments.InputFilename);
                         break;
 
+                    case Common.FileFormats.FSeq:
+                        fileReader = new Common.IO.FseqFileReader(arguments.InputFilename);
+                        break;
+
                     default:
                         throw new ArgumentException("Unsupported file format");
                 }
