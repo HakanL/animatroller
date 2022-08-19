@@ -8,6 +8,7 @@ namespace Animatroller.Common.IO
     public class PCapArtNetFileWriter : PCapFileWriter, IFileWriter
     {
         public readonly byte[] BroadcastMac = new byte[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+        public const ushort ArtNetPort = 6454;
 
         public PCapArtNetFileWriter(string fileName)
             : base(fileName)
@@ -37,24 +38,6 @@ namespace Animatroller.Common.IO
             // Ignore
         }
 
-        public static IPAddress GetUniverseAddress(int universe)
-        {
-            if (universe < 1 || universe > 63999)
-                throw new InvalidOperationException("Unable to determine multicast group because the universe must be between 1 and 63999. Universes outside this range are not allowed.");
-
-            byte[] group = new byte[] { 239, 255, 0, 0 };
-
-            group[2] = (byte)((universe >> 8) & 0xff);     //Universe Hi Byte
-            group[3] = (byte)(universe & 0xff);           //Universe Lo Byte
-
-            return new IPAddress(group);
-        }
-
-        public static IPEndPoint GetUniverseEndPoint(int universe)
-        {
-            return new IPEndPoint(GetUniverseAddress(universe), 5568);
-        }
-
         public void Output(DmxDataOutputPacket dmxData)
         {
             //FIXME: Handle ArtNet sync
@@ -69,7 +52,11 @@ namespace Animatroller.Common.IO
                     Sequence = (byte)dmxData.Sequence
                 };
 
-                var destinationEP = new IPEndPoint(IPAddress.Broadcast, 6454);
+                IPEndPoint destinationEP;
+                if (dmxFrame.Destination != null)
+                    destinationEP = new IPEndPoint(dmxFrame.Destination, ArtNetPort);
+                else
+                    destinationEP = new IPEndPoint(IPAddress.Broadcast, ArtNetPort);
 
                 WritePacket(BroadcastMac, destinationEP, packet.ToArray(), dmxData.TimestampMS);
             }

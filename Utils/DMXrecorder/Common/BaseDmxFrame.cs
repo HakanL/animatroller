@@ -10,6 +10,8 @@ namespace Animatroller.Common
     {
         public int SyncAddress { get; set; }
 
+        public System.Net.IPAddress Destination { get; set; }
+
         public BaseDmxFrame()
         {
         }

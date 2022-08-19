@@ -21,15 +21,17 @@ namespace Animatroller.Common
             Data = source.Data;
             UniverseId = source.UniverseId;
             SyncAddress = source.SyncAddress;
+            Destination = source.Destination;
         }
 
-        public static DmxDataFrame CreateFrame(int universe, int syncAddress, byte[] data)
+        public static DmxDataFrame CreateFrame(int universe, int syncAddress, byte[] data, System.Net.IPAddress destination)
         {
             return new DmxDataFrame
             {
                 UniverseId = universe,
                 SyncAddress = syncAddress,
-                Data = data
+                Data = data,
+                Destination = destination
             };
         }
 

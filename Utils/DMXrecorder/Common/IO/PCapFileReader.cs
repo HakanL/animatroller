@@ -10,7 +10,14 @@ namespace Animatroller.Common.IO
 
         public PCapFileReader(string fileName)
         {
-            this.reader = IReaderFactory.GetReader(fileName);
+            try
+            {
+                this.reader = IReaderFactory.GetReader(fileName);
+            }
+            catch (ArgumentException ex)
+            {
+                throw new InvalidDataException("Not a PCap file", ex);
+            }
         }
 
         public void Dispose()

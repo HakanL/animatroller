@@ -66,11 +66,9 @@ namespace Animatroller.DMXrecorder
                     this.fileTrigger.WaitOne();
                     this.fileTrigger.Reset();
 
-                    RawDmxData dmxData;
-                    while (this.receivedData.TryDequeue(out dmxData))
+                    while (this.receivedData.TryDequeue(out RawDmxData dmxData))
                     {
-                        UniverseInfo previousData;
-                        if (!this.universeData.TryGetValue(dmxData.Universe, out previousData))
+                        if (!this.universeData.TryGetValue(dmxData.Universe, out UniverseInfo previousData))
                         {
                             previousData = new UniverseInfo();
                             previousData.Data = new byte[dmxData.Data.Length];
@@ -82,12 +80,14 @@ namespace Animatroller.DMXrecorder
 
                         Buffer.BlockCopy(dmxData.Data, 0, previousData.Data, 0, previousData.Data.Length);
 
+                        //TODO: Destination
                         this.dataWriter.Output(Common.DmxDataOutputPacket.CreateFullFrame(
                             millisecond: dmxData.TimestampMS,
                             sequence: dmxData.Sequence,
                             universe: dmxData.Universe,
                             data: dmxData.Data,
-                            syncAddress: dmxData.SyncAddress));
+                            syncAddress: dmxData.SyncAddress,
+                            destination: null));
 
                         previousData.Sequence = dmxData.Sequence;
                         this.samplesWritten++;

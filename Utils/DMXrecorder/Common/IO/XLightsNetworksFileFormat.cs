@@ -17,6 +17,62 @@ namespace Animatroller.Common.IO.FileFormat
 
         [XmlAttribute("computer")]
         public string Computer { get; set; }
+
+        [XmlElement("Controller")]
+        public ControllerNode[] Controller { get; set; }
+    }
+
+    [Serializable()]
+    [XmlType(AnonymousType = true)]
+    public partial class ControllerNode
+    {
+        [XmlAttribute("Id")]
+        public int Id { get; set; }
+
+        [XmlAttribute("Name")]
+        public string Name { get; set; }
+
+        [XmlAttribute("Description")]
+        public string Description { get; set; }
+
+        [XmlAttribute("Type")]
+        public string Type { get; set; }
+
+        [XmlAttribute("Vendor")]
+        public string Vendor { get; set; }
+
+        [XmlAttribute("Model")]
+        public string Model { get; set; }
+
+        [XmlAttribute("Variant")]
+        public string Variant { get; set; }
+
+        [XmlAttribute("ActiveState")]
+        public string ActiveState { get; set; }
+
+        [XmlAttribute("AutoLayout")]
+        public ushort AutoLayout { get; set; }
+
+        [XmlAttribute("AutoUpload")]
+        public ushort AutoUpload { get; set; }
+
+        [XmlAttribute("SuppressDuplicates")]
+        public ushort SuppressDuplicates { get; set; }
+
+        [XmlAttribute("IP")]
+        public string IP { get; set; }
+
+        [XmlAttribute("Protocol")]
+        public string Protocol { get; set; }
+
+        [XmlAttribute("FPPProxy")]
+        public string FPPProxy { get; set; }
+
+        [XmlAttribute("Priority")]
+        public ushort Priority { get; set; }
+
+        [XmlElement("network")]
+        public NetworkNode[] Network { get; set; }
     }
 
     [Serializable()]

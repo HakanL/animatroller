@@ -25,6 +25,7 @@ namespace Animatroller.Common.IO
         {
             double timestampMs;
             SACNPacket packet;
+            System.Net.IPAddress destination;
 
             while (true)
             {
@@ -41,6 +42,7 @@ namespace Animatroller.Common.IO
 
                     timestampMs = data.Seconds * 1000 + (data.Microseconds / 1000.0);
                     packet = SACNPacket.Parse(data.Payload);
+                    destination = data.Packet.DestinationAddress;
                 }
                 catch (InvalidDataException)
                 {
@@ -84,11 +86,11 @@ namespace Animatroller.Common.IO
                     dmxData = dmpLayer.Data;
                 }
 
-                return DmxDataOutputPacket.CreateFullFrame(timestampMs, dataFramingLayer.SequenceId, dataFramingLayer.UniverseId, dmxData, dataFramingLayer.SyncAddress);
+                return DmxDataOutputPacket.CreateFullFrame(timestampMs, dataFramingLayer.SequenceId, dataFramingLayer.UniverseId, destination, dmxData, dataFramingLayer.SyncAddress);
             }
             else if (rootLayer.FramingLayer is SyncFramingLayer syncFramingLayer)
             {
-                return DmxDataOutputPacket.CreateSync(timestampMs, syncFramingLayer.SequenceId, syncFramingLayer.SyncAddress);
+                return DmxDataOutputPacket.CreateSync(timestampMs, syncFramingLayer.SequenceId, syncFramingLayer.SyncAddress, destination);
             }
             else
             {

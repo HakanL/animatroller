@@ -33,6 +33,17 @@ namespace Animatroller.Common
             {
             }
 
+            try
+            {
+                using var testReader = new Common.IO.FseqFileReader(filename);
+                testReader.ReadFrame();
+
+                return Common.FileFormats.FSeq;
+            }
+            catch (InvalidDataException)
+            {
+            }
+
             return null;
         }
     }

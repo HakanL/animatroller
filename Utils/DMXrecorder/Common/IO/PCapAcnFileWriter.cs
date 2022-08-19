@@ -24,15 +24,24 @@ namespace Animatroller.Common.IO
 
             byte[] addr = input.GetAddressBytes();
 
-            byte[] mac = new byte[6];
-            mac[0] = 0x01;
-            mac[1] = 0;
-            mac[2] = 0x5E;
-            mac[3] = (byte)(addr[1] & 0x7F);
-            mac[4] = addr[2];
-            mac[5] = addr[3];
+            // If multicast
+            if (addr[0] == 239 && addr[1] == 255)
+            {
+                // Multicast
+                byte[] mac = new byte[6];
+                mac[0] = 0x01;
+                mac[1] = 0;
+                mac[2] = 0x5E;
+                mac[3] = (byte)(addr[1] & 0x7F);
+                mac[4] = addr[2];
+                mac[5] = addr[3];
 
-            return mac;
+                return mac;
+            }
+            else
+            {
+                return new byte[6];
+            }
         }
 
         public void Header(int universeId)
@@ -40,22 +49,9 @@ namespace Animatroller.Common.IO
             // Ignore
         }
 
-        public static IPAddress GetUniverseAddress(int universe)
-        {
-            if (universe < 1 || universe > 63999)
-                throw new InvalidOperationException("Unable to determine multicast group because the universe must be between 1 and 63999. Universes outside this range are not allowed.");
-
-            byte[] group = new byte[] { 239, 255, 0, 0 };
-
-            group[2] = (byte)((universe >> 8) & 0xff);     //Universe Hi Byte
-            group[3] = (byte)(universe & 0xff);           //Universe Lo Byte
-
-            return new IPAddress(group);
-        }
-
         public static IPEndPoint GetUniverseEndPoint(int universe)
         {
-            return new IPEndPoint(GetUniverseAddress(universe), 5568);
+            return new IPEndPoint(Haukcode.sACN.SACNCommon.GetMulticastAddress((ushort)universe), Haukcode.sACN.SACNCommon.SACN_PORT);
         }
 
         public void Output(DmxDataOutputPacket dmxData)
@@ -75,7 +71,10 @@ namespace Animatroller.Common.IO
                         priority: this.priority,
                         syncAddress: (ushort)dmxDataFrame.SyncAddress));
 
-                    destinationEP = GetUniverseEndPoint(dmxDataFrame.UniverseId);
+                    if (dmxData.Content.Destination == null)
+                        destinationEP = GetUniverseEndPoint(dmxDataFrame.UniverseId);
+                    else
+                        destinationEP = new IPEndPoint(dmxData.Content.Destination, Haukcode.sACN.SACNCommon.SACN_PORT);
                     break;
 
                 case SyncFrame syncFrame:
@@ -84,7 +83,10 @@ namespace Animatroller.Common.IO
                         sequenceID: (byte)dmxData.Sequence,
                         syncAddress: (ushort)syncFrame.SyncAddress));
 
-                    destinationEP = GetUniverseEndPoint(syncFrame.SyncAddress);
+                    if (dmxData.Content.Destination == null)
+                        destinationEP = GetUniverseEndPoint(syncFrame.SyncAddress);
+                    else
+                        destinationEP = new IPEndPoint(dmxData.Content.Destination, Haukcode.sACN.SACNCommon.SACN_PORT);
                     break;
 
                 default:

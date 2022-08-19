@@ -2,29 +2,36 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Haukcode.sACN.Model;
 
 namespace Animatroller.Common.IO
 {
     public class FseqFileReader : BaseFileReader
     {
-        public class Header
+        public abstract class BaseHeader
         {
             public string Tag { get; set; }
-
-            public int NumPeriods { get; set; }
-
-            public int StepSize { get; set; }
-
-            public int StepTimeMS { get; set; }
 
             public byte MinorVersion { get; set; }
 
             public byte MajorVersion { get; set; }
 
             public int FixedHeaderSize { get; set; }
+
+            public int ChannelDataOffset { get; set; }
+        }
+
+        public class Header1 : BaseHeader
+        {
+            public int NumPeriods { get; set; }
+
+            public int StepSize { get; set; }
+
+            public int StepTimeMS { get; set; }
 
             public int NumUniverses { get; set; }
 
@@ -34,24 +41,51 @@ namespace Animatroller.Common.IO
 
             public byte ColorEncoding { get; set; }
 
-            public int ChannelDataOffset { get; set; }
-
             public string MediaFilename { get; set; }
         }
 
+        public class Header2 : BaseHeader
+        {
+            public int ChannelCount { get; set; }
+
+            public int FrameCount { get; set; }
+
+            public byte Flags { get; set; }
+
+            public byte CompressionType { get; set; }
+
+            public int CompressionBlockCount { get; set; }
+
+            public byte SparseRangeCount { get; set; }
+
+            public byte Reserved { get; set; }
+
+            public long UniqueId { get; set; }
+
+            public int StepTimeMS { get; set; }
+
+            public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+        }
+
         private BinaryReader binRead;
-        private Header header;
+        private BaseHeader header;
         private int currentFrame;
         private byte[] frameBuffer;
         private FileFormat.Networks config;
+        private FileFormat.NetworkNode[] networks;
         private int currentNetwork;
         private int currentReadPosition;
+        private bool emittedSync;
+        private byte syncSequenceId;
 
-        public FseqFileReader(string fileName, string configFileName)
+        public FseqFileReader(string fileName, string configFileName = null)
             : base(fileName)
         {
             this.binRead = new System.IO.BinaryReader(this.fileStream);
             this.header = null;
+
+            if (string.IsNullOrEmpty(configFileName))
+                configFileName = Path.Combine(Path.GetDirectoryName(fileName), "xlights_networks.xml");
 
             var serializer = new XmlSerializer(typeof(FileFormat.Networks));
             using (var fs = File.OpenRead(configFileName))
@@ -59,7 +93,21 @@ namespace Animatroller.Common.IO
                 this.config = (FileFormat.Networks)serializer.Deserialize(fs);
             }
 
-            if (this.config.Network.Length == 0)
+            if (this.config.Network != null)
+            {
+                this.networks = this.config.Network;
+            }
+            else if (this.config.Controller != null)
+            {
+                var list = new List<FileFormat.NetworkNode>();
+                foreach (var controller in this.config.Controller)
+                {
+                    list.AddRange(controller.Network);
+                }
+                this.networks = list.ToArray();
+            }
+
+            if (this.networks == null || this.networks.Length == 0)
                 throw new ArgumentOutOfRangeException("Need at least a single network in the networks/config file");
 
             ReadHeader();
@@ -79,6 +127,15 @@ namespace Animatroller.Common.IO
             return msb << 8 | lsb;
         }
 
+        private int ReadInt24()
+        {
+            byte b1 = this.binRead.ReadByte();
+            byte b2 = this.binRead.ReadByte();
+            byte b3 = this.binRead.ReadByte();
+
+            return b3 << 16 | b2 << 8 | b1;
+        }
+
         private int ReadInt32()
         {
             byte b1 = this.binRead.ReadByte();
@@ -89,43 +146,128 @@ namespace Animatroller.Common.IO
             return b4 << 24 | b3 << 16 | b2 << 8 | b1;
         }
 
+        private long ReadInt64()
+        {
+            byte b1 = this.binRead.ReadByte();
+            byte b2 = this.binRead.ReadByte();
+            byte b3 = this.binRead.ReadByte();
+            byte b4 = this.binRead.ReadByte();
+            byte b5 = this.binRead.ReadByte();
+            byte b6 = this.binRead.ReadByte();
+            byte b7 = this.binRead.ReadByte();
+            byte b8 = this.binRead.ReadByte();
+
+            return b8 << 56 | b7 << 48 | b6 << 40 | b5 << 32 | b4 << 24 | b3 << 16 | b2 << 8 | b1;
+        }
+
         private void ReadHeader()
         {
-            this.header = new Header();
+            string headerTag = System.Text.Encoding.ASCII.GetString(this.binRead.ReadBytes(4));
 
-            this.header.Tag = System.Text.Encoding.ASCII.GetString(this.binRead.ReadBytes(4));
-
-            if (this.header.Tag != "PSEQ" && this.header.Tag != "FSEQ")
+            if (headerTag != "PSEQ" && headerTag != "FSEQ")
                 throw new ArgumentException($"Invalid/Unknown file type ({this.header.Tag})");
 
-            this.header.ChannelDataOffset = ReadInt16();
-            this.header.MinorVersion = this.binRead.ReadByte();
-            this.header.MajorVersion = this.binRead.ReadByte();
-            this.header.FixedHeaderSize = ReadInt16();
-            this.header.StepSize = ReadInt32();
-            this.header.NumPeriods = ReadInt32();
-            this.header.StepTimeMS = ReadInt16();
-            this.header.NumUniverses = ReadInt16();
-            this.header.UniverseSize = ReadInt16();
-            this.header.Gamma = this.binRead.ReadByte();
-            this.header.ColorEncoding = this.binRead.ReadByte();
-            int fill = ReadInt16();
+            int channelDataOffset = ReadInt16();
+            byte minorVersion = this.binRead.ReadByte();
+            byte majorVersion = this.binRead.ReadByte();
+            int fixedHeaderSize = ReadInt16();
 
-            if (this.header.ChannelDataOffset > 28)
+            if (majorVersion == 2)
             {
-                int mediaFilenameLength = ReadInt16();
-                if (mediaFilenameLength > 0)
+                // Read as v2
+                var header = new Header2
                 {
-                    // mf
-                    ReadInt16();
-                    this.header.MediaFilename = Encoding.UTF8.GetString(this.binRead.ReadBytes(mediaFilenameLength));
+                    ChannelDataOffset = channelDataOffset,
+                    Tag = headerTag,
+                    MajorVersion = majorVersion,
+                    MinorVersion = minorVersion,
+                    FixedHeaderSize = fixedHeaderSize
+                };
+
+                header.ChannelCount = ReadInt32();
+                header.FrameCount = ReadInt32();
+                header.StepTimeMS = this.binRead.ReadByte();
+                header.Flags = this.binRead.ReadByte();
+                byte compressionFlags = this.binRead.ReadByte();
+                header.CompressionType = (byte)(compressionFlags & 0x0F);
+                header.CompressionBlockCount = (compressionFlags >> 4) + this.binRead.ReadByte();
+                header.SparseRangeCount = this.binRead.ReadByte();
+                header.Reserved = this.binRead.ReadByte();
+                header.UniqueId = ReadInt64();
+
+                this.header = header;
+
+                for (int i = 0; i < header.CompressionBlockCount; i++)
+                {
+                    int firstFrameNumber = ReadInt32();
+                    int length = ReadInt32();
+                }
+
+                for (int i = 0; i < header.SparseRangeCount; i++)
+                {
+                    int startChannel = ReadInt24();
+                    int endChannelOffset = ReadInt24();
+                }
+
+                // Read variables
+                while ((Position + 4) < header.ChannelDataOffset)
+                {
+                    int length = ReadInt16();
+                    string code = $"{(char)this.binRead.ReadByte()}{(char)this.binRead.ReadByte()}";
+                    byte[] data;
+                    string dataString;
+                    if (length > 4)
+                    {
+                        data = this.binRead.ReadBytes(length - 4);
+                        dataString = Encoding.UTF8.GetString(data).Trim('\0');
+                    }
+                    else
+                    {
+                        dataString = null;
+                    }
+
+                    header.Variables.Add(code, dataString);
                 }
             }
+            else
+            {
+                // Read as v1
+                var header = new Header1
+                {
+                    ChannelDataOffset = channelDataOffset,
+                    Tag = headerTag,
+                    MajorVersion = majorVersion,
+                    MinorVersion = minorVersion,
+                    FixedHeaderSize = fixedHeaderSize
+                };
 
-            this.frameBuffer = new byte[this.header.StepSize];
+                header.StepSize = ReadInt32();
+                header.NumPeriods = ReadInt32();
+                header.StepTimeMS = ReadInt16();
+                header.NumUniverses = ReadInt16();
+                header.UniverseSize = ReadInt16();
+                header.Gamma = this.binRead.ReadByte();
+                header.ColorEncoding = this.binRead.ReadByte();
+                int fill = ReadInt16();
 
-            int RefreshRateHz = 1000 / this.header.StepTimeMS;
-            int DurationS = (int)((float)(Length - this.header.ChannelDataOffset) / ((float)this.header.StepSize * (float)RefreshRateHz));
+                if (header.ChannelDataOffset > 28)
+                {
+                    int mediaFilenameLength = ReadInt16();
+                    if (mediaFilenameLength > 0)
+                    {
+                        // mf
+                        ReadInt16();
+                        header.MediaFilename = Encoding.UTF8.GetString(this.binRead.ReadBytes(mediaFilenameLength));
+                    }
+                }
+
+                this.frameBuffer = new byte[header.StepSize];
+
+                int RefreshRateHz = 1000 / header.StepTimeMS;
+                int DurationS = (int)((float)(Length - header.ChannelDataOffset) / ((float)header.StepSize * (float)RefreshRateHz));
+
+                this.header = header;
+            }
 
             // Set starting position
             Position = this.header.ChannelDataOffset;
@@ -134,28 +276,45 @@ namespace Animatroller.Common.IO
 
         private void ReadFullFrame()
         {
-            this.frameBuffer = this.binRead.ReadBytes(this.header.StepSize);
+            if (this.header is Header1 header1)
+                this.frameBuffer = this.binRead.ReadBytes(header1.StepSize);
+            else
+                throw new NotImplementedException();
 
             this.currentFrame++;
         }
 
         public override DmxDataOutputPacket ReadFrame()
         {
+            double timestampMS;
+            if (this.header is Header1 header1)
+                timestampMS = this.currentFrame * header1.StepTimeMS;
+            else
+                throw new NotImplementedException();
+
             if (this.currentNetwork == 0)
             {
+                // See if we should emit a sync first
+                if (this.currentFrame > -1 && !this.emittedSync)
+                {
+                    // Emit sync
+                    this.emittedSync = true;
+
+                    return DmxDataOutputPacket.CreateSync(timestampMS, ++this.syncSequenceId, 1, null);
+                }
+
                 // Read a full frame
                 ReadFullFrame();
-
                 this.currentReadPosition = 0;
             }
 
             FileFormat.NetworkNode network;
             while (true)
             {
-                network = this.config.Network[this.currentNetwork];
+                network = this.networks[this.currentNetwork];
 
                 this.currentNetwork++;
-                if (this.currentNetwork >= this.config.Network.Length)
+                if (this.currentNetwork >= this.networks.Length)
                 {
                     this.currentNetwork = 0;
                     break;
@@ -168,16 +327,19 @@ namespace Animatroller.Common.IO
                 break;
             }
 
+            // Simulated sync address
             var dmxData = new DmxDataFrame
             {
-                Data = new byte[network.MaxChannels]
+                Data = new byte[network.MaxChannels],
+                SyncAddress = 1,
+                Destination = System.Net.IPAddress.Parse(network.ComPort)
             };
 
             var packet = new DmxDataOutputPacket
             {
                 Content = dmxData,
-                TimestampMS = this.currentFrame * this.header.StepTimeMS,
-                Sequence = this.currentFrame
+                Sequence = this.currentFrame,
+                TimestampMS = timestampMS
             };
 
             Buffer.BlockCopy(this.frameBuffer, this.currentReadPosition, dmxData.Data, 0, dmxData.Data.Length);
@@ -192,6 +354,8 @@ namespace Animatroller.Common.IO
                 default:
                     return null;
             }
+
+            this.emittedSync = false;
 
             return packet;
         }

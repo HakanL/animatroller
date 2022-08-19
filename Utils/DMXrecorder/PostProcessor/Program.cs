@@ -208,19 +208,40 @@ namespace Animatroller.PostProcessor
 
                 if (command is ICommandInputOutput || command is ICommandOutput)
                 {
-                    if (string.IsNullOrEmpty(arguments.OutputFilename))
-                    {
-                        // Use the input name
-                        arguments.OutputFilename = Path.Combine(Path.GetDirectoryName(arguments.InputFilename),
-                            Path.GetFileNameWithoutExtension(arguments.InputFilename) + "_out" + Path.GetExtension(arguments.InputFilename));
-                    }
-
                     if (!arguments.OutputFileFormat.HasValue)
                         arguments.OutputFileFormat = arguments.InputFileFormat;
 
                     if (!arguments.OutputFileFormat.HasValue)
                         // Default
                         arguments.OutputFileFormat = Common.FileFormats.PCapAcn;
+
+                    if (string.IsNullOrEmpty(arguments.OutputFilename))
+                    {
+                        // Use the input name
+                        string extension;
+                        switch (arguments.OutputFileFormat)
+                        {
+                            case Common.FileFormats.PCapArtNet:
+                            case Common.FileFormats.PCapAcn:
+                                extension = "cap";
+                                break;
+
+                            case Common.FileFormats.FSeq:
+                                extension = "fseq";
+                                break;
+
+                            case Common.FileFormats.Binary:
+                                extension = "bin";
+                                break;
+
+                            default:
+                                extension = Path.GetExtension(arguments.InputFilename).Trim('.');
+                                break;
+                        }
+
+                        arguments.OutputFilename = Path.Combine(Path.GetDirectoryName(arguments.InputFilename),
+                            Path.GetFileNameWithoutExtension(arguments.InputFilename) + "_out." + extension);
+                    }
 
                     switch (arguments.OutputFileFormat)
                     {

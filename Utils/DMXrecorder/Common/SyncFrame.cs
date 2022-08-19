@@ -8,11 +8,12 @@ namespace Animatroller.Common
 {
     public class SyncFrame : BaseDmxFrame
     {
-        public static SyncFrame CreateFrame(int syncAddress)
+        public static SyncFrame CreateFrame(int syncAddress, System.Net.IPAddress destination)
         {
             return new SyncFrame
             {
-                SyncAddress = syncAddress
+                SyncAddress = syncAddress,
+                Destination = destination
             };
         }
     }

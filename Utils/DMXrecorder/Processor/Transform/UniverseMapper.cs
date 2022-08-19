@@ -35,7 +35,7 @@ namespace Animatroller.Processor.Transform
                 {
                     foreach (int outputUniverse in outputUniverses)
                     {
-                        output.Add(DmxDataFrame.CreateFrame(outputUniverse, dmxData.SyncAddress, dmxData.Data));
+                        output.Add(DmxDataFrame.CreateFrame(outputUniverse, dmxData.SyncAddress, dmxData.Data, dmxData.Destination));
                     }
                 }
             }

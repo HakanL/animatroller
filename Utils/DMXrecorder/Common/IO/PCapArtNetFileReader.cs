@@ -42,7 +42,7 @@ namespace Animatroller.Common.IO
             {
                 return new DmxDataOutputPacket
                 {
-                    Content = DmxDataFrame.CreateFrame(dmxPacket.Universe + 1, 0, dmxPacket.DmxData),
+                    Content = DmxDataFrame.CreateFrame(dmxPacket.Universe + 1, 0, dmxPacket.DmxData, data.Packet.DestinationAddress),
                     Sequence = ++this.sequence,
                     TimestampMS = timestampMs - this.timestampOffsetMs.Value
                 };

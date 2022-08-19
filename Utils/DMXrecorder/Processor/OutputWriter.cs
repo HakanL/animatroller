@@ -13,7 +13,7 @@ namespace Animatroller.Processor
         private readonly List<TransformFrame> output = new List<TransformFrame>();
         private TransformFrame currentFrame = null;
         private readonly IList<IBaseTransform> transforms;
-        private readonly Dictionary<int, long> sequencePerUniverse = new Dictionary<int, long>();
+        private readonly Dictionary<(System.Net.IPAddress Destination, int UniverseId), long> sequencePerUniverse = new Dictionary<(System.Net.IPAddress Destination, int UniverseId), long>();
         private readonly Dictionary<int, long> sequencePerSyncAddress = new Dictionary<int, long>();
         private int outputDuplicateCount;
         private double? firstFrameTimestampOffset = null;
@@ -197,12 +197,13 @@ namespace Animatroller.Processor
 
                     foreach (var dmxData in frame.DmxData.OrderBy(x => x.UniverseId))
                     {
-                        this.sequencePerUniverse.TryGetValue(dmxData.UniverseId, out sequence);
+                        this.sequencePerUniverse.TryGetValue((dmxData.Destination, dmxData.UniverseId), out sequence);
 
                         var packet = DmxDataOutputPacket.CreateFullFrame(
                             nextPacketWriteTimestampMS,
                             sequence,
                             dmxData.UniverseId,
+                            dmxData.Destination,
                             dmxData.Data,
                             dmxData.SyncAddress);
 
@@ -211,7 +212,7 @@ namespace Animatroller.Processor
 
                         sequence++;
 
-                        this.sequencePerUniverse[dmxData.UniverseId] = sequence;
+                        this.sequencePerUniverse[(dmxData.Destination, dmxData.UniverseId)] = sequence;
 
                         //timestamp += MinSeparationMS;
                     }
@@ -222,12 +223,20 @@ namespace Animatroller.Processor
                     {
                         this.sequencePerSyncAddress.TryGetValue(frame.SyncAddress, out sequence);
 
-                        var packet = DmxDataOutputPacket.CreateSync(masterTimestamp, sequence, frame.SyncAddress);
-                        FileWriter.Output(packet);
-                        // Pad the delay to the next set of data packets so we won't risk having the data come
-                        // over the wire before the Sync packet during playback
-                        // Not sure if it's necessary
-                        nextPacketWriteTimestampMS = packet.TimestampMS + 1.0;
+                        // Send to all outputs
+                        foreach (var destinationGroup in this.sequencePerUniverse.GroupBy(x => x.Key.Destination))
+                        {
+                            System.Net.IPAddress destination = destinationGroup.Key;
+                            destination ??= Haukcode.sACN.SACNCommon.GetMulticastAddress((ushort)frame.SyncAddress);
+
+                            var packet = DmxDataOutputPacket.CreateSync(masterTimestamp, sequence, frame.SyncAddress, destination);
+                            FileWriter.Output(packet);
+
+                            // Pad the delay to the next set of data packets so we won't risk having the data come
+                            // over the wire before the Sync packet during playback
+                            // Not sure if it's necessary
+                            nextPacketWriteTimestampMS = packet.TimestampMS + 1.0;
+                        }
 
                         sequence++;
                         this.sequencePerSyncAddress[frame.SyncAddress] = sequence;
