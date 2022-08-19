@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Haukcode.sACN.Model;
+using static Animatroller.Common.IO.FseqFileReader;
 
 namespace Animatroller.Common.IO
 {
@@ -23,6 +24,8 @@ namespace Animatroller.Common.IO
             public int FixedHeaderSize { get; set; }
 
             public int ChannelDataOffset { get; set; }
+
+            public int StepTimeMS { get; set; }
         }
 
         public class Header1 : BaseHeader
@@ -30,8 +33,6 @@ namespace Animatroller.Common.IO
             public int NumPeriods { get; set; }
 
             public int StepSize { get; set; }
-
-            public int StepTimeMS { get; set; }
 
             public int NumUniverses { get; set; }
 
@@ -62,9 +63,11 @@ namespace Animatroller.Common.IO
 
             public long UniqueId { get; set; }
 
-            public int StepTimeMS { get; set; }
-
             public Dictionary<string, string> Variables { get; set; } = new Dictionary<string, string>();
+
+            public List<(int FirstFrameNumber, int Length)> CompressionBlocks = new List<(int FirstFrameNumber, int Length)>();
+
+            public List<(int StartChannel, int EndChannelOffset)> SparseRanges = new List<(int StartChannel, int EndChannelOffset)>();
         }
 
         private BinaryReader binRead;
@@ -77,6 +80,7 @@ namespace Animatroller.Common.IO
         private int currentReadPosition;
         private bool emittedSync;
         private byte syncSequenceId;
+        private string decompressedFilename;
 
         public FseqFileReader(string fileName, string configFileName = null)
             : base(fileName)
@@ -117,6 +121,9 @@ namespace Animatroller.Common.IO
         {
             this.binRead.Dispose();
             base.Dispose();
+
+            if (this.decompressedFilename != null)
+                File.Delete(this.decompressedFilename);
         }
 
         private int ReadInt16()
@@ -190,7 +197,7 @@ namespace Animatroller.Common.IO
                 header.Flags = this.binRead.ReadByte();
                 byte compressionFlags = this.binRead.ReadByte();
                 header.CompressionType = (byte)(compressionFlags & 0x0F);
-                header.CompressionBlockCount = (compressionFlags >> 4) + this.binRead.ReadByte();
+                header.CompressionBlockCount = ((compressionFlags & 0xF0) << 4) + this.binRead.ReadByte();
                 header.SparseRangeCount = this.binRead.ReadByte();
                 header.Reserved = this.binRead.ReadByte();
                 header.UniqueId = ReadInt64();
@@ -201,12 +208,22 @@ namespace Animatroller.Common.IO
                 {
                     int firstFrameNumber = ReadInt32();
                     int length = ReadInt32();
+
+                    if (firstFrameNumber == 0 && length == 0)
+                        continue;
+
+                    header.CompressionBlocks.Add((firstFrameNumber, length));
                 }
 
                 for (int i = 0; i < header.SparseRangeCount; i++)
                 {
                     int startChannel = ReadInt24();
                     int endChannelOffset = ReadInt24();
+
+                    header.SparseRanges.Add((startChannel, endChannelOffset));
+
+                    // Sparse Range is not implemented
+                    throw new NotImplementedException();
                 }
 
                 // Read variables
@@ -228,6 +245,39 @@ namespace Animatroller.Common.IO
 
                     header.Variables.Add(code, dataString);
                 }
+
+                if (header.CompressionType == 0)
+                {
+                    // Uncompressed
+
+                    // Set starting position
+                    Position = this.header.ChannelDataOffset;
+                }
+                else if (header.CompressionType == 1)
+                {
+                    // Decompress the whole file into a temporary file
+                    Position = this.header.ChannelDataOffset;
+
+                    this.decompressedFilename = Path.GetTempFileName();
+                    var decompressedFile = File.Create(this.decompressedFilename);
+
+                    var decompressor = new ZstdSharp.Decompressor();
+                    foreach (var block in header.CompressionBlocks)
+                    {
+                        byte[] bytes = this.binRead.ReadBytes(block.Length);
+                        var output = decompressor.Unwrap(bytes);
+                        decompressedFile.Write(output);
+                    }
+
+                    decompressedFile.Flush();
+                    decompressedFile.Dispose();
+
+                    this.fileStream = File.OpenRead(this.decompressedFilename);
+                }
+                else
+                    throw new NotImplementedException();
+
+                this.frameBuffer = new byte[header.ChannelCount];
             }
             else
             {
@@ -261,36 +311,31 @@ namespace Animatroller.Common.IO
                     }
                 }
 
-                this.frameBuffer = new byte[header.StepSize];
-
                 int RefreshRateHz = 1000 / header.StepTimeMS;
                 int DurationS = (int)((float)(Length - header.ChannelDataOffset) / ((float)header.StepSize * (float)RefreshRateHz));
 
                 this.header = header;
+                this.frameBuffer = new byte[header.StepSize];
+
+                // Set starting position
+                Position = this.header.ChannelDataOffset;
             }
 
-            // Set starting position
-            Position = this.header.ChannelDataOffset;
             this.currentFrame = -1;
         }
 
         private void ReadFullFrame()
         {
-            if (this.header is Header1 header1)
-                this.frameBuffer = this.binRead.ReadBytes(header1.StepSize);
-            else
-                throw new NotImplementedException();
+            int readBytes = this.fileStream.Read(this.frameBuffer, 0, this.frameBuffer.Length);
+            if (readBytes != this.frameBuffer.Length)
+                throw new InvalidDataException("Corrupt compressed data");
 
             this.currentFrame++;
         }
 
         public override DmxDataOutputPacket ReadFrame()
         {
-            double timestampMS;
-            if (this.header is Header1 header1)
-                timestampMS = this.currentFrame * header1.StepTimeMS;
-            else
-                throw new NotImplementedException();
+            double timestampMS = this.currentFrame * this.header.StepTimeMS;
 
             if (this.currentNetwork == 0)
             {
