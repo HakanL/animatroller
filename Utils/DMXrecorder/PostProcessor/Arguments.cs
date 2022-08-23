@@ -69,7 +69,7 @@ namespace Animatroller.PostProcessor
         public Common.FileFormats? OutputFileFormat { get; set; }
 
         [ArgShortcut("m")]
-        [ArgDescription("Universe Mapping (input=output,input2=output2 - example 1=10,2=11,6=20)")]
+        [ArgDescription("Universe Mapping (input=output,input2=output2). Input/Output can be a combination of address and universe id split by a /. The input address is either an IPv4 address, or omitted to match all addresses. The output address can be an IPv4 address, * for same as input, or ommitted for multicast. The universe id is either a number, or * for same as input. Examples 1=10,192.165.1.111/2=m/11,6=20")]
         public string UniverseMapping { get; set; }
 
         [ArgShortcut("u")]
@@ -88,5 +88,10 @@ namespace Animatroller.PostProcessor
         [ArgShortcut("l")]
         [ArgDescription("Loop")]
         public int? Loop { get; set; }
+
+
+        [ArgShortcut("ns")]
+        [ArgDescription("Remove sync from output")]
+        public bool NoSync { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.87
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DMXrecorder", "DMXrecorder\DMXrecorder.csproj", "{4D3CF655-C2E0-4B14-A441-80791C0FE092}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Processor", "Processor\Processor.csproj", "{AD2A54A9-8B3A-498A-9F30-C2A3F72BF6F6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haukcode.sACN", "..\..\..\..\OpenSource\Haukcode-sACN\src\Haukcode.sACN\Haukcode.sACN.csproj", "{34B830B5-4624-4022-83FE-B6D1EB965902}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TftpSender", "TftpSender\TftpSender.csproj", "{D9629397-A069-4AB6-9268-CAF66CFD65D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{34B830B5-4624-4022-83FE-B6D1EB965902}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34B830B5-4624-4022-83FE-B6D1EB965902}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34B830B5-4624-4022-83FE-B6D1EB965902}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9629397-A069-4AB6-9268-CAF66CFD65D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9629397-A069-4AB6-9268-CAF66CFD65D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9629397-A069-4AB6-9268-CAF66CFD65D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9629397-A069-4AB6-9268-CAF66CFD65D6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

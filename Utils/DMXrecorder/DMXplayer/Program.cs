@@ -171,7 +171,7 @@ namespace Animatroller.DMXplayer
                         output.SendDmx(universeId, new byte[512]);
                     }
 
-                    if(sendSyncAddress > 0)
+                    if (sendSyncAddress > 0)
                     {
                         output.SendSync(sendSyncAddress);
                     }

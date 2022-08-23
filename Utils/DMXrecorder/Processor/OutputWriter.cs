@@ -17,17 +17,19 @@ namespace Animatroller.Processor
         private readonly Dictionary<int, long> sequencePerSyncAddress = new Dictionary<int, long>();
         private int outputDuplicateCount;
         private double? firstFrameTimestampOffset = null;
+        private bool removeSync;
 
         private OutputFrame inputFrameToProcess;
         private OutputFrame nextFrameToProcess;
         private Action<BaseDmxFrame> actionToProcess;
         private ProcessorContext contextToProcess;
 
-        public OutputWriter(IList<IBaseTransform> transforms, Common.IO.IFileWriter fileWriter, int outputDuplicateCount)
+        public OutputWriter(IList<IBaseTransform> transforms, Common.IO.IFileWriter fileWriter, int outputDuplicateCount, bool removeSync)
         {
             this.transforms = transforms ?? new List<IBaseTransform>();
             FileWriter = fileWriter;
             this.outputDuplicateCount = outputDuplicateCount;
+            this.removeSync = removeSync;
         }
 
         public Common.IO.IFileWriter FileWriter { get; set; }
@@ -179,6 +181,10 @@ namespace Animatroller.Processor
 
             var universeIds = this.output.SelectMany(x => x.DmxData.Select(x => x.UniverseId)).Distinct().ToList();
 
+            if (universeIds.Count == 1)
+                // No need for sync if we only have 1 universe
+                this.removeSync = true;
+
             // Write headers
             foreach (int universeId in universeIds)
                 FileWriter.Header(universeId);
@@ -219,7 +225,7 @@ namespace Animatroller.Processor
 
                     masterTimestamp += frame.DelayMS;
 
-                    if (frame.SyncAddress != 0)
+                    if (frame.SyncAddress != 0 && !this.removeSync)
                     {
                         this.sequencePerSyncAddress.TryGetValue(frame.SyncAddress, out sequence);
 

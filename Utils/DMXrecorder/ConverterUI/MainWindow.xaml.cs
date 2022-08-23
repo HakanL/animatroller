@@ -76,7 +76,7 @@ namespace Animatroller.ConverterUI
                     var inputReader = new Common.InputReader(fileReader);
                     progress.Value = 0;
 
-                    var transformer = new OutputWriter(null, fileWriter, 0);
+                    var transformer = new OutputWriter(null, fileWriter, 0, false);
                     var converter = new Processor.Command.Convert();
 
                     // TODO: Report progress

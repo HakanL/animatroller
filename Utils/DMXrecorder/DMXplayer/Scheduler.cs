@@ -124,8 +124,7 @@ namespace Animatroller.DMXplayer
                     {
                         Console.WriteLine("Start timer");
 
-                        this.sendTimer.Start();
-                        this.masterClock.Restart();
+                        StartTimers();
                     }
                     else
                     {
@@ -180,6 +179,12 @@ namespace Animatroller.DMXplayer
             this.queueEmpty.Set();
         }
 
+        private void StartTimers()
+        {
+            this.sendTimer.Start();
+            this.masterClock.Restart();
+        }
+
         private bool SendDataFromList(IEnumerable<SendData> sendDataList)
         {
             bool anythingSent = false;
@@ -211,6 +216,12 @@ namespace Animatroller.DMXplayer
                 {
                     if (!this.sendQueue.TryPeek(out var result))
                         break;
+
+                    if (!this.masterClock.IsRunning && result.TimestampMS >= endTimestamp)
+                    {
+                        // The playback stream didn't start from timestamp 0, let's start the master clock here
+                        StartTimers();
+                    }
 
                     if (result.TimestampMS >= endTimestamp)
                     {

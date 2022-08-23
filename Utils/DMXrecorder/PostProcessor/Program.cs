@@ -86,7 +86,7 @@ namespace Animatroller.PostProcessor
                     var parts = arguments.UniverseMapping.Split(',').Select(x => x.Trim()).ToList();
                     foreach (string part in parts)
                     {
-                        var inputOutputParts = part.Split('=').Select(x => x.Trim()).ToList();
+                        var inputOutputParts = part.Split('=', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
                         if (inputOutputParts.Count != 2)
                         {
                             // Ignore
@@ -94,21 +94,23 @@ namespace Animatroller.PostProcessor
                             continue;
                         }
 
-                        if (!int.TryParse(inputOutputParts[0], out int inputUniverse) || inputUniverse < 1 || inputUniverse > 63999)
+                        var input = Common.ArgumentParser.ParseAddressAndUniverseId(inputOutputParts[0], Console.WriteLine);
+                        if (input == null)
+                            // Invalid
+                            continue;
+
+                        var output = Common.ArgumentParser.ParseAddressAndUniverseId(inputOutputParts[1], Console.WriteLine);
+                        if (output == null)
+                            // Invalid
+                            continue;
+
+                        if (!input.AddressIsMulticast)
                         {
-                            // Ignore
-                            Console.WriteLine($"Invalid input universe: {inputOutputParts[0]}");
+                            Console.WriteLine("Input mapping invalid (* is not valid for input address)");
                             continue;
                         }
 
-                        if (!int.TryParse(inputOutputParts[1], out int outputUniverse) || outputUniverse < 1 || outputUniverse > 63999)
-                        {
-                            // Ignore
-                            Console.WriteLine($"Invalid output universe: {inputOutputParts[1]}");
-                            continue;
-                        }
-
-                        Console.WriteLine($"Map input universe {inputUniverse} to output universe {outputUniverse}");
+                        Console.WriteLine($"Map input {input} to output {output}");
 
                         if (mapper == null)
                         {
@@ -116,11 +118,11 @@ namespace Animatroller.PostProcessor
                             transforms.Add(mapper);
                         }
 
-                        mapper.AddUniverseMapping(inputUniverse, outputUniverse);
+                        mapper.AddUniverseMapping(input.Address, input.UniverseId, output.Address, output.AddressIsMulticast, output.UniverseId);
                     }
                 }
 
-                var transformer = new OutputWriter(transforms, null, arguments.Loop ?? 0);
+                var transformer = new OutputWriter(transforms, null, arguments.Loop ?? 0, arguments.NoSync);
                 ICommand command = null;
 
                 int[] universeIds = null;
