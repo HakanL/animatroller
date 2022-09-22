@@ -168,7 +168,7 @@ namespace Animatroller.DMXplayer
 
                     foreach (int universeId in output.UsedUniverses)
                     {
-                        output.SendDmx(universeId, new byte[512]);
+                        output.SendDmx(universeId, new byte[512], syncAddress: sendSyncAddress);
                     }
 
                     if (sendSyncAddress > 0)

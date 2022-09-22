@@ -49,7 +49,7 @@ namespace Animatroller.DMXplayer
         private readonly IOutput output;
         private readonly int progressReportPeriodMS;
         private readonly int periodMS;
-        private readonly int sendSyncAddress;
+        private int sendSyncAddress;
 
         public Scheduler(IOutput output, int periodMS = 25, int sendSyncUniverseId = 0, int progressReportPeriodMS = 1000)
         {
@@ -83,6 +83,8 @@ namespace Animatroller.DMXplayer
         {
             this.runningEvent.Set();
         }
+
+        public int SendSyncAddress { get => this.sendSyncAddress; set => this.sendSyncAddress = value; }
 
         public IObservable<(double TimestampMS, long PlayedFrames)> ProgressFrames => this.progressSubject.AsObservable();
 
@@ -301,6 +303,8 @@ namespace Animatroller.DMXplayer
 
         public void EndOfData()
         {
+            SendCurrentData();
+
             this.sendQueue.Enqueue((this.currentTimestampMS, new List<SendData>(), true));
         }
 
