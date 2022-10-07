@@ -11,12 +11,12 @@ namespace Animatroller.DMXplayer
     {
         private readonly SACNClient acnClient;
         private readonly byte priority;
-        private readonly HashSet<int> usedUniverses = new HashSet<int>();
+        private readonly HashSet<int> usedUniverses = new();
 
         public AcnStream(IPAddress bindIpAddress, byte priority)
         {
             if (bindIpAddress == null)
-                bindIpAddress = SACNCommon.GetFirstBindAddress();
+                bindIpAddress = SACNCommon.GetFirstBindAddress().IPAddress;
             if (bindIpAddress == null)
                 throw new ArgumentException("No suitable NIC found");
 

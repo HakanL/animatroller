@@ -53,6 +53,10 @@ namespace Animatroller.DMXrecorder
                     this.dataWriter = new Common.IO.PCapAcnFileWriter(args.OutputFile);
                     break;
 
+                case Arguments.FileFormats.PCapArtNet:
+                    this.dataWriter = new Common.IO.PCapArtNetFileWriter(args.OutputFile);
+                    break;
+
                 default:
                     throw new ArgumentException("Invalid File Format");
             }

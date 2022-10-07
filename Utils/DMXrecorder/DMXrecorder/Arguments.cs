@@ -16,7 +16,8 @@ namespace Animatroller.DMXrecorder
         {
             Csv,
             Binary,
-            PCapAcn
+            PCapAcn,
+            PCapArtNet
         }
 
         [ArgShortcut("t")]

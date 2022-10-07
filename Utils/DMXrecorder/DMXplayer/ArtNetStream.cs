@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using Haukcode.ArtNet.Packets;
 using Haukcode.ArtNet.Sockets;
 
@@ -16,12 +17,13 @@ namespace Animatroller.DMXplayer
         public ArtNetStream(IPAddress bindIpAddress)
         {
             if (bindIpAddress == null)
-                bindIpAddress = Haukcode.sACN.SACNCommon.GetFirstBindAddress();
+                bindIpAddress = Haukcode.sACN.SACNCommon.GetFirstBindAddress().IPAddress;
             if (bindIpAddress == null)
                 throw new ArgumentException("No suitable NIC found");
 
             this.artNetClient = new ArtNetSocket();
             this.artNetClient.EnableBroadcast = true;
+            this.artNetClient.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             this.artNetClient.Open(bindIpAddress, IPAddress.Broadcast);
 
             Console.WriteLine("ArtNet binding to {0}", bindIpAddress);

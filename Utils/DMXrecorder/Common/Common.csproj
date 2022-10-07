@@ -6,12 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Haukcode.ArtNet" Version="1.0.18" />
-    <PackageReference Include="Haukcode.PcapngUtils" Version="1.3.14" />
-    <PackageReference Include="ZstdSharp.Port" Version="0.6.3" />
+    <PackageReference Include="Haukcode.PcapngUtils" Version="1.3.18" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.6.4" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\OpenSource\Haukcode-ArtNet\ArtNet\ArtNet.csproj" />
     <ProjectReference Include="..\..\..\..\..\OpenSource\Haukcode-sACN\src\Haukcode.sACN\Haukcode.sACN.csproj" />
   </ItemGroup>
 

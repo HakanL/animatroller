@@ -65,7 +65,10 @@ namespace Animatroller.PostProcessor
 
                 transforms.Add(new UniverseReporter());
 
-                var enhancers = new HashSet<string>((arguments.Enhancers ?? string.Empty).Split(',').Select(x => x.Trim().ToLower()).Where(x => !string.IsNullOrEmpty(x)));
+                var enhancers = new HashSet<string>((arguments.Enhancers ?? string.Empty)
+                    .Split(',')
+                    .Select(x => x.Trim().ToLower())
+                    .Where(x => !string.IsNullOrEmpty(x)));
 
                 if (analyzer != null && analyzer.SyncFrameDetected)
                 {

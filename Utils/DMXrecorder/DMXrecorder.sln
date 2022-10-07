@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Processor", "Processor\Proc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Haukcode.sACN", "..\..\..\..\OpenSource\Haukcode-sACN\src\Haukcode.sACN\Haukcode.sACN.csproj", "{34B830B5-4624-4022-83FE-B6D1EB965902}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TftpSender", "TftpSender\TftpSender.csproj", "{D9629397-A069-4AB6-9268-CAF66CFD65D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TftpSender", "TftpSender\TftpSender.csproj", "{D9629397-A069-4AB6-9268-CAF66CFD65D6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArtNet", "..\..\..\..\OpenSource\Haukcode-ArtNet\ArtNet\ArtNet.csproj", "{77B6A915-895F-4421-B6D5-B66A5E5D6D17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{D9629397-A069-4AB6-9268-CAF66CFD65D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9629397-A069-4AB6-9268-CAF66CFD65D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9629397-A069-4AB6-9268-CAF66CFD65D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77B6A915-895F-4421-B6D5-B66A5E5D6D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77B6A915-895F-4421-B6D5-B66A5E5D6D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77B6A915-895F-4421-B6D5-B66A5E5D6D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77B6A915-895F-4421-B6D5-B66A5E5D6D17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

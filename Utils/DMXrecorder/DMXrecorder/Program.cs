@@ -62,7 +62,6 @@ namespace Animatroller.DMXrecorder
                             break;
 
                         case Arguments.InputTypes.ArtNet:
-                            throw new NotImplementedException();
                             recorder = new ArtNetRecorder(writer, arguments.Universes);
                             break;
 
