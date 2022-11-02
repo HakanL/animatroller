@@ -234,7 +234,7 @@ namespace Animatroller.Framework.Expander
         {
             this.defaultPriority = defaultPriority;
             this.log = Log.Logger;
-            this.acnSender = new SACNClient(animatrollerAcnId, "Animatroller", SACNCommon.GetFirstBindAddress());
+            this.acnSender = new SACNClient(animatrollerAcnId, "Animatroller", SACNCommon.GetFirstBindAddress().IPAddress);
 
             this.sendingUniverses = new Dictionary<int, AcnUniverse>();
 
