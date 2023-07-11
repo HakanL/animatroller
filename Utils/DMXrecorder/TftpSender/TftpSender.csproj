@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PowerArgs" Version="3.6.0" />
+    <PackageReference Include="PowerArgs" Version="4.0.2" />
     <PackageReference Include="Tftp.Net" Version="1.3.0" />
   </ItemGroup>
 

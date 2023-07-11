@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Haukcode.PcapngUtils" Version="1.3.18" />
-    <PackageReference Include="ZstdSharp.Port" Version="0.6.4" />
+    <PackageReference Include="Haukcode.PcapngUtils" Version="1.3.22" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.7.2" />
   </ItemGroup>
 
   <ItemGroup>
